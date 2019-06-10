@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>TLD4</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TLD4 : Texture Load 4<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Load 4" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TLD4", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>TLD4</b>.comp{.B}{.toff}{.DC}{.NDV}{.NODEP}{.phase}</code>   <code>{Ps,} Rd, Ra{, Rb}, #tsPtrIdxU13 , #paramA{, #wmskU04}</code>      <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TLD4" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>TLD4</b>.comp{.B}{.toff}{.DC}{.NDV}{.NODEP}{.phase}</code>   <code>{Ps,} Rd, Ra{, Rb}, #tidU08, #smpU05, #paramA{, #wmskU04}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TLD4" } -->
+
+
+  .comp:   TLD4 will return only a single component of texture.  This field is used to select which component of 
+           a multi-component texture is returned for this texture fetch.  The component selected is the real, 
+           post-swizzle component (example, TLD4.R would return values from the red component, just like a 
+           TEX.R instruction).  If the specified component is not present, zeroes will be returned.
+             .R - Select the Red component of the texture
+             .G - Select the Green component of the texture
+             .B - Select the Blue component of the texture
+             .A - Select the Alpha component of the texture
+
+  .B:      Bindless mode, where the texture header pointer and sampler pointer is packed into a 32 bit register as:
+           samplerPtr[31:20] | headerPtr[19:0]
+           Data is sent via register Rb.
+
+  .toff:   Programmable Texel Offset.
+              &lt; NONE &gt;
+              .AOFFI - _aoffimmi(u,v,w)  [DX10]   // 1 register required
+                  ((w &amp; 0x3f)&lt;&lt;16) | ((v &amp; 0x3f)&lt;&lt;8) | (u &amp; 0x3f)
+                  Each 6b field is a 2's complement integer from -32 to +31.
+                  AOFFI is not supported with CubeMap textures
+              .PTP - Offset sampling             // offsets, 2 register required
+                  This setting cannot be used with CUBE/ARRAY_CUBE textures
+                  dt1[29:24] | ds1[21:16] | dt0[13:08] | ds0[05:00]
+                  dt3[29:24] | ds3[21:16] | dt2[13:08] | ds2[05:00]
+                  each 6b field is a 2's complement integer from -32 to +31.
+		  PTP is not supported with CubeMap textures
+
+  .DC:     Depth comparison filter mode using reference value.
+              RefVal                           // 1 register required
+	      Depth Comparison filter is not supported by 3D textures.
+
+  .NDV:    Forces the TEX to be considered non-divergent even though quad may be divergent.  
+              This will not promote inactive threads, only force it to be treated as non-divergent despite the fact
+              that some threads might be inactive.  To activate disabled threads in a quad <a href="opSAM.htm">SAM</a> must be used.<br>	      Only the active mask and shader type are used to determine if a quad of threads is divergent.<br>            The use of .NDV with TLD4 is deprecated and will be removed in future versions.<br><br>  .NODEP:  Indicates that there is no subsequent quad derivatives to be calculated.<br>	   Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.<br><br>  .phase:  Allows control on the current warps texture hash, used for scheduling.<br>               &lt; NONE &gt;<br>               .T - postfix increment of the 3 bit texture component of the hash.<br>	       .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. <br><br><br>Ps:<br>            Predicate returning sparse tile status. Indicate that the surface access is happening to a page marked as sparse (valid, not mapped).<br><br>Immediate Inputs:<br><br>  #tsPtrIdxU13:<br>     This immediate index (word address) used to fetch the packed header+sampler pointer entry from constant cache.  The bank from<br>     which it is fetched is determined by bundle state. The constant bank entry is 32 bit structure of the form<br>     "samplerPtr[31:20] | headerPtr[19:0]".<br>     Note: Ignored if .B option is used.<br>     In SetSamplerBinding.ViaHeaderBinding (i.e. OGL) mode, the headerPtr would be used as the samplerPtr as well. <br>     Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex will be regarded as an "invalid"<br>     texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).<br>     Any sampler pointer greater than one specified in SetSamplerHeaderPoolC.MaximumIndex will be regarded as an<br>     "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).<br><br>  #tidU08, #smpU05:<br>	This is the Fermi-compatible specification of tsPtrIdxU13 which allows running of legacy apps/traces<br>	where sass will transform these into tsPtrIdxU13 as follows:<br>        #tsPtrIdxU13 = {#smpU05, #tidU08}<br><br></pre>
+
+<pre>#paramA: source coordinate description.<br></pre>
+<div style="margin-left: 2em; font-size: 100%;">
+<table border="1" cellpadding="5%">
+    <caption><em>Valid paramA specifiers for TLD4 </em></caption>
+    <tbody><tr><th>parameter</th><th>Coordinate Registers implied</th></tr>
+     <tr><td> RESERVED</td><td>// for 1D</td></tr>
+     <tr><td> 2D</td><td>s,t</td></tr>
+     <tr><td> RESERVED</td><td>// for 3D</td></tr>
+     <tr><td> CUBE</td><td>s,t,r</td></tr>
+     <tr><td> RESERVED</td><td>// for ARRAY_1D</td></tr>
+     <tr><td> ARRAY_2D</td><td>a,s,t</td></tr>
+     <tr><td> RESERVED</td><td>// for ARRAY_3D</td></tr>
+     <tr><td> ARRAY_CUBE</td><td>a,s,t,r</td></tr>
+</tbody></table>
+</div>
+<pre>           s,t,r are fp32, <br>           a is U16 integer<br></pre>
+
+<pre>
+     If the source coordinate description does not match the texture type of the texture header,
+     zeroes will be returned.  The array specifiers can be freely used with non-array textures
+     (and the opposite holds as well), provided the number of coordinates (2D,CUBE) matches.
+     Note, the texture-header type "TWO_D_NO_MIPMAP" is not supported (the hardware will treat TLD4 as TEX in this case).
+
+  #wmskU04       destination write mask (decimated contiguous writes)
+     Allows for write masking the returning data writes via a bit enable
+     for each of sample 0, 1, 2, or 3. A four-vector is always returned from TEX.
+     #wmskU04 defaults to 0xf.
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Texture fetch of the 4-texel bilerp footprint (but no filter) using a texture
+coordinate vector.</p>
+<p>
+Bilerp footprint only, done on finest mip-map level (level 0). Texture must be
+2D/CUBE/ARRAY_2D/ARRAY_CUBE. The four texel samples are placed into the Rd vector 
+in counter clockwise order starting at lower left.</p>
+<p>
+The assignment of parameters to Ra/Rb is as follows:</p>
+<ol>
+<table border="1" cellpadding="5%">
+    <caption><em>Texture parameter packing in Ra and Rb </em></caption>
+    <tbody><tr><th>Reg</th><th>parameter</th><th>format</th></tr>
+    <tr><td>Ra+0</td><td>array[15:0]</td><td>u32</td></tr>
+    <tr><td>Ra+1</td><td>s</td><td>fp32</td></tr>
+    <tr><td>Ra+2</td><td>t</td><td>fp32</td></tr>
+    <tr><td>Ra+3</td><td>r</td><td>fp32</td></tr>
+    <tr><td>Rb+0</td><td>SamplerPtr[31:20] | HeaderPtr[19:0]</td><td>u32</td></tr>
+    <tr><td>Rb+1</td><td>toff1(.AOFFI or .PTP)</td><td>fp32</td></tr>
+    <tr><td>Rb+2</td><td>toff2(.PTP)</td><td>u32</td></tr>
+    <tr><td>Rb+3</td><td>Depth Compare Value(.DC)</td><td>fp32</td></tr>
+</tbody></table>
+<br> In the table above, "+0/1/2/3" represents the order of packing
+parameters in Ra/Rb. If a parameter is not specified, then the rest are
+compacted upwards <em>within</em> the same Ra or Rb register.
+<p>
+The texture parameter source registers Ra/Rb and the destination (result) register Rd
+have alignment restrictions based on the number of scalar registers being read/written. Specifically, 
+</p><ol> 
+	<li> Rd should be aligned to number of valid components being returned (as specified by wmask) </li>
+	<li> Ra/Rb should always be aligned to </li>
+	<ol style="list-style-type: lower-alpha;">
+		<li> 1 (scalar register) if the scalar count for that register (Ra or Rb) is 1 </li>
+		<li> 2 (vec2 register)   if the scalar count for that register (Ra or Rb) is 2 </li>
+		<li> 4 (vec4 register)   if the scalar count for that register (Ra or Rb) is 3 or 4 </li>
+	</ol>
+    <li>
+Rb should be specified as RZ if no parameters need to be packed in Rb.
+(However no error is generated if non-RZ register is specified)</li>
+	<li> Ra/Rb must not be specified as RZ if any parameters need to be packed in Ra/Rb.</li>
+</ol>
+
+<p>
+Some input texture values will be sanitized before being used.</p>
+</ol></div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+Corresponds to these DX ops:</p>
+<pre>   load4       = TLD4                     // load bilerp footprint<br>   gather4     = TLD4, TLD4.AOFFI<br>   gather4c    = TLD4.DC, TLD4.AOFFI.DC<br>   gather4po   = TLD4.AOFFI<br>   gather4po_c = TLD4.AOFFI.DC<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><b>TLD4.R</b> R8,R0,5,2D,0xf;<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

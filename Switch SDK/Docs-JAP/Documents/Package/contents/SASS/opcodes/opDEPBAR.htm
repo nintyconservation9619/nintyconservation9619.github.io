@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>DEPBAR</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    DEPBAR : Dependency  Barrier<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Dependency  Barrier" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "DEPBAR", subsection => 14.9 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>DEPBAR</b></code>      </code> { scoreboard_list } <code>                            <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched&gt;=?WAIT3}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "DEPBAR" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>DEPBAR</b>.LE</code>    <code>SB#sbidx3, #pendingCnt6</code>                         <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched&gt;=?WAIT3}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "DEPBAR" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>DEPBAR</b>.LE</code>    <code>SB#sbidx3, #pendingCnt6,</code></code> { scoreboard_list  }<code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched&gt;=?WAIT3}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "DEPBAR" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>DEPBAR</b>.ALL</code>   <code></code>                                                <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched&gt;=?WAIT3}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "DEPBAR" } -->
+
+    scoreboard_list is a comma separated list of scoreboards (0..5), containing from 0 to 6 (unique) scoreboard identifiers.
+    scoreboard_list should appear with braces on either side, i.e. "{3,4}"
+
+    #pendingCnt6 must be between 0 and 63, inclusive.
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p> This instruction prevents the issue of subsequent instructions from the
+issuing warp, until the conditions specified by the instruction have been
+met.  It is related to the <tt>&amp;req=</tt> operand extension, except that
+it can specifiy more complex conditions (<tt>&amp;req=</tt> can only specify
+a list of scoreboards which must be zero), and <tt>&amp;req=</tt> prevents
+the issue of the instruction on which it appears (and all subsequent ops),
+whereas <b>DEPBAR</b> itself must be issued; it prevents the issue of
+subsequent instructions.</p>
+
+<p><b>DEPBAR.LE</b> allows waiting on a particular scoreboard to be less than or equal to a specified value.
+</p>
+
+<p>
+The basic syntax for <b>DEPBAR</b> is:
+</p>
+
+<pre>    <b>DEPBAR.LE</b> SBn, imm;<br></pre>
+
+<p>
+where <b>n</b> is a scoreboard name (e.g. 0 thru 5), and <b>imm</b> is a positive integer
+from 0 to 63 (inclusive). <strong>After issue</strong> of a packet containing
+this <b>DEPBAR</b>, the warp will be put to sleep (and potentially taken
+off deck) until scoreboard <b>n</b> has a value less than or equal to
+<b>imm</b>.
+</p>
+
+<p>
+Other scoreboards can be waited on at the same time by specifying them as
+additional parameters. However, those scoreboards can only be tested against
+the value 0.
+</p>
+
+<pre>    <b>DEPBAR.LE</b> SBn, imm, {a [, b [, c, ...]]};<br></pre>
+
+<p>
+where <b>a</b>, <b>b</b>, <b>c</b>, ... are different scoreboard names
+(also different from <b>n</b>). <strong>After issue</strong>, the warp will
+be put to sleep (and potentially taken off deck) until scoreboards <b>a</b>,
+<b>b</b>, <b>c</b>, ... have a value of 0, and until scoreboard <b>n</b>
+has a value less than or equal to <b>imm</b>.
+</p>
+
+<p>
+For example:
+</p>
+
+<pre>    <b>DEPBAR.LE</b> SB3, 5, {2, 1};<br></pre>
+
+<p>
+The <b>DEPBAR</b> will issue, and then stall issue for the warp until the
+specified scoreboard conditions have occurred. In the example above, the warp
+will not issue any further packets until the scoreboard named <b>3</b> is
+less than or equal to 5, and scoreboards named 2 and 1 are both 0. The warp
+may be taken off deck if any of the scoreboards named <b>3</b>, <b>2</b> or
+<b>1</b> are marked as covering a long-latency operation.
+</p>
+
+<p>
+Note that <b>DEPBAR</b> behaves differently from <b>&amp;req=</b>, in that
+its scoreboard conditions apply after issue of the packet, unlike
+<b>&amp;req=</b> which are conditions that apply before issue.
+</p>
+
+<p>
+The <b>DEPBAR</b> instruction must be the <strong>last</strong>
+instruction of a packet.
+</p>
+
+<p>
+If multiple scoreboards need to be compared with non-zero values, then multiple
+<b>DEPBAR</b> instructions should be used, with their respective
+performance overhead. For performance, the compiler should instead try to merge
+the two scoreboard names to avoid these situations.
+</p>
+
+<p>
+<b>DEPBAR</b> can be combined with normal scoreboard requirements
+(<b>&amp;req=</b>). However, that is not advised because of the potential for
+additional stalls and additional overhead from going on and off deck more times
+than necessary.&nbsp;
+</p>
+
+<p>Note that <b>DEPBAR.LE</b> uses the "SB" prefix in front of a scoreboard
+number, simply to make it easier for a human to parse instructions like
+"<b>DEPBAR.LE</b> SB1, 2" (as opposed to "<b>DEPBAR.LE</b> 1, 2").  No where else in the
+ISA is this "SB" prefix used, due to a desire to keep op-ex additions to
+the instruction as small as possible.</p>
+
+<p><b>DEPBAR.ALL</b> is simply syntactic sugar for "<b>DEPBAR</b> {0, 1, 2, 3, 4, 5}", that is, it
+wants for all scoreboards to reach zero.  Note that this is probably always better done
+with <b>&amp;req=</b> on the subsequent instruction, rather than with <b>DEPBAR.ALL</b>.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+<pre>    <b>DEPBAR.LE</b> SB0, 1;<br>    <b>DEPBAR.LE</b> SB3, 5, {2, 1};<br>    <b>DEPBAR.ALL</b>;<br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

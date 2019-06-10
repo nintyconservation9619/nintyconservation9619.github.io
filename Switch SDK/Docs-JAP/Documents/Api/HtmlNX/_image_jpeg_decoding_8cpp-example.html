@@ -1,0 +1,427 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: ImageJpegDecoding.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">ImageJpegDecoding.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_image_jpeg_decoding.html">JPEG デコードと Exif 解析</a> および <a class="el" href="_image_jpeg_decoding_8cpp.html" title="JPEG データのデコードおよび Exif 情報の抽出のサンプルプログラム ">ImageJpegDecoding.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#define NN_LOG_USE_DEFAULT_LOCALE_CHARSET</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;new&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="image___exif_extractor_8h.html">nn/image/image_ExifExtractor.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="image___jpeg_decoder_8h.html">nn/image/image_JpegDecoder.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;Utilities.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace</span></div>
+<div class="line">{</div>
+<div class="line"><span class="keyword">struct </span>MetaData</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// 0th TIFF IFD カテゴリのメタデータ</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *maker;  <span class="comment">// メーカー名</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> makerSize;   <span class="comment">// 終端文字を含めたメーカー名のバイト数</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *model;  <span class="comment">// 撮影機器名</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> modelSize;   <span class="comment">// 終端文字を含めた撮影機器名のバイト数</span></div>
+<div class="line">    <span class="keywordtype">bool</span> hasOrientation;    <span class="comment">// 画像方向の情報があるかどうか</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2">nn::image::ExifOrientation</a> orientation; <span class="comment">// 画像方向</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *software;   <span class="comment">// ソフトウェア名</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> softwareSize;    <span class="comment">// 終端文字を含めたソフトウェア名のバイト数</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *dateTime;   <span class="comment">// 撮影日時 (主単文字を含め20 バイト)</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 0th Exif IFD カテゴリのメタデータ</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">void</span> *makerNote;  <span class="comment">// メーカーノート</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> makerNoteSize;   <span class="comment">// メーカーノートのバイト数</span></div>
+<div class="line">    <span class="keywordtype">bool</span> hasEffectiveDimension; <span class="comment">// 実効画像サイズがあるかどうか</span></div>
+<div class="line">    <a name="_a0"></a><a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> effectiveDim;  <span class="comment">// 実効画像サイズ</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *uniqueId;   <span class="comment">// 画像のユニーク ID (終端文字を含め 33 バイト)</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 1st Tiff IFD カテゴリのメタデータ</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">void</span> *thumbnail;  <span class="comment">// サムネイルのバイト数</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> thumbnailSize;   <span class="comment">// サムネイル画像のバイト数</span></div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> PrintMetaData(<span class="keyword">const</span> MetaData &amp;metaData)</div>
+<div class="line">{</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - メーカー名&quot;</span>, metaData.maker);</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - 撮影機器名&quot;</span>, metaData.model);</div>
+<div class="line">    <span class="keywordflow">if</span> (metaData.hasOrientation)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span> *orientationStr;</div>
+<div class="line">        <span class="keywordflow">switch</span> (metaData.orientation)</div>
+<div class="line">        {</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a1"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a41be5f28b7890856154d0793d1b1b993">nn::image::ExifOrientation_Normal</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;正立&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a2"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2ad11332e8eb3a789cc74d521038dee858">nn::image::ExifOrientation_FlipHorizontal</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;水平方向に反転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a3"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2abedcedb9053e2e5a408b847edf129f7b">nn::image::ExifOrientation_Rotate180</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;時計回りに 180 度回転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a4"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a6f7039e3d138a36dcd70d8f5cec9ed29">nn::image::ExifOrientation_FlipVertical</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;垂直方向に反転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a5"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2afce2fd082290fd100f1d26a58558585a">nn::image::ExifOrientation_FlipTopRightToLeftBottom</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;右下がりの対角線を軸に、上辺右端が左辺下端に来るように反転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a6"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a42890a8f9cf4d34622640c2dbd62b336">nn::image::ExifOrientation_Rotate270</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;時計回りに 270 度回転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a7"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a888a63fb98f39988aa56f432f986dfc3">nn::image::ExifOrientation_FlipTopLeftToRightBottom</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;左下がりの対角線を軸に、上辺左端が右辺下端に来るように反転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a8"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a8cf5d984af068e940b22f1bf334b82a2">nn::image::ExifOrientation_Rotate90</a>:</div>
+<div class="line">            orientationStr = <span class="stringliteral">&quot;時計回りに 90 度回転&quot;</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <a name="a9"></a><a class="code" href="nn___macro_8h.html#abfe6f7c5f80ef52b7c0616042aba59b9">NN_UNEXPECTED_DEFAULT</a>;</div>
+<div class="line">        }</div>
+<div class="line">        LogIfNotNull(<span class="stringliteral">&quot; - 画像方向&quot;</span>, orientationStr);</div>
+<div class="line">    }</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - ソフトウェア名&quot;</span>, metaData.software);</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - 撮影日時&quot;</span>, metaData.dateTime);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (metaData.makerNote != <span class="keyword">nullptr</span>)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a10"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - メーカーノート: %zu バイト\n&quot;</span>, metaData.makerNoteSize);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">if</span> (metaData.hasEffectiveDimension)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - 実効画像サイズ: 幅 %zu px, 高さ %zu px\n&quot;</span>, metaData.effectiveDim.width, metaData.effectiveDim.height);</div>
+<div class="line">    }</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - ユニークID&quot;</span>, metaData.uniqueId);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (metaData.thumbnail != <span class="keyword">nullptr</span>)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - サムネイル: %zu バイト\n&quot;</span>, metaData.thumbnailSize);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> ExtractExifData(MetaData *pOutMetaData, <span class="keyword">const</span> <span class="keywordtype">void</span> *exifData, <span class="keywordtype">size_t</span> exifSize)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// Exif 情報解析クラスのインスタンス</span></div>
+<div class="line">    <a name="a11"></a><a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> workBuf(<a name="a12"></a><a class="code" href="classnn_1_1image_1_1_exif_extractor.html#a8ca45505e9d0e3b8e4cc4b939f0aa6eb">nn::image::ExifExtractor::GetWorkBufferSize</a>());</div>
+<div class="line">    <a name="_a13"></a><a class="code" href="classnn_1_1image_1_1_exif_extractor.html">nn::image::ExifExtractor</a> extractor(workBuf.GetDataPtr(), workBuf.GetDataSize());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        解析フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <span class="comment">// Exif データを設定します。</span></div>
+<div class="line">    extractor.<a name="a14"></a><a class="code" href="classnn_1_1image_1_1_exif_extractor.html#a8cf8cc6b6360f1e2d5a3758df3ba0ba2">SetExifData</a>(exifData, exifSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 解析します。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3">nn::image::JpegStatus</a> jpegStatus = extractor.Analyze();</div>
+<div class="line">    <span class="keywordflow">switch</span> (jpegStatus)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a15"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a1308872f653d3d1b6fcd42dabf5a392a">nn::image::JpegStatus_WrongFormat</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[この Exif 情報は破損しています。]\n&quot;</span>);</div>
+<div class="line">        <span class="comment">// Exif 情報が存在しないとして処理します。</span></div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a name="a16"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a name="a17"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラーコード</span></div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        メタデータ展開フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <span class="comment">// 0th TIFF IFD の情報を取得します。</span></div>
+<div class="line">    pOutMetaData-&gt;maker = extractor.ExtractMaker(&amp;pOutMetaData-&gt;makerSize);</div>
+<div class="line">    pOutMetaData-&gt;model = extractor.ExtractModel(&amp;pOutMetaData-&gt;modelSize);</div>
+<div class="line">    pOutMetaData-&gt;hasOrientation = extractor.ExtractOrientation(&amp;pOutMetaData-&gt;orientation);</div>
+<div class="line">    pOutMetaData-&gt;software = extractor.ExtractSoftware(&amp;pOutMetaData-&gt;softwareSize);</div>
+<div class="line">    <span class="comment">// 「撮影日時」の文字列は Exif 情報の仕様上、終端文字を含め 20 バイトです。</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> dateTimeSize;</div>
+<div class="line">    pOutMetaData-&gt;dateTime = extractor.ExtractDateTime(&amp;dateTimeSize);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pOutMetaData-&gt;dateTime == <span class="keyword">nullptr</span> || dateTimeSize == 20);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 0th Exif IFD</span></div>
+<div class="line">    pOutMetaData-&gt;makerNote = extractor.ExtractMakerNote(&amp;pOutMetaData-&gt;makerNoteSize);</div>
+<div class="line">    pOutMetaData-&gt;hasEffectiveDimension = extractor.ExtractEffectiveDimension(&amp;pOutMetaData-&gt;effectiveDim);</div>
+<div class="line">    <span class="comment">// 「ユニーク ID」の文字列は Exif 情報の仕様上、終端文字を含め 33 バイトです。</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> uniqueIdSize;</div>
+<div class="line">    pOutMetaData-&gt;uniqueId = extractor.ExtractUniqueId(&amp;uniqueIdSize);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pOutMetaData-&gt;uniqueId == <span class="keyword">nullptr</span> || uniqueIdSize == 33);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 1st TIFF IFD</span></div>
+<div class="line">    pOutMetaData-&gt;thumbnail = extractor.ExtractThumbnail(&amp;pOutMetaData-&gt;thumbnailSize);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">bool</span> DecodeJpegData(</div>
+<div class="line">    <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> *pOutDim,</div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> *pOutBuf,</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> alignment,</div>
+<div class="line">    <span class="keyword">const</span> FileData &amp;jpegData)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        デコード設定フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// デコーダのインスタンス</span></div>
+<div class="line">    <a name="_a18"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html">nn::image::JpegDecoder</a> decoder;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// JPEG データを設定します。</span></div>
+<div class="line">    decoder.<a name="a19"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a67b96f0724f47ebc43e77487961e7f00">SetImageData</a>(jpegData.GetDataPtr(), jpegData.GetDataSize());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// 縦横をそれぞれ 1/2 倍してデコードする場合、分母 (2) を指定します。等倍の場合は省略可能です。</span></div>
+<div class="line">    decoder.<a name="a20"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a68151cbca16e7b34eb100a9ed73f6044">SetResolutionDenominator</a>(2);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        JPEG データ解析フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3">nn::image::JpegStatus</a> jpegStatus = decoder.<a name="a21"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a7b6151890fd0793804a1be2d1876f6ae">Analyze</a>();</div>
+<div class="line">    <span class="keywordflow">switch</span> (jpegStatus)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a1308872f653d3d1b6fcd42dabf5a392a">nn::image::JpegStatus_WrongFormat</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[この JPEG データは破損しています。]\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a22"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ad1803e0673b13c21b3d858764a11a390">nn::image::JpegStatus_UnsupportedFormat</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[この JPEG データはサポートしていない形式です。]\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラーコード</span></div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 画像の幅と高さを取得</span></div>
+<div class="line">    *pOutDim = decoder.<a name="a23"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a0c7e3b64763094b146e066d265b44c4c">GetAnalyzedDimension</a>();</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;出力画像サイズ: 幅 %u px, 高さ %u px\n&quot;</span>, pOutDim-&gt;<a name="a24"></a><a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>, pOutDim-&gt;<a name="a25"></a><a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        Exif 情報解析フェーズ</span></div>
+<div class="line"><span class="comment">        (Exif 情報を取り扱わない場合はこのセクションは読み飛ばしてください。)</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <span class="comment">// Exif データの場所を取得</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> exifSize;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">void</span> *exifData = decoder.<a name="a26"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a31510fd503d76d1eca1609b11a446e9d">GetAnalyzedExifData</a>(&amp;exifSize);</div>
+<div class="line">    <span class="keywordflow">if</span> (exifData != <span class="keyword">nullptr</span>)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Exif 情報が見つかりました。\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Exif 情報の内容を取得し内容を表示</span></div>
+<div class="line">        MetaData metaData;</div>
+<div class="line">        ExtractExifData(&amp;metaData, exifData, exifSize);</div>
+<div class="line">        PrintMetaData(metaData);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (metaData.thumbnail != <span class="keyword">nullptr</span>)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// [入力例]</span></div>
+<div class="line">            <span class="comment">// サムネイル画像があれば、デコード対象を置き換えます。</span></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;→ デコード対象をサムネイルに変更します。\n&quot;</span>);</div>
+<div class="line">            decoder.<a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a67b96f0724f47ebc43e77487961e7f00">SetImageData</a>(metaData.thumbnail, metaData.thumbnailSize);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// [入力例]</span></div>
+<div class="line">            <span class="comment">// サムネイルは縮小せずにデコードします。 (↑上で 2 に設定した値を 1 に戻す。)</span></div>
+<div class="line">            decoder.<a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a68151cbca16e7b34eb100a9ed73f6044">SetResolutionDenominator</a>(1);</div>
+<div class="line"></div>
+<div class="line">            jpegStatus = decoder.<a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a7b6151890fd0793804a1be2d1876f6ae">Analyze</a>();</div>
+<div class="line">            <span class="keywordflow">switch</span> (jpegStatus)</div>
+<div class="line">            {</div>
+<div class="line">            <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a1308872f653d3d1b6fcd42dabf5a392a">nn::image::JpegStatus_WrongFormat</a>:</div>
+<div class="line">                <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[このサムネイルは破損しています。]\n&quot;</span>);</div>
+<div class="line">                <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">            <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ad1803e0673b13c21b3d858764a11a390">nn::image::JpegStatus_UnsupportedFormat</a>:</div>
+<div class="line">                <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[このサムネイルはサポートしていない形式です。]\n&quot;</span>);</div>
+<div class="line">                <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">            <span class="keywordflow">default</span>:</div>
+<div class="line">                <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラーコード</span></div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// 画像の幅と高さを取得</span></div>
+<div class="line">            *pOutDim = decoder.<a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a0c7e3b64763094b146e066d265b44c4c">GetAnalyzedDimension</a>();</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;出力画像サイズ: 幅 %u px, 高さ %u px\n&quot;</span>, pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>, pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        JPEG データ展開フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;JPEG データをデコードします。\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 展開に必要なメモリ量を取得</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> workBuf(decoder.<a name="a27"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a1cc41588e4d2e97e48dfc8f4f73bea94">GetAnalyzedWorkBufferSize</a>());</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - 必要な作業メモリ量: %zu bytes\n&quot;</span>, workBuf.GetDataSize());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 出力サイズを計算</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> AlignedWidth = pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> % alignment == 0? pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>: pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> - pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> % alignment + alignment;</div>
+<div class="line">    <span class="keywordflow">if</span> (AlignedWidth * pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> * <span class="keyword">sizeof</span>(nn::Bit32) &gt; pOutBuf-&gt;GetDataSize())</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(</div>
+<div class="line">            <span class="stringliteral">&quot;[出力データ(%zu バイト)がバッファの大きさ(%zu バイト)を超過しました。]\n&quot;</span>,</div>
+<div class="line">            AlignedWidth * pOutDim-&gt;<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> * <span class="keyword">sizeof</span>(nn::Bit32),</div>
+<div class="line">            pOutBuf-&gt;GetDataSize());</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// デコード処理</span></div>
+<div class="line">    jpegStatus = decoder.<a name="a28"></a><a class="code" href="classnn_1_1image_1_1_jpeg_decoder.html#a9e6a4ffbb95c9b30161f20dd800f186a">Decode</a>(</div>
+<div class="line">        pOutBuf-&gt;GetDataPtr(),</div>
+<div class="line">        pOutBuf-&gt;GetDataSize(),</div>
+<div class="line">        alignment,</div>
+<div class="line">        workBuf.GetDataPtr(),</div>
+<div class="line">        workBuf.GetDataSize());</div>
+<div class="line">    <span class="keywordflow">switch</span> (jpegStatus)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a1308872f653d3d1b6fcd42dabf5a392a">nn::image::JpegStatus_WrongFormat</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[この JPEG データは破損しています。]\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ad1803e0673b13c21b3d858764a11a390">nn::image::JpegStatus_UnsupportedFormat</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[この JPEG データはサポートしていない形式です。]\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a29"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ad4e1063e46f1d81cbe1f8551d168af82">nn::image::JpegStatus_OutOfMemory</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[デコードに必要なワークメモリが不足しました。未知の形式のデータが入力された可能性があります。]\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラーコード</span></div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// この時点で、decoder オブジェクトは不要になります。</span></div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line">}</div>
+<div class="line">} <span class="comment">// 無名名前空間終わり</span></div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a30"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// ファイルシステムの初期化</span></div>
+<div class="line">    <a name="a31"></a><a class="code" href="namespacenn_1_1fs.html#ac021c163ba94a44a2b53cb848c462930">nn::fs::SetAllocator</a>(Allocate, Deallocate);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">size_t</span> cacheSize = 0;</div>
+<div class="line">    <a name="a32"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a33"></a><a class="code" href="namespacenn_1_1fs.html#a5df6e3385c795a5bd046790ef7f17f2d">nn::fs::QueryMountRomCacheSize</a>(&amp;cacheSize));</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">char</span>* mountRomCacheBuffer = <span class="keyword">new</span>(std::nothrow) <span class="keywordtype">char</span>[cacheSize];</div>
+<div class="line">    <a name="a34"></a><a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(mountRomCacheBuffer);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a35"></a><a class="code" href="namespacenn_1_1fs.html#a2e453fe1fbf8f818dc45bbd2897105cd">nn::fs::MountRom</a>(<span class="stringliteral">&quot;Asset&quot;</span>, mountRomCacheBuffer, cacheSize));</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// JPEG ファイルの読み込み</span></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// 読み込む JPEG ファイルを適宜設定してください。</span></div>
+<div class="line">    FileData jpegData(<span class="stringliteral">&quot;Asset:/ExampleInput.jpg&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 出力バッファを確保</span></div>
+<div class="line">    <span class="comment">// このサンプルでは 2073600 画素 (1080p) まで取り扱います。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> pixBuf(1920 * 1080 * <span class="keyword">sizeof</span>(nn::Bit32)); <span class="comment">// RGBA 32bit で展開されるため、ピクセル数 x4 とする。</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// JPEG デコード処理の実体</span></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// 幅の 4 byte アラインが必要なテクスチャとしてデコードする場合</span></div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> AlignmentSize = 4;</div>
+<div class="line">    <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> dim; <span class="comment">// dim にはアラインメント前のサイズが記録されます。</span></div>
+<div class="line">    <span class="keywordflow">if</span> (!DecodeJpegData(&amp;dim, &amp;pixBuf, AlignmentSize, jpegData))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[JPEG データのデコードに失敗しました。]\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// JPEG データの使用: アプリケーションで RGBA データとして使用してください。</span></div>
+<div class="line">        <span class="comment">// ピクセルデータは、エンディアンに関係なく R,G,B,A の順序で格納されています。</span></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;処理は正常に完了しました。\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// FS 終了処理</span></div>
+<div class="line">    <a name="a36"></a><a class="code" href="namespacenn_1_1fs.html#ac8a95249afd4a87a55d319dfecb0466c">nn::fs::Unmount</a>(<span class="stringliteral">&quot;Asset&quot;</span>);</div>
+<div class="line">    <span class="keyword">delete</span>[] mountRomCacheBuffer;</div>
+<div class="line">    <span class="keywordflow">return</span>;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

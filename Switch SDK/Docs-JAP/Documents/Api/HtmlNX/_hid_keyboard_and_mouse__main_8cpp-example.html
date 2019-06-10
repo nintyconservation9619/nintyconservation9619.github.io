@@ -1,0 +1,770 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: HidKeyboardAndMouse_Main.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">HidKeyboardAndMouse_Main.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_hid_keyboard_and_mouse.html">キーボードとマウスの状態取得</a> および <a class="el" href="_hid_keyboard_and_mouse___main_8cpp.html" title="nn::hid ライブラリのキーボード API とマウス API の使い方を示すサンプルプログラム ">HidKeyboardAndMouse_Main.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;list&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nn_Common.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___macro_8h.html">nn/nn_Macro.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___time_span_8h.html">nn/nn_TimeSpan.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/gfx/util/gfx_DebugFontTextWriter.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___keyboard_key_8h.html">nn/hid/hid_KeyboardKey.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___mouse_8h.html">nn/hid/hid_Mouse.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/TargetConfigs/build_Platform.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="util___math_types_8h.html">nn/util/util_MathTypes.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/hid.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_NX)</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nv___memory_management_8h.html">nv/nv_MemoryManagement.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;HidKeyboardAndMouse_ApplicationHeap.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;HidKeyboardAndMouse_Color.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;HidKeyboardAndMouse_FontSystem.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;HidKeyboardAndMouse_GraphicsSystem.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;HidKeyboardAndMouse_WindowMessage.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> ApplicationHeapSize = 128 * 1024 * 1024;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> FrameBufferWidth = 1280;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> FrameBufferHeight = 720;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> FrameRate = 60;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">struct </span>Key</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">char</span> value[8];</div>
+<div class="line">    <span class="keywordtype">char</span> upper[8];</div>
+<div class="line">    <span class="keywordtype">float</span> x;</div>
+<div class="line">    <span class="keywordtype">float</span> y;</div>
+<div class="line">    <span class="keywordtype">int</span> numPadKey;</div>
+<div class="line">    <span class="keywordtype">bool</span> isToggleKey;</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> Key KeyboardLayoutQwerty[] =</div>
+<div class="line">{</div>
+<div class="line">    { <span class="stringliteral">&quot;a&quot;</span>, <span class="stringliteral">&quot;A&quot;</span>,  60,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;b&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>, 145, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;c&quot;</span>, <span class="stringliteral">&quot;C&quot;</span>, 105, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;d&quot;</span>, <span class="stringliteral">&quot;D&quot;</span>, 100,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;e&quot;</span>, <span class="stringliteral">&quot;E&quot;</span>,  98,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;f&quot;</span>, <span class="stringliteral">&quot;F&quot;</span>, 123,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;g&quot;</span>, <span class="stringliteral">&quot;G&quot;</span>, 140,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;h&quot;</span>, <span class="stringliteral">&quot;H&quot;</span>, 160,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;i&quot;</span>, <span class="stringliteral">&quot;I&quot;</span>, 200,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;j&quot;</span>, <span class="stringliteral">&quot;J&quot;</span>, 183,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;k&quot;</span>, <span class="stringliteral">&quot;K&quot;</span>, 200,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;l&quot;</span>, <span class="stringliteral">&quot;L&quot;</span>, 223,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;m&quot;</span>, <span class="stringliteral">&quot;M&quot;</span>, 185, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;n&quot;</span>, <span class="stringliteral">&quot;N&quot;</span>, 165, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;o&quot;</span>, <span class="stringliteral">&quot;O&quot;</span>, 215,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;p&quot;</span>, <span class="stringliteral">&quot;P&quot;</span>, 235,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;q&quot;</span>, <span class="stringliteral">&quot;Q&quot;</span>,  55,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;r&quot;</span>, <span class="stringliteral">&quot;R&quot;</span>, 118,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;s&quot;</span>, <span class="stringliteral">&quot;S&quot;</span>,  80,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;t&quot;</span>, <span class="stringliteral">&quot;T&quot;</span>, 137,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;u&quot;</span>, <span class="stringliteral">&quot;U&quot;</span>, 175,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;v&quot;</span>, <span class="stringliteral">&quot;V&quot;</span>, 125, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;w&quot;</span>, <span class="stringliteral">&quot;W&quot;</span>,  75,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;x&quot;</span>, <span class="stringliteral">&quot;X&quot;</span>,  85, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;y&quot;</span>, <span class="stringliteral">&quot;Y&quot;</span>, 155,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;z&quot;</span>, <span class="stringliteral">&quot;Z&quot;</span>,  65, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;1&quot;</span>, <span class="stringliteral">&quot; &quot;</span>,  50,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;2&quot;</span>, <span class="stringliteral">&quot; &quot;</span>,  70,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;3&quot;</span>, <span class="stringliteral">&quot; &quot;</span>,  90,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;4&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 110,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;5&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 130,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;6&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 150,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;7&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 170,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;8&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 190,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;9&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 213,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot;0&quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 232,  35 },</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> Key KeyboardLayoutAzerty[] =</div>
+<div class="line">{</div>
+<div class="line">    { <span class="stringliteral">&quot;q&quot;</span>, <span class="stringliteral">&quot;Q&quot;</span>,  60,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;b&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>, 145, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;c&quot;</span>, <span class="stringliteral">&quot;C&quot;</span>, 105, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;d&quot;</span>, <span class="stringliteral">&quot;D&quot;</span>, 100,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;e&quot;</span>, <span class="stringliteral">&quot;E&quot;</span>,  98,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;f&quot;</span>, <span class="stringliteral">&quot;F&quot;</span>, 123,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;g&quot;</span>, <span class="stringliteral">&quot;G&quot;</span>, 140,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;h&quot;</span>, <span class="stringliteral">&quot;H&quot;</span>, 160,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;i&quot;</span>, <span class="stringliteral">&quot;I&quot;</span>, 200,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;j&quot;</span>, <span class="stringliteral">&quot;J&quot;</span>, 183,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;k&quot;</span>, <span class="stringliteral">&quot;K&quot;</span>, 200,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;l&quot;</span>, <span class="stringliteral">&quot;L&quot;</span>, 223,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot; &quot;</span>, 186, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;n&quot;</span>, <span class="stringliteral">&quot;N&quot;</span>, 165, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;o&quot;</span>, <span class="stringliteral">&quot;O&quot;</span>, 215,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;p&quot;</span>, <span class="stringliteral">&quot;P&quot;</span>, 235,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;a&quot;</span>, <span class="stringliteral">&quot;A&quot;</span>,  55,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;r&quot;</span>, <span class="stringliteral">&quot;R&quot;</span>, 118,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;s&quot;</span>, <span class="stringliteral">&quot;S&quot;</span>,  80,  80 },</div>
+<div class="line">    { <span class="stringliteral">&quot;t&quot;</span>, <span class="stringliteral">&quot;T&quot;</span>, 137,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;u&quot;</span>, <span class="stringliteral">&quot;U&quot;</span>, 175,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;v&quot;</span>, <span class="stringliteral">&quot;V&quot;</span>, 125, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;z&quot;</span>, <span class="stringliteral">&quot;Z&quot;</span>,  75,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;x&quot;</span>, <span class="stringliteral">&quot;X&quot;</span>,  85, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;y&quot;</span>, <span class="stringliteral">&quot;Y&quot;</span>, 155,  57 },</div>
+<div class="line">    { <span class="stringliteral">&quot;w&quot;</span>, <span class="stringliteral">&quot;W&quot;</span>,  63, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;1&quot;</span>,  50,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;2&quot;</span>,  70,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;3&quot;</span>,  90,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;4&quot;</span>, 110,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;5&quot;</span>, 130,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;6&quot;</span>, 150,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;7&quot;</span>, 170,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;8&quot;</span>, 190,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;9&quot;</span>, 213,  35 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>, <span class="stringliteral">&quot;0&quot;</span>, 232,  35 },</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> Key Modifiers[] =</div>
+<div class="line">{</div>
+<div class="line">    { <span class="stringliteral">&quot;Ctrl&quot;</span>,  <span class="stringliteral">&quot;&quot;</span>,   5, 125 },</div>
+<div class="line">    { <span class="stringliteral">&quot;Shift&quot;</span>, <span class="stringliteral">&quot;&quot;</span>,   5, 102 },</div>
+<div class="line">    { <span class="stringliteral">&quot;Alt&quot;</span>,   <span class="stringliteral">&quot;&quot;</span>,  70, 125 },</div>
+<div class="line">    { <span class="stringliteral">&quot; &quot;</span>,     <span class="stringliteral">&quot;&quot;</span>,   0,   0 },</div>
+<div class="line">    { <span class="stringliteral">&quot;Ctrl&quot;</span>,  <span class="stringliteral">&quot;&quot;</span>, 285, 125 },</div>
+<div class="line">    { <span class="stringliteral">&quot;Shift&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 277, 102 },</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> Key EditingKeys[] =</div>
+<div class="line">{</div>
+<div class="line">    { <span class="stringliteral">&quot;Enter&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 270,  80, nn::hid::KeyboardKey::NumPadEnter::Index, <span class="keyword">false</span> },</div>
+<div class="line">    { <span class="stringliteral">&quot;Esc&quot;</span>,   <span class="stringliteral">&quot;&quot;</span>,   5,  35, 0,                                        <span class="keyword">false</span> },</div>
+<div class="line">    { <span class="stringliteral">&quot;BS&quot;</span>,    <span class="stringliteral">&quot;&quot;</span>, 290,  35, 0,                                        <span class="keyword">false</span> },</div>
+<div class="line">    { <span class="stringliteral">&quot;Tab&quot;</span>,   <span class="stringliteral">&quot;&quot;</span>,   5,  57, 0,                                        <span class="keyword">true</span>  },</div>
+<div class="line">    { <span class="stringliteral">&quot;Space&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 130, 125, 0,                                        <span class="keyword">false</span> },</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> Key ExtraEditingKeys[] =</div>
+<div class="line">{</div>
+<div class="line">    { <span class="stringliteral">&quot;Insert&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 340,  35, nn::hid::KeyboardKey::NumPad0::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;Home&quot;</span>,   <span class="stringliteral">&quot;&quot;</span>, 400,  35, nn::hid::KeyboardKey::NumPad7::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;PgUp&quot;</span>,   <span class="stringliteral">&quot;&quot;</span>, 460,  35, nn::hid::KeyboardKey::NumPad9::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;Delete&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 340,  57, nn::hid::KeyboardKey::NumPadDot::Index },</div>
+<div class="line">    { <span class="stringliteral">&quot;End&quot;</span>,    <span class="stringliteral">&quot;&quot;</span>, 400,  57, nn::hid::KeyboardKey::NumPad1::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;PgDn&quot;</span>,   <span class="stringliteral">&quot;&quot;</span>, 460,  57, nn::hid::KeyboardKey::NumPad3::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;--&quot;</span>,     <span class="stringliteral">&quot;&quot;</span>, 488, 105, nn::hid::KeyboardKey::NumPad6::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;--&quot;</span>,     <span class="stringliteral">&quot;&quot;</span>, 453, 105, nn::hid::KeyboardKey::NumPad4::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;|&quot;</span>,      <span class="stringliteral">&quot;&quot;</span>, 473, 125, nn::hid::KeyboardKey::NumPad2::Index   },</div>
+<div class="line">    { <span class="stringliteral">&quot;|&quot;</span>,      <span class="stringliteral">&quot;&quot;</span>, 473,  85, nn::hid::KeyboardKey::NumPad8::Index   },</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteKeyboardState(</div>
+<div class="line">    <a name="_a0"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    <span class="keyword">const</span> nns::hid::KeyboardAndMouse* <span class="keyword">const</span> pKeyboard,</div>
+<div class="line">    <span class="keywordtype">float</span> offsetX, <span class="keywordtype">float</span> offsetY) <a name="a1"></a><a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a name="a2"></a><a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pKeyboard == 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <a name="_a3"></a><a class="code" href="structnn_1_1util_1_1_unorm8x4.html">nn::util::Unorm8x4</a>&amp; textColor =</div>
+<div class="line">        pKeyboard-&gt;IsKeyboardConnected() ? Color::White : Color::Gray;</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a name="a4"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(textColor);</div>
+<div class="line">    pTextWriter-&gt;<a name="a5"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#ad345d182bab2229a8ed23e717538e5ea">SetScale</a>(1, 1);</div>
+<div class="line">    pTextWriter-&gt;<a name="a6"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a name="a7"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Keyboard&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">bool</span> isToggled =</div>
+<div class="line">        pKeyboard-&gt;GetKeysToggle().Test&lt;<a name="_a8"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::Tab</a>&gt;();</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">bool</span> isShifted = pKeyboard-&gt;IsCapsLockOn()</div>
+<div class="line">        ? !pKeyboard-&gt;IsShiftKeyPressed()</div>
+<div class="line">        :  pKeyboard-&gt;IsShiftKeyPressed();</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> Key* layout = isToggled ? KeyboardLayoutAzerty</div>
+<div class="line">                                  : KeyboardLayoutQwerty;</div>
+<div class="line">    <span class="keywordtype">int</span> head = nn::hid::KeyboardKey::A::Index;</div>
+<div class="line">    <span class="keywordtype">int</span> tail = nn::hid::KeyboardKey::D0::Index;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = head; i &lt;= tail; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> Key&amp; key = layout[i - head];</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + key.x, offsetY + key.y);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(pKeyboard-&gt;GetKeys().Test(i) ? Color::Orange</div>
+<div class="line">                                                               : textColor);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(isShifted ? key.upper : key.value);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (isToggled)</div>
+<div class="line">    {</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 240, offsetY + 80);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">            pKeyboard-&gt;GetKeys().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::Semicolon</a>&gt;()</div>
+<div class="line">                ? Color::Orange : textColor);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(isShifted ? <span class="stringliteral">&quot;M&quot;</span> : <span class="stringliteral">&quot;m&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    head = nn::hid::KeyboardKey::Return::Index;</div>
+<div class="line">    tail = nn::hid::KeyboardKey::Space::Index;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = head; i &lt;= tail; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> Key&amp; key = EditingKeys[i - head];</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + key.x, offsetY + key.y);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">            key.isToggleKey</div>
+<div class="line">                ? (pKeyboard-&gt;GetKeysToggle().Test(i)</div>
+<div class="line">                      ? Color::Green : textColor)</div>
+<div class="line">                : (((pKeyboard-&gt;GetKeys().Test(i)) ||</div>
+<div class="line">                    (key.numPadKey != 0 &amp;&amp;</div>
+<div class="line">                     pKeyboard-&gt;GetKeys().Test(key.numPadKey)))</div>
+<div class="line">                      ? Color::Orange : textColor));</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(key.value);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">bool</span> isNumLocked = pKeyboard-&gt;IsNumLockOn() &amp;&amp;</div>
+<div class="line">                            !pKeyboard-&gt;IsShiftKeyPressed();</div>
+<div class="line"></div>
+<div class="line">    head = nn::hid::KeyboardKey::Insert::Index;</div>
+<div class="line">    tail = nn::hid::KeyboardKey::UpArrow::Index;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = head; i &lt;= tail; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> Key&amp; key = ExtraEditingKeys[i - head];</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + key.x, offsetY + key.y);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">            ((pKeyboard-&gt;GetKeys().Test(i)) ||</div>
+<div class="line">             (!isNumLocked &amp;&amp;</div>
+<div class="line">              key.numPadKey != 0 &amp;&amp; pKeyboard-&gt;GetKeys().Test(key.numPadKey)))</div>
+<div class="line">                ? Color::Orange : textColor);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(key.value);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    head = nn::hid::KeyboardKey::LeftControl::Index;</div>
+<div class="line">    tail = nn::hid::KeyboardKey::RightShift::Index;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = head; i &lt;= tail; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> Key&amp; key = Modifiers[i - head];</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + key.x, offsetY + key.y);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(pKeyboard-&gt;GetKeys().Test(i) ? Color::Orange</div>
+<div class="line">                                                               : textColor);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(key.value);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 218, offsetY + 125);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">        pKeyboard-&gt;GetKeys().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::RightAlt</a>&gt;()</div>
+<div class="line">            ? Color::Orange : textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(isToggled ? <span class="stringliteral">&quot;AltGr&quot;</span> : <span class="stringliteral">&quot;Alt&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteKeyboardEventLog(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    std::list&lt;nns::hid::KeyEvent&gt;* pLog,</div>
+<div class="line">    <span class="keyword">const</span> nns::hid::KeyboardAndMouse* <span class="keyword">const</span> pKeyboard,</div>
+<div class="line">    <span class="keywordtype">float</span> offsetX, <span class="keywordtype">float</span> offsetY) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pLog);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pKeyboard == 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(Color::White);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#ad345d182bab2229a8ed23e717538e5ea">SetScale</a>(1, 1);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Event Log&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; pKeyboard-&gt;GetKeyEvents().size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> nns::hid::KeyEvent&amp; e = pKeyboard-&gt;GetKeyEvents()[i];</div>
+<div class="line"></div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">int</span> usageId = e.GetUsageId();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> ((usageId &gt;= nn::hid::KeyboardKey::A::Index &amp;&amp;</div>
+<div class="line">             usageId &lt;= nn::hid::KeyboardKey::Space::Index) ||</div>
+<div class="line">            (usageId == nn::hid::KeyboardKey::Semicolon::Index) ||</div>
+<div class="line">            (usageId &gt;= nn::hid::KeyboardKey::Insert::Index &amp;&amp;</div>
+<div class="line">             usageId &lt;= nn::hid::KeyboardKey::UpArrow::Index) ||</div>
+<div class="line">            (usageId &gt;= nn::hid::KeyboardKey::NumPadEnter::Index &amp;&amp;</div>
+<div class="line">             usageId &lt;= nn::hid::KeyboardKey::NumPadDot::Index) ||</div>
+<div class="line">            (usageId &gt;= nn::hid::KeyboardKey::LeftControl::Index &amp;&amp;</div>
+<div class="line">             usageId &lt;= nn::hid::KeyboardKey::LeftAlt::Index) ||</div>
+<div class="line">            (usageId &gt;= nn::hid::KeyboardKey::RightControl::Index &amp;&amp;</div>
+<div class="line">             usageId &lt;= nn::hid::KeyboardKey::RightAlt::Index))</div>
+<div class="line">        {</div>
+<div class="line">            pLog-&gt;push_back(e);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = pLog-&gt;size(); i &gt; 30; --i)</div>
+<div class="line">    {</div>
+<div class="line">        pLog-&gt;pop_front();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">size_t</span> count = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (std::list&lt;nns::hid::KeyEvent&gt;::reverse_iterator</div>
+<div class="line">             iter = pLog-&gt;rbegin(); iter != pLog-&gt;rend(); ++iter)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">float</span> y = offsetY + 35 + 22 * count;</div>
+<div class="line"></div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 5, y);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (iter-&gt;IsKeyDown())</div>
+<div class="line">        {</div>
+<div class="line">            pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(Color::Orange);</div>
+<div class="line">            pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Down&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (iter-&gt;IsKeyUp())</div>
+<div class="line">        {</div>
+<div class="line">            pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(Color::Green);</div>
+<div class="line">            pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Up&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (iter-&gt;IsKeyRepeat())</div>
+<div class="line">        {</div>
+<div class="line">            pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(Color::Gray);</div>
+<div class="line">            pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Repeat&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 105, y);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(Color::White);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;UsageId: 0x%02X&quot;</span>, iter-&gt;GetUsageId());</div>
+<div class="line"></div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 265, y);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(Color::White);</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(</div>
+<div class="line">            <span class="stringliteral">&quot;IsPrintingKey: %s&quot;</span>, iter-&gt;IsPrintingKey() ? <span class="stringliteral">&quot;true&quot;</span> : <span class="stringliteral">&quot;false&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        ++count;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteMousePosition(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    <span class="keyword">const</span> nns::hid::KeyboardAndMouse* <span class="keyword">const</span> pMouse,</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> offsetX, <span class="keyword">const</span> <span class="keywordtype">float</span> offsetY,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1util_1_1_unorm8x4.html">nn::util::Unorm8x4</a>&amp; textColor) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pMouse);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Position:&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 80, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a name="a9"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a0c6985c8634ef520b48e1d804b5b3101">SetFixedWidthEnabled</a>(<span class="keyword">true</span>);</div>
+<div class="line">    pTextWriter-&gt;<a name="a10"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#ad763bc48cfa859d9b7d4f2052f22ecf0">SetFixedWidth</a>(12);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pMouse-&gt;IsPointerOn())</div>
+<div class="line">    {</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(</div>
+<div class="line">            <span class="stringliteral">&quot;(%4.0f,%4.0f)&quot;</span>, pMouse-&gt;GetPointer().x, pMouse-&gt;GetPointer().y);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;( NaN, NaN)&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a0c6985c8634ef520b48e1d804b5b3101">SetFixedWidthEnabled</a>(<span class="keyword">false</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteMouseButtons(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    <span class="keyword">const</span> nns::hid::KeyboardAndMouse* <span class="keyword">const</span> pMouse,</div>
+<div class="line">    <span class="keywordtype">float</span> offsetX, <span class="keywordtype">float</span> offsetY,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1util_1_1_unorm8x4.html">nn::util::Unorm8x4</a>&amp; textColor) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pMouse);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Buttons:&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">        pMouse-&gt;GetMouseButtons().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::MouseButton::Forward</a>&gt;()</div>
+<div class="line">            ? Color::Orange : textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 85, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;F&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">        pMouse-&gt;GetMouseButtons().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::MouseButton::Back</a>&gt;()</div>
+<div class="line">            ? Color::Orange : textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 85, offsetY + 22);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;B&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">        pMouse-&gt;GetMouseButtons().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::MouseButton::Left</a>&gt;()</div>
+<div class="line">            ? Color::Orange : textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 105, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;L&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">        pMouse-&gt;GetMouseButtons().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::MouseButton::Middle</a>&gt;()</div>
+<div class="line">            ? Color::Orange : textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 125, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;M&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(</div>
+<div class="line">        pMouse-&gt;GetMouseButtons().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::MouseButton::Right</a>&gt;()</div>
+<div class="line">            ? Color::Orange : textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 150, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;R&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteMouseWheel(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    <span class="keywordtype">int</span> wheel,</div>
+<div class="line">    <span class="keywordtype">float</span> offsetX, <span class="keywordtype">float</span> offsetY,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1util_1_1_unorm8x4.html">nn::util::Unorm8x4</a>&amp; textColor) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Wheel:&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX + 80, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a0c6985c8634ef520b48e1d804b5b3101">SetFixedWidthEnabled</a>(<span class="keyword">true</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#ad763bc48cfa859d9b7d4f2052f22ecf0">SetFixedWidth</a>(12);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;(%4d)&quot;</span>, wheel);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a0c6985c8634ef520b48e1d804b5b3101">SetFixedWidthEnabled</a>(<span class="keyword">false</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteMouseCursor(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    <span class="keyword">const</span> nns::hid::KeyboardAndMouse* pMouse,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1util_1_1_unorm8x4.html">nn::util::Unorm8x4</a>&amp; textColor) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pMouse);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!pMouse-&gt;IsPointerOn())</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> x = pMouse-&gt;GetPointer().x;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> y = pMouse-&gt;GetPointer().y;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> barOffsetX   = pTextWriter-&gt;<a name="a11"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a52bcf304f32dbd9f1197a194df4778af">CalculateStringWidth</a>(<span class="stringliteral">&quot;|&quot;</span>) / 2;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> barOffsetY   = pTextWriter-&gt;<a name="a12"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a6d4a0959e15c67213a8f3144237f4602">CalculateStringHeight</a>(<span class="stringliteral">&quot;|&quot;</span>) / 2;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> minusOffsetX = pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a52bcf304f32dbd9f1197a194df4778af">CalculateStringWidth</a>(<span class="stringliteral">&quot;-&quot;</span>) / 2;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> minusOffsetY = pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a6d4a0959e15c67213a8f3144237f4602">CalculateStringHeight</a>(<span class="stringliteral">&quot;-&quot;</span>) / 2;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> plusOffsetX  = pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a52bcf304f32dbd9f1197a194df4778af">CalculateStringWidth</a>(<span class="stringliteral">&quot;+&quot;</span>) / 2;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> plusOffsetY  = pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a6d4a0959e15c67213a8f3144237f4602">CalculateStringHeight</a>(<span class="stringliteral">&quot;+&quot;</span>) / 2;</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - barOffsetX - 15, y - barOffsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;|&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - barOffsetX + 15, y - barOffsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;|&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - minusOffsetX, y - minusOffsetY - 15);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;-&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - minusOffsetX, y - minusOffsetY + 15);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;-&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - plusOffsetX - 15, y - plusOffsetY - 15);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;+&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - plusOffsetX - 15, y - plusOffsetY + 15);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;+&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - plusOffsetX + 15, y - plusOffsetY - 15);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;+&quot;</span>);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(x - plusOffsetX + 15, y - plusOffsetY + 15);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;+&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> WriteMouseState(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter,</div>
+<div class="line">    <span class="keywordtype">bool</span>* pIsDoubleClicked, <span class="keywordtype">int</span>* pWheel,</div>
+<div class="line">    <span class="keyword">const</span> nns::hid::KeyboardAndMouse* <span class="keyword">const</span> pMouse,</div>
+<div class="line">    <span class="keywordtype">float</span> offsetX, <span class="keywordtype">float</span> offsetY) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pTextWriter);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pIsDoubleClicked);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#a0473ebccccc250efd6100a9bbfec406b">NN_ASSERT_NOT_NULL</a>(pWheel);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pMouse == 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1util_1_1_unorm8x4.html">nn::util::Unorm8x4</a>&amp; textColor =</div>
+<div class="line">        pMouse-&gt;IsMouseConnected() ? Color::White : Color::Gray;</div>
+<div class="line"></div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9969b2360cc68e1ec7309a5c0066b9e6">SetTextColor</a>(textColor);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#ad345d182bab2229a8ed23e717538e5ea">SetScale</a>(1, 1);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a9b11e2edd2c0c81fe26960e112103ca4">SetCursor</a>(offsetX, offsetY);</div>
+<div class="line">    pTextWriter-&gt;<a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#a56cf8c964b0bfe21921068adba048d66">Print</a>(<span class="stringliteral">&quot;Mouse&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    WriteMousePosition(</div>
+<div class="line">        pTextWriter, pMouse, offsetX + 5, offsetY + 35, textColor);</div>
+<div class="line"></div>
+<div class="line">    WriteMouseButtons(</div>
+<div class="line">        pTextWriter, pMouse, offsetX + 5, offsetY + 79, textColor);</div>
+<div class="line"></div>
+<div class="line">    *pWheel += pMouse-&gt;GetMouseWheel();</div>
+<div class="line"></div>
+<div class="line">    *pWheel = std::min(std::max(-600, *pWheel), 600);</div>
+<div class="line"></div>
+<div class="line">    WriteMouseWheel(</div>
+<div class="line">        pTextWriter,</div>
+<div class="line">        *pWheel,</div>
+<div class="line">        offsetX + 5,</div>
+<div class="line">        offsetY + 123 + 11 * (5 - *pWheel / 120),</div>
+<div class="line">        textColor);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pMouse-&gt;GetMouseButtonsDoubleClick().Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::MouseButton::Left</a>&gt;())</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// ダブルクリックでカーソルの色を変更</span></div>
+<div class="line"></div>
+<div class="line">        *pIsDoubleClicked = !(*pIsDoubleClicked);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    WriteMouseCursor(</div>
+<div class="line">        pTextWriter, pMouse, *pIsDoubleClicked ? Color::Orange : Color::Green);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> ConfigureController(nns::hid::KeyboardAndMouse* pController) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span> (pController == 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 修飾キーのキーリピートを無効化します。</span></div>
+<div class="line">    <a name="_a13"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::KeyboardKeySet</a> modifiers = {};</div>
+<div class="line">    modifiers.<a name="a14"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a4f665dbc1788e6bae6dc8fd22f51f5da">Set</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::LeftControl</a>&gt;();</div>
+<div class="line">    modifiers.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a4f665dbc1788e6bae6dc8fd22f51f5da">Set</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::LeftShift</a>&gt;();</div>
+<div class="line">    modifiers.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a4f665dbc1788e6bae6dc8fd22f51f5da">Set</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::LeftAlt</a>&gt;();</div>
+<div class="line">    modifiers.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a4f665dbc1788e6bae6dc8fd22f51f5da">Set</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::RightControl</a>&gt;();</div>
+<div class="line">    modifiers.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a4f665dbc1788e6bae6dc8fd22f51f5da">Set</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::RightShift</a>&gt;();</div>
+<div class="line">    modifiers.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a4f665dbc1788e6bae6dc8fd22f51f5da">Set</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::KeyboardKey::RightAlt</a>&gt;();</div>
+<div class="line">    pController-&gt;SetKeysRepeatOption(modifiers, 0, 0);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// マウスのカーソル座標の有効範囲を設定します。</span></div>
+<div class="line">    <a name="_a15"></a><a class="code" href="structnn_1_1util_1_1_float2.html">nn::util::Float2</a> boundaryMin = {};</div>
+<div class="line">    <a class="code" href="structnn_1_1util_1_1_float2.html">nn::util::Float2</a> boundaryMax = {};</div>
+<div class="line">    boundaryMin.<a name="a16"></a>x = 0;</div>
+<div class="line">    boundaryMin.<a name="a17"></a>y = 0;</div>
+<div class="line">    boundaryMax.x = <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(FrameBufferWidth);</div>
+<div class="line">    boundaryMax.y = <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(FrameBufferHeight);</div>
+<div class="line">    pController-&gt;SetPointerBoundary(boundaryMin, boundaryMax);</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_WIN)</span></div>
+<div class="line">    <span class="comment">// Windows 環境ではマウス API の返す座標値をそのまま使用するよう設定します。</span></div>
+<div class="line">    pController-&gt;SetMouseCursorAbsoluteCoordinateUsed(<span class="keyword">true</span>);</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_NX)</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> GraphicsMemorySize = 8 * 1024 * 1024;</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>* NvAllocate(<span class="keywordtype">size_t</span> size, <span class="keywordtype">size_t</span> alignment, <span class="keywordtype">void</span>* userPtr) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a name="a18"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(userPtr);</div>
+<div class="line">    <span class="keywordflow">return</span> aligned_alloc(alignment, <a name="a19"></a><a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>(size, alignment));</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> NvFree(<span class="keywordtype">void</span>* addr, <span class="keywordtype">void</span>* userPtr) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(userPtr);</div>
+<div class="line">    free(addr);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>* NvReallocate(<span class="keywordtype">void</span>* addr, <span class="keywordtype">size_t</span> newSize, <span class="keywordtype">void</span>* userPtr) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(userPtr);</div>
+<div class="line">    <span class="keywordflow">return</span> realloc(addr, newSize);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">} <span class="comment">// namespace</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a20"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_NX)</span></div>
+<div class="line">    <a name="a21"></a><a class="code" href="namespacenv.html#a7d85cfdd1bae1b635cc66b8d58077688">nv::SetGraphicsAllocator</a>(NvAllocate, NvFree, NvReallocate, NULL);</div>
+<div class="line">    <a name="a22"></a><a class="code" href="namespacenv.html#a5ef00427dfc2493551bb66b37731bb35">nv::SetGraphicsDevtoolsAllocator</a>(NvAllocate, NvFree, NvReallocate, NULL);</div>
+<div class="line">    <a name="a23"></a><a class="code" href="namespacenv.html#aacadc57952b370f2286108f5835ce726">nv::InitializeGraphics</a>(std::malloc(GraphicsMemorySize), GraphicsMemorySize);</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">    nns::hid::ControllerManager controllerManager;</div>
+<div class="line">    nns::hid::util::SetControllerManagerWithDefault(&amp;controllerManager);</div>
+<div class="line"></div>
+<div class="line">    nns::hid::KeyboardAndMouse* <span class="keyword">const</span> pController =</div>
+<div class="line">        <span class="keyword">reinterpret_cast&lt;</span>nns::hid::KeyboardAndMouse*<span class="keyword">&gt;</span>(</div>
+<div class="line">            controllerManager.GetController(</div>
+<div class="line">                nns::hid::ControllerId_KeyboardAndMouse, 0));</div>
+<div class="line"></div>
+<div class="line">    ConfigureController(pController);</div>
+<div class="line"></div>
+<div class="line">    ApplicationHeap applicationHeap;</div>
+<div class="line">    applicationHeap.Initialize(ApplicationHeapSize);</div>
+<div class="line"></div>
+<div class="line">    GraphicsSystem* pGraphicsSystem = <span class="keyword">new</span> GraphicsSystem();</div>
+<div class="line">    pGraphicsSystem-&gt;Initialize(</div>
+<div class="line">        &amp;applicationHeap, FrameBufferWidth, FrameBufferHeight);</div>
+<div class="line"></div>
+<div class="line">    EnableWindowMessage(pGraphicsSystem-&gt;GetNativeWindowHandle());</div>
+<div class="line"></div>
+<div class="line">    FontSystem* pFontSystem = <span class="keyword">new</span> FontSystem();</div>
+<div class="line">    pFontSystem-&gt;Initialize(&amp;applicationHeap, pGraphicsSystem);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>&amp; textWriter =</div>
+<div class="line">        pFontSystem-&gt;GetDebugFontTextWriter();</div>
+<div class="line"></div>
+<div class="line">    std::list&lt;nns::hid::KeyEvent&gt; log;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">bool</span> isDoubleClicked = <span class="keyword">false</span>;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">int</span> wheel = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">while</span> (<a name="a24"></a><a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>(<span class="keyword">true</span>))</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">bool</span> quits = <span class="keyword">false</span>;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">switch</span> (GetWindowMessage(pGraphicsSystem-&gt;GetNativeWindowHandle()))</div>
+<div class="line">        {</div>
+<div class="line">        <span class="keywordflow">case</span> WindowMessage_Close:</div>
+<div class="line">            quits = <span class="keyword">true</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (quits)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        controllerManager.Update();</div>
+<div class="line"></div>
+<div class="line">        WriteKeyboardState(&amp;textWriter, pController, 25, 15);</div>
+<div class="line">        WriteKeyboardEventLog(&amp;textWriter, &amp;log, pController, 645, 15);</div>
+<div class="line"></div>
+<div class="line">        WriteMouseState(</div>
+<div class="line">            &amp;textWriter, &amp;isDoubleClicked, &amp;wheel, pController, 25, 375);</div>
+<div class="line"></div>
+<div class="line">        pGraphicsSystem-&gt;BeginDraw();</div>
+<div class="line">        pFontSystem-&gt;Draw();</div>
+<div class="line">        pGraphicsSystem-&gt;EndDraw();</div>
+<div class="line"></div>
+<div class="line">        pGraphicsSystem-&gt;Synchronize(</div>
+<div class="line">            <a name="a25"></a><a class="code" href="classnn_1_1_time_span.html#a52a2856f56e7b046cbb28056e235cc34">nn::TimeSpan::FromNanoSeconds</a>(1000 * 1000 * 1000 / FrameRate));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    pFontSystem-&gt;Finalize();</div>
+<div class="line">    <span class="keyword">delete</span> pFontSystem;</div>
+<div class="line"></div>
+<div class="line">    pGraphicsSystem-&gt;Finalize();</div>
+<div class="line">    <span class="keyword">delete</span> pGraphicsSystem;</div>
+<div class="line"></div>
+<div class="line">    applicationHeap.Finalize();</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

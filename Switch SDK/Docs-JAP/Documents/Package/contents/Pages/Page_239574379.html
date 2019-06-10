@@ -1,0 +1,725 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>3D テクスチャーコンバーター</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 3D テクスチャーコンバーター -->
+<div class="pagetitle" id="PageId_239574379">3D テクスチャーコンバーター</div>
+<div class="text_separate">
+<p>3D テクスチャーコンバーターの使用方法と注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_239574379_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_239574379_h1_2">コマンドラインオプション</a>
+    </li>
+    <li>
+      <a href="#Anchor_239574379_h1_3">利用例</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_239574379_h1_1">概要</h1>
+<p>3D テクスチャーコンバーターは <a href="../Pages/Page_83956254.html">GFX のテクスチャーコンバーター</a>にテクスチャー中間ファイルを扱う機能を追加したコンバーターです。</p>
+<p>画像ファイル (.tga、.png、.dds、.exr) からテクスチャー中間ファイル (.ftxb、.ftxa) を作成します。<br />1 つまたは複数のテクスチャー中間ファイルをテクスチャーバイナリーファイル（.bntx）に変換します。</p>
+<p>テクスチャー中間ファイルを入力として、フォーマットなどを変更して再変換することもできます。<br />また、テクスチャー中間ファイルを画像ファイルに変換することもできます。</p>
+<p>画像ファイルを各フォーマットの DDS ファイルに変換したり、1 つまたは複数の DDS ファイルをテクスチャーバイナリーファイルに変換することもできます。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th>テクスチャー中間ファイル&nbsp;(.ftxb、.ftxa)&nbsp;</th>
+      <th>テクスチャーバイナリーファイル（.bntx）</th>
+    </tr>
+    <tr>
+      <td>プラットフォーム依存</td>
+      <td>なし</td>
+      <td>あり</td>
+    </tr>
+    <tr>
+      <td>複数テクスチャーの格納</td>
+      <td>不可</td>
+      <td>可能</td>
+    </tr>
+    <tr>
+      <td>エンコード前の元画像データ</td>
+      <td>
+        <p>あり（オプションで含めないことも可能）</p>
+      </td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td>再変換</td>
+      <td>可能</td>
+      <td>不可</td>
+    </tr>
+    <tr>
+      <td>追加情報</td>
+      <td>
+        <p>ヒント情報、ユーザーデータ、</p>
+        <p>ツールデータなど多数</p>
+      </td>
+      <td>
+        <p>ユーザーデータのみ</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>テクスチャーバイナリーファイルには対象プラットフォームに最適化した形式のデータが格納されます。</p>
+<p>テクスチャー中間ファイル、テクスチャーバイナリーファイルでは常に画像の左上が原点です。<br />キューブマップのテクスチャーデータは右手座標系で +X、-X、+Y、-Y、-Z、+Z の順に格納されます。<br />以下の説明で、キューブマップの座標軸は右手座標系です。</p>
+<p>
+  <a name="Anchor_239574379_option"></a>
+</p>
+<h1 id="Anchor_239574379_h1_2">コマンドラインオプション</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe [入力ファイル]... [--args-file &quot;&quot;] [--job-list &quot;&quot;] [--version] [-h] [-s]
+[--project-root &quot;&quot;] [--disable-file-info] [--disable-original-image] [--disable-memory-pool]
+[--tile-mode &quot;&quot;] [--tile-optimize &quot;&quot;] [--tile-size-threshold &quot;&quot;] [--sparse-tiled &quot;&quot;]
+[-o &quot;&quot;] [-m &quot;&quot;] [--dcc-preset &quot;&quot;] [-n &quot;&quot;] [-l &quot;&quot;] [-d &quot;&quot;] [-f &quot;&quot;] [-w &quot;&quot;] [-t &quot;&quot;]
+[--no-encoding] [--gpu-encoding &quot;&quot;] [--check-gpu-encoding]
+[-i &quot;&quot;] [--mip-gen-filter &quot;&quot;] [-c &quot;&quot;] [--swizzle &quot;&quot;]
+[--cubemap-back &quot;&quot;] [--cubemap-left &quot;&quot;] [--cubemap-right &quot;&quot;]
+[--cubemap-top &quot;&quot;] [--cubemap-bottom &quot;&quot;] [--mip-imageM &quot;&quot;]
+[--cubemap-frontM &quot;&quot;] [--cubemap-backM &quot;&quot;] [--cubemap-leftM &quot;&quot;]
+[--cubemap-rightM &quot;&quot;] [--cubemap-topM &quot;&quot;] [--cubemap-bottomM &quot;&quot;] [--comment &quot;&quot;]
+[--crop &quot;&quot;] [-e &quot;&quot;] [-x &quot;&quot;] [-y &quot;&quot;] [--resize-filter &quot;&quot;] [--resize-gamma &quot;&quot;]
+[--ignore-alpha &quot;&quot;] [-u &quot;&quot;] [-r &quot;&quot;] [-g &quot;&quot;] [-b &quot;&quot;] [-a &quot;&quot;] [--no-tga-rle]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>入力ファイル</strong>
+</p>
+<p>入力ファイルを指定します。 画像ファイル (.tga、.png、.dds、.exr) またはテクスチャー中間ファイルを指定します。<br />テクスチャーバイナリーファイルを出力する場合は複数のテクスチャー中間ファイルまたは DDS ファイルを指定できます。<br />（画像ファイル 1 つを直接テクスチャーバイナリーファイルに変換することも可能ですが、アライメントのためにデータ量が多くなるので推奨しません。）<br />--cubemap-back、--cubemap-left、--cubemap-right、--cubemap-top、--cubemap-bottom オプションを指定した場合、入力ファイルはキューブマップの前面 (+Z 方向) となります。&nbsp;<br />16 bit/チャンネルの&nbsp;PNG ファイルは実数型として扱います。<br />DDS ファイルは、dxtc / bc / astc / 各 RGBA フォーマットに対応しています。入力ファイルが DDS の場合、-f、-i などのオプションを指定しなければ再エンコードしないで出力します（複数の&nbsp;DDS ファイルをテクスチャーバイナリーファイルに変換する場合は常に再エンコードしません）。<br />-t オプションを指定して&nbsp;3D テクスチャーおよび配列テクスチャーを出力する場合、ファイル名の末尾が数値になっている必要があります（詳細は -t オプションの説明を参照）。</p>
+<p>
+  <strong> --args-file&nbsp;&quot;&quot;</strong>
+</p>
+<p>引数ファイルに記述した内容を、引数として指定できます。<br />引数ファイルは複数行に渡って各オプションを記述できます。<br />行頭に # がある行はコメントとして扱います。<br />オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<p>
+  <strong>--job-list &quot;&quot;</strong>
+</p>
+<p>ジョブリストファイルを指定します。<br />ジョブリストを使用すると 1 回のプロセス起動で複数の変換処理を実行できます。<br />ジョブリストファイルには改行区切りで各処理の引数を記述します。<br />--job-list 以外の引数を同時に指定した場合、--job-list 以外の引数の後にジョブリストファイルの各行で指定した引数を追加した場合と同様の動作になります。<br />行頭に # がある行はコメントとして扱います。&nbsp;<br />ジョブリストファイル内で --version、-h、-s、--job-list オプションは指定できません。</p>
+<p>
+  <strong>--version</strong>
+</p>
+<p>バージョン情報を表示します。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプを表示します。</p>
+<p>
+  <strong>-s --silent</strong>
+</p>
+<p>処理中のメッセージ表示を抑制します。</p>
+<p>
+  <strong> --project-root &quot;&quot; </strong>
+</p>
+<p>プロジェクトのルートフォルダーを指定します。<br />指定した場合、テクスチャー中間ファイルの &lt;create&gt; の src_path にルートフォルダーからの相対パスを出力します。&nbsp;</p>
+<p>
+  <strong>--disable-file-info</strong>
+</p>
+<p>入力ファイルがテクスチャー中間ファイル以外なら、テクスチャー中間ファイルに&nbsp;&lt;file_info&gt; を出力しません。<br />入力ファイルがテクスチャー中間ファイルなら、テクスチャー中間ファイルの&nbsp;&lt;file_info&gt; を更新しません。<br />テクスチャー中間ファイル以外を出力する際は、このオプションは影響しません。</p>
+<p>
+  <strong>--disable-original-image</strong>
+</p>
+<p>テクスチャー中間ファイルにエンコード前の元画像データを含めません。<br />ファイルサイズが小さくなりますが、出力したファイルを再変換すると<span style="color: rgb(51,51,51);">画質が劣化します。<br />入力ファイルが元画像データを含まないテクスチャー中間ファイルの場合、このオプションを指定しなくても出力ファイルに元画像データは含まれません。<br />テクスチャー中間ファイル以外を出力する際は、このオプションは影響しません。</span></p>
+<p>
+  <strong>--disable-memory-pool</strong>
+</p>
+<p>テクスチャーバイナリーファイルを出力する際にメモリープールのアライメント制限を考慮せず、メモリープールのオブジェクト領域も確保しません。</p>
+<div>
+  <p>外部のメモリープールを使用する場合に指定します。<br />テクスチャーバイナリーファイル以外を出力する際は、このオプションは影響しません。&nbsp;</p>
+  <p>
+    <strong>--tile-mode&nbsp;&quot;&quot;</strong>
+  </p>
+  <p>テクスチャーバイナリーファイルを出力する場合にタイリングのモードを指定します。<br />linear&nbsp;を指定すると、リニアーなタイリングのデータを出力します。<br />linear&nbsp;以外を指定する場合、対象プラットフォーム向けの Addon がインストールされている必要があります。<br />このオプションを指定しない場合、リニアーなタイリングのデータを出力します。</p>
+  <p>
+    <strong>--tile-optimize &quot;&quot;</strong>
+  </p>
+  <p>テクスチャーバイナリーファイルを出力する場合にタイリングの最適化モードを指定します。<br />パフォーマンスが高くなるように最適化するなら performance、サイズが小さくなるように最適化するなら size、データ削減率に応じて自動的にサイズ優先の最適化を選択するなら size_auto を指定します。<br />size_auto を指定した場合、--tile-size-threshold オプションでデータ削減率のしきい値を指定します。<br />このオプションを指定しない場合、パフォーマンス優先の最適化をします。<br />このオプションは --tile-mode オプションで特定のモードを指定した場合のみ影響します。</p>
+  <p>
+    <strong>--tile-size-threshold &quot;&quot;</strong>
+  </p>
+  <p>--tile-optimize オプションで size_auto を指定した場合に、サイズ優先の最適化をするか判断するためのしきい値 [%] を 0 以上 100 以下の整数で指定します。<br />（サイズ優先の場合のサイズ / パフォーマンス優先の場合のサイズ）x 100 がしきい値以下になるテクスチャーはサイズ優先で最適化し、それ以外のテクスチャーはパフォーマンス優先で最適化します。<br />しきい値を大きくするほど、サイズ優先が選択される可能性が高くなります。<br />このオプションを指定しない場合のしきい値は 75 です。</p>
+  <p>
+    <strong>--sparse-tiled &quot;&quot;</strong>
+  </p>
+  <p>テクスチャーバイナリーファイルを出力する場合に、スパーステクスチャー向けのタイリング変換をするなら true、通常テクスチャー向けのタイリング変換をするなら false を指定します。<br />このオプションを指定しない場合、通常テクスチャー向けのタイリング変換をします。&nbsp;<br />現在、&nbsp;スパーステクスチャーは特定プラットフォームでのみ使用できます。</p>
+</div>
+<p>
+  <strong>-o &quot;&quot; --output &quot;&quot;</strong>
+</p>
+<p>出力ファイルを指定します。テクスチャー中間ファイル、テクスチャーバイナリーファイル、画像ファイル（.tga、.png、.dds、.exr）を指定します。<br />このオプションを指定しない場合、入力ファイルが画像ファイルなら拡張子を .ftxb にしたファイルを出力します。<br />入力ファイルがテクスチャー中間ファイルなら同じファイルに上書きします。</p>
+<p>テクスチャーバイナリーファイルを指定した場合、入力ファイルがテクスチャー中間ファイルまたは DDS ファイルなら&nbsp;-c とテクスチャーバイナリーファイル関連以外のオプションは無視されます。例外として、入力ファイルが DDS 1 つの場合、各オプションが反映されます。<br /> <br />画像ファイルを指定するとテクスチャー中間ファイルのエンコード前の画像データを TGA、PNG、DDS、EXR ファイルに出力できます。<br />画像ファイルをエンコードして各フォーマットの DDS ファイルを出力することもできます（-f オプションを指定）。<br />TGA ファイルは入力ファイルが整数型の場合のみ出力できます。<br />EXR ファイルは入力ファイルが実数型の場合のみ出力できます。<br />TGA、PNG、EXR ファイルを出力する場合、キューブマップは水平十字キューブマップの状態で出力します。<br />DDS ファイルを出力する際に -i オプションが指定されていれば、ミップマップありの DDS ファイルを出力できます。<br />その際、-l、--mip-gen-filter オプションも反映されます。<br />-f オプションで srgb_* フォーマットを指定すると、リニアー空間でミップマップを計算し、sRGB 空間に戻して出力します。<br />入力ファイルがテクスチャー中間ファイルの場合、-f、-l、--mip-gen-filter オプションが指定されていなければ、quantize_type、linear、mip_gen_filter が反映されます。</p>
+<p>
+  <strong> <a name="Anchor_239574379_tex_merge"></a>-m &quot;&quot; --merge &quot;&quot;</strong>
+</p>
+<p>マージするテクスチャー中間ファイルを指定します。<br />指定したテクスチャー中間ファイルの &lt;texture_info&gt; の設定（hint、linear、dimension、<br />quantize_type、mip_level、mip_gen_filter、comp_sel、weighted_compress、initial_swizzle）と<br />&lt;comment&gt; の設定でテクスチャー中間ファイルを作成します。<br />マージするファイルの mip_level が 2 以上の場合、出力ファイルの最小レベルの幅と高さが、マージするファイルの最小レベルの幅と高さ以下になるレベルまでミップマップを作成します。<br />入力ファイルがテクスチャー中間ファイルで、&lt;comment&gt; 要素の text 属性が空でなければ、text はマージされません。<br />このオプションと -n、-l、-d、-f、-w、-i、--mip-gen-filter、--swizzle、--comment オプションを同時に指定した場合、-n、-l、-d、-f、-w、-i、--mip-gen-filter、--swizzle、--comment オプションの指定が優先されます。</p>
+<p>
+  <strong>--dcc-preset &quot;&quot;</strong>
+</p>
+<p>DCC プラグインのプリセット名を指定します。テクスチャー中間ファイル以外を出力する際は、このオプションは影響しません。</p>
+<p>
+  <strong>-n &quot;&quot; --hint &quot;&quot;</strong>
+</p>
+<p>ヒント情報を指定します。<br />このオプションを指定しない場合、フォーマットが snorm_bc5 / snorm_eac_11_11&nbsp;なら normal、snorm_bc5&nbsp;/&nbsp;snorm_eac_11_11 以外なら空文字で出力します。<br />ヒント情報が normal&nbsp;で入力ファイルが整数型の場合、法線の Z 成分が 0 以上かつ長さが 1.0 になるように調整したテクスチャーデータを出力します。&nbsp;</p>
+<p>
+  <strong>-l &quot;&quot; --linear &quot;&quot;</strong>
+</p>
+<p>カラーを sRGB からリニアーに変換するなら 1、変換しないなら 0 を RGBA の順に 4 文字で指定します。<br />たとえば -l 1110 とすると、RGB 成分はリニアーに変換しますが、A 成分は変換しません。<br />このオプションを指定しない場合、どの成分もリニアーに変換しません。<br />srgb_* フォーマットの場合、このオプションの RGB 成分の指定は無視され（RGB 成分は常にリニアーに変換）、A 成分の指定のみ反映されます。</p>
+<p>
+  <strong>-d &quot;&quot; --dimension &quot;&quot;</strong>
+</p>
+<p>次元（1d / 2d / 3d / cube / 1d_array / 2d_array / cube_array）を指定します。<br />3d、1d_array、2d_array の場合、-t オプションで奥行きを指定する必要があります。<br />cube_array の場合、-t オプションでキューブ数を指定する必要があります。<br />1d、1d_array の場合、入力ファイルの上端の 1 ラインを出力します。<br />このオプションを指定しない場合、入力ファイルが TGA、PNG、EXR なら 2d で出力します。<br />入力ファイルが DDS、テクスチャー中間ファイルなら元の次元を維持します。<br />--cubemap-back、--cubemap-left、--cubemap-right、--cubemap-top、--cubemap-bottom オプションを指定した場合は、<br />-d cube を指定しなくても自動的に cube で出力します。</p>
+<p>
+  <a name="Anchor_239574379_horizontal_cross"></a>
+</p>
+<p>
+  <strong>水平十字または垂直十字キューブマップを使用する場合</strong>
+</p>
+<p>--cubemap-back、--cubemap-left、--cubemap-right、--cubemap-top、--cubemap-bottom&nbsp;オプションを指定しないで -d cube を指定します。<br />その際、入力ファイルの幅と高さから水平十字または垂直十字キューブマップを判別します。</p>
+<p>水平十字キューブマップは各ビュー方向の画像（正方形）を次のようにすき間なく並べている必要があります（座標軸は右手座標系）。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <br />
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>+Y</p>
+      </td>
+      <td>
+        <br />
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td style="background: rgb(221,255,221);">
+        <p>-X</p>
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>-Z</p>
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>+X</p>
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>+Z</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <br />
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>-Y</p>
+      </td>
+      <td>
+        <br />
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>垂直十字キューブマップは各ビュー方向の画像（正方形）を次のように すき間なく並べている必要があります。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <td>
+        <br />
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>+Y</p>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td style="background: rgb(221,255,221);">
+        <p>-X</p>
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>-Z</p>
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>+X</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <br />
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>-Y</p>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <br />
+      </td>
+      <td style="background: rgb(221,255,221);">
+        <p>+Z</p>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>-f &quot;&quot; --format &quot;&quot;</strong>
+</p>
+<p>フォーマットを指定します。このオプションを指定しない場合、入力ファイルが TGA なら unorm_8_8_8_8、PNG なら元フォーマットに応じて unorm_8_8_8_8 または float_16_16_16_16、EXR なら float_16_16_16_16 で出力します。<br />入力ファイルが&nbsp;DDS、テクスチャー中間ファイルなら元のフォーマットを維持します。&nbsp;<br />現在、下記のフォーマットに対応しています。</p>
+<p>
+  <strong>【すべての入力ファイルから変換可能】</strong>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>unorm_8_8_8_8 / snorm_8_8_8_8 / srgb_8_8_8_8 
+unorm_bc1 / unorm_bc2 / unorm_bc3 / unorm_bc4 / unorm_bc5 / unorm_bc7
+srgb_bc1 / srgb_bc2 / srgb_bc3 / snorm_bc4 / snorm_bc5 / srgb_bc7
+unorm_astc_4x4 / unorm_astc_5x4 / unorm_astc_5x5 / unorm_astc_6x5
+unorm_astc_6x6 / unorm_astc_8x5 / unorm_astc_8x6 / unorm_astc_8x8
+unorm_astc_10x5 / unorm_astc_10x6 / unorm_astc_10x8
+unorm_astc_10x10 / unorm_astc_12x10 / unorm_astc_12x12
+srgb_astc_4x4 / srgb_astc_5x4 / srgb_astc_5x5 / srgb_astc_6x5
+srgb_astc_6x6 / srgb_astc_8x5 / srgb_astc_8x6 / srgb_astc_8x8
+srgb_astc_10x5 / srgb_astc_10x6 / srgb_astc_10x8
+srgb_astc_10x10 / srgb_astc_12x10 / srgb_astc_12x12 </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>【入力ファイルが整数型の場合のみ変換可能】</strong>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>unorm_5_6_5 / unorm_5_5_5_1 / unorm_4_4_4_4 
+unorm_8 / unorm_4_4 / unorm_8_8 
+snorm_8 / snorm_8_8 
+uint_8 / uint_8_8 / uint_8_8_8_8 
+sint_8 / sint_8_8 / sint_8_8_8_8
+unorm_etc1 / unorm_etc2 / unorm_etc2_mask / unorm_etc2_alpha
+srgb_etc2 / srgb_etc2_mask / srgb_etc2_alpha
+unorm_eac_11 / unorm_eac_11_11 / snorm_eac_11 / snorm_eac_11_11
+unorm_pvrtc1_2bpp / unorm_pvrtc1_4bpp / srgb_pvrtc1_2bpp / srgb_pvrtc1_4bpp
+unorm_pvrtc1_alpha_2bpp / unorm_pvrtc1_alpha_4bpp
+srgb_pvrtc1_alpha_2bpp / srgb_pvrtc1_alpha_4bpp
+unorm_pvrtc2_alpha_2bpp / unorm_pvrtc2_alpha_4bpp
+srgb_pvrtc2_alpha_2bpp / srgb_pvrtc2_alpha_4bpp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>【入力ファイルが実数型の場合のみ変換可能】</strong>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>unorm_16 / unorm_16_16 / unorm_16_16_16_16
+snorm_16 / snorm_16_16 / snorm_16_16_16_16
+uint_16 / uint_16_16 / uint_16_16_16_16
+sint_16 / sint_16_16 / sint_16_16_16_16
+uint_32 / uint_32_32 / uint_32_32_32_32
+sint_32 / sint_32_32 / sint_32_32_32_32
+unorm_10_10_10_2 / uint_10_10_10_2
+float_16 / float_32 / float_16_16 / float_32_32
+float_11_11_10 / float_16_16_16_16 / float_32_32_32_32
+ufloat_bc6 / float_bc6</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>unorm_4_4、unorm_8_8、unorm_bc5、unorm_eac_11_11&nbsp;を指定した場合<br />ヒント情報が normal 以外で入力ファイルに A 成分があれば、入力ファイルの A 成分をテクスチャーの G 成分に反映します。<br />入力ファイルが整数型の場合に snorm / sint フォーマットを指定すると、符号なし 8bit の値（0～255）から 128 を引いた値をエンコードします。ただし、符号なし 8bit の値 0 は -127 としてエンコードします。<br />astc フォーマットを指定した場合、&nbsp;ヒント情報が normal であれば、&nbsp;入力ファイルの R 成分をテクスチャーの RGB 成分に、入力ファイルの G 成分をテクスチャーの A 成分に反映します。<br />実数型の入力ファイルを astc&nbsp;フォーマットに変換する場合、入力ファイルのピクセル値が [0,1] の範囲外の場合はクランプします。&nbsp;</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>unorm_4_4 フォーマットは特定プラットフォームでのみ使用できます。<br />unorm_4_4 フォーマットのテクスチャー中間ファイルを Generic 向けのテクスチャーバイナリーファイルに変換するとエラーになります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>特定のアドオンがインストールされていない環境で&nbsp;bc1 / bc2 / bc3 フォーマットを指定した場合、ゆるやかにカラーが変化する領域が広い画像なら、ディザを使用してバンディングを抑制します。<br />次の条件をすべて満たす場合にディザを使用します。</p>
+    <ul>
+      <li>入力ファイルが整数型</li>
+      <li>幅または高さが 256 ピクセル以上かつ、幅と高さのうち小さいほうが 8 ピクセル以上</li>
+      <li>周辺ピクセルとの RGB 値の差の最大値が 1 のピクセルが 50% 以上</li>
+      <li>周辺ピクセルとの RGB 値の差の最大値が 64 以上のピクセルが 20% 未満</li>
+    </ul>
+    <p>周辺ピクセルは上下左右斜めの 8 方向、RGB 値は 8 bit（256 段階）で計算します。</p>
+  </div>
+</div>
+<p>
+  <strong>-w &quot;&quot; --weighted-compress &quot;&quot;</strong>
+</p>
+<p>bc1、bc2、bc3、etc1、etc2 の圧縮をする際に、RGB の誤差に対して人間の目に合わせた重み付けをするなら true、重み付けをしないなら false を指定します。&nbsp;<br />このオプションを指定しない場合、入力ファイルが TGA、PNG、DDS、EXR なら重み付けをしません。&nbsp;<br />入力ファイルがテクスチャー中間ファイルなら元の設定を維持します。</p>
+<p>
+  <strong>-t &quot;&quot; --depth &quot;&quot;</strong>
+</p>
+<p>3D テクスチャーおよび配列テクスチャーの奥行きを指定します。&nbsp;<br />キューブ配列テクスチャーの場合はキューブ数を指定します。<br />1D 配列テクスチャーの場合 -d 1d_array、2D 配列テクスチャーの場合 -d 2d_array、<br />水平十字／垂直十字キューブマップの場合 -d cube_array も同時に指定します。</p>
+<p>このオプションを指定して -d オプションを省略した場合、入力ファイルが 2D なら 3D テクスチャー、入力ファイルがキューブマップならキューブ配列テクスチャーとなります。</p>
+<p>入力ファイルのファイル名の末尾の数値を増やしたファイルを、このオプションで指定した枚数だけ入力ファイルとして使用します。<br />たとえば、入力ファイルが image1.tga で -t 3 とすると、image1.tga、image2.tga、image3.tga を使用します。</p>
+<p>入力ファイルが image010.tga で -t 4 とすると、image010.tga、image011.tga、image012.tga、image013.tga を使用します。<br />キューブマップの各方向の画像を個別指定する場合、--cubemap-back、--cubemap-left、--cubemap-right、--cubemap-top、--cubemap-bottom オプションで指定したファイル名の末尾の数値を増やしたファイルも 入力ファイルとして使用します。</p>
+<p>
+  <strong>--no-encoding</strong>
+</p>
+<p>再エンコードしないで変換するなら指定します。<br />配列テクスチャーを作成する際に指定すると、DDS ファイルまたはテクスチャー中間ファイルのエンコード済みデータを結合します。<br />テクスチャー中間ファイルを DDS ファイルに変換する際に指定すると、テクスチャー中間ファイルのエンコード済みデータを DDS ファイルに出力します。<br />このオプションを指定した場合、--version、-h、-s、-o、-t、-c およびテクスチャーバイナリーファイル関連以外のオプションは無視されます。</p>
+<p>以下は配列テクスチャーを作成する場合の注意点です。<br />入力ファイルは DDS ファイルまたはテクスチャー中間ファイルにする必要があります。入力ファイルのミップマップデータも反映されます。<br />-t オプションと同時に指定します。<br />入力ファイルの次元は、1d、2d、cube のいずれかである必要があります。<br />各入力ファイルのヒント情報、リニアー変換フラグ、次元、幅、高さ、フォーマット、ミップマップ数、成分選択は同じである必要があります。<br />DCC プラグインのプリセット名、初期スウィズル値、ユーザーデータ、編集用コメント、ツールデータ、ユーザーツールデータは先頭の入力ファイルのものを出力します。<br />たとえば image1.dds、image2.dds、image3.dds の次元が 2d の場合、image1.dds -o array1.dds -t 3 --no-encoding とすると、エンコード済みデータを結合して array1.dds（次元は 2d_array） に出力します。</p>
+<p>
+  <strong>--gpu-encoding &quot;&quot;</strong>
+</p>
+<p>特定のフォーマットに変換する際に GPU でエンコードするかどうかを指定します。<br />true を指定すると、現在の環境で GPU エンコーディングが可能なら GPU でエンコードし、不可能ならエラーを発生します。<br />false を指定すると CPU でエンコードします。<br />auto を指定すると、可能なら GPU でエンコードし、不可能なら CPU でエンコードします。<br />このオプションを指定しない場合は true を指定したときと同じ動作です。<br />現在、このオプションは bc1 / bc2 / bc3 / bc6 / bc7 / astc フォーマットに変換する場合のみ影響します。<br />GPU でエンコードする場合と CPU でエンコードする場合では、エンコード結果が同じにならない場合があります。<br />グラフィックスドライバーのバージョンが古いと GPU でエンコードできない場合があります。<br />特定のアドオンがインストールされていない場合、このオプションは無視され、常に CPU でエンコードします。</p>
+<p>
+  <strong>--check-gpu-encoding</strong>
+</p>
+<p>現在の環境で GPU エンコーディングが可能か判定します。<br /><span style="color: rgb(51,51,51);">GPU エンコーディングが可能なら 3dTextureConverter.exe の終了コード（%ERRORLEVEL%）は 0、不可能なら 0 以外になります。<br />終了コードが 0 でも、GPU エンコーディングの対象フォーマットでなければ CPU でエンコードします。<br /></span>特定のアドオンがインストールされていて、GPU とグラフィックスドライバーが条件を満たしていれば、GPU エンコーディングが可能です。<br />このオプションを指定した場合、他のオプションは無視され、変換は実行されません。</p>
+<p>
+  <strong>-i &quot;&quot; --mip-level &quot;&quot;</strong>
+</p>
+<p>ミップマップの最大レベル数を指定します。&nbsp;<br />入力ファイルの幅と高さが小さくて指定したレベル数まで作成できない場合、幅と高さが 1 になるレベルまでミップマップを作成します。<br />このオプションを指定しない場合、入力ファイルが TGA、PNG、EXR なら 幅と高さが 1 になるレベルまでミップマップを作成します。<br />入力ファイルが DDS、テクスチャー中間ファイルなら元のレベル数を維持します。<br />入力ファイルが DDS の場合、-i / -m / --crop / -e / -x / -y オプションのいずれも指定しなければ、入力ファイルのミップマップ画像が反映されます。</p>
+<p>
+  <strong>--mip-gen-filter &quot;&quot;</strong>
+</p>
+<p>ミップマップを生成する際のフィルター（point / linear / cubic）を指定します。&nbsp;<br />このオプションを指定しない場合、入力ファイルが TGA、PNG、DDS、EXR なら linear を使用し、入力ファイルがテクスチャー中間ファイルなら元のフィルターを維持します。</p>
+<p>
+  <strong> <a name="Anchor_239574379_comp_sel"></a>&nbsp;<br /> </strong>
+</p>
+<p>
+  <strong>-c &quot;&quot; --comp-sel &quot;&quot;</strong>
+</p>
+<p>RGBA の各チャンネルに対して、どのカラー成分（r / g / b / a / 0 / 1）を選択するか指定します。<br />出力ファイルがテクスチャー中間ファイルまたはテクスチャーバイナリーファイルの場合に有効です。<br />たとえば -c rrr1 とすると、R、G、B チャンネルにすべて R 成分、A チャンネルに定数 1 が選択されます。<br />このオプションを指定しない場合、フォーマットによって次のいずれかが選択されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>rrr1（フォーマットの成分数が 1） 
+rrrg（フォーマットの成分数が 2 で符号なし） 
+rg01（フォーマットの成分数が 2 で符号あり、または unorm_16_16、uint_*_*） 
+rgb1（フォーマットの成分数が 3）
+rgba（フォーマットの成分数が 4）
+ra01（astc フォーマットでヒント情報が normal）</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>入力ファイルがテクスチャー中間ファイルで、このオプションを指定しない場合、フォーマットの成分数と符号あり／なしが変わらなければ元の comp_sel を維持します。<br />入力ファイルが RG の 2 成分で符号なしの DDS ファイルの場合、デフォルトの成分選択は rg01 となります。</p>
+<p>
+  <strong>--swizzle &quot;&quot;</strong>
+</p>
+<p>初期スウィズル値を 0 以上 7 以下の整数で指定します。初期スウィズル値は特定プラットフォームでのみ、パフォーマンスに影響します。<br />このオプションを指定しない場合、初期スウィズル値 0 で出力します。</p>
+<p>
+  <strong>--cubemap-back &quot;&quot;</strong>
+</p>
+<p>キューブマップの後面（-Z 方向）の画像ファイルを指定します。</p>
+<p>
+  <strong>--cubemap-left &quot;&quot;</strong>
+</p>
+<p>キューブマップの左面（-X 方向）の画像ファイルを指定します。</p>
+<p>
+  <strong>--cubemap-right &quot;&quot;</strong>
+</p>
+<p>キューブマップの右面（+X 方向）の画像ファイルを指定します。</p>
+<p>
+  <strong>--cubemap-top &quot;&quot;</strong>
+</p>
+<p>キューブマップの上面（+Y 方向）の画像ファイルを指定します。</p>
+<p>
+  <strong>--cubemap-bottom &quot;&quot;</strong>
+</p>
+<p>キューブマップの下面（-Y 方向）の画像ファイルを指定します。</p>
+<p>
+  <strong>--mip-imageM &quot;&quot;<br /> </strong>（M はミップマップのレベルを表す 1 以上 14 以下の整数）</p>
+<p>ミップマップ画像を個別指定する場合に各レベルの画像ファイルを指定します。<br />このオプションで指定しないレベルは解像度の高いレベルを縮小した画像になります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>たとえばコマンドラインオプションが base.tga -i 5 --mip-image2 sub.tga の場合
+レベル 0 は base.tga の画像、
+レベル 1 は base.tga を 1/2 に縮小した画像、
+レベル 2 は sub.tga の画像、
+レベル 3 は sub.tga を 1/2 に縮小した画像、
+レベル 4 は sub.tga を 1/4 に縮小した画像、となります。
+sub.tga の幅と高さが base.tga の幅と高さの 1/4 でないとエラーになります。</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>--cubemap-frontM &quot;&quot;<br /> </strong> <strong>--cubemap-backM &quot;&quot;<br /> </strong> <strong>--cubemap-leftM &quot;&quot;<br /> </strong> <strong>--cubemap-rightM &quot;&quot;<br /> </strong> <strong>--cubemap-topM &quot;&quot;<br /> </strong> <strong>--cubemap-bottomM &quot;&quot;<br /> </strong>（M はミップマップのレベルを表す 1 以上 14 以下の整数）</p>
+<p>--cubemap-back、--cubemap-left、--cubemap-right、--cubemap-top、--cubemap-bottom&nbsp;オプションでキューブマップの各方向の画像を個別指定して、かつミップマップ画像も個別指定する場合に各レベルの画像ファイルを指定します。<br />--cubemap-frontM、--cubemap-backM、--cubemap-leftM、--cubemap-rightM、--cubemap-topM、--cubemap-bottomM がそれぞれ前面、後面、左面、右面、上面、下面のレベル M に対応します。<br />このオプションで指定しないレベルは解像度の高いレベルを縮小した画像になります。</p>
+<p>
+  <strong>--comment &quot;&quot;</strong>
+</p>
+<p>テクスチャー中間ファイルの編集用コメント文を指定します。</p>
+<p>
+  <strong>--crop &quot;&quot;</strong>
+</p>
+<p>画像の一部分を切り抜いて出力する場合に、カンマで区切った 4 つの整数値で切り抜く矩形を指定します（X,Y,W,H の形式）。<br />X,Y は矩形の左上の座標を 0 以上の整数値で指定します。<br />W,H は矩形の幅と高さを 1 以上の整数値で指定します。<br />-e / -x / -y オプションと併用した場合、矩形を切り抜いてからサイズ変更します。&nbsp;<br />入力画像が水平／垂直十字キューブマップの場合、単一のビュー方向の画像に対する矩形を指定してください。</p>
+<p>
+  <strong>-e &quot;&quot; --reduce-level &quot;&quot;</strong>
+</p>
+<p>1 以上の整数値 N を指定すると、1 / (2 の N 乗) のサイズに縮小した画像を出力します。<br />（N =&nbsp;1 なら 1/2、N =&nbsp;2 なら 1/4、N = 3 なら 1/8）<br />このオプションを指定しない場合は縮小しません。<br />-x / -y オプションと併用した場合、このオプションは無効となります。</p>
+<p>
+  <strong>-x &quot;&quot; --resize-w &quot;&quot;<br /> </strong> <strong>-y &quot;&quot; --resize-h &quot;&quot;</strong></p>
+<p>画像サイズを変更して出力する場合に、サイズ変更後の幅（-x）と高さ（-y）をピクセル数（1 以上の整数）または元のサイズに対するパーセンテージ（実数 + %）で指定します。<br />-x / -y オプションの一方のみ指定した場合は縦横比を固定してサイズ変更します。<br />-x 100% -y 50% とすれば、幅を変えずに高さだけ半分にできます。<br />バッチファイルでパーセンテージを指定する場合、<span style="color: rgb(255,0,0);"><strong>50%%</strong></span>&nbsp;のように<span style="color: rgb(255,0,0);"><strong>パーセント記号を 2 つ記述する必要があります</strong></span>。<br />入力画像が水平／垂直十字キューブマップの場合、単一のビュー方向の画像の幅と高さを指定してください。</p>
+<p>
+  <strong>--resize-filter &quot;&quot;</strong>
+</p>
+<p>-e / -x / -y オプションで画像サイズを変更する際のフィルターを指定します。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <td>point</td>
+      <td>ポイントサンプリング</td>
+    </tr>
+    <tr>
+      <td>linear</td>
+      <td>線形補間</td>
+    </tr>
+    <tr>
+      <td>cubic</td>
+      <td>標準的なキュービック補間</td>
+    </tr>
+    <tr>
+      <td>cubic_smooth</td>
+      <td>滑らかなキュービック補間</td>
+    </tr>
+    <tr>
+      <td>cubic_sharp</td>
+      <td>シャープなキュービック補間</td>
+    </tr>
+  </tbody>
+</table>
+<p>このオプションを指定しない場合、線形補間でサイズ変更します。</p>
+<p>
+  <strong>--resize-gamma &quot;&quot;</strong>
+</p>
+<p>-e / -x / -y&nbsp;オプションを指定していて、-l オプションや入力画像の設定によってガンマを sRGB からリニアーに変換する場合に、リニアー空間でサイズ変更計算するなら true、 カラー空間を変換せずにサイズ変更計算するなら false を指定します。<br />このオプションを指定しない場合はリニアー空間でサイズ変更計算します。</p>
+<p>
+  <strong>--ignore-alpha &quot;&quot;</strong>
+</p>
+<p>入力画像ファイルの A 成分を無視して不透明として処理するなら true、無視しないなら false を指定します。<br />不要な A 成分が設定された画像ファイルを変換する場合や、unorm_bc5 フォーマットなどで A 成分が G 成分に反映されないようにする場合に true を指定します。<br />このオプションを指定しない場合は A 成分を無視しません。</p>
+<p>
+  <strong>-u &quot;&quot; --adjust-transparent-rgb &quot;&quot;</strong>
+</p>
+<p>線形補間による透明ピクセルの色のにじみを防止するために透明ピクセルの RGB 成分を調整するなら true、調整しないなら false を指定します。<br />true を指定すると、透明ピクセル（A 成分が 0）の RGB 成分に、隣接する透明でないピクセル（A 成分 &gt; 0）の RGB 成分の平均を設定します。<br />また true の場合、-e / -x / -y オプションによるサイズ変更時に透明ピクセルのRGB 成分が影響しないようにします。<br />ただし、サンプリング範囲がすべて透明ピクセルなら透明ピクセルの RGB 成分を平均します。&nbsp;<br />このオプションを指定しない場合は透明ピクセルの RGB 成分を調整しません。&nbsp;</p>
+<p>
+  <strong>-r &quot;&quot; --replace-r &quot;&quot;</strong>&nbsp;<br /> <strong>-g &quot;&quot; --replace-g &quot;&quot;</strong>&nbsp;<br /> <strong>-b &quot;&quot; --replace-b &quot;&quot;</strong>&nbsp;<br /> <strong>-a &quot;&quot; --replace-a &quot;&quot;</strong></p>
+<p>入力ファイルの R/G/B/A チャンネルを、別の画像ファイルで差し替えて変換する場合に、別の画像ファイルを指定します。<br />別の画像ファイル名の後に「:チャンネル名」（:r/:g/:b/:a）を記述すると、別の画像ファイルの指定したチャンネルを使用します。<br />「:チャンネル名」を省略した場合は R チャンネルを使用します。<br />たとえば -g image1.tga -b image2.tga:a とすると、入力ファイルの G チャンネルが image1.tga の R チャンネルで、入力ファイルの B チャンネルが image2.tga の A チャンネルで差し替えられます。<br />別の画像ファイルが ftx ファイルの場合、リニアー変換フラグも差し替えます。<br />別の画像ファイルの解像度が入力ファイルと異なる場合、別の画像を入力ファイルにあわせてサイズ変更して処理します。その際、--resize-filter オプションで指定したフィルターを使用します。<br />このオプションと -t、--cubemap-back、--cubemap-left、--cubemap-right、--cubemap-top、--cubemap-bottom、--mip-imageM オプションとの併用には対応していません。</p>
+<p>
+  <strong>--no-tga-rle</strong>
+</p>
+<p>TGA ファイルを非圧縮で出力するなら指定します。<br />このオプションを指定しなければ RLE 圧縮で出力します。</p>
+<h1 id="Anchor_239574379_h1_3">利用例</h1>
+<h2 id="Anchor_239574379_h2_1">画像ファイルをテクスチャー中間ファイルに変換</h2>
+<p>image.tga を変換して、srgb_bc1 フォーマット、ミップマップレベル数 8 のテクスチャー中間ファイル image.ftxb を作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image.tga -o image.ftxb -f srgb_bc1 -i 8</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>merge.ftxb をマージ指定して、merge.ftxb の設定（ヒント情報、リニアー変換、次元、フォーマット、ミップマップ、成分選択、初期スウィズル値）で、テクスチャー中間ファイル image.ftxb を作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image.tga -o image.ftxb -m merge.ftxb</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>image1.tga、image2.tga、image3.tga を変換して 2D 配列のテクスチャー中間ファイル array1.ftxb を作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image1.tga -o array1.ftxb -d 2d_array -t 3</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ジョブリストファイルを用いてまとめて変換します。<br />image1.ftxb と image2.ftxb のヒント情報は albedo、image3.ftxb のヒント情報は specular となります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>list.txt
+
+image1.tga -o image1.ftxb -f srgb_bc1
+image2.tga -o image2.ftxb -f srgb_bc3
+image3.tga -o image3.ftxb -f unorm_8 --hint specular</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe --job-list list.txt --hint albedo</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_239574379_h2_2">テクスチャー中間ファイルをテクスチャーバイナリーファイルに変換</h2>
+<p>imageA.ftxb、imageB.ftxb、imageC.ftxb をテクスチャーバイナリーファイル textures.bntx （リニアーなタイリング）に変換します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe imageA.ftxb imageB.ftxb imageC.ftxb -o textures.bntx --tile-mode linear</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_239574379_h2_3">テクスチャー中間ファイルの再変換</h2>
+<p>image.ftxb のフォーマットを unorm_5_6_5 に変更して保存します。<br />テクスチャー中間ファイルはエンコード前の画像データを持っているので、再エンコードによる画質の劣化はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image.ftxb -o image.ftxb -f unorm_5_6_5</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_239574379_h2_4">テクスチャー中間ファイルを TGA ファイルに変換</h2>
+<p>image.ftxb のエンコード前の画像データを original.tga に出力します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image.ftxb -o original.tga</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_239574379_h2_5">画像ファイルを各フォーマットの DDS ファイルに変換</h2>
+<p>image.tga を変換して、srgb_bc1 フォーマット、ミップマップレベル数 8 の DDS ファイル image.dds を作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image.tga -o image.dds -f srgb_bc1 -i 8</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>image1.tga、image2.tga、image3.tga を変換して 2D 配列の DDS ファイル array1.dds を作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image1.tga -o array1.dds -f srgb_bc1 -d 2d_array -t 3</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ジョブリストファイルを用いてまとめて変換します。<br />image1.dds と image2.dds のフォーマットは srgb_bc1、image3.dds のフォーマットは unorm_5_6_5&nbsp;となります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>list.txt
+
+image1.tga -o image1.dds
+image2.tga -o image2.dds
+image3.tga -o image3.dds -f unorm_5_6_5</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe --job-list list.txt -f srgb_bc1</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_239574379_h2_6">DDS ファイルをテクスチャーバイナリーファイルに変換</h2>
+<p>image_dxt1.dds、image_bc3.dds、image_r5g6b5.dds をテクスチャーバイナリーファイル textures.bntx （リニアーなタイリング）に変換します。<br />DDS ファイルのデータを再エンコードせずにそのまま利用して変換します。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image_dxt1.dds.dds image_bc3.dds image_r5g6b5.dds -o textures.bntx --tile-mode linear</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ディスクリプタプールについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ディスクリプタプールについて -->
+<div class="pagetitle" id="PageId_108531266">ディスクリプタプールについて</div>
+<div class="text_separate">
+<h1 id="Anchor_108531266_h1_1">ui2d / font ランタイムでのディスクリプタプールの扱い</h1>
+<p>ui2d / font &nbsp;ランタイム内部でのディスクリプタプールの扱いについて説明します。</p>
+<p>テクスチャオブジェクトやサンプラオブジェクトは、ディスクリプタプールに登録しディスクリプタスロットを取得した上で利用されます。<br />ディスクリプタ プールは、アプリで１つしか用意されないので、ランタイム内部で生成されるオブジェクトはコールバック関数を通して、生成されたオブジェクトの情報 をアプリ側に通知し、アプリ側でディスクリプタプール への登録、ディスクリプタスロットの取得を行っていただく必要があります。</p>
+<h3 id="Anchor_108531266_h3_1">サンプルコード</h3>
+<p>以下にフォントの例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// テクスチャをディスクリプタプールに登録するコールバック
+bool RegisterTextureForDescriptorPool( nn::gfx::DescriptorSlot* dstSlot, const nn::gfx::TextureView&amp; textureView )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;・・・・
+}
+// テクスチャをディスクリプタプールから登録解除するコールバック
+bool UnregisterTextureFromDescriptorPool( nn::gfx::DescriptorSlot* dstSlot, const nn::gfx::TextureView&amp; textureView )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;・・・・
+}
+// サンプラをディスクリプタプールに登録するコールバック
+bool RegisterSamplerForDescriptorPool( nn::gfx::DescriptorSlot* dstSlot, const nn::gfx::Sampler* sampler )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;・・・・
+}
+// サンプラをディスクリプタプールから登録解除するコールバック
+bool UnregisterSamplerFromDescriptorPool( nn::gfx::DescriptorSlot* dstSlot, const nn::gfx::Sampler* sampler )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;・・・・
+}
+
+nn::font::RectDrawer rectDrawer;
+nn::font::ResFont resFont;
+
+// RectDrawer 初期化
+rectDrawer.Initialize( &amp;gfxDevice, rectDrawerWorkBuf, CharMax );
+
+// RectDrawer 内部で生成されたサンプラをディスクリプタプールに登録する
+rectDrawer.RegisterSamplerToDescriptorPool( RegisterSamplerForDescriptorPool );
+
+// フォントリソース設定
+resFont.SetResource( &amp;gfxDevice, pFontResource );
+
+// 設定されたリソースに含まれるテクスチャをディスクリプタプールに登録
+resFont.RegisterTextureViewToDescriptorPool( RegisterTextureForDescriptorPool );
+
+
+// フォントリソースに含まれる登録済みテクスチャをディスクリプタプールから登録解除する
+resFont.UnregisterTextureViewFromDescriptorPool( UnregisterTextureFromDescriptorPool );
+
+// RectDrawer 内部で生成されたサンプラをディスクリプタプールから登録解除する
+rectDrawer.UnregisterSamplerFromDescriptorPool( UnregisterSamplerFromDescriptorPool );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>基本的には、各モジュール内部でグラフィックスリソースを生成したタイミング、破棄するタイミングでディスクリプタプールへの登録・登録解除を行う必要があります。</p>
+<h3 id="Anchor_108531266_h3_2">ディスクリプタプールへの登録メソッド</h3>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>モジュール</th>
+      <th>種類</th>
+      <th>メソッド名　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　</th>
+      <th>呼び出しタイミング</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__font">nn::font</span>
+      </td>
+      <td>サンプラー</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__RectDrawer__RegisterSamplerToDescriptorPool">nn::font::RectDrawer::RegisterSamplerToDescriptorPool</span>
+        </p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__RectDrawer__Initialize">nn::font::RectDrawer::Initialize</span>() 呼び出し後</p>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>テクスチャー</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__TextureCache__RegisterTextureViewToDescriptorPool">nn::font::TextureCache::RegisterTextureViewToDescriptorPool</span>
+        </p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__TextureCache__Initialize">nn::font::TextureCache::Initialize</span>() 呼び出し前</p>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>テクスチャー</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__ResFont__RegisterTextureViewToDescriptorPool">nn::font::ResFont::RegisterTextureViewToDescriptorPool</span>
+        </p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__ResFont__SetResource">nn::font::ResFont::SetResource</span>() 呼び出し後</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__ui2d">nn::ui2d</span>
+      </td>
+      <td>テクスチャー</td>
+      <td>
+        <span class="ApiLink_nn__ui2d__ResourceAccessor__RegisterTextureViewToDescriptorPool">nn::ui2d::ResourceAccessor::RegisterTextureViewToDescriptorPool</span>
+      </td>
+      <td>ResourceAccessor からレイアウト一式を 構築し、CreateGroupAnimator() が終わった後。<br />（テクスチャパターンアニメーションで使われるテクスチャスロットを初期化するため）</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>サンプラー</td>
+      <td>nn::ui2d::GraphicsResourc::RegisterCommonSamplerSlot</td>
+      <td>nn::ui2d::GraphicsResourc::Setup() 呼び出し後</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>登録メソッドを複数回呼び出しした場合、モジュール内部で保持するディスクリプタスロットの書き換えを行う仕様になっています。</p>
+  </div>
+</div>
+<h3 id="Anchor_108531266_h3_3">ディスクリプタプールへの登録解除メソッド</h3>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>モジュール</th>
+      <th>種類</th>
+      <th>メソッド名　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　</th>
+      <th>呼び出しタイミング</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__font">nn::font</span>
+      </td>
+      <td>テクスチャー</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__ResFont__UnregisterTextureViewFromDescriptorPool">nn::font::ResFont::UnregisterTextureViewFromDescriptorPool</span>
+        </p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__ResFont__Finalize">nn::font::ResFont::Finalize</span>呼び出し前</p>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>テクスチャー</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__TextureCache__UnregisterTextureViewFromDescriptorPool">nn::font::TextureCache::UnregisterTextureViewFromDescriptorPool</span>
+        </p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__TextureCache__Finalize">nn::font::TextureCache::Finalize</span>呼び出し前</p>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>サンプラー</td>
+      <td>nn::font::RectDrawer ::UnregisterSamplerFromDescriptorPool</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__font__RectDrawer__Finalize">nn::font::RectDrawer::Finalize</span>呼び出し前</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__ui2d">nn::ui2d</span>
+      </td>
+      <td>テクスチャー</td>
+      <td>
+        <span class="ApiLink_nn__ui2d__ResourceAccessor__UnregisterTextureViewFromDescriptorPool">nn::ui2d::ResourceAccessor::UnregisterTextureViewFromDescriptorPool</span>
+      </td>
+      <td>
+        <span class="ApiLink_nn__ui2d__ResourceAccessor__Finalize">nn::ui2d::ResourceAccessor::Finalize</span>() 呼び出し前</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>サンプラー</td>
+      <td>nn::ui2d::GraphicsResourc::UnregisterCommonSamplerSlot</td>
+      <td>nn::ui2d::GraphicsResourc::Finalize() 呼び出し前</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>ユーザー側でディスクリプタプールへの登録解除を管理しない場合は、登録解除メソッドを呼び出さなくても問題ありません。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__font', '../../../Api/HtmlNX/namespacenn_1_1font.html' )
+SetUrl( 'ApiLink_nn__font__RectDrawer__RegisterSamplerToDescriptorPool', '../../../Api/HtmlNX/classnn_1_1font_1_1_rect_drawer.html#a2b2a693ea12416940b4f948d90cb35b8' )
+SetUrl( 'ApiLink_nn__font__RectDrawer__Initialize', '../../../Api/HtmlNX/classnn_1_1font_1_1_rect_drawer.html#a23c11c355c304b183902cae821af2c6e' )
+SetUrl( 'ApiLink_nn__font__TextureCache__RegisterTextureViewToDescriptorPool', '../../../Api/HtmlNX/classnn_1_1font_1_1_texture_cache.html#a07742ce32d73dd83441dbcc698e3d680' )
+SetUrl( 'ApiLink_nn__font__TextureCache__Initialize', '../../../Api/HtmlNX/classnn_1_1font_1_1_texture_cache.html#a39cb13c21579fb3ce18dad81b4083cfe' )
+SetUrl( 'ApiLink_nn__font__ResFont__RegisterTextureViewToDescriptorPool', '../../../Api/HtmlNX/classnn_1_1font_1_1_res_font_base.html#a9875091bb1e3b2c70ec1beece9121640' )
+SetUrl( 'ApiLink_nn__font__ResFont__SetResource', '../../../Api/HtmlNX/classnn_1_1font_1_1_res_font.html#ad12a6d532e5d298927cc5fc5839bf737' )
+SetUrl( 'ApiLink_nn__ui2d', '../../../Api/HtmlNX/namespacenn_1_1ui2d.html' )
+SetUrl( 'ApiLink_nn__ui2d__ResourceAccessor__RegisterTextureViewToDescriptorPool', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_resource_accessor.html#ac404c5cfd5f6782c38d12717cc1b0dc3' )
+SetUrl( 'ApiLink_nn__font__ResFont__UnregisterTextureViewFromDescriptorPool', '../../../Api/HtmlNX/classnn_1_1font_1_1_res_font_base.html#af962fa7d8a1f51dfd8fea4c02c4802f4' )
+SetUrl( 'ApiLink_nn__font__ResFont__Finalize', '../../../Api/HtmlNX/classnn_1_1font_1_1_res_font.html#a014049eb4e5a05607e1ced12c459f502' )
+SetUrl( 'ApiLink_nn__font__TextureCache__UnregisterTextureViewFromDescriptorPool', '../../../Api/HtmlNX/classnn_1_1font_1_1_texture_cache.html#a1e287617bd5eb9425fb4c11191e7c478' )
+SetUrl( 'ApiLink_nn__font__TextureCache__Finalize', '../../../Api/HtmlNX/classnn_1_1font_1_1_texture_cache.html#a4b319c6d9716c27fc48c56204cc101da' )
+SetUrl( 'ApiLink_nn__font__RectDrawer__Finalize', '../../../Api/HtmlNX/classnn_1_1font_1_1_rect_drawer.html#ababb8dc2432bb310842dfe2d32fddc44' )
+SetUrl( 'ApiLink_nn__ui2d__ResourceAccessor__UnregisterTextureViewFromDescriptorPool', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_resource_accessor.html#a7ed435daa287702d94769b8f91ddb176' )
+SetUrl( 'ApiLink_nn__ui2d__ResourceAccessor__Finalize', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_resource_accessor.html#a98b6b75b2bddbd946f89f2d0dd83e20c' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

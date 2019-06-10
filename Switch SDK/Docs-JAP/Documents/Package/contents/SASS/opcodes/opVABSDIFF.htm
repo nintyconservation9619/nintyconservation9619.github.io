@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VABSDIFF</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VABSDIFF : Integer Byte/Short Absolute Difference<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Byte/Short Absolute Difference" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Video Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VABSDIFF", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VABSDIFF</b>{.dfmt}{.safmt.sbfmt}{.SAT}{.op2}</code>   <code>Rd{.CC}, Ra{.partselA}, Rb{.partselB}, Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VABSDIFF" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VABSDIFF</b>{.dfmt}{.safmt.ifmt}{.SAT}{.op2}</code>    <code>Rd{.CC}, Ra{.partselA}, #imm16,        Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VABSDIFF" } -->
+
+ .dfmt:       { <b>.UD*, .SD</b> }
+              Destination format (unsigned or signed)
+
+ .safmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b> }
+ .sbfmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b> } 
+ .ifmt:       {              <b>.U16, .S16*</b>          } 
+              Source formats
+
+ .SAT:        Saturate destination based on .op2 and .dfmt
+
+ .op2:        { <b>.PASS*, .MRG_16H, .MRG_16L, .MRG_8B0, .MRG_8B2, .ACC, .MIN, .MAX</b>}
+
+ .CC:         Write condition codes
+
+ .partselA:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b> }
+              if (.U16|.S16) { <b>.H0*, .H1</b> }
+
+ .partselB:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b> } 
+              if (.U16|.S16) { <b>.H0*, .H1</b> }
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Calculate the absolute value of the difference between Ra and Sb with optional 
+second stage operation and optional saturate.</p>
+
+<h4>Basic math operation:</h4>
+<p>
+Both inputs are are first promoted to S33 (based on their individual .S or .U format), then
+the absolute difference (tmp  = |Ra - Sb|) is done, producing a U33 result.
+The intermediate result is promoted to S34 for subsequent processing.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>VABSDIFF</b>.ACC         R0,  R1,     R2, R3;   # R0 = |R1    -  R2 | + R3
+<b>VABSDIFF</b>.U16.S16.ACC R0,  R1, 0xfffe, R3;   # R0 = |R1.H0 - (-2)| + R3
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

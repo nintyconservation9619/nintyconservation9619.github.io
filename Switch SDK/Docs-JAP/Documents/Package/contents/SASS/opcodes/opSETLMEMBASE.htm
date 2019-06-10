@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SETLMEMBASE</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SETLMEMBASE : Set Local Memory Base Pointer<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Set Local Memory Base Pointer" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SETLMEMBASE", subsection => 15 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code><b>SETLMEMBASE</b></code>   <code>Ra</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   <code>// Ra is a 64 bit vector2 register</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SETLMEMBASE" } -->
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>SETLMEMBASE</b> allows a thread to modify the base address of its local
+memory backing store so that the local memory low/high and the CRS region can
+be switched to another location in memory.  The base of local memory is a per
+warp state that is shared by all the threads in the warp.  If multiple threads
+execute <b>SETLMEMBASE</b> operation within a warp, HW arbitrarily chooses one
+thread as the "last" writer.</p>
+
+<p>
+This instruction updates per warp
+[WARP].LMEMBASE
+state (in the warpLocalBase_t.
+structure).</p>
+
+<p>
+In order to guard against reordered accesses to [WARP].LMEMBASE by LDL/STL/LD-to-local/ST-to-global
+ops, either before or after SETLMEMBASE, software should always put an ?OFF_DECK_DRAIN on this op. E.g.:
+</p>
+
+<pre><code>
+  SETLMEMBASE R0   ?OFF_DECK_DRAIN ;
+</code></pre>
+
+<p>The <b>useManagedBasePtr</b> flag specifies if per warp local memory base
+   pointer is managed by software (via the <b>warpLocalBasePtr</b> field) or a
+   default hardware generated (controlled by class methods) address is to be
+   used as warp local base (in which case <b>warpLocalBasePtr</b> field is ignored).  
+</p>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p><b>SOFTWARE NOTE</b>: HW will enforce memory ordering guarantees between
+   local and global memory accesses and SETLMEMBASE, however, HW will not
+   enforce cache coherence across a SETLMEMBASE instruction.  It is generally
+   recommended that during a SETLMEMBASE operation, SW ensures the warp's call
+   return stack is empty and all its local memory entries in L1 have been
+   invalidated during a SETLMEMBASE operation.</p>
+   
+<p>In addition, if <b>SETLMEMBASE</b> be used outside the trap handler, it
+   must be used when no live local data exists, (such as at CTA launch):
+   Prior to a <b>SETLMEMBASE</b> that is used outside the trap handler, a trap
+   could be taken just before the SETLMEMBASE instruction. Since SW cannot
+   guarantee that the L1 entries for that warp are all invalidated anymore,
+   this can then corrupt data after the SETLMEMBASE executes.</p>
+
+<p>The per warp <b>useManagedBasePtr</b> flag is reset only on engine reset and
+   context reset. It is the responsibility of SW to switch the local memory
+   base pointer to the default class based allocation before the warp exits.</p>
+
+<p>Reverting to the default (hardware managed) backing store is straightforward:</p>
+<pre>
+    <b>SETLMEMBASE</b> Rz;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>SETLMEMBASE</b> R2;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ネットワークの監視</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ネットワークの監視 -->
+<div class="pagetitle" id="PageId_184158816">ネットワークの監視</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_184158816_h1_1">ネットワークの監視</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_184158816_h2_1">ネットワーク情報の取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_184158816_h2_2">ステーションの接続・切断の監視</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_184158816_h1_1">ネットワークの監視</h1>
+<h2 id="Anchor_184158816_h2_1">ネットワーク情報の取得</h2>
+<p>ネットワーク情報を取得するには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a429039282420b36ff23e629950a9560d">nn::ldn::GetNetworkInfo()</a> を使用します。この API はアクセスポイントでネットワークを構築した <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f">nn::ldn::State_AccessPointCreated</a> 状態、ステーションでネットワークに接続した <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a4f1ac10f7434907fa2443f84fb5f9233">nn::ldn::State_StationConnected</a> 状態のいずれかで使用できます。この API で取得できる <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_info.html">nn::ldn::NetworkInfo</a> には、現在接続しているステーションのリストや通信品質、アクセスポイントが&nbsp;<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a203e0c1570e7cb7a9b7460150a54672b" rel="nofollow">nn::ldn::SetAdvertiseData()</a>&nbsp;で設定したデータ、<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aad8852e74bee4515b83be0a33f83d1aa" rel="nofollow">nn::ldn::SetStationAcceptPolicy()</a>&nbsp;で設定した&nbsp;<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#ada79079a0b492e49f132fddc782d59e8" rel="nofollow">nn::ldn::AcceptPolicy</a>&nbsp;などが含まれています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ldn::</span><span class="n">NetworkInfo</span> <span class="n">network</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">GetNetworkInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">network</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultInvalidState::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ネットワークから切断されました。
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また、<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_node_latest_update.html">nn::ldn::NodeLatestUpdate</a> を取得できる&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3d7236430d0f89d87e6b64827ed8fb0c">nn::ldn::GetNetworkInfo()</a>&nbsp;を使用すれば、前回この API でネットワーク情報を取得した時点を起点とし、現在までに生じた接続状態の差分を確認できます。ただし、ネットワーク構築直後、あるいはネットワーク接続直後の&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3d7236430d0f89d87e6b64827ed8fb0c">nn::ldn::GetNetworkInfo()</a>&nbsp;ではアクセスポイントも含めて 1 台もネットワークに参加していない状態を起点として差分を算出します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ldn::</span><span class="n">NetworkInfo</span> <span class="n">network</span><span class="p">;</span>
+<span class="nn">nn::ldn::</span><span class="n">NodeLatestUpdate</span> <span class="n">updates</span><span class="p">[</span><span class="nn">nn::ldn::</span><span class="n">NodeCountMax</span><span class="p">];</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">GetNetworkInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">network</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">NodeCountMax</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">())</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nn">nn::ldn::</span><span class="n">NodeCountMax</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">switch</span> <span class="p">(</span><span class="n">updates</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">stateChange</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::ldn::</span><span class="nl">NodeStateChange_None</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 接続状態に変化はありません
+</span>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::ldn::</span><span class="nl">NodeStateChange_Connect</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 新規接続です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::ldn::</span><span class="nl">NodeStateChange_Disconnect</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 切断です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::ldn::</span><span class="nl">NodeStateChange_DisconnectAndConnect</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 切断後に新規接続がありました。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">default</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNEXPECTED_DEFAULT</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultInvalidState::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ネットワークから切断されました。
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_info.html">nn::ldn::NetworkInfo</a> に含まれる <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_node_info.html">nn::ldn::NodeInfo</a> からは MAC アドレスを取得できます。しかし、アプリケーションは原則として MAC アドレスを使用してはなりません。ユーザーを識別したい場合、<span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/namespacenn_1_1util.html#a7df2ac5ca47857cc945af5421ea54aa5">nn::util::GenerateUuid()</a> で UUID を生成することで代用できます。</span></p>
+  </div>
+</div>
+<h2 id="Anchor_184158816_h2_2">ステーションの接続・切断の監視</h2>
+<p>ステーションの接続・切断を監視するために定期的に&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3d7236430d0f89d87e6b64827ed8fb0c">nn::ldn::GetNetworkInfo()</a>&nbsp;を実行することもできますが、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a9164167a58c8362e69bffbf544d944f5">nn::ldn::AttachStateChangeEvent()</a> で取得できるイベントを使用すれば、新しくステーションの接続や切断をイベントのシグナルで検知することが出来ます。この API は LDN ライブラリの初期化後であればいつでも使用できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">SystemEvent</span> <span class="n">stateChangeEvent</span><span class="p">;</span>
+<span class="nn">nn::ldn::</span><span class="n">AttachStateChangeEvent</span><span class="p">(</span><span class="n">stateChangeEvent</span><span class="p">.</span><span class="n">GetBase</span><span class="p">());</span>
+ 
+<span class="k">while</span> <span class="p">(</span><span class="n">stateChangeEvent</span><span class="p">.</span><span class="n">Wait</span><span class="p">())</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ldn::</span><span class="n">NetworkInfo</span> <span class="n">network</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ldn::</span><span class="n">NodeLatestUpdate</span> <span class="n">updates</span><span class="p">[</span><span class="nn">nn::ldn::</span><span class="n">NodeCountMax</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">GetNetworkInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">network</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">NodeCountMax</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/* ... */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultInvalidState::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ネットワークから切断されました。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a9164167a58c8362e69bffbf544d944f5">nn::ldn::AttachStateChangeEvent()</a> で取得したイベントは必ず削除する必要があります。上記のサンプルコードのように <a href="../../../Api/HtmlNX/classnn_1_1os_1_1_system_event.html">nn::os::SystemEvent</a> クラスを使用している場合にはデストラクタで自動的に削除されますが、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_system_event_type.html">nn::os::SystemEventType</a> を使用する場合には <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3d924bc362ec80648323428be5182338">nn::os::DestroySystemEvent()</a>&nbsp;でイベントを削除してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>IDE.action</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    IDE.action : Interrupt disable/enable <br>
+    <!-- SUMMARY_TABLE_INFO { description => "Interrupt disable/enable " } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "IDE", subsection => 13 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code><b>IDE</b>.action</code>   <code>{#ImmU16}</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "IDE" } -->
+
+ .action: {.EN,.DI*}
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p> This instruction  enables/disables  specific interrupt sources
+corresponding as indicated by the immediate value.  The immediate value
+represents a bitfield that corresponds to interrupt status bits in
+SR_GlobalErrorStatus.</p>
+
+<h2>Software Note</h2>
+
+<p>The motivation for providing this instruction was to  provide a way to
+implement a <em>critical section</em>  for a warp. This is  a warp wide
+instruction, in that the first thread to execute this instruction does so for
+the entire warp.  In <b>SPA 3.5 </b> only one value  of immediate is supported
+which corresponds  to enabling /disabling of interrupts BPT.TRAP (1..6)
+and CPU_STOP interrupt. Note, BPT.TRAP 7 and warp errors cannot be disabled. 
+When a warp is launched, it starts with all interrupts enabled.</p>
+
+<p><b>WARNING</b> Avoid using any synchronization instructions such as <b>BAR</b>
+within the critical section.  Note that the ISA specification does not require
+the implementation to report any errors in such cases nor does it require the
+BAR instructions be converted to NOP instruction.  The HW will disallow any
+further IDE.DIS instructions from being executed once the warp's coalescing
+window for BPT.TRAP is complete in order to bound trap latency. Similarly use of 
+OFF_DECK_PIXBAR opex hint is not allowed in critical section since it requires 
+other warps in subtile to be launched, which may not be possible. </p>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+<pre>
+
+#example sequence using IDE to safely read SM's virtual ID and use that do some address calculation
+<b>IDE</b>.DI      0xC10;    // corresponds to global ESR register bits 10-11 (BPT.TRAP) and bit 4 (CPU_STOP) interrupts
+S2R	R5,  SR_VirtId ;
+//Do some address computation
+<b>IDE</b>.EN     0xC10;     // corresponds to global ESR register bits 10-11 (BPT.TRAP) and bit 4 (CPU_STOP) interrupts
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>

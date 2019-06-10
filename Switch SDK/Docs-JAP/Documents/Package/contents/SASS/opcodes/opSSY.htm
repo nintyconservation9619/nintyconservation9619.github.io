@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SSY</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SSY : Set Synchronization Point<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Set Synchronization Point" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SSY", subsection => 9.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code></code>   <code><b>SSY</b></code>   <code>#OffsetS24</code>              <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SSY" } -->
+<code>        <code></code>   <code><b>SSY</b></code>   <code>c[#BankU05][#AddrU16]</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   <code><b>// This form is not patchable and is deprecated</b></code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SSY" } -->
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Set program synchronization point.</p>
+<p>
+This instruction is used before a potentially divergent code block.  It pushes a <b>CRS_TYPE_SSY</b>
+token onto the stack containing the current warp active mask and the address
+of the <em>sync-up point</em> in the program.  When a later <b> SYNC </b> instruction 
+is executed and pops the <b>CRS_TYPE_SSY</b> token off the stack, control will
+be transferred to the sync-up point address specified on the stack, and execution will
+continue at this address using the active mask from the stack entry.  Thus, the
+threads that were active at the time of the <b>SSY</b> will be synchronized.</p>
+<p>
+<p>
+The <b>SSY</b> target address is specified as a byte offset from the program counter of
+the <i>next</i> instruction after the <b>SSY</b>.  Due to instruction alignment requirements,
+the three LSBs of the offset should be 0.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+// pseudo-code example
+if (CC.LT)
+  R6 = R0;
+else
+  R6 = R1;
+R7 = R6*R6;
+
+// in assembler could be:
+  SSY    LABEL0;
+  BRA    CC.GE,LAB_ELSE;          // or GEU if fp comparison
+LAB_IF:
+  MOV  R6,R0;
+  SYNC;
+LAB_ELSE:
+  MOV  R6,R1;
+  SYNC;
+LABEL0:
+  MUL    R7,R6,R6;                // sync happens <i>before</i> MUL
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>

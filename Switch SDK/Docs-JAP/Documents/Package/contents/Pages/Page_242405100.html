@@ -1,0 +1,416 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メッシュ形状トリミング最適化について</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メッシュ形状トリミング最適化について -->
+<div class="pagetitle" id="PageId_242405100">メッシュ形状トリミング最適化について</div>
+<div class="text_separate">
+<p>&nbsp;</p>
+<h1 id="Anchor_242405100_h1_1">はじめに</h1>
+<p>レイアウトコンバーターではピクチャペインの描画ピクセルを少なくするメッシュ形状トリミング最適化処理をおこなうことができます。<br />具体的なオプションの指定方法については<a href="../Pages/Page_83955930.html">レイアウトバイナリコンバータ</a>を参照してください。<br />本ドキュメントではこの機能の詳細について説明します。</p>
+<h1 id="Anchor_242405100_h1_2">メッシュ形状トリミング最適化とは</h1>
+<p>レイアウトのピクチャペインは三角形２つを組み合わせた四角形のメッシュにテクスチャを張り付けて描画しています。LayoutEditor などで UV を調整していない場合、この四角形にテクスチャ全体がマッピングされる UV で描画されます。<br />このときテクスチャのアルファ値が完全に 0 のピクセルであっても GPU でラスタライズされシェーダーが動作します。最終的に画面には何も描画されないピクセルのために GPU リソースを使用するのは無駄なため極力避ける必要があります。<br />レイアウトコンバーターが行うメッシュ形状トリミング最適化処理では、こういったアルファ値が 0 の完全に無駄なピクセルが描画されないように、メッシュの形状を自動的に小さく切り抜きます。切り抜く方法にはいくつかパターンが存在し、それぞれメリット・デメリットがあります。</p>
+<h1 id="Anchor_242405100_h1_3">最適化形状の種類</h1>
+<p>以下の画像は最適化適用前のピクチャペインのイメージ画像です。<br />効果を視覚的にわかりやすくするため、アルファが 0 の領域を黒であらわしています。<br />オレンジのラインがメッシュの形状を表しており、それぞれの画像は同じサイズでキャプチャしてあります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_242405100/242406272.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>&nbsp;</p>
+<p>最適化形状には以下の種類があります。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>種類</th>
+      <th>効果</th>
+    </tr>
+    <tr>
+      <td>AABB</td>
+      <td>
+        <p>使用テクスチャの不透明領域にフィットする最小の X 軸、Y 軸に沿ったバウンディングボックス(Axis-Aligned Bounding Box)から最適化メッシュを生成します。</p>
+        <p>テクスチャの上下左右に透明な空白領域があるデータに対して有効です。</p>
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_242405100/242406145.png" height="250" class="embedded-image" />
+          </span>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>OBB</td>
+      <td>
+        <p>使用テクスチャの不透明領域にフィットする最小の有向バウンディングボックス(Oriented Bounding Box)から最適化メッシュを生成します。</p>
+        <p>テクスチャの不透明領域が軸に対して傾いていて、左上や右下などに透明な空白領域があるデータに対して有効です。</p>
+        <p>不透明領域の形状によっては最適化前の描画面積よりも大きくなることがあり、この場合は OBB による最適化メッシュの生成は行われません。</p>
+        <div>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_242405100/242406149.png" height="250" class="embedded-image" />
+          </span>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_242405100_h1_4">メッシュ形状トリミング最適化の追加リソース</h1>
+<p>メッシュ形状トリミング最適化が適用されると最適化メッシュを描画するために CPU 負荷が数%増加し、レイアウトバイナリデータのサイズも増加します。<br />CPU 負荷については OBB &gt; AABB と OBB のほうが処理負荷が高くなっています。<br />バイナリデータの増加量については最適化レポートに詳細な増加量が出力されます。</p>
+<h1 id="Anchor_242405100_h1_5">制限事項</h1>
+<p>最適化結果の描画内容は計算の誤差などにより非最適化状態のものとドットバイドットで全く同じものにならない可能性がある点に注意してください。<br />また、最適化アルゴリズムやデータフォーマットの都合により最適化できないデータが存在します。<br />最適化が適用されない原因については最適化レポートを出力して確認することが可能です。</p>
+<h1 id="Anchor_242405100_h1_6">メッシュ形状トリミングに関する最適化レポート</h1>
+<p>
+  <span class="option">最適化レポートは指定されたディレクトリ以下全体に関する情報とレイアウトデータそれぞれの情報に分かれています。</span>
+</p>
+<h2 id="Anchor_242405100_h2_1">
+  <span class="option">全体情報</span>
+</h2>
+<p>
+  <span class="option">レポートの先頭に出力される解析したレイアウトデータ全体の統計情報です。</span>
+</p>
+<p>
+  <strong>
+    <span class="option">サンプル：</span>
+  </strong>
+</p>
+<p style="margin-left: 60.0px;">
+  <span class="option">C:\NintendoSdk\Samples\Sources\Resources\Ui2d の全体情報<br /><strong>レイアウトファイル数：49</strong><br /><br /><strong>出力日時：2017/06/23 11:07:48</strong><br /><br /><strong>レイアウトファイル数：49</strong><br /><strong>メッシュ形状トリミング最適化適用率：24.50593%</strong><br /><strong>メッシュ形状トリミング最適化対象仮想ピクセル数：3310690 pixels</strong><br /><strong>メッシュ形状トリミング最適化後仮想ピクセル数：2703998 pixels</strong><br /><strong>メッシュ形状トリミング最適化後面積比：81.67475%</strong></span>
+</p>
+<p style="margin-left: 60.0px;">
+  <span class="option">
+    <strong>
+      <br />
+    </strong>
+  </span>
+</p>
+<p>各項目の内容は以下のようになっています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>項目名</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>レイアウトファイル数</td>
+      <td>解析したレイアウトファイルの数です。</td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化適用率</td>
+      <td>解析したレイアウトファイルのうちメッシュ形状トリミング最適化が適用されたピクチャペインの割合です。</td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化対象仮想ピクセル数</td>
+      <td>
+        <p>メッシュ形状トリミング最適化の適用を試みたピクチャペインの仮想ピクセル数(テクスチャのテクセル数)です。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化後仮想ピクセル数</td>
+      <td>メッシュ形状トリミング最適化を適用した後のピクチャペインの仮想ピクセル数(テクスチャのテクセル数)です。</td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化後面積比</td>
+      <td>メッシュ形状トリミング最適化前後での仮想ピクセル数の比率です。 100% を下回っていればメッシュ形状トリミング最適化によって描画面積が削減されたことを表しています。</td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-left: 60.0px;">
+  <span class="option">
+    <strong>
+      <br />
+    </strong>
+  </span>
+</p>
+<h2 id="Anchor_242405100_h2_2">
+  <span class="option">レイアウト個別情報</span>
+</h2>
+<p>各レイアウトファイルごとの個別最適化情報です。</p>
+<p>
+  <strong>
+    <span class="option">サンプル：</span>
+  </strong>
+</p>
+<p style="margin-left: 60.0px;">
+  <span class="option">Write_Sample.flyt<br /><strong>ペイン数情報</strong><br /></span>
+</p>
+<table style="margin-left: 30.0px;" class="table">
+  <tbody style="margin-left: 30.0px;">
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">ピクチャ</td>
+      <td style="margin-left: 30.0px;">テキスト</td>
+      <td style="margin-left: 30.0px;">ウインドウ</td>
+      <td style="margin-left: 30.0px;">パーツ</td>
+      <td style="margin-left: 30.0px;">バウンディング</td>
+      <td style="margin-left: 30.0px;">ヌル</td>
+      <td style="margin-left: 30.0px;">総数</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">10</td>
+      <td style="margin-left: 30.0px;">0</td>
+      <td style="margin-left: 30.0px;">0</td>
+      <td style="margin-left: 30.0px;">0</td>
+      <td style="margin-left: 30.0px;">0</td>
+      <td style="margin-left: 30.0px;">6</td>
+      <td style="margin-left: 30.0px;">16</td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-left: 60.0px;">
+  <span class="option">
+    <br />
+    <strong>メッシュ形状トリミング最適化適用率：6/10(60%)</strong>
+    <br />
+    <br />
+    <br />
+    <strong>レイアウトバイナリファイルサイズ増加量：156 Bytes</strong>&nbsp;<br /><strong>メッシュ形状トリミング最適化対象仮想ピクセル数：393216 pixels</strong><br /><strong>メッシュ形状トリミング最適化後仮想ピクセル数：164279 pixels</strong><br /><strong>メッシュ形状トリミング最適化後面積比：41.77831%</strong><br /><br /><strong>ペインごとの最適化情報</strong>&nbsp;</span>
+</p>
+<table style="margin-left: 30.0px;" class="table">
+  <tbody style="margin-left: 30.0px;">
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">ピクチャペイン名</td>
+      <td style="margin-left: 30.0px;">仮想ピクセル数</td>
+      <td style="margin-left: 30.0px;">最適化結果</td>
+      <td style="margin-left: 30.0px;">最適化阻害要因</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_fontN_00</td>
+      <td style="margin-left: 30.0px;">0 pixels(0x0)</td>
+      <td style="margin-left: 30.0px;">-</td>
+      <td style="margin-left: 30.0px;">AlphaTestAnimation</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_fontWS_00</td>
+      <td style="margin-left: 30.0px;">0 pixels(0x0)</td>
+      <td style="margin-left: 30.0px;">-</td>
+      <td style="margin-left: 30.0px;">VertexColorAnimation</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_fontW_00<br />(expression/texture/common/tr_fontW_00.tga)</td>
+      <td style="margin-left: 30.0px;">65536 pixels(256x256)</td>
+      <td style="margin-left: 30.0px;">
+        <strong>45.401%(AABB)</strong>
+        <br />29754 pixels(171x174)</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_font4S_00<br />(expression/texture/common/tr_font4_00.tga)</td>
+      <td style="margin-left: 30.0px;">65536 pixels(256x256)</td>
+      <td style="margin-left: 30.0px;">
+        <strong>36.3266%(OBB)</strong>
+        <br />23807 pixels(179x133)</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_font4_00<br />(expression/texture/common/tr_font4_00.tga)</td>
+      <td style="margin-left: 30.0px;">65536 pixels(256x256)</td>
+      <td style="margin-left: 30.0px;">
+        <strong>36.3266%(OBB)</strong>
+        <br />23807 pixels(179x133)</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_fontFS_00<br />(expression/texture/common/tr_fontF_00.tga)</td>
+      <td style="margin-left: 30.0px;">65536 pixels(256x256)</td>
+      <td style="margin-left: 30.0px;">
+        <strong>41.86249%(AABB)</strong>
+        <br />27435 pixels(155x177)</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_fontF_00<br />(expression/texture/common/tr_fontF_00.tga)</td>
+      <td style="margin-left: 30.0px;">65536 pixels(256x256)</td>
+      <td style="margin-left: 30.0px;">
+        <strong>41.86249%(AABB)</strong>
+        <br />27435 pixels(155x177)</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_fontNS_00<br />(expression/texture/common/tr_fontN_00.tga)</td>
+      <td style="margin-left: 30.0px;">65536 pixels(256x256)</td>
+      <td style="margin-left: 30.0px;">
+        <strong>48.89069%(AABB)</strong>
+        <br />32041 pixels(179x179)</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_Light_00</td>
+      <td style="margin-left: 30.0px;">0 pixels(0x0)</td>
+      <td style="margin-left: 30.0px;">-</td>
+      <td style="margin-left: 30.0px;">NoAlphaChannel</td>
+    </tr>
+    <tr style="margin-left: 30.0px;">
+      <td style="margin-left: 30.0px;">P_Light_01</td>
+      <td>0 pixels(0x0)</td>
+      <td>-</td>
+      <td>NoAlphaChannel</td>
+    </tr>
+  </tbody>
+</table>
+<p>各項目の内容は以下のようになっています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>項目名</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>レイアウトファイル名</td>
+      <td>解析したレイアウトファイルへのリンクです。</td>
+    </tr>
+    <tr>
+      <td>ペイン数情報</td>
+      <td>レイアウトファイル内のペイン種別ごとの数です。</td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化適用率</td>
+      <td>解析したレイアウトファイルのうちメッシュ形状トリミング最適化が適用されたピクチャペインの割合です。</td>
+    </tr>
+    <tr>
+      <td>レイアウトバイナリサイズ増加量</td>
+      <td>最適化メッシュ用の追加データによるレイアウトバイナリファイルサイズの増加量です。</td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化対象仮想ピクセル数</td>
+      <td>
+        <p>メッシュ形状トリミング最適化の適用を試みたピクチャペインの仮想ピクセル数(テクスチャのテクセル数)です。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化後仮想ピクセル数</td>
+      <td>メッシュ形状トリミング最適化を適用した後のピクチャペインの仮想ピクセル数(テクスチャのテクセル数)です。</td>
+    </tr>
+    <tr>
+      <td>メッシュ形状トリミング最適化後面積比</td>
+      <td>メッシュ形状トリミング最適化前後での仮想ピクセル数の比率です。 100% を下回っていればメッシュ形状トリミング最適化によって描画面積が削減されたことを表しています。</td>
+    </tr>
+    <tr>
+      <td>ペインごとの最適化情報</td>
+      <td>ペインごとの個別情報と最適化ができなかった原因です。最適化できなかった原因については以下の別表に詳細があります。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="option">
+    <br />
+    <strong>メッシュ形状トリミング最適化の阻害要因一覧：</strong>
+  </span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>最適化阻害要因</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <p>InvalidShapeType</p>
+      </td>
+      <td>ピクチャペインの形状に「四角形」以外が設定されています。</td>
+    </tr>
+    <tr>
+      <td>MultiTexture</td>
+      <td>複数枚のテクスチャが使用されています。</td>
+    </tr>
+    <tr>
+      <td>NoTexture</td>
+      <td>テクスチャが使用されていません。</td>
+    </tr>
+    <tr>
+      <td>NoAlphaChannel</td>
+      <td>テクスチャにアルファチャンネルが存在しません。</td>
+    </tr>
+    <tr>
+      <td>TransparentImage</td>
+      <td>テクスチャに不透明ピクセルが存在しません。</td>
+    </tr>
+    <tr>
+      <td>OpaquePixelInEdgeForOBB</td>
+      <td>OBB で生成されたメッシュで引き伸ばされるテクスチャのエッジ部分に不透明ピクセルが存在します。</td>
+    </tr>
+    <tr>
+      <td>DetailedCombiner</td>
+      <td>詳細コンバイナが使用されています。</td>
+    </tr>
+    <tr>
+      <td>VertexColorAnimation</td>
+      <td>頂点カラーアニメーションが使用されています。</td>
+    </tr>
+    <tr>
+      <td>VertexColor</td>
+      <td>頂点カラーが使用されています。</td>
+    </tr>
+    <tr>
+      <td>TextureSRTAnimation</td>
+      <td>テクスチャ SRT アニメーションが設定されています。</td>
+    </tr>
+    <tr>
+      <td>IndTextureSRTAnimation</td>
+      <td>インダイレクトテクスチャ SRT アニメーションが設定されています。</td>
+    </tr>
+    <tr>
+      <td>TexturePatternAnimation</td>
+      <td>テクスチャパターンアニメーションが設定されています。</td>
+    </tr>
+    <tr>
+      <td>TextureMatrix</td>
+      <td>テクスチャ行列が設定されています。</td>
+    </tr>
+    <tr>
+      <td>TextureProjection</td>
+      <td>投影テクスチャが使用されています。</td>
+    </tr>
+    <tr>
+      <td>ComplexTextureCoordinate</td>
+      <td>UV 座標の 0 と 1 以外の値が設定されています。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>FragmentBlendSettingIsNotDefault</p>
+      </td>
+      <td>フラグメントオペレーションのブレンド設定がデフォルトから変更されています。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>BlackColorAlphaIsNotZero</p>
+      </td>
+      <td>黒カラーアルファの値に 0 でない値が設定されています。</td>
+    </tr>
+    <tr>
+      <td> BlackColorAlphaAnimation</td>
+      <td>黒カラーアルファアニメーションが設定されています。</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

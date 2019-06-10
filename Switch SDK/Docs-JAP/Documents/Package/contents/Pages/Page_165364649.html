@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ユーザーログデータとイベント</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ユーザーログデータとイベント -->
+<div class="pagetitle" id="PageId_165364649">ユーザーログデータとイベント</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_165364649_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_165364649_h1_2">ハートビート（フレーム）</a>
+    </li>
+    <li>
+      <a href="#Anchor_165364649_h1_3">フレームのマーキング</a>
+    </li>
+    <li>
+      <a href="#Anchor_165364649_h1_4">推測ハートビート</a>
+    </li>
+    <li>
+      <a href="#Anchor_165364649_h1_5">ユーザーログデータ</a>
+    </li>
+    <li>
+      <a href="#Anchor_165364649_h1_6">マーク付きコードブロック</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_165364649_h1_1">概要</h1>
+<p>ソースコードの最低限の変更でこのプロファイラを使用することもできますが、さらに手を入れてソースコードを修正し、ユーザーログデータとイベントを使用して充実したプロファイルにするときわめて効果的です。選択可能なオプションは以下のとおりです。</p>
+<h1 id="Anchor_165364649_h1_2">ハートビート（フレーム）</h1>
+<p>長時間にわたるデータを分析する場合は、データをフレーム単位などの意味のあるグループに分割すると便利です。複数のシステムやさまざまなコアがそれぞれ異なるリズムで動作している可能性があるため、ここではより広義の &quot;ハートビート&quot; という用語を使用して、追跡すると有用な定期的に発生するリズムやフレーム処理を表しています。</p>
+<p>プロファイル中にハートビートが記録されると、その記録は<strong>「ハートビート」</strong>タブのドロップダウンボックスの １ つに表示されます。ハートビートを選択すると、その特定のコアに対するハートビートがグラフ表示されます。また、別の 2 つのハートビートとして、<strong>「固定間隔 60Hz」</strong>と<strong>「固定間隔 1ms」</strong>がドロップダウンボックスに必ず表示されます。これらのハートビートは、実際にプロファイルデータに記録されたものではありませんが、選択してタイミング情報を特定のコアにオーバーレイできます。これら 2 つのハートビートは、実際のデータと関連性のある可能性は低く、タイミングを参照するためにのみ用意されています。</p>
+<p>特定のハートビートフレームに注目する場合は、（<strong>「サンプルグラフ」</strong>ツールバーの<strong>「フレームの選択」</strong>モードがオンの状態で）対象のフレームを<strong>「サンプルグラフ」</strong>タブでクリックしてドラッグするか、<strong>「ハートビート」</strong>タブで特定のフレームレートをクリックして選択します（例えば、<strong>「60Hz」</strong>切り替えボタン）。</p>
+<h1 id="Anchor_165364649_h1_3">フレームのマーキング</h1>
+<p>プロファイラ API では、コアごとに複数のハートビートを記録できます。&lt;nn/profiler/profilerTypes.h&gt; の列挙型 <span class="ApiLink_nn__profiler__ProfilerHeartbeats">nn::profiler::ProfilerHeartbeats</span> に列挙されているように、コアごとに最大 8 つのユーザーハートビートを記録できます。</p>
+<p>記録が最も重要となるハートビートは <span class="ApiLink_nn__profiler__ProfilerHeartbeats_Main">nn::profiler::ProfilerHeartbeats_Main</span> です。プロファイラでは、このハートビートを使用して<strong>「サンプルグラフ」</strong>の下部にフレームレートのグラフを描画します。ただし、描画対象コアの主要なハートビートのみを記録し、その他のコアのハートビートは記録しないよう十分に注意してください。GUI 上でのフレームレートのグラフ表示が煩雑になるからです。</p>
+<h1 id="Anchor_165364649_h1_4">推測ハートビート</h1>
+<p>
+  <strong>メイン</strong>のハートビートを記録することはきわめて重要ですが、プロファイラでは関数の挙動に基づいて各コアのハートビートを推測します。周期的に実行される関数が複数存在する場合は、その中で最も周期性が高いものが、そのコアでのハートビートリズムの指標としてプロファイラで使用されます。<strong>推測ハートビート</strong>は、サンプリングレートが高いほど（100 倍以上）検出される可能性が高くなります。これは、分析するフレームあたりのデータが多くなるからです。以降、これらの推測ハートビートは、<strong>「ハートビート」</strong>タブで選択できるようになります。また、検出されたすべての<strong>推測ハートビート</strong>の一覧が<strong>「情報」</strong>タブに表示されます。なお、これらのハートビートはデータに基づいた推測値なので、フレームの概念的な開始位置と実際に一致する可能性は高くありません。この点が問題となる場合は、フレームの先頭が正確にマークされるようにハートビートを明示的に記録することをお勧めします。</p>
+<h1 id="Anchor_165364649_h1_5">ユーザーログデータ</h1>
+<p>プロファイルデータを基準としてゲームデータをグラフ表示すると、非常に有効な分析材料となることがあります。プロファイラでは、このような用途向けに、カスタムデータを記録する機能を用意しています。</p>
+<p>記録されたデータは、左側のウィンドウの<strong>「カウンタ」</strong>タブに表示されます。<strong>「カウンタ」</strong>タブでカウンタを選択すると、<strong>「サンプルグラフ」</strong>タブにそのカウンタがグラフ表示されます。</p>
+<p>データの記録方法についての詳細は、API のドキュメントで <span class="ApiLink_nn__profiler__RecordData">nn::profiler::RecordData</span>() についての説明を参照してください。以下のデータタイプが記録可能です。</p>
+<ul>
+  <li>符号なし整数型（64bit）：ゲームでの何らかのデータを示す正の整数を記録します。</li>
+  <li>浮動小数点型（64bit）：ゲームでの何らかのデータを示す浮動小数点値を記録します。</li>
+</ul>
+<h1 id="Anchor_165364649_h1_6">マーク付きコードブロック</h1>
+<p>ゲームシステムにタイマーを組み込んでゲームのプレイ中の正確な実行時間を簡単に追跡可能にしておくことが、ゲーム開発者の間では一般的です。現状のゲームコードにコードブロックを追加する方法の詳細は API のドキュメントを参照してください。</p>
+<p>プロファイルに記録したマーク付きコードブロックは<strong>「計装プロファイル」</strong>タブに一覧表示されます。マーク付きコードブロックを<strong>「計装」</strong>タブで選択すると、そのコードブロックが<strong>「サンプルグラフ」</strong>にグラフ表示されます。</p>
+<p> </p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__profiler__ProfilerHeartbeats
+// ApiLink_nn__profiler__ProfilerHeartbeats_Main
+SetUrl( 'ApiLink_nn__profiler__RecordData', '../../../Api/HtmlNX/namespacenn_1_1profiler.html#a62432871a7838a486dbc49039b5f36f1' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

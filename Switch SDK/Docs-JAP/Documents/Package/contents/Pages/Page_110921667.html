@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>viewer の組み込み方法</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- viewer の組み込み方法 -->
+<div class="pagetitle" id="PageId_110921667">viewer の組み込み方法</div>
+<div class="text_separate">
+<h1 id="Anchor_110921667_h1_1">はじめに</h1>
+<p>本ドキュメントでは ui2d viewer ライブラリの組み込み方法について説明します。</p>
+<p>ui2d viewer ライブラリは LayoutEditor と連携してデータをプレビューする環境を構築するためのランタイムライブラリです。<br />LayoutEdtitor 標準のプレビュー環境である LayoutViewer やインゲーム環境でのデータプレビューでの利用が想定されています。</p>
+<h1 id="Anchor_110921667_h1_2">実装例</h1>
+<p>このセクションではビューアーライブラリをユーザーアプリケーションに組み込むための基本的な実装について説明します。<br />API の詳細については API リファレンスを参照してください。&nbsp;</p>
+<h3 id="Anchor_110921667_h3_1">初期化処理</h3>
+<p>初期化処理ではビューアーライブラリの初期化と必要に応じて各種コールバック関数を設定します。<br />コールバック 関数の用途については後述します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ui2d::viewer::</span><span class="n">Viewer</span>        <span class="n">g_LayoutViewer</span><span class="p">;</span>
+
+<span class="c1">// ui2d ライブラリの初期化処理後にビューアーライブラリを初期化します。
+</span><span class="nn">nn::ui2d::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">AllocFunction_</span><span class="p">,</span> <span class="n">FreeFunction_</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+ 
+<span class="c1">// ビューアーライブラリにデータを読み込むデフォルトのパスを設定します。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">SetDefaultPreviewPath</span><span class="p">(</span><span class="n">nwRootPath</span><span class="p">);</span>
+<span class="c1">// ビューアーライブラリを初期化します。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_GraphicsResource</span><span class="p">,</span> <span class="nn">nn::ui2d::Size::</span><span class="n">Create</span><span class="p">(</span><span class="n">screenW</span><span class="p">,</span> <span class="n">screenH</span><span class="p">),</span> <span class="n">ViewerLoad_</span><span class="p">,</span> <span class="n">ViewerUnload_</span><span class="p">,</span> <span class="n">RegisterSlotForTexture_</span><span class="p">,</span> <span class="n">UnregisterSlotForTexture_</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="c1">// レイアウトデータの読み込み前後で呼び出されるコールバックを設定します。
+// これらのコールバック内でコンスタントバッファなど描画に必要な情報の初期化・終了処理を行います。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">SetPreReloadLayoutDataCallback</span><span class="p">(</span><span class="n">PreReloadLayoutDataCallback</span><span class="p">);</span>
+<span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">SetPostReloadLayoutDataCallback</span><span class="p">(</span><span class="n">PostReloadLayoutDataCallback</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_110921667_h3_2">毎ループ行う処理</h3>
+<p>主にビューアーシステムの更新・描画処理とプレビューしているデータの更新・描画処理を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ビューアーシステムの更新処理を行います。
+// 主に LayoutEditor との通信処理を行っています。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">UpdateSystem</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">);</span>
+<span class="c1">// 入力デバイスによるビューアーの操作を処理します。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">UpdateInputs</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">inputDeviceState</span><span class="p">);</span>
+<span class="c1">// ビューアーのシステムメニュー表示を更新します。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">UpdateMenu</span><span class="p">();</span>
+<span class="c1">// プレビュー中のレイアウトデータの更新処理を行います。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">UpdateLayout</span><span class="p">(</span><span class="n">g_FrameIndex</span><span class="p">);</span>
+ 
+<span class="c1">// プレビュー中のレイアウトデータを表示するコマンドを CommandBuffer へ追加します。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">DrawLayout</span><span class="p">(</span><span class="n">g_CommandBuffer</span><span class="p">);</span>
+<span class="c1">// ビューアーのメニューなどシステム側の描画物を表示するコマンドを CommandBuffer へ追加します。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">DrawSystem</span><span class="p">(</span><span class="n">g_CommandBuffer</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_110921667_h3_3">終了処理</h3>
+<p>ビューアーライブラリの終了処理を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ビューアーライブラリの終了処理を行います。
+</span><span class="n">g_LayoutViewer</span><span class="p">.</span><span class="n">Finalize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_110921667_h1_3">各種コールバックの用途</h1>
+<p>このセクションではビューアーライブラリに設定する各種コールバックの用途について説明します。<br />以下のコールバック関数はそれぞれ目的があり、必ず設定する必要があります。&nbsp;</p>
+<h3 id="Anchor_110921667_h3_4">void* LoadFunction(const char* pDataPath, int alignment)</h3>
+<p>
+  <span class="ApiLink_nn__ui2d__viewer__Viewer__Initialize">nn::ui2d::viewer::Viewer::Initialize</span>() メソッドで設定するコールバック関数です。</p>
+<p>ビューアーライブラリはプレビューするファイルを読み込む際にこのコールバック関数を呼び出します。<br />コールバック関数では渡されたパスにあるデータをメモリ上に読み込み返り値としてビューアーライブラリに渡すことを目的としています。</p>
+<h3 id="Anchor_110921667_h3_5">void UnloadFunction(void* pUnloadData)</h3>
+<p>
+  <span class="ApiLink_nn__ui2d__viewer__Viewer__Initialize">nn::ui2d::viewer::Viewer::Initialize</span>() メソッドで設定するコールバック関数です。</p>
+<p>ビューアーライブラリはプレビューが終了し、必要なくなったレイアウトデータを開放する際にこのコールバック関数を呼び出します。<br />引数には LoadFunction でメモリ上に読み込んだ際のポインタが入ってくるため、適切な方法でメモリを開放するようにしてください。</p>
+<p>また、このコールバック関数はレイアウトデータが参照されなくなるタイミングとしても利用できるため、LayoutViewer ではテクスチャ用のディスクリプタスロットのリセット処理も行っています。</p>
+<h3 id="Anchor_110921667_h3_6">void PreReloadLayoutDataCallback()</h3>
+<p>プレビューするレイアウトデータを読み込む直前に呼び出されるコールバック関数です。<br />&nbsp;<span class="ApiLink_nn__ui2d__viewer__Viewer__SetPreReloadLayoutDataCallback">nn::ui2d::viewer::Viewer::SetPreReloadLayoutDataCallback</span> メソッドで設定することができます。</p>
+<p>直前にプレビューされていたレイアウトデータが使用していた各種バッファの終了処理を行うことを想定しています。<br />LayoutViewer では ui2d/font で使用したコンスタントバッファ、頂点バッファ、メモリプール、グラフィックスリソースの終了処理を行いすべてのリソースを開放しています。&nbsp;</p>
+<h3 id="Anchor_110921667_h3_7">void PostReloadLayoutDataCallback(DrawInfo&amp; drawInfo, BuildResultInfomation&amp; buildResultInfomation)</h3>
+<p>プレビューするレイアウトデータをメモリ上に読み込み、レイアウトデータの初期化処理を行った後に呼び出されるコールバック関数です。<br />&nbsp;<span class="ApiLink_nn__ui2d__viewer__Viewer__SetPostReloadLayoutDataCallback">nn::ui2d::viewer::Viewer::SetPostReloadLayoutDataCallback</span> メソッドで設定することができます。</p>
+<p>このコールバック関数では主にレイアウトデータが描画に必要とする各種バッファやグラフィックスリソースの初期化処理を行うことを目的としています。<br />コールバック関数の引数として <span class="ApiLink_nn__ui2d__BuildResultInfomation">nn::ui2d::BuildResultInfomation</span> が入ってくるため、この情報に応じて必要なコンスタントバッファや頂点バッファを作成して drawInfo へ設定してください。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__ui2d__viewer__Viewer__Initialize', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1viewer_1_1_viewer.html#a67a716f68ca52549a655c7295c2b36ad' )
+SetUrl( 'ApiLink_nn__ui2d__viewer__Viewer__SetPreReloadLayoutDataCallback', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1viewer_1_1_viewer.html#a22982d15669fba1f0700b4a127eeb571' )
+SetUrl( 'ApiLink_nn__ui2d__viewer__Viewer__SetPostReloadLayoutDataCallback', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1viewer_1_1_viewer.html#a197a3fb7517a67836434e9b188b33896' )
+// ApiLink_nn__ui2d__BuildResultInfomation
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

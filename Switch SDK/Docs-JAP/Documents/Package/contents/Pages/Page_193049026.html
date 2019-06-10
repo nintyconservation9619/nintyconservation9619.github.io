@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Gesture</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Gesture -->
+<div class="pagetitle" id="PageId_193049026">Gesture</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_193049026_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_193049026_h1_2">パラメータ</a>
+    </li>
+    <li>
+      <a href="#Anchor_193049026_h1_3">ステートマシン</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_193049026_h1_1">はじめに</h1>
+<p>ジェスチャ操作を実現するために用意された API です。典型的なダイアログ操作をシステムと統一感を持たせて実装することが可能です。</p>
+<p>
+  <span style="color: rgb(51,51,51);">以下のジェスチャをサポートします。</span>
+</p>
+<ul style="list-style-type: square;">
+  <li>
+    <span style="color: rgb(51,51,51);">タッチ</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">ロングプレス</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">タップ（ダブルタップ含む）</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">パン</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">スワイプ</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">二本指タッチ</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">二本指タップ<span style="color: rgb(51,51,51);">（ダブルタップ含む）</span></span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">二本指パン</span>
+    </span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">二本指スワイプ</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">二本指ピンチ<br /></span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">二本指回転<br /></span>
+  </li>
+</ul>
+<p>
+  <span style="color: rgb(51,51,51);">ジェスチャの種別は <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a0c2cf079e4cb741ecda84bbc65af5e81">GestureState::GetGestureType()</a> の返す <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">GestureType</a> 列挙体の値から判定できます。</span>
+</p>
+<p>ジェスチャの更新は後述する<a href="#Anchor_193049026_h1_3">ステートマシン</a>に従います。 新たなジェスチャの採用は 4 ms 以上の間隔を開けて行われます。</p>
+<p>ジェスチャは、ジェスチャの認識が開始されてから終了するまで、一連のコンテキストとして纏められます。</p>
+<p>コンテキストは <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a0fdcee3fe1cfdba12396d0f6ea9a519f">GestureState::contextNumber</a> の値で識別することができます。 この値は、<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Idle</a> か <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Touch</a> が検出される度にインクリメントされます。</p>
+<p>同一コンテキスト中においては、 <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a38d704cc4b3a752b490210c32ff70472">GestureState::points</a> はそれぞれ同じ点を表し、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a3dc247ddde08094288f229512c8703b3">GestureState::pointCount</a> の値も <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Touch</a> に遷移してからは変化しません。</p>
+<p>コンテキストの終了は <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Complete</a> から判定できます。 ただし、タッチ数の異なるジェスチャの割り込みやフォーカスの遷移などにより、ジェスチャの認識が打ち切られてしまった場合は、 代わりに <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Cancel</a> が得られます。</p>
+<p>ジェスチャ毎の詳細な情報を参照する方法は、 <a href="#Anchor_193049026_h1_2">パラメータ</a>で後述します。</p>
+<p>&nbsp;</p>
+<p>Gesture インターフェイスを利用する際は、&nbsp;まず <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#ac48d26c15ce9679154f2f16266d167c8">InitializeGesture()</a> を呼び出して初期化を行う必要があります。</p>
+<p>ジェスチャの状態を取得する API としては <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a234cdda1dc57a5e37b6d56ffb241bc2a">GetGestureStates()</a> が提供されており、&nbsp;最新のものから最大で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aa0a9094ed863f37df20e817317833677">GestureStateCountMax</a> 個まで遡って取得できます。</p>
+<p>ジェスチャの取得がステートマシンの状態を変えることはないため、同じ API を繰り返し呼び出した際に、ジェスチャの更新が挟まれなければ、取得される値は同じとなります。</p>
+<p>ジェスチャの状態には、更新を行うたびに 1 ずつ増えていく番号が、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a90083be10b1a6156ce8f0426ecb39de2">GestureState::eventNumber</a> として割り当てられます。 取得した状態の重複はこの番号から判別することが可能です。</p>
+<h1 id="Anchor_193049026_h1_2">パラメータ</h1>
+<p>ジェスチャはパラメータとして、</p>
+<ul>
+  <li>構成する点 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a3dc247ddde08094288f229512c8703b3">GestureState::pointCount</a>,&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a38d704cc4b3a752b490210c32ff70472">GestureState::points</a>)</li>
+  <li>座標値 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a5f9bf4d8d3a429a0b02e58d51301ef53">GestureState::x</a>, <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#adfdea27cc2b945ccf9df48da49624cf5">GestureState::y</a>)</li>
+  <li>座標差分値 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a1be9cd3ccbee04a2e1e2893328a25fb5">GestureState::deltaX</a>,&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a9b8601cf4124d5435f5ad2d9eecec285">GestureState::deltaY</a>)</li>
+  <li>速度 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#aa76fd026d8bf7fd3f4237b869ffb69af">GestureState::velocity</a>)</li>
+  <li>スケール (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#aaf0018607dadb5f99c9bcb5b5d5cc106">GestureState::scale</a>)</li>
+  <li>回転の度数 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a30e18279b968e09585b2a116bfb966e1">GestureState::rotationAngle</a>)</li>
+  <li>方向 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#a37bbfbeb604bf4d55d188860bc5b9ea4">GestureState::GetGestureDirection()</a>)</li>
+  <li>属性 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_state.html#aacc0d19d0dd7827519a3395b213e5026">GestureState::attributes</a>)</li>
+</ul>
+<p>をとり得ます。</p>
+<p>この時、 座標値は左上端を原点 (0, 0) とするドット単位で、 速度は秒あたりの差分値で、度数は時計回りを正とする値で記録されます。</p>
+<p>パラメータが表すものは、下記のように、ジェスチャ毎に異なります。 利用されないパラメータはゼロ初期化されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">ジェスチャ</th>
+      <th style="text-align: center;">構成する点</th>
+      <th style="text-align: center;">座標値</th>
+      <th style="text-align: center;">座標差分値</th>
+      <th style="text-align: center;">速度</th>
+      <th style="text-align: center;">スケール</th>
+      <th style="text-align: center;">回転の度数</th>
+      <th style="text-align: center;">方向</th>
+      <th style="text-align: center;">属性</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Idle</a>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Complete</a>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Cancel</a>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Touch</a>
+      </td>
+      <td style="text-align: center;">1 点 / 2点</td>
+      <td>重心位置</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td>
+        <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_attribute.html#ad42d1e9f0fc8f11875dc9b3c698fdf57">GestureAttribute::IsNewTouch</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Press</a>
+      </td>
+      <td style="text-align: center;">1 点</td>
+      <td>重心位置</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Tap</a>
+      </td>
+      <td style="text-align: center;">1 点 / 2点</td>
+      <td>重心位置 (リリース位置)</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td>
+        <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_gesture_attribute.html#a87c8a7820654829990bdfdfe9dd8b4f1">GestureAttribute::IsDoubleTap</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Pan</a>
+      </td>
+      <td style="text-align: center;">1 点 / 2点</td>
+      <td>重心位置</td>
+      <td>重心位置移動差分</td>
+      <td>重心位置移動速度</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Swipe</a>
+      </td>
+      <td style="text-align: center;">1 点 / 2点</td>
+      <td>重心位置 (リリース位置)</td>
+      <td>重心位置移動差分</td>
+      <td>重心位置移動速度</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td>スワイプの方向</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Pinch</a>
+      </td>
+      <td style="text-align: center;">2 点</td>
+      <td>重心位置</td>
+      <td>重心位置移動差分</td>
+      <td>重心位置移動速度</td>
+      <td>2 点間の距離比 (ジェスチャ前後)</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a258b0d78215e9aef289f8d784495159a">Rotate</a>
+      </td>
+      <td style="text-align: center;">2 点</td>
+      <td>重心位置</td>
+      <td>重心位置移動差分</td>
+      <td>重心位置移動速度</td>
+      <td style="text-align: center;">-</td>
+      <td>
+        <p>重心位置を中心とする回転角度</p>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_193049026_h1_3">ステートマシン</h1>
+<p>ジェスチャはステートマシンに従って決定されます。 状態遷移が発生した際に、 ジェスチャとして遷移先のものが採用されます。 &nbsp;</p>
+<p>ステートマシンは後方互換性を持つため、古い仕様のステートマシン向けにビルドされたアプリケーションであっても、新しいステートマシン上で動作することが可能です。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_193049026/200576677.png" class="embedded-image" />
+  </span>
+</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

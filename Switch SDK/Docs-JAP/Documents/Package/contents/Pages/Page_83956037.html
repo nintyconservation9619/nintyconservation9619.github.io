@@ -1,0 +1,499 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>3D シェーダーコンバーター</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 3D シェーダーコンバーター -->
+<div class="pagetitle" id="PageId_83956037">3D シェーダーコンバーター</div>
+<div class="text_separate">
+<p>3D シェーダーコンバーター(%NINTENDO_SDK_ROOT%\Tools\Graphics\3dTools\3dShaderConverter.exe)の使用方法と注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956037_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956037_h1_2">コマンドラインオプション</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956037_h1_3">仕様</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956037_h1_4">制限事項</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956037_h1_5">利用例</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83956037_h1_1">概要</h1>
+<p>シェーダー設定ファイル（.fsc）からシェーダー定義ファイル（.fsd）を生成します。また、シェーダー定義ファイルをランタイム用のバイナリーファイル (.bfsha) に変換します。その際、シェーダーバリエーションファイル (.fsv) により、生成するバリエーションを指定することもできます。</p>
+<h1 id="Anchor_83956037_h1_2">コマンドラインオプション</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe [--args-file &quot;&quot;] [--version] [-h] [-s] [--verify]
+[--root-config &quot;&quot;] [--root-definition &quot;&quot;] [--force-variation] [--dump-shader-source &quot;&quot;] [--define-macro] [--glsl-version] 
+[--api-type &quot;&quot;] [--code-type &quot;&quot;] [--debug-info-directory &quot;&quot;] [--shader-cache-directory &quot;&quot;] [--debug-info-level &quot;&quot;] [--glsl-extension &quot;&quot;]
+[--preprocess] [--jobs &quot;&quot;] [--output &quot;&quot;] [--gfx-shader-converter-options &quot;&quot;] [--skip-convert] [--variation-begin-ratio &quot;&quot;] [--variation-end-ratio &quot;&quot;]
+[ファイル]... </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>--args-file &quot;&quot;</strong>
+</p>
+<p>引数ファイルを指定します。<br />引数ファイルに記述した内容を、引数として指定できます。<br />引数ファイルは複数行に渡って各オプションを記述できます。<br />行頭に # がある行はコメントとして扱います。<br />オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<p>
+  <strong>--version<br /> </strong>
+</p>
+<p>バージョン情報を表示します。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプを表示します。</p>
+<p>
+  <strong>-s --silent</strong>
+</p>
+<p>処理中のメッセージ表示を抑制します。</p>
+<p>
+  <strong>--verify</strong>
+</p>
+<p>中間ファイルがバイナリーコンバート可能かどうかを調べます。</p>
+<p>
+  <strong>-o &quot;&quot;, --output &quot;&quot;<br /> </strong>
+</p>
+<p>出力ファイル名を指定します。<br />記述例： --output &quot;output_dir\demo.bfsha&quot;、-o &quot;output_dir\demo.bfsha&quot;</p>
+<p>
+  <strong>ファイル</strong>
+</p>
+<p>シェーダー設定ファイルまたはシェーダー定義ファイルを指定します。</p>
+<h3 id="Anchor_83956037_h3_1">シェーダー定義ファイル(.fsd) 生成向けオプション</h3>
+<p>
+  <strong>--unified-annotation</strong>
+</p>
+<p>頂点シェーダー、フラグメントシェーダーなどステージ間でアノテーション表記が異なる場合に、<br />頂点シェーダー ＜ ジオメトリシェーダー ＜ フラグメントシェーダー &lt; コンピュートシェーダー の順で上書きを行います。</p>
+<p>
+  <strong>--root-config &quot;&quot;</strong>
+</p>
+<p>シェーダー定義ファイルに含まれるパスを指定したフォルダからの相対パスにします。<br />例）--root-config &quot;D:\home&quot; と指定するとシェーダー定義ファイルのパスから D:\home が除去されます。<br />このオプションはコンバーターの入力パスの指定には利用できません。</p>
+<h3 id="Anchor_83956037_h3_2">シェーダーアーカイブファイル(.bfsha) 生成向けオプション</h3>
+<p>
+  <strong>--root-definition &quot;&quot;</strong>
+</p>
+<p>バイナリーファイルに含まれるパスを指定したフォルダからの相対パスにします。<br />例）--root-definition &quot;D:\home&quot; と指定するとバイナリーファイルのパスから D:\home が除去されます。<br />このオプションはコンバーターの入力パスの指定には利用できません。</p>
+<p>
+  <strong>--force-variation</strong>
+</p>
+<p>シェーダーオプションの branch を強制的に false とみなし、バリエーションとして扱うオプションです。</p>
+<p>
+  <strong>--dump-shader-source &quot;&quot;</strong>
+</p>
+<p>コンパイル時の情報を出力するオプションです。<br />出力先フォルダのパスを指定します。</p>
+<p>出力される情報については&nbsp;<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a>&nbsp;も併せてご覧ください。</p>
+<p>
+  <strong>--glsl-version &quot;&quot;<br /></strong>
+</p>
+<p>ソースの先頭に挿入される GLSL のバージョン文字列を指定します。</p>
+<p>
+  <strong>--api-type &quot;&quot;<br /></strong>
+</p>
+<p>必須オプションです。使用するグラフィックスAPIの種類を指定します。設定値は GL です。<br />アドオンパッケージをインストールすることにより、設定できる値は追加されます。</p>
+<p>
+  <strong>--code-type &quot;&quot;</strong>
+</p>
+<p>出力するシェーダーの種類を指定します。設定値は api-type によって異なります。<br />--api-type GL では下記を指定できます。<br />Source: シェーダーソースを出力ファイルに含めます。<br />Binary: シェーダーバイナリーを出力ファイルに含めます。<br />Binary_Source: シェーダーバイナリー、ソースを出力ファイルに含めます。</p>
+<p>
+  <strong>--debug-info-directory &quot;&quot;<br /></strong>
+</p>
+<p>GPU デバッガのデバグ情報を出力します。</p>
+<p>
+  <strong>--shader-cache-directory &quot;&quot;</strong>
+</p>
+<p>シェーダーのコンパイル結果を指定したディレクトリにキャッシングします。&nbsp;<strong><br /></strong>2 度目のコンバートが高速になります。<br />--api-type GL ではキャッシングされません。</p>
+<p>
+  <strong>--debug-info-level &quot;&quot;</strong>
+</p>
+<p>
+  <span style="color: rgb(0,51,102);">付加するデバッグ情報のレベルを指定します。<br />使用可能な値は<a href="../Pages/Page_89982392.html">GFXライブラリ／ツールリファレンス／シェーダーコンバーター (.exe)</a></span>をご参照ください。</p>
+<p>
+  <strong>--preprocess</strong>
+</p>
+<p>プリプロセス済みのシェーダーをコンパイルします。</p>
+<p>
+  <strong>--use-preprocessor-variation</strong>
+</p>
+<p>プリプロセッサ定義を使用してバリエーション生成します。<br />未指定時はオプション変数にバリエーション定数が存在する場合はバリエーション定数が使用されます。<br />--api-type、シェーダーコードの長さ、バリエーション数、バリエーション定数の数によっては<br />本オプションと --jobs を使用した方が高速にコンバートできる場合があります。<br />プリプロセッサ定義、バリエーション定数については<span style="color: rgb(0,51,102);"><a href="../Pages/Page_89981854.html">シェーダーコンパイラー</a></span>をご参照ください。</p>
+<p>
+  <strong>--define-macro &quot;&quot;<br /></strong>
+</p>
+<p>プリプロセッサマクロを定義します。<br />値を指定する場合はマクロ名に = を続けて値を指定します。<br />= を記述せずマクロ名のみ指定した場合はそのマクロの値は 1 になります。<br />記述例: --define-macro &quot;HOGE&quot; --define-macro &quot;FOO=2&quot;<br />上記例では下記のコードがシェーダーコード内に埋め込まれます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#define HOGE 1
+#define FOO 2 
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>--glsl-extension &quot;&quot;</strong>
+</p>
+<p>glsl 拡張をシェーダーコードに埋め込みます。&nbsp;<strong><br /></strong>直接シェーダーソースコードに書いた場合はコンパイルエラーになります。</p>
+<p>
+  <strong>--jobs &quot;&quot;<br /></strong>
+</p>
+<p>並列処理の最大スレッド数を指定します。<br />1 を指定した場合はシングルスレッドで動作します 。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>基本的にはコア数の数だけ高速化されますが一部の api-type では低レイヤコンパイラの仕様上高速化されない場合があります。</p>
+  </div>
+</div>
+<p>
+  <strong>--gfx-shader-converter-options &quot;&quot;</strong>
+</p>
+<p>
+  <a href="../Pages/Page_89982392.html">シェーダーコンバーター</a>へのオプションを指定します。<br />--jobs や --shader-cache-dirextory 等の 3D シェーダーコンバーターにも存在するオプションを同時指定した場合、<br />基本的に後に指定された値が採用されますが、複数値指定可能なオプションはすべての値が採用されます。<br />シェーダーコンバーターオプションで使用するダブルクオートのエスケープはシングルクオートで記述します。<br />(例)&nbsp;--gfx-shader-converter-options &quot;--preprocessor-definition=' TEST' &quot;</p>
+<p>
+  <strong>--skip-convert</strong>
+</p>
+<p>シェーダーのコンパイルまでを行い、コンパイル以外の処理(シェーダーアーカイブへのシリアライズ等)をスキップします。<br />そのためシェーダーアーカイブは出力されませんが、コンパイルは実行されるため --shader-cashe-directory を使用したコンパイルキャッシュの出力は可能です。<br />「<a href="../Pages/Page_297036649.html">分散コンパイル</a>」の仕組みを利用する場合等に効果的に使用することができます。</p>
+<p>
+  <strong>--variation-begin-ratio &quot;&quot;</strong>
+  <br />
+  <strong>--variation-end-ratio &quot;&quot;</strong>
+</p>
+<p>ひとつのシェーダーアーカイブのコンバートを複数回に分割する場合に、生成するシェーダーバリエーション範囲の開始位置もしくは終了位置を比率で指定します。<br />--shader-cashe-directory オプションと合わせて使用することで「<a href="../Pages/Page_297036649.html">分散コンパイル</a>」の仕組みを利用することができます。<br />生成される全シェーダーバリエーションの範囲を [0.0, 1.0] としたとき、[variation-begin-ratio, variation-end-ratio] の範囲にあるシェーダーバリエーションがコンパイルされます。<br />0.0 &lt;= variation-begin-ratio &lt;= variation-end-ratio &lt;= 1.0 の範囲で指定可能です。<br />variation-begin-ratio を指定しない場合は [0.0, variation-end-ratio]&nbsp;の範囲のシェーダーバリエーションがコンパイルされます。<br />variation-end-ratio を指定しない場合は [variation-begin-ratio, 1.0] の範囲のシェーダーバリエーションがコンパイルされます。</p>
+<p>
+  <br />
+</p>
+<!--Remove-->
+<h2 id="Anchor_83956037_h2_2">プラットフォーム固有のオプション</h2>
+<p>プラットフォーム固有のオプションについては&nbsp;&nbsp;<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a>&nbsp;をご参照ください。</p>
+<h1 id="Anchor_83956037_h1_3">仕様</h1>
+<p>3D シェーダーコンバーターの仕様について説明します。</p>
+<h2 id="Anchor_83956037_h2_3">ソースコードの文字コード</h2>
+<p>
+  <span style="color: rgb(51,51,51);">シェーダーソースコードの文字コードを表すコードページ</span>は fsc の code_page 属性を用いて指定してください。code_page=&quot;0&quot; とするとシステムロケールに従ってソースを解釈します。読み込むシェーダーソースと fsc に記述したコードページに食い違いがあるとコンパイルエラー時の表示が途中で途切れる事があるので注意して下さい。</p>
+<h2 id="Anchor_83956037_h2_4">自動定義されるマクロ</h2>
+<p>以下のマクロはシェーダーコンバート時に自動的に定義されます。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>マクロ名</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_NN_G3D_VERTEX_SHADER">NN_G3D_VERTEX_SHADER</span>
+      </td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_NN_G3D_GEOMETRY_SHADER">NN_G3D_GEOMETRY_SHADER</span>
+      </td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_NN_G3D_FRAGMENT_SHADER">NN_G3D_FRAGMENT_SHADER</span>
+      </td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>NN_G3D_COMPUTE_SHADER</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956037_h2_5">自動定義されるオプション</h2>
+<p>以下のオプションは自動的に定義されます。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>オプション名</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>system_id</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956037_h2_6">fsc でバリエーションの記述を省略した際の挙動</h2>
+<p>基本的には、すべてのオプションはバリエーションとして fsc に記述することが想定されています。</p>
+<p>バリエーションの記述を省略した際は、以下の扱いになります。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>属性名</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>choice</td>
+      <td>default と同じ</td>
+    </tr>
+    <tr>
+      <td>default</td>
+      <td>(空)</td>
+    </tr>
+    <tr>
+      <td>branch</td>
+      <td>false</td>
+    </tr>
+  </tbody>
+</table>
+<p>各属性の詳細については、中間ファイル仕様書の &lt;variation&gt; を参照してください。</p>
+<h2 id="Anchor_83956037_h2_7">fsv でオプションの記述を省略した際の挙動</h2>
+<p>fsv によるバリエーションの絞り込みで、記述を省略したオプションについては、choice にデフォルトが指定されたものと見なされます。</p>
+<h1 id="Anchor_83956037_h1_4">制限事項</h1>
+<p>3D シェーダーコンバーターの制限事項を説明します。</p>
+<h2 id="Anchor_83956037_h2_8">使用可能なファイル名に関する制限</h2>
+<p>入力及び --output に指定するファイル名に使用可能な文字は次の文字のみです。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>[0-9A-Za-z-_]</p>
+  </div>
+</div>
+<h2 id="Anchor_83956037_h2_9">同名のソースファイル</h2>
+<p>ソースファイルの名前はユニークである必要があります。以下のように、同名のファイルが存在する場合、正常に動作しません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>./abc.glsl
+./def/abc.glsl</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956037_h2_10">include-path と ファイルの配置</h2>
+<p>3D シェーダーコンバーターは #include を解決する際に fsc からのパスと include-path からの相対パスの両方を用いて解決します。</p>
+<p>このとき、fsc とソースファイルの記述に従い、一旦すべてのファイルをワークスペースに展開するために以下の制約があります。</p>
+<ul>
+  <li>include-path は包含できない<br /> include-path を包含する include-path は定義することができません。 このようなパスが指定された場合 fsd への変換は失敗します。</li>
+  <li>同じ名前のファイルを登録できない<br /> 例えば、include0/src/abc.glsl と include1/src/abc.glsl がソースとして登録されており、 include-path に include0 と include1 が指定された場合、両方とも相対パスが src/abc.glsl となり変換は失敗します。</li>
+  <li>
+    <p>include-path から上位ディレクトリを指定できない<br /> 下記のように、上位ディレクトリのファイルを相対パスで参照することはできません。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>#include &lt;../abc.glsl&gt;</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<h2 id="Anchor_83956037_h2_11">アノテーション</h2>
+<p>アノテーションについては&nbsp;<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a> をご覧ください。</p>
+<p>特に注意するべき項目について記載します。</p>
+<ul>
+  <li>
+    <p>option アノテーションが付与されたマクロの #ifdef~#endif などの間で #include を記述しない<br /> 下記のような記述を行うとマクロの初期値によっては #include が解決できず、ファイルを展開できない可能性があります。<br /> </p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>#define TEST // @@ id=&quot;option&quot; choice=&quot;bool&quot;
+
+#ifdef TEST
+&nbsp;&nbsp;&nbsp;&nbsp;#include &lt;abc.glsl&gt;
+#else
+&nbsp;&nbsp;&nbsp;&nbsp;#include &lt;def.glsl&gt;
+#endif</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>変数の後のアノテーションでは C スタイルコメント形式が使えない<br /> 変数の後にアノテーションを付ける場合は C++ スタイルで記述してください。 もしアノテーションが複数行に渡る場合は C++ スタイルアノテーションと C スタイルによる遠隔指定がお勧めです。<br /> </p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre> // OK
+uniform sampler2D albedo0;     // @@ id=&quot;albedo0&quot;
+// NG
+uniform sampler2D albedo1;     /* @@ id=&quot;albedo1&quot; */
+// OK
+/* @@
+
+sampler_id=&quot;albedo0&quot; hint=&quot;_a0&quot;
+label=&quot;albedo diffuse texture&quot;
+
+*/</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>define-macro オプションにより値が定義されるマクロブロック内にアノテーションを記述しない<br />マクロブロック内のアノテーションは無視されます。下記の例では &quot;<code class="plain plain">enable_vertex_color</code>&quot; は生成された fsdb に存在しなくなります。期待しない動作の原因になるためこの様な記述は避けて下さい。</p>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelContent">
+        <div class="container">
+          <div class="line number1 index0 alt2">
+            <code class="plain plain">#if defined( FIXED_MACRO_USE_VERTEX_COLOR )&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // <code class="plain plain">FIXED_MACRO_USE_VERTEX_COLOR</code> は define-macro オプションで値が定義されるマクロ</code>
+          </div>
+          <div class="line number2 index1 alt1">
+            <code class="plain plain">#define ENABLE_VERTEX_COLOR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( 0 ) // @@ id=&quot;enable_vertex_color&quot; choice=&quot;0, 1&quot; type=&quot;dynamic&quot;</code>
+          </div>
+          <div class="line number3 index2 alt2">
+            <code class="plain plain">#endif</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
+</ul>
+<h2 id="Anchor_83956037_h2_12">シェーダー定義中間ファイルのテキスト中間ファイル（fsda）</h2>
+<p>シェーダー定義中間ファイルのテキスト中間ファイル（fsda）はサポートされていません。</p>
+<h1 id="Anchor_83956037_h1_5">利用例</h1>
+<p>3D シェーダーコンバーターの利用方法を説明します。</p>
+<h2 id="Anchor_83956037_h2_13">シェーダー定義ファイルの生成</h2>
+<p>shader.fsca を処理して、output.fsdb を生成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --output output.fsdb shader.fsca</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956037_h2_14">シェーダー定義ファイルの変換</h2>
+<p>shader.fsdb をコンバートして、output.bfsha に保存します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --glsl-version 430 --api-type GL --code-type Binary_Source --output output.bfsha shader.fsdb</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>引数ファイルを用いて shader.fsdb をコンバートして、output.bfsha に保存します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>convert.txt
+
+--glsl-version 430
+--api-type GL
+--code-type Binary_Source
+--output output.bfsha
+shader.fsdb</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --args-file convert.txt</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956037_h2_15">シェーダーバリエーションの絞り込み</h2>
+<p>シェーダー定義ファイルの変換では、通常はすべてのバリエーションが生成されますが、シェーダーバリエーションファイルを入力することで、生成するバリエーションを絞り込むことができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --glsl-version 430 --api-type GL --code-type Binary_Source --output output.bfsha shader.fsdb shader.fsva</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_NN_G3D_VERTEX_SHADER
+// ApiLink_NN_G3D_GEOMETRY_SHADER
+// ApiLink_NN_G3D_FRAGMENT_SHADER
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

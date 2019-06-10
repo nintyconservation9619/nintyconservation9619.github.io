@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>I2I</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    I2I : Integer To Integer Conversion<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer To Integer Conversion" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Conversion Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "I2I", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>I2I</b>{.dstfmt.srcfmt}{.SAT}</code>   <code>Rd{.CC},{-}{|}Sb{.extract}{|}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "I2I" } -->
+
+ .dstfmt:     { <b>.S8, .U8, .S16, .U16, .S32*, .U32</b> } 
+ .srcfmt:     { <b>.S8, .U8, .S16, .U16, .S32*, .U32</b> } 
+              All srcfmt/dstfmt combinations are supported.
+
+ .SAT         Saturate to output format range
+
+ .CC:         Write condition codes
+
+
+  .extract:    byte/word extraction parameter
+               if (.srcfmt = U16/S16) {.H0*,.H1}
+                where
+                    .H0 // Sb[15:00]
+                    .H1 // Sb[31:16]
+               else                   { B0*,.B1,.B2,.B3}
+                where
+                    .B0 // Sb[07:00] 
+                    .B1 // Sb[15:08]
+                    .B2 // Sb[23:16]
+                    .B3 // Sb[31:24]
+               .H0/.H1 only legal if srcfmt=.U16 or .S16
+               .B0/.B1/.B2/.B3 only legal if srcfmt=.U8 or .S8
+
+The following source Sb combinations are allowed:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(sign-extended #IMM20)
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+The integer contents of source are moved into destination with optional conversions.</p>
+
+<p>Here are the steps:</p>
+<ol><li>If byte (.U8,.S8) or short (.U16,.S16) .srcfmt is specified, extract raw bits
+<pre>
+      Sb.H0           // Sb[15:00], .srcfmt must be .U16 or .S16
+      Sb.H1           // Sb[31:16], .srcfmt must be .U16 or .S16
+      Sb.B0           // Sb[07:00], .srcfmt must be .U8  or .S8
+      Sb.B1           // Sb[15:08], .srcfmt must be .U8  or .S8
+      Sb.B2           // Sb[23:16], .srcfmt must be .U8  or .S8
+      Sb.B3           // Sb[31:24], .srcfmt must be .U8  or .S8
+</pre></li>
+    <li>Convert input to 2's complement integer, specified by .srcfmt
+<pre>
+     .U8   :  input  8b,   0 extend
+     .S8   :  input  8b, sign extend
+     .U16  :  input 16b,   0 extend
+     .S16  :  input 16b, sign extend
+     .U32  :  input 32b,   0 extend
+     .S32  :  input 32b, sign extend
+</pre></li>
+    <li>Optional 2's complement absolute value and/or negate. If both are specified,
+    the abs is done first.</li>
+    <li>Saturate or Wrap.
+<pre>
+     if (.SAT &amp;&amp; .dstfmt == .S8,.S16,.S32) {
+       if (srcB &lt; -(1&lt;&lt;(DRANGE-1)))        // DRANGE is 8b,16b,32b = size of .dstfmt
+         srcB = -(1&lt;&lt;(DRANGE-1));
+       else if (srcB &gt; (1&lt;&lt;(DRANGE-1))-1)
+         srcB = (1&lt;&lt;(DRANGE-1))-1;
+     }
+     else if (.SAT &amp;&amp; .dstfmt == .U8,.U16,.U32) {
+       if (srcB &lt; 0)
+         srcB = 0;
+       else if (srcB &gt; (1&lt;&lt; DRANGE)-1)
+         srcB = (1&lt;&lt; DRANGE)-1);
+     }
+     else
+       srcB &amp;= (1&lt;&lt; DRANGE)-1;
+</pre></li>
+    <li>Destination write of 32b</li>
+</ol>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>I2I</b>.S16.S8.SAT R0,R1.B1;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

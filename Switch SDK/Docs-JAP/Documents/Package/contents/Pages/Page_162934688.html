@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>MemoryPoolAllocator</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- MemoryPoolAllocator -->
+<div class="pagetitle" id="PageId_162934688">MemoryPoolAllocator</div>
+<div class="text_separate">
+<h1 id="Anchor_162934688_h1_1">はじめに</h1>
+<p>
+  <br />
+</p>
+<p>MemoryPoolAllocator は、大きなメモリープール上のメモリーを小分けにして使用するためのアロケーターです。</p>
+<p>管理領域用のメモリーは、ユーザーが指定したコールバック関数によって確保・解放されます。</p>
+<h1 id="Anchor_162934688_h1_2">MemoryPoolAllocator</h1>
+<h2 id="Anchor_162934688_h2_1">ヘッダーファイル</h2>
+<p>nn/gfx/util/gfx_MemoryPoolAllocator.hをインクルードしてください。</p>
+<h2 id="Anchor_162934688_h2_2">使用方法</h2>
+<p>1. アロケーターで使用するメモリー確保・解放関数を用意します。</p>
+<p>メモリープール自体もあらかじめ作成しておく必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/gfx/util/gfx_MemoryPoolAllocator.h&gt;
+</span> 
+<span class="kt">void</span><span class="o">*</span> <span class="nf">UserAllocateFunction</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pParam</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">pParam</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="p">}</span>
+ 
+<span class="kt">void</span> <span class="nf">UserFreeFunction</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pParam</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">pParam</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
+ 
+<span class="nn">nn::gfx::</span><span class="n">MemoryPool</span> <span class="n">g_MemoryPool</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>2. MemoryPoolAllocator を初期化します。</p>
+<p>メモリー確保・解放関数、メモリープール、開始オフセット、サイズ、最大アラインメント、スレッドセーフフラグを指定します。</p>
+<p>スレッドセーフを有効にすると、Allocate 関数および Free 関数がスレッドセーフで呼ばれるようになります。</p>
+<p>
+  <br />
+</p>
+<p>サイズはメモリープール全体のサイズではなく、アロケーターで管理するサイズを指定します。</p>
+<p>開始オフセットからサイズ分の区間を、アロケーターで確保・解放できるようになります。</p>
+<p>
+  <br />
+</p>
+<p>最大アラインメントには、Allocate 関数に指定するアラインメントの最大値を指定します。</p>
+<p>この値は 1&nbsp;以上 <span class="ApiLink_nn__gfx__util__MemoryPoolAllocator__AlignmentMax">nn::gfx::util::MemoryPoolAllocator::AlignmentMax</span> 以下でなければいけません。</p>
+<p>また、最大アラインメントは 2&nbsp;の累乗でなければいけません。</p>
+<p>アロケートする際には、ここで指定した値以下のアラインメントを指定できます。</p>
+<p>
+  <br />
+</p>
+<p>開始オフセットは、0&nbsp;以上かつ最大アラインメントでアラインされた値を指定しなければいけません。</p>
+<p>サイズは、1&nbsp;以上 <span class="ApiLink_nn__gfx__util__MemoryPoolAllocator__SizeMax">nn::gfx::util::MemoryPoolAllocator::SizeMax</span> 以下の値を指定しなければいけません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">ptrdiff_t</span> <span class="n">baseOffset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>    <span class="c1">// (baseOffset &gt;= 0) &amp;&amp; (baseOffset % alignmentMax == 0)
+</span><span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>    <span class="c1">// (size &gt;= 1) &amp;&amp; (size &lt;= nn::gfx::util::MemoryPoolAllocator::SizeMax)
+// (alignmentMax &gt;= 1) &amp;&amp; (alignmentMax &lt;= nn::gfx::util::MemoryPoolAllocator::AlignmentMax)
+// alignmentMax は2の累乗
+</span><span class="kt">size_t</span> <span class="n">alignmentMax</span> <span class="o">=</span> <span class="nn">nn::gfx::util::MemoryPoolAllocator::</span><span class="n">AlignmentMax</span><span class="p">;</span>
+
+<span class="kt">bool</span> <span class="n">threadSafe</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+ 
+<span class="nn">nn::gfx::util::</span><span class="n">MemoryPoolAllocator</span> <span class="n">allocator</span><span class="p">;</span>
+<span class="n">allocator</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">UserAllocateFunction</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">nullptr</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">UserFreeFunction</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">nullptr</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_MemoryPool</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">baseOffset</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">size</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">alignmentMax</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">threadSafe</span>
+<span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>3. Allocate 関数でメモリープールのオフセット区間を確保します。</p>
+<p>初期化時に指定した最大アラインメント以下のアラインメントを指定できます。</p>
+<p>アラインメントは2の累乗でなければいけません。</p>
+<p>
+  <br />
+</p>
+<p>確保に失敗すると、<span class="ApiLink_nn__gfx__util__MemoryPoolAllocator__InvalidOffset">nn::gfx::util::MemoryPoolAllocator::InvalidOffset</span> が返ります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// アラインメントは2の累乗
+</span><span class="kt">ptrdiff_t</span> <span class="n">offsetA</span> <span class="o">=</span> <span class="n">allocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span>
+<span class="kt">ptrdiff_t</span> <span class="n">offsetB</span> <span class="o">=</span> <span class="n">allocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">4096</span><span class="p">);</span>
+ 
+<span class="k">if</span><span class="p">(</span><span class="n">offsetA</span> <span class="o">==</span> <span class="nn">nn::gfx::util::MemoryPoolAllocator::</span><span class="n">InvalidOffset</span><span class="p">){</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 確保失敗
+</span><span class="p">}</span>
+<span class="k">if</span><span class="p">(</span><span class="n">offsetB</span> <span class="o">==</span> <span class="nn">nn::gfx::util::MemoryPoolAllocator::</span><span class="n">InvalidOffset</span><span class="p">){</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 確保失敗
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>4. Free 関数で確保済みのオフセット区間を解放します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">allocator</span><span class="p">.</span><span class="n">Free</span><span class="p">(</span><span class="n">offsetA</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>5. Finalize 関数を呼び出して、アロケーターの終了処理を行います。</p>
+<p>このとき、割り当て済みで解放していない区間があった場合は、内部で自動的に解放されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// offsetB は Finalize() によって自動的に解放される
+</span><span class="n">allocator</span><span class="p">.</span><span class="n">Finalize</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>その他の機能については関数リファレンスを参照してください。</p>
+<h2 id="Anchor_162934688_h2_3">使用上の注意事項</h2>
+<h3 id="Anchor_162934688_h3_1">確保できるメモリーブロックの最小単位</h3>
+<p>MemoryPoolAllocator では、確保するメモリーブロックは、<span class="ApiLink_nn__gfx__util__MemoryPoolAllocator__AllocatorUnitSize">nn::gfx::util::MemoryPoolAllocator::AllocatorUnitSize</span> (256Bytes) の整数倍で管理されます。</p>
+<p>そのため、 1Byte のメモリーブロックを確保する場合でも 256Bytes が消費されます。&nbsp;</p>
+<h3 id="Anchor_162934688_h3_2">メモリープールの断片化について</h3>
+<p>確保する大きさ・アラインメント等の使用状況により、確保・解放を繰り返すことでメモリープールの断片化が発生する場合があります。</p>
+<p>ただし、ユニットヒープのように「常に同じ大きさ・アライメントで確保・解放する」ような使い方であれば、メモリープールの断片化は発生しません。</p>
+<p>
+  <br />
+</p>
+<p>管理領域については、ユーザーが指定したコールバック関数によって確保・解放を行っています。</p>
+<p>コールバック関数の実装を適切に行い管理領域用メモリーの断片化に対処してください。</p>
+<p>MemoryPoolAllocator では管理領域のマネージメントに <a href="../Pages/Page_165040249.html">nn::mem::NumberLineAllocator</a>&nbsp;を使用しています。</p>
+<p>管理領域の消費メモリーサイズ等については、<a href="../Pages/Page_165040249.html">nn::mem::NumberLineAllocator</a> のドキュメントを参照してください。</p>
+<h2 id="Anchor_162934688_h2_4">Dump フォーマット</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_memory_pool_allocator.html#ac031f20c2389144a9a8ead2b06d43003">Dump()</a> を呼び出した時のアロケータ内部の情報は以下の XML フォーマットで表示されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;<span class="o">&lt;</span><span class="n">heapinfo</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">offset</span><span class="o">&gt;</span><span class="mi">0</span><span class="o">&lt;/</span><span class="n">offset</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">factor</span><span class="o">&gt;</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">factor</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">max_allocatable_size</span><span class="o">&gt;</span><span class="mi">16777214</span><span class="o">&lt;/</span><span class="n">max_allocatable_size</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">free_memory</span><span class="o">&gt;</span><span class="mi">16777214</span><span class="o">&lt;/</span><span class="n">free_memory</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">allocated_memory</span><span class="o">&gt;</span><span class="mi">2</span><span class="o">&lt;/</span><span class="n">allocated_memory</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">freelists</span><span class="o">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">free</span> <span class="n">index</span><span class="o">=</span><span class="err">'</span><span class="mi">255</span><span class="err">'</span> <span class="n">first</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000000000002</span><span class="err">'</span> <span class="n">last</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000001000000</span><span class="err">'</span> <span class="n">size</span><span class="o">=</span><span class="err">'</span><span class="mi">16777214</span><span class="err">'</span><span class="o">/&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;/</span><span class="n">freelists</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">allocs</span><span class="o">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">alloc</span> <span class="n">level0</span><span class="o">=</span><span class="sc">'0'</span> <span class="n">level1</span><span class="o">=</span><span class="sc">'0'</span> <span class="n">level2</span><span class="o">=</span><span class="sc">'0'</span> <span class="n">first</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000000000000</span><span class="err">'</span> <span class="n">last</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000000000002</span><span class="err">'</span> <span class="n">size</span><span class="o">=</span><span class="sc">'2'</span><span class="o">/&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;/</span><span class="n">allocs</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">heapinfo</span><span class="o">&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各要素の説明については <span class="ApiLink_nn__mem__NumberLineAllocator__Dump">nn::mem::NumberLineAllocator::Dump</span>() と同様になりますので、<a href="../Pages/Page_165040249.html">nn::mem::NumberLineAllocator</a> のドキュメントを参照してください。</p>
+<h2 id="Anchor_162934688_h2_5">API リファレンス</h2>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1gfx_1_1util.html">nn::gfx::util 名前空間</a> の <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_memory_pool_allocator.html">MemoryPoolAllocator クラス</a> を参照してください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__util__MemoryPoolAllocator__AlignmentMax', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_memory_pool_allocator.html#a6f589c554f8d9da1c1aeb7c3884d827c' )
+SetUrl( 'ApiLink_nn__gfx__util__MemoryPoolAllocator__SizeMax', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_memory_pool_allocator.html#ae4aec4619281fb5732cab4ced516a9b2' )
+SetUrl( 'ApiLink_nn__gfx__util__MemoryPoolAllocator__InvalidOffset', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_memory_pool_allocator.html#a95fd80154b7ec23f997a7c00ddb4bf7a' )
+SetUrl( 'ApiLink_nn__gfx__util__MemoryPoolAllocator__AllocatorUnitSize', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_memory_pool_allocator.html#acd6725ca1fd69c36515ff2f47462730c' )
+SetUrl( 'ApiLink_nn__mem__NumberLineAllocator__Dump', '../../../Api/HtmlNX/classnn_1_1mem_1_1_number_line_allocator.html#ae5d998734ed79c7a8fc1401e9ecc740f' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,428 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>クイックスタート</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- クイックスタート -->
+<div class="pagetitle" id="PageId_124022352">クイックスタート</div>
+<div class="text_separate">
+<p>ここでは、<span class="ApiLink_nn__font">nn::font</span> を利用して画面に文字を表示するまでのプログラムの流れを説明します。</p>
+<h1 id="Anchor_124022352_h1_1">大まかな流れ</h1>
+<p>
+  <span class="ApiLink_nn__font">nn::font</span> を利用して画面に文字を表示するプログラムは、以下のような流れになっています。<br />以降では、各項目ごとに説明していきます。</p>
+<ol>
+  <li>フォントを用意する</li>
+  <li>初期化</li>
+  <li>更新処理<ol><li>コンスタントバッファの更新</li><li>コマンド発行</li></ol></li>
+  <li>終了処理<br /><br /></li>
+</ol>
+<p>なお、下記のコードは説明のために抜粋しているためそのまま使用することは出来ません。<br />付属のサンプルデモ「FontSimple」のソースコードを元にしていますので、実際の実装は FontSimple のソースコードを参照してください。&nbsp;</p>
+<h2 id="Anchor_124022352_h2_1">フォントを用意する</h2>
+<p>フォントファイルを用意します。</p>
+<p>ビットマップフォントを利用する場合、事前に、FontConverter で生成しておきます。<br />たとえば下記のようなコマンドで、フォントを生成します。（詳細は、「<a href="../Pages/Page_83955995.html">こちら</a>」を参照してください）。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">FontConverterConsole</span><span class="p">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">i</span> <span class="n">image</span> <span class="o">-</span><span class="k">if</span> <span class="n">ColorFont</span><span class="p">.</span><span class="n">bmp</span> <span class="o">-</span><span class="n">io</span> <span class="n">ColorFont</span><span class="p">.</span><span class="n">xlor</span> <span class="o">-</span><span class="n">ic</span> <span class="n">RGBA8</span> <span class="o">-</span><span class="n">ia</span> <span class="o">-</span><span class="n">o</span> <span class="n">bffnt</span> <span class="o">-</span><span class="n">of</span> <span class="n">ColorFont</span><span class="p">.</span><span class="n">bffnt</span> <span class="o">-</span><span class="n">p</span> <span class="n">Win</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_2">初期化</h2>
+<h3 id="Anchor_124022352_h3_1">フォントの読み込みと初期化</h3>
+<p>ファイルから bffnt を読み込んで、<span class="ApiLink_nn__font__ResFont">nn::font::ResFont</span> クラスに設定します。</p>
+<p>設定の後は、ディスクリプタスロットを初期化します（詳細は「<a href="../Pages/Page_108531266.html">ディスクリプタプールについて</a>」を参照してください）。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//-----------------------------------------
+// フォントを読み込んで、初期化する
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ファイルから読みこむ
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">binary</span> <span class="o">=</span> <span class="n">LoadFont</span><span class="p">(</span><span class="s">&quot;test_font.bffnt&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ &nbsp; &nbsp;<span class="c1">// フォントの初期化
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_ResFont</span><span class="p">.</span><span class="n">SetResource</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">binary</span> <span class="p">);</span>
+
+ &nbsp; &nbsp;<span class="c1">// ディスクリプタスロットの設定
+</span> &nbsp; &nbsp;<span class="n">g_ResFont</span><span class="p">.</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForTexture_</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>       </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_124022352_h3_2">RectDrawer の初期化</h3>
+<p>描画クラスを初期化します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//-----------------------------------------
+// RectDrawer の初期化
+</span><span class="k">const</span> <span class="kt">size_t</span> <span class="n">workBufferSize</span> <span class="o">=</span> <span class="nn">nn::font::RectDrawer::</span><span class="n">GetWorkBufferSize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">CharCount</span> <span class="p">);</span>
+<span class="n">g_RectDrawer</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">AllocateFromApplicationHeap</span><span class="p">(</span><span class="n">workBufferSize</span><span class="p">),</span> <span class="n">CharCount</span> <span class="p">);</span>
+<span class="n">g_RectDrawer</span><span class="p">.</span><span class="n">RegisterSamplerToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForSampler_</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>            </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_124022352_h3_3">DispStringBuffer の初期化</h3>
+<p>フォント表示用のデーターを管理する DispStringBuffer を初期化します。<br />DispStringBuffer は、内部で、 コンスタントバッファ用途に、GpuBuffer というクラスを管理しますので、それらも合わせて初期化します。</p>
+<p>（<span class="sv-ti-title-text">GPU が参照するメモリについての</span>詳細は、「<a href="../Pages/Page_107345117.html">こちら</a>」をご確認ください。）</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//-----------------------------------------
+// DispStringBuffer の初期化
+</span>
+<span class="c1">// フォント表示用のデーターを管理する DispStringBuffer を初期化します。
+</span><span class="nn">nn::font::DispStringBuffer::</span><span class="n">InitializeArg</span> <span class="n">initializeArg</span><span class="p">;</span>
+<span class="n">initializeArg</span><span class="p">.</span><span class="n">SetCharCountMax</span><span class="p">(</span> <span class="n">CharCount</span> <span class="p">);</span>
+
+<span class="c1">// 指定した文字数分バッファを確保
+</span><span class="k">const</span> <span class="kt">size_t</span> <span class="n">drawBufSize</span> <span class="o">=</span> <span class="nn">nn::font::DispStringBuffer::</span><span class="n">GetRequiredDrawBufferSize</span><span class="p">(</span> <span class="n">initializeArg</span> <span class="p">);</span>
+<span class="n">initializeArg</span><span class="p">.</span><span class="n">SetDrawBuffer</span><span class="p">(</span><span class="n">AllocateFromApplicationHeap</span><span class="p">(</span><span class="n">drawBufSize</span><span class="p">));</span>
+
+<span class="c1">// 続いて、GpuBuffer という、描画用のデータを管理するバッファを初期化します。 
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::font::GpuBuffer::</span><span class="n">InitializeArg</span>  <span class="n">arg</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetGpuAccessFlag</span><span class="p">(</span><span class="nn">nn::gfx::</span><span class="n">GpuAccess_ConstantBuffer</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// コンスタントバッファを毎フレーム更新するためダブルバッファリング用に２つ確保します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ConstantBufferCount</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 種々のサイズ計算
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">size_t</span> <span class="n">constantBufferSize</span> <span class="o">=</span> <span class="nn">nn::font::DispStringBuffer::</span><span class="n">GetRequiredConstantBufferSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">initializeArg</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">size_t</span> <span class="n">memoryPoolGranularity</span> <span class="o">=</span> <span class="nn">nn::gfx::MemoryPool::</span><span class="n">GetPoolMemorySizeGranularity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">memPoolInfo</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">size_t</span> <span class="n">memoryPoolSize</span> <span class="o">=</span> <span class="nn">nn::util::</span><span class="n">align_up</span><span class="p">(</span><span class="n">constantBufferSize</span> <span class="o">*</span> <span class="n">g_ConstantBufferCount</span><span class="p">,</span> <span class="n">memoryPoolGranularity</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">size_t</span> <span class="n">MemoryPoolAlignment</span> <span class="o">=</span> <span class="nn">nn::gfx::MemoryPool::</span><span class="n">GetPoolMemoryAlignment</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">memPoolInfo</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// font 描画関連バッファ用のメモリプールを初期化します
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">MemoryPoolInfo</span> <span class="n">memPoolInfo</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memPoolInfo</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memPoolInfo</span><span class="p">.</span><span class="n">SetMemoryPoolProperty</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">MemoryPoolProperty_CpuUncached</span> <span class="o">|</span> <span class="nn">nn::gfx::</span><span class="n">MemoryPoolProperty_GpuCached</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memPoolInfo</span><span class="p">.</span><span class="n">SetPoolMemory</span><span class="p">(</span><span class="n">AllocateFromApplicationHeap</span><span class="p">(</span><span class="n">memoryPoolSize</span><span class="p">,</span> <span class="n">MemoryPoolAlignment</span><span class="p">),</span> <span class="n">memoryPoolSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_FontDrawMemoryPool</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">memPoolInfo</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// コンスタントバッファ用の GpuBuffer を作成する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetBufferSize</span><span class="p">(</span><span class="n">constantBufferSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetBufferCount</span><span class="p">(</span><span class="n">g_ConstantBufferCount</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetMemoryPool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_FontDrawMemoryPool</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetMemoryPoolOffset</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetAllocator</span><span class="p">(</span><span class="n">GpuBufferAllocateFunction</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetAllocateSyncFlag</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// 作成した GpuBuffer をセットして表示文字列バッファを初期化
+</span><span class="n">initializeArg</span><span class="p">.</span><span class="n">SetConstantBuffer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_ConstantBuffer</span><span class="p">);</span>
+<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_DispStringBuffer</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">initializeArg</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_3">表示する文字列の情報を作成</h2>
+<pre>TextWriter クラスを使って、文字列から、描画用の情報を生成します。</pre>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 文字列描画用の情報を生成します。
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 描画設定
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::font::</span><span class="n">WideTextWriter</span> <span class="n">writer</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">SetDispStringBuffer</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_DispStringBuffer</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// フォントを設定する
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">SetFont</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ResFont</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 描画場所とサイズを指定
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">SetCursor</span><span class="p">(</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">SetScale</span><span class="p">(</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="mf">1.0f</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 文字上端、下端カラーの設定はここで行います。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 上端、下端カラー文字列描画情報に格納されるため、
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// カラーを変更した場合、Print 処理を再度行わなければならない点に注意してください。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//nn::util::Unorm8x4 topColor = {0, 255, 0, 255};
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//nn::util::Unorm8x4 bottomColor = {0, 255, 0, 255};
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//writer.SetTextColor(topColor, bottomColor);
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">StartPrint</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span> <span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;SAMPLE: FontSimple</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span> <span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span> <span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;abcdefghijklmnopqrstuvwxyz{|}~</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span> <span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span> <span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;漢字「本日は晴天なり」</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">EndPrint</span><span class="p">();</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_4">コンスタントバッファ更新</h2>
+<p>文字の色などを定義するコンスタントバッファを更新します。文字の色が変わらない場合は毎フレーム行う必要の無い処理です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">Map</span><span class="p">(</span><span class="n">g_FrameCount</span> <span class="o">%</span> <span class="n">g_ConstantBufferCount</span><span class="p">);</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 定数バッファを生成します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 定数バッファには射影行列および nn::font::ConstantBufferAdditionalContent で指定される
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 白黒補間カラーなどの追加の描画パラメータが反映されます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 射影行列や追加の描画パラメータの内容が変わったときは定数バッファの再生成が必要です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::font::</span><span class="n">ConstantBufferAdditionalContent</span> <span class="n">additionalContent</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 白黒補間カラー:
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// TextWriter::Print 処理は高負荷の処理なので、
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 必要がなければカラーのアニメーションは定数バッファの白黒カラー補間で済ませる方が
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// パフォーマンス的に有利です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::util::</span><span class="n">Unorm8x4</span> <span class="n">black</span> <span class="o">=</span> <span class="p">{{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">}};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::util::</span><span class="n">Unorm8x4</span> <span class="n">white</span> <span class="o">=</span> <span class="p">{{</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">}};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">additionalContent</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">.</span><span class="n">SetInterpolateBlack</span><span class="p">(</span> <span class="n">black</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">.</span><span class="n">SetInterpolateWhite</span><span class="p">(</span> <span class="n">white</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">.</span><span class="n">SetInterpolateAlpha</span><span class="p">(</span> <span class="n">g_FrameCount</span> <span class="o">%</span> <span class="mi">256</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DispStringBuffer</span><span class="p">.</span><span class="n">BuildConstantBuffer</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Projection</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">additionalContent</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">Unmap</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">SetGpuAccessBufferIndex</span><span class="p">(</span><span class="n">g_FrameCount</span> <span class="o">%</span> <span class="n">g_ConstantBufferCount</span><span class="p">);</span>    
+<span class="p">}</span>       </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_5">コマンド発行</h2>
+<pre>RectDrawer を使って、準備した DispStringBuffer の内容を、コマンドバッファに書き込みます。<br />事前に描画ステートを設定しておく必要がある点に注意してください。</pre>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">Begin</span><span class="p">();</span>
+
+<span class="c1">//------------------------------------------------------------------------------
+// 描画ステートを設定します。
+//
+// フォントは基本的にデプステストなし、カリングなしで描画します。
+// これらの設定はフォント内では行っていないため、Drawを呼び出す前に設定しておく必要があります。
+// 逆にアルファテスト及びブレンドの設定はフォント内で書き換えるため注意が必要です。
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">ClearColor</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pTarget</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="mf">0.2f</span> <span class="cm">/*red*/</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="mf">0.2f</span> <span class="cm">/*green*/</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="mf">0.2f</span> <span class="cm">/*blue*/</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="mf">1.0f</span> <span class="cm">/*alpha*/</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">NULL</span> <span class="cm">/*pArrayRange*/</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">ClearDepthStencil</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_DepthStencilView</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="mf">1.0f</span> <span class="cm">/*depth*/</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="mi">0</span> <span class="cm">/*stencil*/</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">DepthStencilClearMode_DepthStencil</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">NULL</span> <span class="cm">/*pArrayRange*/</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">SetRenderTargets</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pTarget</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DepthStencilView</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">SetViewportScissorState</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ViewportScissorState</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">SetBlendState</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_BlendState</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">SetDepthStencilState</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_DepthStencilState</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">SetRasterizerState</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_RasterizerState</span> <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// コマンドバッファにコマンドを書き出す
+</span><span class="n">g_RectDrawer</span><span class="p">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="n">g_DispStringBuffer</span><span class="p">);</span>
+
+
+<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">End</span><span class="p">();</span>
+
+<span class="c1">// コマンドの実行
+</span><span class="n">g_Queue</span><span class="p">.</span><span class="n">ExecuteCommand</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Fence</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_6">終了処理</h2>
+<p>&nbsp;生成処理と逆順に終了処理を行います。</p>
+<h1 id="Anchor_124022352_h1_2">スケーラブルフォントの場合</h1>
+<h2 id="Anchor_124022352_h2_7">初期化</h2>
+<p>
+  <span class="ApiLink_nn__font__ScalableFont">nn::font::ScalableFont</span> クラスは、 <span class="ApiLink_nn__font__TextureCache">nn::font::TextureCache</span> クラスと組み合わせて利用します。</p>
+<p>スケーラブルフォントは、TextureCache に読み込ませます(下の例では、g_pScalableFontBinary)。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// テクスチャキャッシュの初期化
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::font::TextureCache::</span><span class="n">InitializeArg</span> <span class="n">arg</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">allocateFunction</span> <span class="o">=</span> <span class="n">AllocateForScalableFont</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">textureCacheWidth</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">textureCacheHeight</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">pFontDatas</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">g_pScalableFontBinary</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">pFontDataSizes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">g_FontBinarySize</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">fontCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// FontFace の数
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">fontListCount</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// FontFace 0 番に連なるフォント数
+</span>&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// フォントのフチ描画を有効化します
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">pBorderWidths</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_TextureCache</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_TextureCache</span><span class="p">.</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForTexture_</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// スケーラブルフォントの初期化
+// 先ほど初期化した g_TextureCache をパラメーターとして指定します。
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::font::ScalableFont::</span><span class="n">InitializeArg</span>   <span class="n">arg</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">pTextureCache</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">g_TextureCache</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">fontSize</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">fontFace</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> 
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// デフォルトでは、プロットされていない文字は常に代替文字(デフォルトでは?)
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// に置き換えられますが、この状態ではプロットされていない文字のGetCharWidth
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// を呼び出したときに常に代替文字の幅を返すため、「プロットされていない文字は、
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// それがフォント内になければ代替文字にし、フォントにあれば元々表示するはず
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// だった文字と同じ幅の空白として扱う」設定にするのがお勧めです。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">isAlternateCharSpaceWithOriginalWidthForNotReadyChar</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ScFont</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">Initialize</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>
+<span class="p">}</span>    </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_8">文字の登録とテクスチャ生成</h2>
+<p>表示用のテクスチャを用意する処理が別途必要になります。<br />文字を登録（RegisterGlyph()）し、UpdateTextureCache() 、CompleteTextureCache()とします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 使用する文字をフォントエンジンに登録します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ここでは ASCII 文字をすべて登録しています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span><span class="p">(</span> <span class="kt">uint16_t</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">255</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ScFont</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">RegisterGlyph</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 日本語を登録します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_ScFont</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">RegisterGlyphs</span><span class="p">(</span><span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;漢字「本日は晴天なり」&quot;</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="c1">// CPU 側のメモリへグリフのレンダリングを行います。
+</span><span class="n">g_TextureCache</span><span class="p">.</span><span class="n">UpdateTextureCache</span><span class="p">();</span>
+<span class="c1">// CPU 側のメモリへレンダリングしたグリフイメージをテクスチャとして使用できるようにします。
+</span><span class="n">g_TextureCache</span><span class="p">.</span><span class="n">CompleteTextureCache</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124022352_h2_9">利用</h2>
+<p>準備が済んでしまえば、スケーラブルフォントをビットマップフォントと同じように利用できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">writer</span><span class="p">.</span><span class="n">SetFont</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ScFont</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">writer</span><span class="p">.</span><span class="n">StartPrint</span><span class="p">();</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">writer</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span> <span class="n">FONT_SAMPLE_LITERAL</span><span class="p">(</span><span class="s">&quot;ScalableFont </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+<span class="n">writer</span><span class="p">.</span><span class="n">EndPrint</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_124022352_h2_10">スケーラブルフォントについて、さらに詳しく</h2>
+<p>詳細については、「<a href="../Pages/Page_83956048.html">こちら</a>」 をご覧ください。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__font', '../../../Api/HtmlNX/namespacenn_1_1font.html' )
+SetUrl( 'ApiLink_nn__font__ResFont', '../../../Api/HtmlNX/classnn_1_1font_1_1_res_font.html' )
+SetUrl( 'ApiLink_nn__font__ScalableFont', '../../../Api/HtmlNX/classnn_1_1font_1_1_scalable_font.html' )
+SetUrl( 'ApiLink_nn__font__TextureCache', '../../../Api/HtmlNX/classnn_1_1font_1_1_texture_cache.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

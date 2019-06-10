@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>ST</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    ST : Store to generic Memory<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Store to generic Memory" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ST", subsection => 6 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>ST</b>{.E}{.cop}{.sz}</code>   <code>[Ra + ImmS32], Rb {,Plg}</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   <code>// Store</code>                                               </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ST" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ST</b>{.E}{.cop}{.sz}</code>   <code>[ImmU32],      Rb {,Plg}</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   <code>// Store to absolute address by omitting register Ra</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ST" } -->
+
+ .E:      Extended address (64 bits, requires two registers)
+
+ .cop:    { <b>.WB*, .CG, .CS, .WT</b>}                      Cache write-back*, global, streaming, write-thru
+          <b>.WB</b>*   Cache write-back all coherent levels (default*)
+          <b>.CG</b>    Cache at global level (cache in L2 and below, not L1)
+          <b>.CS</b>    Cache streaming, likely to be accessed once (mark for early eviction)
+          <b>.WT</b>    Cache write-through (to system memory)
+
+ .sz:     { <b>.8, .U8, .S8, .16, .U16, .S16, .32*, .64, .128</b> }                Bit size stored in memory
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>ST</b> stores register Rb to memory at a generic thread address specified
+as [Ra + ImmS32] or as [ImmU32]. 
+</p>
+
+<p>
+If register Ra is omitted, equal to <tt>RZ</tt>, or beyond the set of
+registers supported for the shader, the effective address is the
+zero-extended absolute <b>unsigned</b> immediate offset.
+An omitted <tt>Ra</tt> register is assembled as <tt>RZ</tt>.
+Otherwise, the effective address is equal to the sum of register Ra
+(or <tt>{Ra+1, Ra}</tt> when .E is specified), and the signed-extended
+<b>signed</b> immediate offset. A negative offset is written as
+<tt>[Ra - offset]</tt> or <tt>[Ra + -offset]</tt>. An omitted immediate
+offset is assembled as zero. All offsets are in bytes.
+</p>
+
+<p>
+The generic thread address space can access Global, Local or Shared memory
+<tt>Plg</tt> is optional predicate indicating which thread addresses map to
+local or global address spaces. If not specified, Plg is assumed to be
+<tt>PT</tt> (true predicate), i.e. local or global memory.
+</p>
+
+<p>
+Memory addresses must be naturally aligned, on a byte address that is a
+multiple of the access size. Misaligned addresses are forced to align to
+access size and can optionally raise an error. An address outside the
+window or outside the allocated memory within the window causes an error.
+</p>
+
+<p>
+When used in a pixel shader, the ST operation has helper pixels and killed
+pixels automatically predicated off by the HW to prevent unwanted writes to
+global memory. If the pixel's raster coverage is 0 or it has previously been
+killed using the <a href="opKIL.htm">KIL</a> operation, the threads will not
+participate in any ST operations. Even if the memory window detection would
+eventually turn the generic ST into a local store, it will be suppressed. A
+pixel shader that wants killed and helper pixels to still perform local
+memory operations must use the <a href="opSTW.htm">STL</a> instruction.
+</p>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>ST.32</b>    [R1 + 20], R3;          // store 32-bit R2 at 20 bytes offset from byte address in R1
+<b>ST.E</b>     [R2 + 0x1234], R5;      // store 32-bit R5 at 40-bit extended address in (R2,R3) plus offset 0x1234
+<b>ST.64</b>    [R1 + 24], R4;          // store 64-bit (R4,R5) at 24 bytes offset from byte address in R1
+<b>ST.8</b>     [R1 + 24], R4;          // store 64-bit (R4,R5) at 24 bytes offset from byte address in R1
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

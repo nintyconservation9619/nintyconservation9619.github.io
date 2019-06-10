@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ポリゴン</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ポリゴン -->
+<div class="pagetitle" id="PageId_83955695">ポリゴン</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955695_h1_1">ポリゴンの形状</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955695_h1_2">頂点</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955695_h1_3">頂点カラー</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955695_h1_4">インスタンス</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955695_h1_5">プロキシシェイプ</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955695_h1_6">有効な mesh ノード数</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83955695_h1_1">ポリゴンの形状</h1>
+<p>次のような形状のポリゴンは、対象プラットフォームで正しく表示できないので、Maya 上で三角形分割してから出力してください。</p>
+<ol>
+  <li>全頂点が同一平面上にないポリゴン</li>
+  <li>凹型のポリゴン（180 度以上の内角が存在）</li>
+  <li>穴の開いたポリゴン</li>
+</ol>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955695/83080963.png" class="embedded-image" />
+  </span>
+</p>
+<p>スキニングやブレンドシェイプで変形した結果、上記のような形状になるポリゴンも Maya 上で三角形分割してから出力してください。</p>
+<h1 id="Anchor_83955695_h1_2">頂点</h1>
+<p>中間ファイルに出力される頂点数は DCC ツール上の数より多くなる場合があります。メッシュの構造により異なりますが、最大で三角形ポリゴンの数の 3 倍になります。</p>
+<h1 id="Anchor_83955695_h1_3">
+  <a name="Anchor_83955695_vertex_color"></a>頂点カラー</h1>
+<p>デフォルトではカレントのカラーセットの頂点カラーのみ中間ファイルの color0 に出力します（頂点カラーが設定されていなければ出力しません）。<br />ただし、カレントのカラーセットが「<strong>nw_ignore</strong>」で始まる名前の場合、頂点カラーが設定されていても color0 の頂点カラーは出力しません。</p>
+<p>複数の頂点カラー（マルチ頂点カラー）を出力する場合は、次のように「<strong>nw4f_colorN</strong>（N は 0 以上 7 以下の整数）」という名前のカラーセットを用意します。</p>
+<p>「<strong>nw4f_color0</strong>」&rarr; color0 に出力<br /> 「<strong>nw4f_color1</strong>」&rarr; color1 に出力<br /> 「<strong>nw4f_color2</strong>」&rarr; color2 に出力<br /> 　&hellip;&hellip;<br /> 「<strong>nw4f_color7</strong>」&rarr; color7 に出力</p>
+<p>（1 頂点あたり最大 8 カラーまで出力できます。）</p>
+<p>nw4f_color0 という名前のカラーセットが存在しない場合、カレントのカラーセットを color0 に出力します（カレントのカラーセット名が nw4f_colorN なら、nw4f_colorN でない有効なカラーセットのうちアルファベット順で先頭のものを color0 に出力します）。</p>
+<p>頂点カラーの値の型は、カラーセット名の末尾が「<strong>_i</strong>」なら整数、「<strong>_u</strong>」なら符号無し整数、「<strong>_f</strong>」なら実数となります。何も指定しない場合は実数です。<br /> たとえば、color1 を整数で出力したい場合は「nw4f_color1_i」というカラーセット名にします。<br /> 整数、符号無し整数の場合、Maya 上の実数値を四捨五入して出力します。0 と 1 以外の値を設定したい場合は、カラーセット作成時のオプションで「クランプ（Clamped）」を OFF にしてください。</p>
+<p>カラーセット名の末尾の値の型をあらわす文字の前に 1、2、3、4、5 のいずれか数値を入れることによって、出力する頂点カラーの成分を指定できます。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>数値</th>
+      <th>出力する成分</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>R の 1 成分のみ</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>RG の 2 成分のみ</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>RGB の 3 成分のみ</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>RGBA の 4 成分</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>RA の 2 成分のみ</td>
+    </tr>
+  </tbody>
+</table>
+<p>出力する成分を指定しない場合、カラーセットのコンポーネントタイプが RGB なら 3 成分（RGB）、RGBA または A なら 4 成分（RGBA）となります（コンポーネントタイプが A の場合、RGB はすべて 0 が出力されます）。</p>
+<p>たとえば、color3 を 2 成分（RG）の実数で出力したい場合は「nw4f_color3_2f」というカラーセット名にします。</p>
+<h1 id="Anchor_83955695_h1_4">インスタンス</h1>
+<p>インスタンスを使用している場合、インスタンスを実体化したのと同じ状態で出力されます。<br /> ただし、スキンを設定したモデルのインスタンスには対応していません。</p>
+<h1 id="Anchor_83955695_h1_5">プロキシシェイプ</h1>
+<p>サブディビジョンプロキシ（Subdiv Proxy）で作成したプロキシシェイプを用いた変形アニメーション（スキニングなど）は出力できません。</p>
+<h1 id="Anchor_83955695_h1_6">有効な mesh ノード数</h1>
+<p>
+  <strong>中間オブジェクト（Intermediate Object）アトリビュートが OFF</strong> である<strong>有効な mesh ノード</strong>は 1 つの transform ノードの下に 1 つだけにしてください。通常は有効な mesh ノードは 1 つだけですが、スキニングが設定されたオブジェクトに対して 「デフォーム &gt; 中間オブジェクトの表示（Deform &gt; Display Intermediate Objects）」を選択した場合などは、有効な mesh ノードが複数存在するようになります（Maya 2015 以前は「デフォーマの編集 &gt; 中間オブジェクトの表示（Edit Deformers &gt; Display Intermediate Objects）」）。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

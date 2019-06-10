@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>opus デコーダ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- opus デコーダ -->
+<div class="pagetitle" id="PageId_99805007">opus デコーダ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_99805007_h1_1">opus デコーダ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_99805007_h2_1">機能概要 </a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_99805007_h3_1"> マルチストリーム対応</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_99805007_h2_2">内部遅延の補正 </a>
+      </li>
+      <li>
+        <a href="#Anchor_99805007_h2_3">使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_99805007_h2_4">API リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_99805007_h2_5">制約事項</a>
+      </li>
+      <li>
+        <a href="#Anchor_99805007_h2_6">注意点</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_99805007_h1_1">opus デコーダ</h1>
+<h2 id="Anchor_99805007_h2_1">機能概要&nbsp;<a name="Anchor_99805007_OpusCodecFunctionAbstract"></a></h2>
+<p>opus デコーダは opus データをデコードして PCM データに変換するための機能を提供します。</p>
+<p>
+  <span class="ApiLink_nn__codec">nn::codec</span> が提供する opus デコーダは <a href="../Pages/Page_99805022.html">OpusEncoder</a> あるいは AudioCodec.dll が提供する opus エンコード機能によりエンコードされたデータでのみ動作確認が行われています。</p>
+<p>opus デコーダとして、以下の 2 種類のクラスが提供されています。両クラスはともに同じインターフェイスを提供しており、簡単に切り替えることが可能です（ただし必要となるメモリ量や制約には差異があります）。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>クラス名</th>
+      <th>概要</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">nn::codec::OpusDecoder</a>
+      </td>
+      <td>CPU リソースにより opus デコードを行います</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_hardware_opus_decoder.html">nn::codec::HardwareOpusDecoder</a>
+      </td>
+      <td>Audio DSP により opus デコードを行います (Windows 環境における挙動については<a href="#Anchor_99805007_h2_6">注意点</a>を参照して下さい)</td>
+    </tr>
+  </tbody>
+</table>
+<p>opus デコーダは種類によらず作業用のバッファを利用者に要求します。</p>
+<p>以下では、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">nn::codec::OpusDecoder</a>&nbsp;を代表例として説明しています。</p>
+<p>デコードに必要な作業用バッファのサイズは以下のパラメータを用いて <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#a2ed2498eccffc9e2efe7ec213b0c22fd">nn::codec::OpusDecoder::GetWorkBufferSize()</a> により取得することができます。</p>
+<ul>
+  <li>サンプルレート</li>
+  <li>チャンネル数</li>
+</ul>
+<p>これらの情報は <a href="../Pages/Page_99805022.html">OpusEncoder</a> によりエンコードされるデータのヘッダ情報に格納されています。詳細については&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_basic_info.html">nn::codec::OpusBasicInfo</a> 構造体 あるいは opus デコーダのサンプル を参照してください。</p>
+<p>上記のパラメータに加えて、作業用バッファの情報を <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#a18c8e484c2392d2661c08485362d379e">nn::codec::OpusDecoder::Initialize()</a> に与えて初期化することにより、opus デコーダは利用可能になります。初期化処理以降、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#a9999096a4f40f29e63c42694c133144e">nn::codec::OpusDecoder::Finalize()</a> を呼ぶまでは作業用バッファの内容を改変してはいけません。</p>
+<p>デコード処理は <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#ad9e718259faa67b73ef852f298450f48">nn::codec::OpusDecoder::DecodeInterleaved()</a> により行われます。入出力バッファに関して、以下に注意する必要があります。</p>
+<ul>
+  <li>入力バッファ<br /><ul><li><a href="../Pages/Page_99805022.html">OpusEncoder</a> 使用時に --bitrate-control=cbr を指定した場合は、入力バッファサイズは固定で、<a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_basic_info.html">nn::codec::OpusBasicInfo</a>::frameDataSize となります</li><li><a href="../Pages/Page_99805022.html">OpusEncoder</a> 使用時に --bitrate-control=vbr あるいは --bitrate-control=cvbr を指定した場合は、入力バッファサイズは可変となります<ul><li><a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_basic_info.html#a39122791256a101728327e89e9a7b3b5">nn::codec::OpusBasicInfo::frameDataSize</a> の値が 0 であれば、可変ビットレートであると判断できます</li><li>この場合、最大 1,500 バイト必要になります</li></ul></li></ul></li>
+  <li>出力バッファ<ul><li>最大で 960 サンプルが出力される可能性があるため、「960 &times; チャンネル数 &times; sizeof(int16_t)」バイトのバッファを用意すれば十分です</li></ul></li>
+</ul>
+<p>デコード処理中に実際に利用された入力データサイズ、出力サンプル数は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#ad9e718259faa67b73ef852f298450f48">nn::codec::OpusDecoder::DecodeInterleaved()</a> の引数に指定する値から知ることができます。</p>
+<h3 id="Anchor_99805007_h3_1">&nbsp;マルチストリーム対応</h3>
+<p>以下の 2 種類 のクラスは、<a href="../Pages/Page_99805022.html">OpusEncoder</a>&nbsp;あるいは AudioCodec.dll が提供する opus エンコード機能により 3 チャンネル以上の音源をエンコードしたマルチストリーム Opus データをデコードします。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>クラス名</th>
+      <th>概要</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_multi_stream_info.html">nn::codec::OpusMultiStreamDecoder</a>
+      </td>
+      <td>CPU リソースによりマルチストリーム opus データをデコードします</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__codec__HardwareOpusMultiStreamDecoder">nn::codec::HardwareOpusMultiStreamDecoder</span>
+      </td>
+      <td>Audio DSP によりマルチストリーム opus デコードを行います (Windows 環境における挙動については<a href="#Anchor_99805007_h2_6">注意点</a>を参照して下さい)</td>
+    </tr>
+  </tbody>
+</table>
+<p>マルチストリーム対応 opus デコーダを使う手順は、基本的には<a href="#Anchor_99805007_OpusCodecFunctionAbstract">機能概要</a>で説明した手順と同じですが、ワークバッファサイズ取得関数 <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#a63802c822bc819d321b4e54cf43db38a">nn::codec::OpusMultiStreamDecoder::GetWorkBufferSize()</a> と初期化関数 <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#ae353b8313a4aa146946b7fbce0a99632">nn::codec::OpusMultiStreamDecoder::Initialize()</a> に与える引数が、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">nn::codec::OpusDecoder</a>&nbsp;とは異なります。</p>
+<p>デコードに必要な作業用バッファのサイズは以下のパラメータを用いて&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#a63802c822bc819d321b4e54cf43db38a">nn::codec::OpusMultiStreamDecoder::GetWorkBufferSize()</a>&nbsp;により取得することができます。</p>
+<ul>
+  <li>サンプルレート</li>
+  <li>チャンネル数</li>
+  <li>合計ストリーム数</li>
+  <li>ステレオストリーム数</li>
+</ul>
+<p>これらの情報は&nbsp;<a href="../Pages/Page_99805022.html">OpusEncoder</a>&nbsp;によりエンコードされるデータのヘッダ情報に格納されています。詳細については&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_basic_info.html">nn::codec::OpusBasicInfo</a>&nbsp;構造体 と&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_multi_stream_info.html">nn::codec::OpusMultiStreamInfo</a>&nbsp;構造体、あるいは opus マルチストリームデコーダのサンプル を参照してください。</p>
+<p>上記のパラメータに加えて、作業用バッファの情報とチャンネル数を&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#ae353b8313a4aa146946b7fbce0a99632">nn::codec::OpusMultiStreamDecoder::Initialize()</a>&nbsp;に与えて初期化することにより、opus マルチストリームデコーダは利用可能になります。初期化処理以降、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#a4a6de124752cdb51c5b5d2eb82dbe919">nn::codec::OpusMultiStreamDecoder::Finalize()</a>&nbsp;を呼ぶまでは作業用バッファの内容を改変してはいけません。</p>
+<p>デコード処理は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#a731bb82483575c55cc99100dd36b7606">nn::codec::OpusMultiStreamDecoder::DecodeInterleaved()</a>&nbsp;により行われます。入出力バッファに関する注意は、<a href="#Anchor_99805007_OpusCodecFunctionAbstract">機能概要</a>に記載した内容を参照してください。</p>
+<p>デコード処理中に実際に利用された入力データサイズ、出力サンプル数は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_multi_stream_decoder.html#a731bb82483575c55cc99100dd36b7606">nn::codec::OpusMultiStreamDecoder::DecodeInterleaved()</a>&nbsp;の引数に指定する値から知ることができます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">nn::codec::OpusDecoder</a>&nbsp;でデコードできる Opus データ (シングルストリーム Opus データ) は、合計ストリーム数に 1 を、ステレオストリーム数に &quot;(チャンネル数) - 1&quot; を指定することで、<a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_multi_stream_info.html">nn::codec::OpusMultiStreamDecoder</a>&nbsp;でもデコード可能です。</p>
+<p>ただし、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">nn::codec::OpusDecoder</a>&nbsp;の方がより小さいワークバッファサイズでデコード可能であるため、特別な理由がない限り、シングルストリーム Opus データのデコードには&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">nn::codec::OpusDecoder</a>&nbsp;を使うことを推奨します。</p>
+<h2 id="Anchor_99805007_h2_2">内部遅延の補正<a name="Anchor_99805007_OpusCodecInternalDelayCorrection"></a>&nbsp;</h2>
+<p>一般的に音声 CODEC は内部に遅延要素を持ちます。opus エンコーダも内部遅延を持ちます。</p>
+<p>この内部遅延は、後述する方法で取得することができます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#a18c8e484c2392d2661c08485362d379e">nn::codec::OpusDecoder::Initialize()</a>&nbsp;を呼び出した直後に呼び出す&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#ad9e718259faa67b73ef852f298450f48">nn::codec::OpusDecoder::DecodeInterleaved()</a>&nbsp;のデコード結果の先頭から、取得した遅延サンプル数をスキップすることで、内部遅延を補正することができます。</p>
+<p>次の方法で内部遅延を取得することができます。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#aa3f3ee81d0825b7526c4f96ba8a939cb">nn::codec::OpusEncoder::GetPreSkipSampleCount()</a>&nbsp;(<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html">nn::codec::OpusEncoder</a>&nbsp;でエンコードする場合)</li>
+  <li>
+    <a href="../../../Api/HtmlNX/structnn_1_1codec_1_1_opus_basic_info.html#a54b2474b389f2dd25bea634bbeca57ed">nn::codec::OpusBasicInfo::preSkipSampleCount</a> (PC ツール OpusEncoder でエンコードする場合)</li>
+</ul>
+<p>これらの値値は、このエンコーダ遅延をサンプル数単位で表したものです (遅延サンプル数)。</p>
+<p>更なる詳細は opus codec の&nbsp;<a href="https://www.opus-codec.org/docs/opus_api-1.1.3/group__opus__encoderctls.html#gaf81b9e01501910adc67195ebb42b4a54">API リファレンス</a>&nbsp;を参照してください。</p>
+<p>&nbsp;</p>
+<p>遅延サンプル数は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a3c4e0988c58b635d857125652ad4eafa">nn::codec::OpusEncoder::Initialize()</a>&nbsp;に指定したサンプルレートにおけるサンプル数である点に注意して下さい。&nbsp;</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html#a18c8e484c2392d2661c08485362d379e">nn::codec::OpusDecoder::Initialize()</a>&nbsp;に異なるサンプルレートを指定する場合、遅延サンプル数を換算する必要があります。</p>
+<h2 id="Anchor_99805007_h2_3">使用例</h2>
+<p>
+  <a href="../../../Api/HtmlNX/_page_sample_codec_opus_decoder.html">opus デコーダのサンプル</a> を参照してください。</p>
+<h2 id="Anchor_99805007_h2_4">API リファレンス</h2>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html">nn::codec 名前空間</a> の <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html">OpusDecoder クラス</a> を参照してください。</p>
+<h2 id="Anchor_99805007_h2_5">制約事項</h2>
+<p>特にありません。</p>
+<h2 id="Anchor_99805007_h2_6">注意点</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__codec__HardwareOpusDecoder">nn::codec::HardwareOpusDecoder</span> が処理される Audio DSP ではオーディオレンダラの処理もおこなわれます。<br />オーディオレンダラの処理が増えると&nbsp;<span class="ApiLink_nn__codec__HardwareOpusDecoder">nn::codec::HardwareOpusDecoder</span> に処理が回らない場合があります。</li>
+  <li>Windows 環境における <span class="ApiLink_nn__codec__HardwareOpusDecoder">nn::codec::HardwareOpusDecoder</span> は、実装分岐を減らすために提供されています。<br />実際には&nbsp;<span class="ApiLink_nn__codec__OpusDecoder">nn::codec::OpusDecoder</span> により処理されています。<br />Audio DSP&nbsp;が搭載された実機環境における&nbsp;<span class="ApiLink_nn__codec__HardwareOpusDecoder">nn::codec::HardwareOpusDecoder</span> とは、処理負荷も必要なワークバッファサイズも異なる可能性があります。</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__codec', '../../../Api/HtmlNX/namespacenn_1_1codec.html' )
+SetUrl( 'ApiLink_nn__codec__HardwareOpusMultiStreamDecoder', '../../../Api/HtmlNX/classnn_1_1codec_1_1_hardware_opus_multi_stream_decoder.html' )
+SetUrl( 'ApiLink_nn__codec__HardwareOpusDecoder', '../../../Api/HtmlNX/classnn_1_1codec_1_1_hardware_opus_decoder.html' )
+SetUrl( 'ApiLink_nn__codec__OpusDecoder', '../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_decoder.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

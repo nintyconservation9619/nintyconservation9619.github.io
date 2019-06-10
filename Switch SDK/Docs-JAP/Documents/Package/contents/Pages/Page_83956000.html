@@ -1,0 +1,548 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>フォントコンバータファイルフォーマット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- フォントコンバータファイルフォーマット -->
+<div class="pagetitle" id="PageId_83956000">フォントコンバータファイルフォーマット</div>
+<div class="text_separate">
+<h1 id="Anchor_83956000_h1_1">フォントコンバータファイルフォーマット</h1>
+<h2 id="Anchor_83956000_h2_1">概要</h2>
+<p>FontConverterが処理する、ファイルの仕様について説明します。</p>
+<h3 id="Anchor_83956000_h3_1">説明するファイル</h3>
+<ul>
+  <li>文字フィルタファイル(xllt)</li>
+  <li>文字順序ファイル (xlor)</li>
+  <li>グリフグループファイル(xggp)</li>
+  <li>画像ファイル(bmp, tga, tiff)</li>
+  <li>カーニング定義ファイル(bffkn)</li>
+</ul>
+<h4 id="Anchor_83956000_h4_1">ファイルの出力方法</h4>
+<ul>
+  <li>
+    <p>以下の表のように、ファイルを出力します</p>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>フォーマット</th>
+          <th>FontConverter から出力</th>
+        </tr>
+        <tr>
+          <td>xllt</td>
+          <td>No(XML を手書きします)</td>
+        </tr>
+        <tr>
+          <td>xlor</td>
+          <td>No(XML を手書きします)</td>
+        </tr>
+        <tr>
+          <td>xggp</td>
+          <td>No(XML を手書きします)</td>
+        </tr>
+        <tr>
+          <td>bmp, tga, tiff</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>bffkn</td>
+          <td>Yes<br />(フォーマット非公開、<br />FontConverter からしか出力できない)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<h2 id="Anchor_83956000_h2_2">XMLファイル共通構成</h2>
+<p>フォント関係のXMLファイルは共通して以下のような構成となっています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;最上位要素 version=&quot;1.0&quot;
+&nbsp;&lt;head&gt;
+&nbsp;&nbsp;&lt;create user=&quot;作成したユーザ名&quot; date=&quot;2005-02-18T10:51:13&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&lt;title&gt;文書タイトル&lt;/title&gt;
+&nbsp;&nbsp;&nbsp;&lt;comment&gt;文書コメント&lt;/comment&gt;
+&nbsp;&nbsp;&nbsp;&lt;generator name=&quot;生成したアプリケーション名&quot; version=&quot;1.0.0&quot;&gt;
+&nbsp;&nbsp;&lt;/head&gt;
+&nbsp;&lt;body&gt;
+&nbsp;
+&nbsp;&nbsp;&nbsp;**** 任意の内容 **** 
+&nbsp;&nbsp;&nbsp;
+&nbsp;&lt;/body&gt;
+&lt;/最上位要素&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_83956000_Filter"></a>
+</p>
+<h2 id="Anchor_83956000_h2_3">文字フィルタファイル(.xllt)</h2>
+<p>文字フィルタファイルを使うことでアプリケーションが必要とする文字のみをフォントリソースに格納する事ができます。</p>
+<h3 id="Anchor_83956000_h3_2">例（sample.xllt）</h3>
+<p>「FontConverterあいうえかきくけ任天堂」の24文字と半角スペースの計25文字のみを出力</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;letter-list version=&quot;1.0&quot;&gt;
+&nbsp;&lt;head&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::::
+&nbsp;&nbsp;&lt;/head&gt;
+&nbsp;&lt;body&gt; 
+&nbsp;&nbsp;&nbsp;&lt;letter&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FontConverter
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;あいうえかきくけ
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;任天堂
+&nbsp;&nbsp;&nbsp;&lt;/letter&gt;
+&nbsp;&lt;/body&gt;
+&lt;/letter-list&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<pre>&nbsp;</pre>
+<h3 id="Anchor_83956000_h3_3">説明</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>要素</th>
+      <th>属性</th>
+      <th>内包する要素</th>
+      <th>説明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>letter-list</td>
+      <td>version (必須)</td>
+      <td>head, body(必須)</td>
+      <td>文字フィルタファイルのルート要素。versionは1.0を指定。</td>
+    </tr>
+    <tr>
+      <td>letter-list</td>
+      <td>-</td>
+      <td>-</td>
+      <td>出力する文字を指定。空白文字は無視(半角スペースは、必ず出力する文字として含まれるようになっています)。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956000_h3_4">DTD</h3>
+<p>FontConverterフォルダ以下 xllt/letter-list.dtd</p>
+<p>
+  <a name="Anchor_83956000_character_order"></a>
+</p>
+<h2 id="Anchor_83956000_h2_4">文字順序ファイル(.xlor)</h2>
+<p>文字順序ファイルはFontConverterが入出力するBMPファイル中の文字の並びを定義します。<br /> 具体的にはBMP画像内での横方向文字数、縦方向文字数、文字の描画順序を定義します。<br /> 文字順序ファイル内で位置が定義されていない文字は出力されません。</p>
+<h3 id="Anchor_83956000_h3_5">例（cp1252.xlor の一部）</h3>
+<p>注意：数値文字参照は都合により、&amp;#x 以降に本来は必要のないスペースを追加しています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;letter-order version=&quot;1.1&quot;&gt;
+&nbsp;&lt;head&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::::
+&nbsp;&nbsp;&lt;/head&gt;
+&nbsp;&lt;body&gt; 
+&nbsp;&nbsp;&nbsp;&lt;area width=&quot;16&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;order&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;sp/&gt; ! &quot; # $ % &amp; ' ( ) * + , - . /
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 1 2 3 4 5 6 7 8 9 : ; &lt; = &gt; ?
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@ A B C D E F G H I J K L M N O
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P Q R S T U V W X Y Z [ \ ] ^ _
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` a b c d e f g h i j k l m n o
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p q r s t u v w x y z { | } ~ &lt;null/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;#x 20AC; &lt;null/&gt; ～(略)～ &amp;#x 00FE; &amp;#x 00FF;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/order&gt;
+&nbsp;&lt;/body&gt;
+&lt;/letter-list&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<pre>&nbsp;</pre>
+<h3 id="Anchor_83956000_h3_6">説明</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>要素</th>
+      <th>属性</th>
+      <th>内包する要素</th>
+      <th>説明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>letter-order</td>
+      <td>version (必須)</td>
+      <td>head, body(必須)</td>
+      <td>文字フィルタファイルのルート要素。versionは1.0 か 1.1 を指定。1.1 が推奨。</td>
+    </tr>
+    <tr>
+      <td>area</td>
+      <td>width , height</td>
+      <td>-</td>
+      <td>画像中の縦横の文字出力数を定義。width省略時は16。height省略時は十分な値。</td>
+    </tr>
+    <tr>
+      <td>order</td>
+      <td>-</td>
+      <td>sp, null</td>
+      <td>出力する文字を指定。出力する順に並べる。</td>
+    </tr>
+    <tr>
+      <td>sp</td>
+      <td>-</td>
+      <td>-</td>
+      <td>order要素内で半角スペースを指定。(半角スペースや、&amp;#x0020; は直接記述しても無視されるため)</td>
+    </tr>
+    <tr>
+      <td>null</td>
+      <td>-</td>
+      <td>-</td>
+      <td>文字を出力しない事を指定。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956000_h3_7">DTD</h3>
+<p>FontConverterフォルダ以下 xlor/letter-order.dtd</p>
+<h3 id="Anchor_83956000_h3_8">付属文字順序ファイル</h3>
+<p>FontConverterには文字順序ファイルが付属しています。 ( Tools\Graphics\FontConverter\xlor )<br /> 付属ファイルには横方向の文字数が16文字のものと94文字のものがあります。<br /> 配置調整のために空欄が追加されている以外は同じものです。</p>
+<h3 id="Anchor_83956000_h3_9">文字順序ファイル記述上の注意</h3>
+<h4 id="Anchor_83956000_h4_2">version 1.1 の推奨</h4>
+<p>letter-order要素のversion属性に「1.0」を指定すると同一の文字コードを複数回指定した文字順序ファイルを作成することができます。<br /> しかし、複数のグリフが同じ文字コードに対応することになり、トラブルが起こりやすいので推奨しません。<br /> version属性に「1.1」を指定することで重複指定をエラーとする事ができます。</p>
+<h4 id="Anchor_83956000_h4_3">Unicodeでのコード重複</h4>
+<p>FontConverter内部では、文字コードの同一判定がUnicodeで行われます。<br /> 表の16文字はそれぞれの文字セットでは異なる文字コードですが、Unicodeでは同じ文字コードになってしまうため問題になります。<br /> 付属文字順序ファイルのcp1252_JIS_X0201_X0208_012.xlor ではこの問題を避けるためShift JIS側の16文字をに置き換えています。</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>グリフ</th>
+      <th>cp1252での文字コード</th>
+      <th>Shift JISでの文字コード</th>
+      <th>Unicodeでの文字コード</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>&acute;</td>
+      <td>0xB4</td>
+      <td>0x814C</td>
+      <td>U+00B4</td>
+    </tr>
+    <tr>
+      <td>&uml;</td>
+      <td>0xA8</td>
+      <td>0x814E</td>
+      <td>U+00A8</td>
+    </tr>
+    <tr>
+      <td>&hellip;</td>
+      <td>0x85</td>
+      <td>0x8163</td>
+      <td>U+2026</td>
+    </tr>
+    <tr>
+      <td>&lsquo;</td>
+      <td>0x91</td>
+      <td>0x8165</td>
+      <td>U+2018</td>
+    </tr>
+    <tr>
+      <td>&rsquo;</td>
+      <td>0x92</td>
+      <td>0x8166</td>
+      <td>U+2019</td>
+    </tr>
+    <tr>
+      <td>&ldquo;</td>
+      <td>0x93</td>
+      <td>0x8167</td>
+      <td>U+201C</td>
+    </tr>
+    <tr>
+      <td>&rdquo;</td>
+      <td>0x94</td>
+      <td>0x8168</td>
+      <td>U+201D</td>
+    </tr>
+    <tr>
+      <td>&plusmn;</td>
+      <td>0xB1</td>
+      <td>0x817D</td>
+      <td>U+00B1</td>
+    </tr>
+    <tr>
+      <td>&times;</td>
+      <td>0xD7</td>
+      <td>0x817E</td>
+      <td>U+00D7</td>
+    </tr>
+    <tr>
+      <td>&divide;</td>
+      <td>0xF7</td>
+      <td>0x8180</td>
+      <td>U+00F7</td>
+    </tr>
+    <tr>
+      <td>&deg;</td>
+      <td>0xB0</td>
+      <td>0x818B</td>
+      <td>U+00B0</td>
+    </tr>
+    <tr>
+      <td>&sect;</td>
+      <td>0xA7</td>
+      <td>0x8198</td>
+      <td>U+00A7</td>
+    </tr>
+    <tr>
+      <td>&permil;</td>
+      <td>0x89</td>
+      <td>0x81F1</td>
+      <td>U+2030</td>
+    </tr>
+    <tr>
+      <td>&dagger;</td>
+      <td>0x86</td>
+      <td>0x81F5</td>
+      <td>U+2020</td>
+    </tr>
+    <tr>
+      <td>&Dagger;</td>
+      <td>0x87</td>
+      <td>0x81F6</td>
+      <td>U+2021</td>
+    </tr>
+    <tr>
+      <td>&para;</td>
+      <td>0xB6</td>
+      <td>0x81F7</td>
+      <td>U+00B6</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956000_h2_5">グリフグループファイル(.xggp)</h2>
+<p>グリフグループファイルはグリフグループの集合（グループセット）を定義します。アーカイブフォントが廃止になったので廃止されています。</p>
+<p>
+  <a name="Anchor_83956000_picture"></a>
+</p>
+<h2 id="Anchor_83956000_h2_6">画像フォーマット</h2>
+<p>FontConverterが扱う画像はブロック及びセルと呼ぶ2つの構造をもっています。<br /> 画像は格子状に隙間なく並んだブロックで構成され、個々のブロックの中にセルがあります。</p>
+<h3 id="Anchor_83956000_h3_10">ブロック</h3>
+<h4 id="Anchor_83956000_h4_4">BMP画像の例</h4>
+<p>画像中には文字順序ファイルで指定される幅&times;高さの個数のブロックが隙間なく敷き詰められています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080087.png" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_83956000_h4_5">ブロック模式図</h4>
+<p>1つのブロックの中にはセルと幅線が1つずつ含まれます。図 は幅14ピクセル、高さ16ピクセルのブロックの模式図です。太い実線がブロックの境界を、細い破線がピクセルの境界を表します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080088.png" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_83956000_h4_6">グリッドエリア</h4>
+<p>ブロック境界の内側1ピクセルの部分はグリッドエリアと呼び、図 ではブロック境界に沿うように濃い灰色に塗られた部分にあたります。<br /> Image出力時に「グリッドを描画する」にチェックすると、グリッドエリアはグリッド色で塗りつぶされて隣り合うブロックのグリッドエリアとあわせた幅2ピクセルのグリッドを構成します。<br /> 「グリッドを描画する」をチェックしなかった場合は背景色で塗りつぶされます。<br /> Image入力時にはこのエリアは単に無視されます。</p>
+<p>
+  <a name="Anchor_83956000_margin_area"></a>
+</p>
+<h4 id="Anchor_83956000_h4_7">余白エリア</h4>
+<p>グリッドエリアのさらに内側1ピクセルの領域は余白エリアです。<br /> このエリアはグリッドとセルや幅線がくっついてしまわないように設けられています。またセルと幅線領域の間にも1ピクセルの余白エリアが存在します。<br /> Image出力時に「グリッドを描画する」をチェックすると、余白エリアは余白色で塗りつぶされます。チェックしなかった場合は背景色で塗りつぶされます。<br /> Image入力時にはこのエリアが単一色で塗りつぶされている事をチェックします。2色以上の色が検出された場合はグリフがはみ出している可能性があるため警告を表示します。</p>
+<h4 id="Anchor_83956000_h4_8">セル</h4>
+<p>余白エリアの内側上部をセルと呼びます。セルはグリフイメージの描画エリアであり、この領域内にグリフイメージが描画されます。<br /> <br /> 幅線の高さが1ピクセル固定であるため、セルの大きさは常に<br /> <br /> セルの幅 = ブロックの幅 - 4 ピクセル<br /> セルの高さ = ブロックの高さ - 6 ピクセル<br /> <br /> となります。</p>
+<h4 id="Anchor_83956000_h4_9">幅線領域</h4>
+<p>余白エリアの内側下部は幅線と呼ぶ太さ1ピクセルの線が描画される領域です。<br /> 幅線は文字幅と、グリフイメージの相対的な位置を定義します。</p>
+<h3 id="Anchor_83956000_h3_11">セルと幅線</h3>
+<p>図 (左)に幅10ピクセル高さ10ピクセルのセルと幅線領域の模式図を示します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080086.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a name="Anchor_83956000_glyphimage"></a>
+</p>
+<h4 id="Anchor_83956000_h4_10">グリフイメージ</h4>
+<p>セル内部にはグリフイメージのみが配置されます。FontConverterはセル内に存在するアルファ値が0でないまたは色が 白でないピクセルを含む最小の矩形を検出し、それをグリフイメージとして扱います。このためセルのサイズが大きくても グリフイメージの周囲の白色透明部分は無視され出力されるフォントに影響を与えません。例えば図（左）ではグリ フイメージは幅5ピクセル高さ7ピクセルの矩形画像として抽出されます(図 (右))。</p>
+<p>なお、画像がアルファチャンネルを含まない場合は色が白でないピクセルを含む最小の矩形をグリフイメージとして扱います。 幅線との位置関係が同じであればセルの中でグリフイメージを左右に移動しても出力されるフォントは変化しません。例 えば下図 では左右どちらの書き方でも同じフォントとして出力されます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080079.png" class="embedded-image" />
+  </span>
+</p>
+<p>アルファチャンネルについては、幅線領域、グリッドエリア、余白エリア、においても同様のルールが適用されます。<br /> たとえば、アルファ付き画像で、幅線領域でアルファを 0 に設定しておかなかった場合、幅線領域全体の幅が文字幅と解釈されてしまうのでご注意ください。</p>
+<h4 id="Anchor_83956000_h4_11">幅線</h4>
+<p>幅線領域には幅線と呼ぶ1つの線分のみが描かれます。 幅線は文字幅と文字の左右(前後)に空けるスペースの幅を規定します。 線分が途中で途切れて2つになっていたりするとエラーとなります。</p>
+<p>まず、幅線の横幅がそのまま文字幅となります。文字幅はグリフイメージの幅より小さくする事ができ、その場合には 実機上で前の文字と重なって表示されることになります。前図では文字幅は7ピクセルです。</p>
+<p>次に、幅線の左端とグリフイメージの左端との差が文字の左スペース幅となります。文字描画ライブラリで文字描画を行 うときには左スペース幅分のスペースを空けてグリフが描画されます。前図では左スペースは1ピクセルとなり、文字 描画時には指定された座標の1ピクセル右に幅5ピクセルのグリフが描画されることになります。</p>
+<p>同様に幅線の右端とグリフイメージの右端との差が文字の右スペース幅となります。前図では右スペースも1ピクセル となります。</p>
+<p>
+  <a name="Anchor_83956000_not_output_glyph"></a>
+</p>
+<h4 id="Anchor_83956000_h4_12">出力されないグリフ</h4>
+<p>グリフイメージのサイズが0で幅線の幅も0である場合、またはセル内が単一色で塗りつぶされていて幅線の幅が0の場合、このグリフは出力に渡されません。</p>
+<p>これを利用して文字フィルタを使用せずに出力するグリフを制御する事もできます。 しかし、逆に文字フィルタでは出力する指定であるのにグリフが出力に渡されない場合は意図しない文字の抜け落ちの可能性があるため警告が表示されます。</p>
+<p>
+  <a name="Anchor_83956000_placement"></a>
+</p>
+<h3 id="Anchor_83956000_h3_12">配置情報</h3>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080078.png" class="embedded-image" />
+  </span>
+</p>
+<p>画像の一番左上のブロックには文字列を描画するときに文字列の配置の基準となる値を指定する1ピクセルの点がいく つか含まれます。配置の基準となる値とはベースライン、アセンダライン、ディセンダライン、フォント幅の4つで、この4つ を5つの点で指定します。</p>
+<p>これらの値はフォント全体で共通となり、文字ごとに指定することはできません。</p>
+<p>すべての点はグリッドエリアに存在し、グリッドが描画される場合は白色(255,255,255)、グリッドが描画されない場合はグ リッド色です。ベースライン位置を表すピクセルは必ず存在する必要がありますが、残りの4点は省略する事ができます。 また、画像の一番左上の1ピクセルは将来の用途のために予約されており、必ず白色(255,255,255)でなければなりませ ん。また、この1ピクセルは抜き色としても使用しています。&alpha;値が入力されている場合は、&alpha;値を含む色として抜き色を 判定します。</p>
+<h4 id="Anchor_83956000_h4_13">ベースライン</h4>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080077.png" class="embedded-image" />
+  </span>
+</p>
+<p>ベースライン位置は１つの点で表されグリッドエリアの左側領域に存在します。<br /> このピクセルの上端がベースライン位置になります。すなわちベースラインはピクセルとピクセルの間に存在します。<br /> ベースラインは異なるフォントを混ぜて使用する場合や拡大縮小を行う場合の上下方向の基準位置となります。</p>
+<p>
+  <a name="Anchor_83956000_ascenders_descenders"></a>
+</p>
+<h4 id="Anchor_83956000_h4_14">アセンダライン、ディセンダライン</h4>
+<p>アセンダライン、ディセンダラインはそれぞれ1つの点で表されグリッドエリアの左側領域に存在します。</p>
+<p>アセンダライン、ディセンダライン共にピクセルとピクセルの間に存在し、アセンダラインはアセンダライン位置を表すピクセルの下端が、 ディセンダラインはディセンダライン位置を表すピクセルの上端がそれぞれの位置になります。</p>
+<p>アセンダラインは必ずベースラインの上方に位置し、ディセンダラインは必ずベースラインの下方に位置します 。またディセンダライン位置を表すピクセルはベースライン位置を表すピクセルと重ねる事ができ、この場合ディセントは0にな ります。このためアセント、ディセントは共に0以上の値となります。</p>
+<p>これらの点は省略する事ができ、点の数に応じて表 のように解釈されます。点が1つの場合、すなわちアセンダライ ン位置とディセンダライン位置を指定しなかった場合はセルの上端がアセンダライン、セルの下端がディセンダラインと して扱われます。</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>点の数</th>
+      <th>上から1点目</th>
+      <th>上から2点目</th>
+      <th>上から3点目</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td colspan="3">エラー</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>ベースライン</td>
+      <td colspan="2">-</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>アセンダライン</td>
+      <td>ベースラインとディセンダライン</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>アセンダライン</td>
+      <td>ベースライン</td>
+      <td>ディセンダライン</td>
+    </tr>
+    <tr>
+      <td>4以上</td>
+      <td colspan="3">エラー</td>
+    </tr>
+  </tbody>
+</table>
+<p>FontConverterが出力する画像ではアセンダライン位置、ディセンダライン位置を表すピクセルは、描かれる場合と描か れない場合とがあります。Windowsフォントを入力とする変換では常に描かれず、bffntを入力とする変換では常に描か れます。Imageを入力とする場合は入力の画像にアセンダライン位置、ディセンダライン位置を表すピクセルが含まれて いれば描かれ、含まれていなければ描かれません。アセンダライン位置、ディセンダライン位置を表すピクセルが描か れるときに出力する画像のセルサイズがこれらのピクセルを表現するのに小さすぎる場合はセルサイズが自動的に拡大 されます。</p>
+<p>アセンダラインは文字列の上端として、ディセンダラインは文字列の下端としてあつかわれます。またはアセンダラインと ディセンダラインの距離をフォントの高さと呼び、縦方向に拡大縮小する場合の基準サイズとなります。</p>
+<p>
+  <a name="Anchor_83956000_font_width"></a>
+</p>
+<h4 id="Anchor_83956000_h4_15">フォント幅</h4>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955990/83080076.png" class="embedded-image" />
+  </span>
+</p>
+<p>フォント幅は2つの点で表されグリッドエリアの上側領域に存在します。2つの点がそれぞれ幅の左端と右端を表し、2つ のピクセルに挟まれるピクセル数がフォント幅となります。挟まれるピクセル数が同じであれば点の左右位置は影響しま せん。</p>
+<p>フォント幅を表す点を省略した場合はセル幅がフォント幅として扱われます。省略しない場合は必ず2点存在しなけれ ばなりません。</p>
+<p>FontConverterが出力する画像ではフォント幅を表すピクセルは、描かれる場合と描かれない場合とがあります。 Windowsフォントを入力とする変換では常に描かれず、bcfntを入力とする変換では常に描かれます。Imageを入力とす る場合は入力の画像にフォント幅を表すピクセルが含まれていれば描かれ、含まれていなければ描かれません。フォン ト幅を表すピクセルが描かれる場合で出力する画像のセルサイズがこれらのピクセルを表現するのに小さすぎる場合は セルサイズが自動的に拡大されます。</p>
+<p>フォントの幅は横方向に拡大縮小する時や、タブ幅の基準サイズとなります。</p>
+<p>
+  <a name="Anchor_83956000_format"></a>
+</p>
+<h2 id="Anchor_83956000_h2_7">画像ファイルのフォーマット</h2>
+<h3 id="Anchor_83956000_h3_13">出力される画像ファイル</h3>
+<h4 id="Anchor_83956000_h4_16">BMP</h4>
+<p>FontConverterで出力されるBMPは1ピクセルあたり32ビット(RGBA8)のダイレクトカラーBMPです。解像度は72dpiに設 定されます。</p>
+<h4 id="Anchor_83956000_h4_17">TGA</h4>
+<p>FontConverterで出力されるTGAは1ピクセルあたり32ビット(RGBA8)でランレングス圧縮されたTrueColor形式のTGAで す。image IDとして「FontConverter output.」の16byteが設定されています。</p>
+<h4 id="Anchor_83956000_h4_18">TIFF</h4>
+<p>FontConverterは内部で一旦BMPに出力したデータを、TIFFとして変換します。</p>
+<p>
+  <a name="Anchor_83956000_possible_input"></a>
+</p>
+<h3 id="Anchor_83956000_h3_14">入力できる画像ファイル</h3>
+<p>FontConverterに渡す画像ファイルに共通の制限として ブロックの幅 &times; ブロックの横方向の数 = 画像の幅 ブロックの高さ &times; ブロックの縦方向の数 = 画像の高さ が成り立たなければなりません。すなわち画像中にブロックは隙間なく並び、余白があってはいけません。 実際には文字順序ファイルによりブロックの横(縦)方向の数が、画像ファイルにより画像の幅(高さ)が決定し、そこからブ ロックの幅(高さ)が計算されます。そして、このブロックの幅(高さ)が整数でなければなりません。</p>
+<h4 id="Anchor_83956000_h4_19">BMP</h4>
+<p>FontConverterに入力可能なBMPは1ピクセルあたり1, 4, 8ビット(2, 16, 256色)のインデックスカラーBMPまたは、1ピク セル当たり24ビット(RGB8)、32ビット(RGBA8)のダイレクトカラーBMPです</p>
+<h4 id="Anchor_83956000_h4_20">TGA</h4>
+<p>FontConverterに入力可能なTGAは1ピクセルあたり8, 16ビット(256, 65536色)で24ビット(RGB8)、32ビット(RGBA8)パ レットのインデックスカラー(ColorMap)形式TGAまたは、1ピクセル当たり24ビット(RGB8)、32ビット(RGBA8)のダイレクトカ ラー(TrueColor)形式のTGAです。共にランレングス圧縮、未圧縮に対応しています。</p>
+<h4 id="Anchor_83956000_h4_21">TIFF</h4>
+<p>FontConverterは内部で一旦TIFFをBMPに変換してから入力します。</p>
+<h3 id="Anchor_83956000_h3_15">インテンシティ形式のフォントの扱い</h3>
+<p>インテンシティ形式のフォントでは画像ファイルのグリフイメージの輝度値が逆転した値になります。 黒に近いピクセルほど輝度値が高く、白に近いピクセルほど輝度値が低くなります。</p>
+<h2 id="Anchor_83956000_h2_8">カーニング定義ファイル(bffkn)</h2>
+<p>カーニングに関する情報（文字と文字の間隔を調整する補正値）を格納するファイル形式です。<br /> フォントコンバータでカーニング情報を持っている Windows フォントから、画像形式の出力を行った場合に同時出力されます。<br /> 画像ファイルから、カーニング情報を持ったフォントバイナリを作成する場合は、入力画像と同一フォルダに同名の bffkn を置いておいてください。</p>
+<p>&nbsp;</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span> 以下は関連ページへのリンクです。 </p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        <a href="http://www.morisawa.co.jp/culture/dictionary/">フォント用語集</a>
+      </th>
+      <td>フォントの用語集です。</td>
+    </tr>
+  </thead>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

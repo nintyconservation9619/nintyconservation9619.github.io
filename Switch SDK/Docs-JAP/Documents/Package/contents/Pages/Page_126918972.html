@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Mask</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Mask -->
+<div class="pagetitle" id="PageId_126918972">Mask</div>
+<div class="text_separate">
+<h1 id="Anchor_126918972_h1_1">Mask</h1>
+<h2 id="Anchor_126918972_h2_1">概要</h2>
+<p>
+  <span class="ApiLink_nn__mii__Mask">nn::mii::Mask</span> はマスクテクスチャを構成する各パーツのシェイプやテクスチャなどのデータを保持するクラスです。</p>
+<p>マスクテクスチャを構成する各パーツに関しては、<a href="../Pages/Page_126557713.html">顔モデル構造のマスクテクスチャのページ</a>を参照してください。</p>
+<h2 id="Anchor_126918972_h2_2">表情フラグ</h2>
+<p>Mask は1体の Mii のマスクテクスチャを生成するためのデータしか持てませんが、表情フラグを用いて一つの Mask オブジェクトに複数の表情を持たせることが可能です。</p>
+<p>初期化時に <span class="ApiLink_nn__mii__ExpressionFlag">nn::mii::ExpressionFlag</span> の論理和を用いて指定することで1体の Mii の複数の表情を作成できる Mask を作成することができます。</p>
+<h2 id="Anchor_126918972_h2_3">初期化と終了処理</h2>
+<p>初期化と終了処理の注意点に関して説明します。各関数の API リファレンスも合わせて参照してください。</p>
+<h3 id="Anchor_126918972_h3_1">初期化処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__Mask__Initialize">nn::mii::Mask::Initialize</span>() 関数を使用して初期化を行います。</p>
+<p>初期化用のメモリのサイズとアライメントは <span class="ApiLink_nn__mii__Mask__CalculateMemorySize">nn::mii::Mask::CalculateMemorySize</span>() と <span class="ApiLink_nn__mii__Mask__CalculateMemoryAlignment">nn::mii::Mask::CalculateMemoryAlignment</span>() 関数を使用することで取得できます。</p>
+<p>初期化用のメモリプールのサイズとアライメントは <span class="ApiLink_nn__mii__Mask__CalculateMemoryPoolSize">nn::mii::Mask::CalculateMemoryPoolSize</span>() と <span class="ApiLink_nn__mii__Mask__CalcualteMemoryPoolAlignment">nn::mii::Mask::CalcualteMemoryPoolAlignment</span>() 関数を使用することで取得できます。これらの関数に渡す <a href="../Pages/Page_126918946.html">Resource</a> と表情フラグは初期化時に渡すものと同じものを渡す必要があります。Mask の初期化時に渡すメモリプールのプロパティには、<span class="ApiLink_nn__gfx__MemoryPoolProperty_CpuCached">nn::gfx::MemoryPoolProperty_CpuCached</span> を指定してください。</p>
+<p>
+  <a href="../Pages/Page_126918946.html">Resource</a> の初期化時の設定によっては、Resource が保持するソースのデータは圧縮されたままの場合があります。圧縮されたままのリソースの場合、Mask の初期化時に必要なリソースのみ圧縮の展開を行います。そのため、圧縮展開用の一時バッファが必要となります。圧縮展開用の一時バッファは専用の構造体 <span class="ApiLink_nn__mii__TemporaryBuffer">nn::mii::TemporaryBuffer</span> として定義されています。</p>
+<p>初期化時に受け取った <a href="../Pages/Page_126918946.html">Resource</a> と CharInfo と表情フラグからマスクテクスチャをレンダリングするためのデータを構成します。初期化した内容は終了処理を呼ぶまで変更できません。</p>
+<p>初期化時に利用したメモリ、メモリプールは終了処理を呼ぶまで保持する必要があります。一時バッファ（<span class="ApiLink_nn__mii__TemporaryBuffer">nn::mii::TemporaryBuffer</span>）は初期化後に破棄することができます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <div class="confluence-information-macro-body">
+      <p>プラットフォームのメモリプール制限を考慮した実装になっているため、Win/Nvn 環境では初期化に使用するメモリプールのサイズとアライメントのサイズが他のプラットフォーム（Win/Generic や NX 開発機）に比べて大きくなっています。具体的には以下の関数が影響を受けます。</p>
+      <ul>
+        <li>
+          <span class="ApiLink_nn__mii__Mask__CalculateMemoryPoolSize">nn::mii::Mask::CalculateMemoryPoolSize</span>()</li>
+        <li>
+          <span class="ApiLink_nn__mii__Mask__CalcualteMemoryPoolAlignment">nn::mii::Mask::CalcualteMemoryPoolAlignment</span>()</li>
+      </ul>
+      <p>Win/Nvn と他のプラットフォームを同じ実装で動作させる場合には注意してください。</p>
+    </div>
+  </div>
+</div>
+<h3 id="Anchor_126918972_h3_2">終了処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__Mask__Finalize">nn::mii::Mask::Finalize</span>() 関数を呼ぶと終了処理を行います。終了処理が行われた後は初期化に使用したメモリ、メモリプールの破棄を行うことができます。</p>
+<h2 id="Anchor_126918972_h2_4">TextureView の取得</h2>
+<p>初期化済みの Mask からマスクテクスチャをレンダリングするために必要な <span class="ApiLink_nn__gfx__TextureView">nn::gfx::TextureView</span> を取得できます。Faceline から取得できる TextureView は列挙体 <span class="ApiLink_nn__mii__Mask__TextureType">nn::mii::Mask::TextureType</span> と関連しています。</p>
+<p>
+  <span class="ApiLink_nn__mii__Faceline__GetTextureView">nn::mii::Faceline::GetTextureView</span>() 関数を使用すると指定した TextureType の TextureView のポインタが取得できます。初期化時に渡した CharInfo に設定されたパラメータによっては、TextureView が存在しない TextureType もあります。そのような TextureType を引数として渡した場合は、nullptr が返ってきます。</p>
+<p>例えば、初期化時に表情フラグとして <span class="ApiLink_nn__mii__ExpressionFlag_Normal">nn::mii::ExpressionFlag_Normal</span> のみを指定していた場合、<span class="ApiLink_nn__mii__Mask__TextureType_MouthAnger">nn::mii::Mask::TextureType_MouthAnger</span> や <span class="ApiLink_nn__mii__Mask__TextureType_EyeSmile">nn::mii::Mask::TextureType_EyeSmile</span> を引数に指定した場合、nullptr が返ってきます。GetTextureView() 関数から nullptr が返ってきた場合は無視するようにしてください。</p>
+<h2 id="Anchor_126918972_h2_5">DescriptorSlot の設定</h2>
+<p>Maskから取得した <span class="ApiLink_nn__gfx__TextureView">nn::gfx::TextureView</span> をデスクリプタプールにセットし、取得したデスクリプタスロットを再び Mask にセットします。</p>
+<p>セットには <span class="ApiLink_nn__mii__Mask__SetTextureDescriptorSlot">nn::mii::Mask::SetTextureDescriptorSlot</span>() 関数を使います。取得した TextureView の <span class="ApiLink_nn__mii__Mask__TextureType">nn::mii::Mask::TextureType</span> と同じタイプを指定してセットしてください。</p>
+<h2 id="Anchor_126918972_h2_6">DrawParam の取得</h2>
+<p>初期化済みの Mask からマスクテクスチャをレンダリングするための <a href="../Pages/Page_126918978.html">DrawParam</a> を取得できます。Mask から取得できる DrawParam は列挙体 <span class="ApiLink_nn__mii__Mask__DrawType">nn::mii::Mask::DrawType</span> と関連しています。</p>
+<p>マスクテクスチャへのレンダリングは列挙体の順番通りに行ってください。眉毛や目などの一部パーツは左右別々に描画します。マスクテクスチャはレンダリングした画像の輪郭部分をきれいに描画するためカラー部分とアルファ部分を分けてレンダリングします。DrawType_ClearAlpha でアルファをクリアし、DrawType_AlphaMustacheR 以降ではアルファの値のみを描画するようにしてください。</p>
+<p>
+  <span class="ApiLink_nn__mii__Mask__GetDrawParam">nn::mii::Mask::GetDrawParam</span>() 関数を使用すると指定した DrawType の DrawParam のポインタが取得できます。初期化時に渡した CharInfo に設定されたパラメータによっては、描画の必要のない DrawType も存在します。そのような DrawType を引数として渡した場合は、nullptr が返ってきます。</p>
+<p>例えば、ホクロのない Mii の場合は、 DrawType_Mole を引数に指定した場合、nullptr が返ってきます。GetDrawParam() 関数から nullptr が返ってきた場合はその DrawType は描画しないようにしてください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__Mask', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html' )
+SetUrl( 'ApiLink_nn__mii__ExpressionFlag', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ac7afaf3294796e48a3cffb560292b72b' )
+SetUrl( 'ApiLink_nn__mii__Mask__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a77a346dd83fb3ea739dc6bd03f8a80d7' )
+SetUrl( 'ApiLink_nn__mii__Mask__CalculateMemorySize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#ada219c5ca703bcbac6cfd1b1152a0014' )
+SetUrl( 'ApiLink_nn__mii__Mask__CalculateMemoryAlignment', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a1d3f938e3b66f4723f77945c7053d132' )
+SetUrl( 'ApiLink_nn__mii__Mask__CalculateMemoryPoolSize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#ab48643fffb947349f92489c8c8f13ab1' )
+// ApiLink_nn__mii__Mask__CalcualteMemoryPoolAlignment
+SetUrl( 'ApiLink_nn__gfx__MemoryPoolProperty_CpuCached', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a663a11b1bc56170998d3ca281574e1f1' )
+SetUrl( 'ApiLink_nn__mii__TemporaryBuffer', '../../../Api/HtmlNX/structnn_1_1mii_1_1_temporary_buffer.html' )
+SetUrl( 'ApiLink_nn__mii__Mask__Finalize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a009020edff303723ec0651891dd8ffb0' )
+SetUrl( 'ApiLink_nn__gfx__TextureView', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ac96ae14e7816fb1316ccc186a52eb9aa' )
+SetUrl( 'ApiLink_nn__mii__Mask__TextureType', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a6b9e4340d4b832c3a6d8e2ff1a9293db' )
+SetUrl( 'ApiLink_nn__mii__Faceline__GetTextureView', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#aac4239a87dc47b0cdb50980f2b973bce' )
+SetUrl( 'ApiLink_nn__mii__ExpressionFlag_Normal', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ac7afaf3294796e48a3cffb560292b72bacd5770ecb2de7fc49a50b9f847275176' )
+SetUrl( 'ApiLink_nn__mii__Mask__TextureType_MouthAnger', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a6b9e4340d4b832c3a6d8e2ff1a9293dbabf8a22154643e2974b69ee31ceb18aaf' )
+SetUrl( 'ApiLink_nn__mii__Mask__TextureType_EyeSmile', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a6b9e4340d4b832c3a6d8e2ff1a9293dba851e34616f48effcec2f483bb1e10b78' )
+SetUrl( 'ApiLink_nn__mii__Mask__SetTextureDescriptorSlot', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a0fd6e916a3824c2a478fcdbcd31035e1' )
+SetUrl( 'ApiLink_nn__mii__Mask__DrawType', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a40b7c507c8de2a6244fa7b0815f3f2f7' )
+SetUrl( 'ApiLink_nn__mii__Mask__GetDrawParam', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html#a2f883521eae8432d51f05016b48fbbc5' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,339 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>実装に際しての注意事項 (NX Addon)</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 実装に際しての注意事項 (NX Addon) -->
+<div class="pagetitle" id="PageId_172895510">実装に際しての注意事項 (NX Addon)</div>
+<div class="text_separate">
+<!--Remove-->
+<p>
+  <br />
+</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_172895510_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_172895510_h1_2">性能に関する注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172895510_h2_1">ASLR 有効時、起動毎にメモリのアクセス速度に差があります</a>
+      </li>
+      <li>
+        <a href="#Anchor_172895510_h2_2">動画撮影を有効化したアプリケーションに対する影響</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_172895510_h3_1">使用可能なメモリ容量について</a>
+        </li>
+        <li>
+          <a href="#Anchor_172895510_h3_2">アプリケーションにかかる負荷について</a>
+        </li>
+        <li>
+          <a href="#Anchor_172895510_h3_3">アプリケーション側の対応について</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_172895510_h1_3">時間を扱う上での注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172895510_h2_3">1フレームが厳密に 1/60 秒である保証はなく、ライブラリごとに時間の精度は異なります</a>
+      </li>
+      <li>
+        <a href="#Anchor_172895510_h2_4">スリープ中にもシステムチックは進みます</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_172895510_h1_4">スリープ・ウェイクに関する注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172895510_h2_5">スリープ・ウェイクの所要時間は一定ではありません</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_172895510_h1_5">ドックイン・ドックアウト時の注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172895510_h2_6">ドックイン・ドックアウト時にシステムのリアルタイム性は保証されません</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_172895510_h1_6">TV出力・LCDに関する注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172895510_h2_7">コンテンツを固定した状態で長時間表示し続けることは避けてください</a>
+      </li>
+      <li>
+        <a href="#Anchor_172895510_h2_8">LCD に残像やチラツキを起こし易くする表現は避けてください</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_172895510_h3_4">Aの具体例</a>
+        </li>
+        <li>
+          <a href="#Anchor_172895510_h3_5">Bの具体例</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_172895510_h2_9">HDCP の振る舞いについて</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_172895510_h1_1">概要</h1>
+<p>NX Addon パッケージ固有の、実装に際しての注意事項です。<br />特定のモジュール（ライブラリ）に閉じない、アプリケーション実装上の注意事項について説明します。&nbsp;</p>
+<h1 id="Anchor_172895510_h1_2">性能に関する注意事項</h1>
+<h2 id="Anchor_172895510_h2_1">ASLR 有効時、起動毎にメモリのアクセス速度に差があります</h2>
+<p>HW の仕様により、ASLR 有効時、アプリケーションの起動毎にメモリのアクセス速度に若干の差があります。ばらつきの傾向は SDEV と EDEV でも異なりますので、アプリケーションの最終動作確認は EDEV で ASLR を有効にした状態で十分に確認してください。</p>
+<p>メモリのアクセス速度を一定にして動作確認を行いたい場合は ASLR を無効化してアプリケーションを起動してください。ASLR を無効化する方法は&nbsp;<a href="../Pages/Page_92310396.html">プログラムの起動と初期化</a>&nbsp;を参照してください。</p>
+<h2 id="Anchor_172895510_h2_2">動画撮影を有効化したアプリケーションに対する影響</h2>
+<p>動画撮影を有効化しているアプリケーションに対しては以下の点で影響が出ます。</p>
+<ul>
+  <li>アプリケーションが使用可能なメモリ容量</li>
+  <li>アプリケーションが使用可能な CPU および GPU リソース</li>
+  <li>アプリケーションが使用可能なメモリ帯域</li>
+</ul>
+<p>動画撮影機能は nmeta の設定によって無効化することができます。<br />また、アプリケーションのプラットフォーム（NX32 または NX64）で影響が異なります。 <br />表に動画撮影機能による影響をまとめました。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>動画撮影機能</th>
+      <th>プラットフォーム</th>
+      <th>メモリ容量</th>
+      <th>CPU および GPU リソース</th>
+      <th>メモリ帯域</th>
+    </tr>
+    <tr>
+      <td rowspan="2">有効（デフォルト）</td>
+      <td>NX64</td>
+      <td class="highlight-red">96MiB 減少</td>
+      <td class="highlight-red">一定の負荷が発生（※）</td>
+      <td class="highlight-red">一定の負荷が発生</td>
+    </tr>
+    <tr>
+      <td>NX32</td>
+      <td>影響なし</td>
+      <td class="highlight-red">一定の負荷が発生（※）</td>
+      <td class="highlight-red">一定の負荷が発生</td>
+    </tr>
+    <tr>
+      <td rowspan="2">API による無効区間中</td>
+      <td>NX64</td>
+      <td class="highlight-red">96MiB 減少のまま</td>
+      <td>影響なし</td>
+      <td>影響なし</td>
+    </tr>
+    <tr>
+      <td>NX32</td>
+      <td>影響なし</td>
+      <td>影響なし</td>
+      <td>影響なし</td>
+    </tr>
+    <tr>
+      <td>nmeta で静的に無効化</td>
+      <td>NX64, NX32</td>
+      <td>影響なし</td>
+      <td>影響なし</td>
+      <td>
+        <p>影響なし</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>（※）CPU および GPU リソースへの影響度合いは、アプリケーションの作り方に大きく依存します。詳細は後述します。</p>
+<h3 id="Anchor_172895510_h3_1">使用可能なメモリ容量について</h3>
+<p>NX64 プラットフォームのアプリケーションにおいて動画撮影機能が有効な場合、必ず 96MiB 減少します。<br />NX32 プラットフォームでは減少しません。</p>
+<h3 id="Anchor_172895510_h3_2">アプリケーションにかかる負荷について</h3>
+<p>動画撮影を有効化したアプリケーションがインフォーカス状態の場合、メモリ帯域に一定の負荷がかかります。</p>
+<p>また、同じくインフォーカス状態の場合、アプリケーションから見た CPU 処理時間および GPU 処理時間が増加します。<br />動画撮影機能は vblank 2回の間に 1回キャプチャ処理を行うため、アプリケーションが vblank ごとに処理を行っている（60fps で動作している）場合には、奇数フレームと偶数フレームで処理負荷が変化することになります。また、30fps で動作するアプリケーションについては、動画撮影機能の処理とのずれ方に依存して処理負荷が変わります。</p>
+<p>まとめると次の通りです。</p>
+<ul>
+  <li>60fps で動作するアプリケーションの場合、処理負荷増分が大きいフレームと処理負荷増分が小さいフレームが交互に繰り返される。</li>
+  <li>30fps で動作するアプリケーションの場合、起動ごとに 2 通りの処理負荷増加のパターンのうちどちらかが現れる。</li>
+</ul>
+<p>実際の処理負荷の増分は、アプリケーションの作り方に大きく依存します。</p>
+<p>メモリ帯域や CPU/GPU 処理時間への影響については、今後のバージョンアップでの改善を検討しています。</p>
+<h3 id="Anchor_172895510_h3_3">アプリケーション側の対応について</h3>
+<p>NX Addon 4.2.0 以降（NX Addon 3 系では 3.6.0 以降）でビルドされたアプリケーションでは、動画撮影機能はデフォルトで有効となります。NX Addon のバージョンを乗り換える場合はご注意ください。<br />特に使用可能なメモリ容量の減少に問題はないか、メモリ帯域を大きく消費するシーンに影響が出ていないか確認いただくことを推奨します。</p>
+<p>メモリ容量やメモリ帯域に余裕がない場合やパフォーマンス検証が難しい場合は、nmeta の設定によって動画撮影を静的に無効化できます。<br />静的に無効化した場合は、前述のアプリケーションに対する影響は全て無しとなります。<br />設定方法などは<a href="../Pages/Page_166503043.html"> nmeta ファイルの書き方</a> の「動画撮影」の項目を参照してください。</p>
+<p>また、アプリケーションから oe API を呼ぶことによって任意のシーンに対して動画撮影機能の無効区間を動的に設定できます。<br />無効区間ではメモリ帯域への負荷は無くなりますが、96MiB のメモリは返却されません。<br />API の詳細は&nbsp;<a href="../Pages/Page_174233259.html">動作環境制御機能</a> を参照してください。</p>
+<h1 id="Anchor_172895510_h1_3">時間を扱う上での注意事項</h1>
+<h2 id="Anchor_172895510_h2_3">1フレームが厳密に 1/60 秒である保証はなく、ライブラリごとに時間の精度は異なります</h2>
+<p>VSYNC イベントによって検知できる1フレームが、厳密に 1/60 秒である保証はありません。少なからず誤差があることに注意してください。<br />また、各ライブラリが扱う時間の精度は、基本的にはライブラリ固有のものです。例えば<a href="../../../Api/HtmlNX/classnn_1_1os_1_1_tick.html">システムチック</a>で計測できる時間の進みと、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html">nn::time::StandardSteadyClock</a> から得られる時間の進みは異なります。</p>
+<p>よって、<strong>例えば以下のようなことを期待する実装はおやめください</strong>。</p>
+<ul>
+  <li>ある時点から 60 フレーム経過した時点で、各ライブラリから得られる時間が 1 秒進んでいる（およびその逆）</li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1os_1_1_tick.html">システムチック</a>で 1 秒の経過を検知した時点で、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html">nn::time::StandardSteadyClock</a> から得られる時間も 1 秒進んでいる（およびその逆）</li>
+</ul>
+<h2 id="Anchor_172895510_h2_4">スリープ中にもシステムチックは進みます</h2>
+<p>スリープ中であっても<a href="../../../Api/HtmlNX/classnn_1_1os_1_1_tick.html">システムチック</a>は進みます。<br />スリープを解除する時に得られる<a href="../../../Api/HtmlNX/classnn_1_1os_1_1_tick.html">システムチック</a>の値は、アプリケーションから見ると連続的な値とはならないので注意してください。</p>
+<h1 id="Anchor_172895510_h1_4">スリープ・ウェイクに関する注意事項</h1>
+<h2 id="Anchor_172895510_h2_5">スリープ・ウェイクの所要時間は一定ではありません</h2>
+<p>スリープ・ウェイクの所要時間は、コントローラやネットワークの状態・ファームウェアのバージョンなどによって変動するため、常に一定とは限りません。<br />特に、開発機は製品機よりもスリープ・ウェイクの所要時間が長くなる傾向があります。</p>
+<h1 id="Anchor_172895510_h1_5">ドックイン・ドックアウト時の注意事項</h1>
+<h2 id="Anchor_172895510_h2_6">ドックイン・ドックアウト時にシステムのリアルタイム性は保証されません</h2>
+<p>ドックイン・ドックアウトを行う際には、性能選択機能の設定やスロットリングによってクロックが変わるだけでなく、システム内のドックイン・ドックアウト処理が実行されるため、定常状態と比較してシステムに依存する関数の呼び出しなどに時間がかかる場合があります。</p>
+<p>例）本体のドックイン・ドックアウトによってディスプレイが切り替わるタイミングで nvnQueuePresentTexture() や nvnWindowAcquireTexture() の呼出が 200 ms から 300 ms 程度の時間ブロックされることがあります。これによってアプリケーションの描画ループが一定間隔で回らなくなり、アプリケーションの実装によっては音ずれなどの症状が表れる場合があります。動画の再生などの長時間に渡って画面と音声の同期が必要なシーンでは描画ループが一定間隔で回ることを期待せずに、明示的に画面と音声の同期を取るように実装する必要があります。</p>
+<h1 id="Anchor_172895510_h1_6">TV出力・LCDに関する注意事項</h1>
+<h2 id="Anchor_172895510_h2_7">コンテンツを固定した状態で長時間表示し続けることは避けてください</h2>
+<p>Nintendo Switch では、無操作状態を検出することで画面焼け軽減機能が自動的に発動します。（<a href="../Pages/Page_198946139.html">無操作状態の制御</a>）</p>
+<p>しかし、ユーザーの操作が入る通常のゲームプレイ時にはこの機能は働きません。<br />従って、以下のような固定表示はTVのディスプレイ方式によっては画面焼けの原因となる可能性があります。</p>
+<ul>
+  <li>固定表示の例<br /><ul><li>ムービーなどの表示中に描画領域の余白を何らかの静止画で埋める。</li><li>ゲームのユーザーインターフェースとして「TIME」や「SCORE」のような時間的変化のない文字を同じ位置に表示し続ける。</li><li>画面の縦横比16:9表示の際に、4:3の領域のみを描画して余白を静止画で埋める。</li></ul></li>
+</ul>
+<p>特に、一般的に静止画や時間経過によって移動しない文字を高い輝度（すなわち原色に近い色）のまま表示すると、静止画と描画領域の境界線や、文字とその周辺で画面焼けが目立つことがあります。</p>
+<p>上記のような固定表示を行う必要がある場合は、次に挙げるような画面焼けを回避するための対策を入れることを推奨します。</p>
+<ul>
+  <li>同じ表示を続ける場合は15分程度にとどめる。</li>
+  <li>全体的に輝度を低くした表示を行う。</li>
+  <li>表示する輝度を時間的に変化させる。</li>
+  <li>余白領域を描画領域と同程度の輝度で表示する。</li>
+  <li>画面の切り替え時に画面全体に対して余白と同じ色や模様を使用する。</li>
+</ul>
+<h2 id="Anchor_172895510_h2_8">LCD に残像やチラツキを起こし易くする表現は避けてください</h2>
+<ul>
+  <li>A:奇数フレームごとの反復表示</li>
+  <li>B:偶数フレーム周期のアニメーション表示</li>
+</ul>
+<p>上記のどちらかをある程度続けると、その表示内容によっては画面焼けに似た残像（描画が切り替わっても以前の表示が残る）やチラツキ（フリッカーノイズ）が発生します。</p>
+<p>LCDの表示に違和感がある場合、上記のいずれかに該当する表示になっていないかご確認ください。これらの症状は該当の表示を止めることで徐々に回復しますが、後述の対策案の採用もご検討下さい。</p>
+<p>
+  <br />
+</p>
+<div class="expand-container" id="expander-172895510-1">
+  <div class="expand-control" id="expander-control-172895510-1">
+    <span class="expand-control-icon collapsed-icon"> </span>
+    <span class="expand-control-text">（参考）LCDの特徴について</span>
+  </div>
+  <div class="expand-content expand-hidden" id="expander-content-172895510-1">
+    <p>LCDは毎フレーム画素電圧を反転しながら動作します。（これを反転駆動と呼びます）</p>
+    <p>例えば、「白」を表示し続ける動作であっても、画素には1フレームごとにプラスとマイナスの電圧が交互に加わります。</p>
+    <p>（以下の図は簡略化したものです。厳密にはRGBのサブピクセルが存在します。）</p>
+    <p>
+      <span class="embedded-file-wrapper ">
+        <img src="../Attachments/Attach_172895510/232873659.png" height="250" class="embedded-image" />
+      </span>
+    </p>
+    <p>この反転駆動により、電圧のプラスとマイナスのバランスが保たれることで表示が安定します。</p>
+  </div>
+</div>
+<h3 id="Anchor_172895510_h3_4">Aの具体例</h3>
+<ul>
+  <li>1フレームごとに2つの色の反復表示をすることで半透明を表現する手法</li>
+  <li>3フレームごとに表示位置を変化させることで振動を表現する手法</li>
+</ul>
+<p>表示内容によりますが、LCDにとって最も厳しい条件下では、数十秒でチラツキが発生する場合もあります。</p>
+<p>
+  <br />
+</p>
+<div class="expand-container" id="expander-172895510-2">
+  <div class="expand-control" id="expander-control-172895510-2">
+    <span class="expand-control-icon collapsed-icon"> </span>
+    <span class="expand-control-text">発生原理について</span>
+  </div>
+  <div class="expand-content expand-hidden" id="expander-content-172895510-2">
+    <p>奇数フレームごとの反復表示は、反転駆動の効果を打ち消してしまいます。</p>
+    <p>1フレームごとに白と黒を切り替える場合が、最もひどい結果に繋がります。</p>
+    <p>
+      <span class="embedded-file-wrapper ">
+        <img src="../Attachments/Attach_172895510/232873843.png" height="250" class="embedded-image" />
+      </span>
+    </p>
+    <p>電圧がプラス側に寄ってしまい、これが残像やチラツキの原因となります。</p>
+  </div>
+</div>
+<p>対策として、2フレームや4フレームといった偶数フレームの反復とすることで、残像やチラツキの発生を防ぐことができます。</p>
+<h3 id="Anchor_172895510_h3_5">Bの具体例</h3>
+<ul>
+  <li>黒背景に20x200ピクセルの白いオブジェクトが時計の針のように60フレームで1回転するアニメーション</li>
+</ul>
+<p>
+  <span class="confluence-embedded-file-wrapper confluence-embedded-manual-size">
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_172895510/221749064.png" height="250" class="embedded-image" />
+    </span>
+  </span>
+</p>
+<p>10分ほど表示すると、一般的なゲーム画面ではチラツキは視認できないものの、残像などが目立ちやすい表示（暗めの単色ベタなど）ではチラツキが視認できる状態になります。</p>
+<p>
+  <br />
+</p>
+<div class="expand-container" id="expander-172895510-3">
+  <div class="expand-control" id="expander-control-172895510-3">
+    <span class="expand-control-icon collapsed-icon"> </span>
+    <span class="expand-control-text">発生原理について</span>
+  </div>
+  <div class="expand-content expand-hidden" id="expander-content-172895510-3">
+    <p>上記の白いオブジェクトが60フレーム周期で1回転するアニメーションでは、画素ごとの電圧は以下の図のようになります。</p>
+    <p>
+      <span class="embedded-file-wrapper ">
+        <img src="../Attachments/Attach_172895510/232874022.png" height="250" class="embedded-image" />
+      </span>
+    </p>
+    <p>白色を表示する際の極性がプラス側に揃ってしまい、これが残像やチラツキに繋がります。</p>
+  </div>
+</div>
+<p>Aよりもチラツキの度合いが弱く発生まで時間がかかるため、実使用上で問題になることは少ないですが、下記の対策で残像やチラツキの発生を防ぐことができます。</p>
+<ul>
+  <li>背景とオブジェクトのコントラスト差を小さくする</li>
+  <li>アニメーションの周期を奇数フレームとする</li>
+  <li>オブジェクトの移動を2フレームごとにする</li>
+</ul>
+<h2 id="Anchor_172895510_h2_9">HDCP の振る舞いについて</h2>
+<p>HDCP はデフォルトで無効化されています。また、有効化する手段は通常パッケージでは提供していません。（個別に申請が必要となります）</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>レイアウトプログラムにおける複合フォントの利用</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- レイアウトプログラムにおける複合フォントの利用 -->
+<div class="pagetitle" id="PageId_126563699">レイアウトプログラムにおける複合フォントの利用</div>
+<div class="text_separate">
+<p>ここでは、レイアウトプログラムにおける複合フォントの利用方法を説明します。</p>
+<p>&nbsp;</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>概要については、「<a href="../Pages/Page_126562941.html">複合フォント</a>」を、プログラムの概要については「<a href="../Pages/Page_111819122.html">ペアフォントおよびマルチスケーラブルフォントについて</a>」をご覧ください。</p>
+<h1 id="Anchor_126563699_h1_1">fcpx を バイナリ変換して、ゲームプログラムに読み込んで利用する</h1>
+<p>複合フォント定義ファイル(fcpx) は LayoutConverter でバイナリ変換され、 bfcpx に変換されます。</p>
+<p>bfcpxは、アーカイブに含めて、プログラムにロードします。</p>
+<h3 id="Anchor_126563699_h3_1">コード例</h3>
+<p>ゲームプログラムで複合フォントを利用するサンプルコードを以下に例示します。</p>
+<p>Ui2dDemo サンプルの Ui2dComplexFont.cpp を元にしています。詳細はそちらのサンプルをご覧ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35<br />
+36</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// bfcpx を取得する
+</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pCpxData</span> <span class="o">=</span> <span class="n">g_pArcResourceAccessor</span><span class="o">-&gt;</span><span class="n">FindResourceByName</span><span class="p">(</span><span class="nn">nn::ui2d::</span><span class="n">ResourceTypeComplexFont</span><span class="p">,</span> <span class="s">&quot;ComplexFont.bfcpx&quot;</span><span class="p">);</span>
+
+<span class="c1">// TextureCacheArg を定義して必要最低限の設定を行う
+</span><span class="nn">nn::font::TextureCache::</span><span class="n">InitializeArg</span> <span class="n">arg</span><span class="p">;</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">workMemorySize</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">noPlotWorkMemorySize</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">allocateFunction</span> <span class="o">=</span> <span class="nn">nn::ui2d::Layout::</span><span class="n">GetAllocateFunction</span><span class="p">();</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">textureCacheWidth</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">textureCacheHeight</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+
+<span class="c1">// ユーティリティ関数を使って bfcpx から TextureCacheArg を構築する
+</span><span class="kt">int</span> <span class="n">fontFaceHead</span> <span class="o">=</span> <span class="nn">nn::ui2d::ComplexFontHelper::</span><span class="n">SetupTextureCacheArg</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">AcquireFontFunctionForComplexFont</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pArcResourceAccessor</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCpxData</span><span class="p">);</span>
+
+<span class="c1">// TextureCache を初期化する
+</span><span class="n">g_TextureCache</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+<span class="n">g_TextureCache</span><span class="p">.</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForTexture</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GfxFramework</span><span class="p">);</span>
+
+<span class="c1">// ユーティリティ関数を使って bfcpx からフォントを構築する
+</span><span class="n">g_pComplexFontTree</span> <span class="o">=</span> <span class="nn">nn::ui2d::ComplexFontHelper::</span><span class="n">InitializeComplexFontTree</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pDevice</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegisterSlotForTexture</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_GfxFramework</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_TextureCache</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">fontFaceHead</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp; <span class="n">AcquireFontFunctionForComplexFont</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pArcResourceAccessor</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCpxData</span><span class="p">);</span>
+
+<span class="c1">// アーカイバに .fcpx として登録する
+</span><span class="n">g_pArcResourceAccessor</span><span class="o">-&gt;</span><span class="n">RegisterFont</span><span class="p">(</span><span class="s">&quot;ComplexFont.fcpx&quot;</span><span class="p">,</span> <span class="n">g_pComplexFontTree</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

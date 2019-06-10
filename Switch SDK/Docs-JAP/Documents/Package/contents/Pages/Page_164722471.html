@@ -1,0 +1,281 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メモリプールについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メモリプールについて -->
+<div class="pagetitle" id="PageId_164722471">メモリプールについて</div>
+<div class="text_separate">
+<h1 id="Anchor_164722471_h1_1">vfxランタイムでのメモリプールの扱い</h1>
+<p>vfxランタイム内部で生成されるメモリプールについて説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_164722471_h2_1">エフェクトバイナリ初期化時に生成されるメモリプール</a>
+    </li>
+    <li>
+      <a href="#Anchor_164722471_h2_2">エフェクトバイナリを外部メモリプールへ配置する</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_164722471_h2_1">エフェクトバイナリ初期化時に生成されるメモリプール</h2>
+<p>エフェクトバイナリ初期化時に生成されるメモリプールは大きく分けて２つのパターンがあります。</p>
+<ul>
+  <li>テクスチャ( <span class="ApiLink_nn__gfx__ResTextureFile">nn::gfx::ResTextureFile</span> ) や シェーダ( <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> ) のセットアップ時に生成されるメモリプール</li>
+  <li>トリミングプリミティブ頂点データ や コンスタントバッファ など、リソース初期化時に動的に生成されるメモリプール</li>
+</ul>
+<p>これらのメモリプール生成は、ユーザー側で用意した外部メモリプールにエフェクトバイナリを配置し初期化することで生成を回避することができます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>
+        <p style="text-align: center;">外部メモリ</p>
+        <p>プール配置</p>
+      </th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>頂点・ピクセルシェーダ</td>
+      <td style="text-align: center;">○</td>
+      <td>
+        <p>リソース読み込み時に、頂点・ピクセルシェーダバイナリを配置するメモリプールを生成します。</p>
+        <p>シェーダを別ファイル(&nbsp;<span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> )に出力し、アプリで用意したメモリプールに配置・初期化した上で、</p>
+        <p>別途初期化したエフェクトバイナリとバインドして利用することも可能です。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>コンピュートシェーダ</td>
+      <td style="text-align: center;">○</td>
+      <td>
+        <p>リソース読み込み時に、コンピュートシェーダバイナリを配置するメモリプールを生成します。<br />シェーダを別ファイル(&nbsp;<span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> )に出力し、アプリで用意したメモリプールに配置・初期化した上で、<br />別途初期化したエフェクトバイナリとバインドして利用することも可能です。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;テクスチャ</td>
+      <td style="text-align: center;">○</td>
+      <td>
+        <p>リソース読み込み時に、テクスチャバイナリを配置するメモリプールを生成します。</p>
+        <p>アプリで用意したメモリプールにエフェクトバイナリを配置し運用する場合は、メモリプール生成を行いません。</p>
+        <p>その場合、配置したメモリプールのインスタンスと配置先オフセットを</p>
+        <p>
+          <span class="ApiLink_nn__vfx__System__EntryResource">nn::vfx::System::EntryResource</span> メソッドの引数に渡す必要があります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>プリミティブ</td>
+      <td style="text-align: center;">
+        <p>△</p>
+        <p>&nbsp;</p>
+      </td>
+      <td>
+        <p>パーティクル形状にて fmdb モデルファイルを指定した場合、モデルバイナリを配置するメモリプールを生成します。</p>
+        <p>アプリで用意したメモリプールにエフェクトバイナリを配置し運用する場合は、メモリプール生成を行いません。</p>
+        <p>ただし、トリミング機能利用時は、プリミティブ頂点データを配置するメモリプールを生成し、<br />トリミング用頂点を生成したメモリプールにコピーする処理が行われます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>コンスタントバッファ</td>
+      <td style="text-align: center;">&times;</td>
+      <td>
+        <p>リソース読み込み時に、各エミッタが利用する静的なコンスタントバッファを配置するメモリプールを生成します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_164722471_h2_2">エフェクトバイナリを外部メモリプールへ配置する</h2>
+<p>エフェクトバイナリ内に含まれる シェーダバイナリやテクスチャバイナリが生成するメモリプールは、ユーザー側で用意したメモリプールに エフェクトバイナリ を配置、初期化することで、シェーダやテクスチャなどのメモリプールの生成を行わないようにすることができます。ただし、アプリを開発されるプラットフォームによっては、テクスチャバイナリとシェーダバイナリを同じメモリプールに配置できない為、シェーダバイナリを分割してファイル出力し、個別に初期化した上でバインドする必要があります。</p>
+<p>メモリプールに配置に関するプラットフォーム向け制限については、<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a> を参照ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12</td>
+      <td class="code">
+        <div class="codeblock"><pre>// エフェクトバイナリをロードする
+void* pEffectBinary = FileLoad( &quot;vfx.ptcl&quot; );
+
+// ロードしたバイナり空間をメモリプールとして初期化
+nn::gfx::MemoryPoolInfo info;
+info.SetMemoryPoolProperty( nn::gfx::MemoryPoolProperty_CpuCached | nn::gfx::MemoryPoolProperty_GpuCached | nn::gfx::MemoryPoolProperty_ShaderCode );
+info.SetPoolMemory( pEffectBinary, effectBinarySize );
+nn::gfx::MemoryPool effectBinaryMemoryPool;
+effectBinaryMemoryPool.Initialize( device, info );
+
+// エフェクトバイナリをメモリプールを指定して初期化する
+vfxSystem-&gt;EntryResource( heap, effectBinary, &amp;effectBinaryMemoryPool, effectBinaryMemoryPoolOffset, resourceId, 0 );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25</td>
+      <td class="code">
+        <div class="codeblock"><pre>// エフェクトバイナリをロードする
+void* pEffectBinary = FileLoad( &quot;vfx.ptcl&quot; );
+
+// ロードしたバイナり空間をメモリプールとして初期化
+nn::gfx::MemoryPoolInfo info;
+info.SetMemoryPoolProperty( nn::gfx::MemoryPoolProperty_CpuCached | nn::gfx::MemoryPoolProperty_GpuCached );
+info.SetPoolMemory( pEffectBinary, effectBinarySize );
+nn::gfx::MemoryPool effectBinaryMemoryPool;
+effectBinaryMemoryPool.Initialize( device, info );
+
+// エフェクトバイナリをメモリプールを指定して初期化する
+vfxSystem-&gt;EntryResource( heap, effectBinary, &amp;effectBinaryMemoryPool, effectBinaryMemoryPoolOffset, resourceId, 0 );
+
+// 頂点・ピクセルシェーダ と コンピュートシェーダ バイナリをロードする
+void* pShaderBinary = FileLoad( &quot;shader.bnsh&quot; );
+void* pComputeShaderBinary = FileLoad( &quot;compute_shader.bnsh&quot; );
+
+// 頂点・ピクセルシェーダ と コンピュートシェーダ を初期化する
+nn::gfx::ResShaderFile* pResShaderFile = nn::gfx::ResShaderFile::ResCast( pShaderBinary );
+pResShaderFile-&gt;GetShaderContainer()-&gt;Initialize( device );
+
+nn::gfx::ResShaderFile* pComputeResShaderFile = nn::gfx::ResShaderFile::ResCast( pComputeShaderBinary );
+pComputeResShaderFile-&gt;GetShaderContainer()-&gt;Initialize( device );
+
+vfxSystem-&gt;GetResource( resourceId )-&gt;BindExternalResShaderFile( pResShaderFile, pComputeResShaderFile );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>エフェクトバイナリコンバート時に、output-shader-binary と&nbsp;output-compute-shader-binary コマンドラインオプションを追加することで、エフェクトバイナリから 頂点・ピクセルシェーダ と コンピュートシェーダ を分割してファイル出力できます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="gutter">1<br />
+2<br />
+3<br />
+4</td>
+          <td class="code">
+            <div class="codeblock"><pre>EffectConverter.exe --output vfx.ptcl --convert-list ConvertList.xml 
+--api-type xxx --code-type xxx --tile-mode xxx
+--output-shader-binary shader.bnsh 
+--output-compute-shader-binary compute_shader.bnsh </pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__ResTextureFile', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_texture_file.html' )
+SetUrl( 'ApiLink_nn__gfx__ResShaderFile', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_file.html' )
+SetUrl( 'ApiLink_nn__vfx__System__EntryResource', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a0418cc91c6dceab635cb5117b6aaf5e2' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

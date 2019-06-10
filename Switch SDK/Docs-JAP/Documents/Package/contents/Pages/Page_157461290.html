@@ -1,0 +1,682 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>HTTPS</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- HTTPS -->
+<div class="pagetitle" id="PageId_157461290">HTTPS</div>
+<div class="text_separate">
+<div class="layout-root">
+  <div class="layout-base">
+    <div class="layout-section two_right_sidebar">
+      <div class="layout-cell">
+        <h1 id="Anchor_157461290_h1_1">概略</h1>
+        <p>Nintendo SDK libcurl は、Nintendo SDK SSL ライブラリでサポートされる HTTPS 機能を提供するよう構成されています。Nintendo SDK libcurl は、標準の libcurl とほとんど同じように動作しますが、libcurl で HTTPS を使用するにはいくつかの追加手順が必要です。</p>
+        <p>一般公開されている libcurl と同様に、HTTP を適切に使用するために SSL ライブラリの知識がある程度必要です。まず <a href="../Pages/Page_99782759.html">SSL ライブラリのドキュメント</a>に目を通し、SSL ライブラリの機能と SSL ライブラリでの制限を理解しておくことを強くお勧めします。このドキュメントでは、以下のような SSL ライブラリのエンティティについて説明しています。</p>
+        <h1 id="Anchor_157461290_h1_2">例外</h1>
+        <ul>
+          <li>Nintendo SDK 0.14.0 よりも前の SDK では、64-bit Windows でのビルドが HTTPS に対応していませんでした。Nintendo SDK 0.14.0 以降は、すべてのタイプのビルドが HTTPS に対応するようになっています。</li>
+          <li>Nintendo SDK の libcurl では、<a href="https://curl.haxx.se/libcurl/c/CURLOPT_CAINFO.html">CURLOPT_CAINFO</a> および <a href="https://curl.haxx.se/libcurl/c/CURLOPT_CAPATH.html">CURLOPT_CAPATH</a> を代替証明書の指定には使用できません。<br /><ul><li>組み込みの証明書は、明示的な構成を指定せずに SSL ライブラリでいつでも使用できます。</li><li>または、必要な証明書を <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> でインポートする必要があります。</li></ul></li>
+        </ul>
+      </div>
+      <div class="layout-cell">
+        <table class="wrapped">
+          <colgroup>
+            <col />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th style="text-align: center;">目次</th>
+            </tr>
+            <tr>
+              <td>
+                <div class="content-wrapper">
+                  <p>
+                    <ul class="macro_toc">
+                      <li>
+                        <a href="#Anchor_157461290_h1_1">概略</a>
+                      </li>
+                      <li>
+                        <a href="#Anchor_157461290_h1_2">例外</a>
+                      </li>
+                      <li>
+                        <a href="#Anchor_157461290_h1_3">標準の libcurl との違い</a>
+                      </li>
+                      <ul>
+                        <li>
+                          <a href="#Anchor_157461290_h2_1">初期化/終了処理</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_157461290_h2_2">CURL ハンドル、SSL コンテキストオブジェクト、および SSL 接続オブジェクト</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_157461290_h2_3">SSL 接続の使用</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_157461290_h2_4">証明書の検証</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_157461290_h2_5">エラー処理</a>
+                        </li>
+                      </ul>
+                    </ul>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="layout-base">
+    <div class="layout-section single">
+      <div class="layout-cell">
+        <h1 id="Anchor_157461290_h1_3">標準の libcurl との違い</h1>
+        <h2 id="Anchor_157461290_h2_1">初期化/終了処理</h2>
+        <p>Nintendo SDK の libcurl では、<a href="../../../Api/HtmlNX/namespacenn_1_1ssl.html#aaa943d1a4363d560d45d53dfa2182683">nn::ssl::Initialize()</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1ssl.html#a56d990644d149228c45f0c5ece11a9d9">nn::ssl::Finalize()</a> をユーザ側で明示的に呼び出す必要がなく、SSL ライブラリの初期化と終了処理が自動的に実行されます。</p>
+        <p>SSL ライブラリは、<a href="https://curl.haxx.se/libcurl/c/curl_global_init.html">curl_global_init()</a> または <a href="https://curl.haxx.se/libcurl/c/curl_global_init_mem.html">curl_global_init_mem()</a> を呼び出したときにのみ自動的に初期化されます。SSL ライブラリの終了処理は、<a href="https://curl.haxx.se/libcurl/c/curl_global_cleanup.html">curl_global_cleanup()</a> 関数を呼び出したときにのみ実行されます。</p>
+        <p>libcurl を初期化する前に、<span class="ApiLink_nn__ssl__Initialize">nn::ssl::Initialize</span>() を使用して SSL ライブラリを初期化できます。特に、ユーザ側で同時実行限度を手動で設定する必要がある場合に、この操作が効果的となる場合があります。libcurl 外部で SSL ライブラリを初期化した場合は、<a href="https://curl.haxx.se/libcurl/c/curl_global_cleanup.html">curl_global_cleanup()</a> を呼び出した後で必ず <span class="ApiLink_nn__ssl__Finalize">nn::ssl::Finalize</span>() を明示的に呼び出すようにします。</p>
+        <h2 id="Anchor_157461290_h2_2">CURL ハンドル、SSL コンテキストオブジェクト、および SSL 接続オブジェクト</h2>
+        <p>SSL/TLS を使用するために SSL ライブラリを直接使用する場合と異なり、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトおよび <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> オブジェクトを明示的にインスタンス化する必要はありません。これは、各 CURL ハンドル（<a href="https://curl.haxx.se/libcurl/c/curl_easy_init.html">curl_easy_init()</a> で取得可能）には libcurl 内部で <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> オブジェクトと <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトが付属しているからです。</p>
+        <p>
+          <strong>SSL コンテキスト</strong>
+        </p>
+        <p>そのようなオブジェクトのインスタンス化は不要ですが、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを手動で「作成」する必要はあります。</p>
+        <p>さらに、libcurl には libcurl の外部でインスタンス化した <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトをインポートする方法が用意されています。このことから、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> を CURL ハンドルにインポートする前に、ユーザ側で <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> をインスタンス化し、作成しておく必要があります。この機能を使用すると、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを複数の CURL ハンドル間で共有できるので、CURL ハンドルごとに毎回 <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを作成する必要がありません。</p>
+        <p>
+          <strong>SSL 接続</strong>
+        </p>
+        <p>
+          <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトとは異なり、<span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> を扱う際に必要なオブジェクトはありません。CURL ハンドルに関連付けた <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> オブジェクトのインスタンス化と作成は、libcurl 内部で自動的に実行されます。</p>
+        <p>以下の表は、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトと <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> オブジェクトの扱いに関して、SSL ライブラリと libcurl との相違点をまとめたものです。</p>
+        <table class="relative-table wrapped" style="width: 58.504%; margin-left: auto; margin-right: auto;">
+          <colgroup>
+            <col style="width: 22.8659%;" />
+            <col style="width: 18.2927%;" />
+            <col style="width: 19.2073%;" />
+            <col style="width: 19.6646%;" />
+            <col style="width: 19.9695%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th rowspan="2">
+                <br />
+              </th>
+              <th colspan="2" style="text-align: center;">作成</th>
+              <th colspan="2" style="text-align: center;">インスタンス化</th>
+            </tr>
+            <tr>
+              <td class="highlight-red" style="text-align: center;">SSL ライブラリ</td>
+              <td class="highlight-red" style="text-align: center;">libcurl</td>
+              <td class="highlight-red" style="text-align: center;">SSL ライブラリ</td>
+              <td class="highlight-red" style="text-align: center;">libcurl</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span>
+              </td>
+              <td style="text-align: center;">必要</td>
+              <td style="text-align: center;">必要</td>
+              <td style="text-align: center;">必要</td>
+              <td style="text-align: center;">省略可能</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span>
+              </td>
+              <td style="text-align: center;">必要</td>
+              <td style="text-align: center;">実行不可</td>
+              <td style="text-align: center;">必要</td>
+              <td style="text-align: center;">
+                <p>実行不可</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="Anchor_157461290_h3_1">SSL コンテキストの準備</h3>
+        <p>libcurl で HTTPS を使用するには、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> をユーザ側で用意する必要があります。このコンテキストは、以下のいずれかの方法で作成できます。</p>
+        <ul>
+          <li>CURLOPT_SSL_CTX_FUNCTION</li>
+          <li>CURLOPT_SSL_CONTEXT</li>
+        </ul>
+        <p>CURLOPT_SSL_CTX_FUNCTION は、CURL ハンドルごとに関連付けた <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを使用する方法であり、こちらの方が容易です。CURLOPT_SSL_CONTEXT では、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを libcurl にインポートする必要があることから、CURLOPT_SSL_CTX_FUNCTION よりもいくらか多くの処理が必要になります。</p>
+        <p>詳細については、以下を参照してください。</p>
+        <h3 id="Anchor_157461290_h3_2">コールバック関数（CURLOPT_SSL_CTX_FUNCTION）</h3>
+        <p>これは、CURL ハンドルごとに関連付けた <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを使用する方法です。この方法では、CURLOPT_SSL_CTX_FUNCTION でユーザがコールバック関数を登録しておきます。libcurl では、目的の CURL ハンドルに関連付けられた <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> へのポインタを指定して、登録済みのこのコールバック関数を呼び出します。この呼び出しが発生すると、ユーザ側で <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトの作成と構成が可能です。</p>
+        <p>CURLOPT_SSL_CTX_FUNCTION オプションは、公開バージョンの libcurl に標準機能として用意されています。詳細は、<a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_CTX_FUNCTION.html">CURLOPT_SSL_CTX_FUNCTION</a> のマニュアルを参照してください。</p>
+        <h4 id="Anchor_157461290_h4_1">関数プロトタイプ</h4>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>#include &lt;curl/curl.h&gt;
+&nbsp;
+CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *userptr);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="level0">標準バージョンの libcurl とは異なり、<em><span class="emphasis">ssl_ctx</span></em> パラメータは、実際には Nintendo SSL ライブラリの nn::ssl::Context へのポインタです。これは、Libcurl に保持される nn::ssl::Context オブジェクトへのポインタであることから、このコールバック関数の中で呼び出し元が nn::ssl::Context オブジェクトをインスタンス化する必要はありません。</p>
+        <p class="level0">このコールバック関数から負の値が返された場合は CURLE_ABORTED_BY_CALLBACK が設定されています。</p>
+        <p class="level0">CURLOPT_SSL_CTX_DATA も、公開バージョンの libcurl の場合と同様にサポートされています。このオプションで設定されたデータへのポインタは、ssl_ctx_callback で userptr ポインタに渡されます。</p>
+        <h4 id="Anchor_157461290_h4_2">例</h4>
+        <p>コールバック関数を呼び出すときは、ssl_ctx 変数を <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> ポインタにキャストしたうえで、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを作成および構成する必要があります。</p>
+        <p>コールバックで作成した <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトは、curl_easy_cleanup() を呼び出すと libcurl で適切にクリーンアップされます。したがって、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトをユーザ側で破棄する必要も解放する必要もありません。</p>
+        <p>
+          <br />
+        </p>
+        <div class="expand-container" id="expander-157461290-1">
+          <div class="expand-control" id="expander-control-157461290-1">
+            <span class="expand-control-icon collapsed-icon"> </span>
+            <span class="expand-control-text">CURLOPT_SSL_CTX_FUNCTION のコード例</span>
+          </div>
+          <div class="expand-content expand-hidden" id="expander-content-157461290-1">
+            <table class="codeblock">
+              <tbody>
+                <tr>
+                  <td class="code">
+                    <div class="codeblock"><pre>static size_t CurlSslContextCallback(CURL *curl, void *ssl_ctx, void *userptr)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// CURL ハンドルに関連付けられた SSL コンテキストへのポインタを取得します
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::ssl::Context* pContext = reinterpret_cast&lt;nn::ssl::Context*&gt;(ssl_ctx);
+
+&nbsp;&nbsp;&nbsp;&nbsp;nn::Result result;
+&nbsp;&nbsp;&nbsp;&nbsp;result = pContext-&gt;Create(nn::ssl::Context::SslVersion_Auto);
+&nbsp;&nbsp;&nbsp;&nbsp;if (result.IsFailure())
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -1; // ここでエラーであることを出力
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;// CA 証明書をインポートします（オプション）
+&nbsp;&nbsp;&nbsp;&nbsp;nn::ssl::CertStoreId serverCertStoreId;
+&nbsp;&nbsp;&nbsp;&nbsp;char*                pCaCert = nullptr; // PEM フォーマットまたは DER フォーマットの CA 証明書へのポインタを設定する必要があります
+&nbsp;&nbsp;&nbsp;&nbsp;uint32_t             caCertSize = 0;    // CA 証明書のサイズを設定する必要があります
+
+&nbsp;&nbsp;&nbsp;&nbsp;result = pContext-&gt;ImportServerPki(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;serverCertStoreId,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pCaCert,                         
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sizeof(pCaCert),                 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::ssl::CertificateFormat_Pem);    // DER フォーマットの CA 証明書が pCaCert に渡された場合は nn::ssl::CertificateFormat_Der を渡してください。
+&nbsp;&nbsp;&nbsp;&nbsp;if(result.IsFailure())
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -1; // ここでエラーであることを出力
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;// クライアントの PKI 情報をインポートします（オプション）
+&nbsp;&nbsp;&nbsp;&nbsp;nn::ssl::CertStoreId clientCertStoreId;
+&nbsp;&nbsp;&nbsp;&nbsp;char*       pPkcs12Data    = nullptr; // PKCS12 フォーマットのデータへのポインタを設定する必要があります
+&nbsp;&nbsp;&nbsp;&nbsp;uint32_t    pkcs12DataSize = 0;       // この PKCS12 データのサイズを設定する必要があります
+&nbsp;&nbsp;&nbsp;&nbsp;char*       pkcs12Password = nullptr; // PKCS12 データに適切なパスワードを設定する必要があります
+&nbsp;&nbsp;&nbsp;&nbsp;uint32_t    passwordSize   = 0;       // このパスワードのサイズを設定する必要があります
+&nbsp;&nbsp;&nbsp;&nbsp;result = m_SslContext.ImportClientPki(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;clientCertStoreId,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPkcs12Data,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pkcs12Password,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pkcs12DataSize,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passwordSize);
+&nbsp;&nbsp;&nbsp;&nbsp;if(result.IsFailure())
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -1; // ここでエラーであることを出力
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;return 0;
+}</pre></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <h3 id="Anchor_157461290_h3_3">
+          <span style="color: rgb(117,117,117);">SSL コンテキスト（CURLOPT_SSL_CONTEXT）のインポート</span>
+        </h3>
+        <p>この方法では、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトを外部から取得するので、CURL ハンドルに関連付けられた <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> を使用しません。</p>
+        <p>CURL ハンドルごとにコールバックで SSL コンテキストを作成せずに、SSL コンテキストを 1 つだけ作成し、それを複数の CURL ハンドルで共有できます。この方法の長所は、同じ操作を繰り返さないようにして処理時間を短縮できる点にあります。例えば、同じ証明書を何回もインポートしないようにすることです。この方法が効果的な例として、同じドメインの中でさまざまなアセットに対して多くの要求を発行する状況があります。</p>
+        <p>複数の CURL ハンドルで SSL コンテキストを共有するには、まずアプリケーションで SSL コンテキストを作成します。続いて、各 CURL ハンドルに対し、Nintendo SDK のカスタム libcurl の CURLOPT_SSL_CONTEXT オプションを使用してその SSL コンテキストを使用することを指示します。</p>
+        <p>SSL コンテキストを作成するコードは、CURLOPT_SSL_CTX_FUNCTION コールバックで SSL コンテキストを作成する操作と同様ですが、コードのタイミングとスコープが異なります。SSL コンテキストは、最初の CURL ハンドルがそのコンテキストを使用する前に準備しておく必要があり、<strong>そのコンテキストを使用する最後の CURL ハンドルを curl_easy_cleanup() でクリーンアップするまで有効な状態で維持しておく必要があります</strong>。</p>
+        <p>CURLOPT_SSL_CTX_FUNCTION コールバックを使用する場合とは異なり、このように SSL コンテキストを共有する場合は、アプリケーション側で <span class="ApiLink_nn__ssl__Context__Destroy">nn::ssl::Context::Destroy</span>() を使用して、使用されなくなったコンテキストをクリーンアップする必要があります。</p>
+        <h4 id="Anchor_157461290_h4_3">例</h4>
+        <div class="expand-container" id="expander-157461290-2">
+          <div class="expand-control" id="expander-control-157461290-2">
+            <span class="expand-control-icon collapsed-icon"> </span>
+            <span class="expand-control-text">CURLOPT_SSL_CONTEXT のサンプルコード</span>
+          </div>
+          <div class="expand-content expand-hidden" id="expander-content-157461290-2">
+            <table class="codeblock">
+              <tbody>
+                <tr>
+                  <td class="code">
+                    <div class="codeblock"><pre>void PerformHttps()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;CURL*             pCurlHandle = nullptr;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::ssl::Context* pContext = nullptr;
+&nbsp;&nbsp;&nbsp;&nbsp;CURLcode          res = CURLE_OK;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::Result        result;
+
+&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;// libcurl を初期化し、CURL ハンドルを作成して構成します
+&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;do {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// nn::ssl::Context オブジェクトをインスタンス化します
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pContext = new nn::ssl::Context();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (pContext == nullptr)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// nn::ssl::Context オブジェクトを作成します
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = pContext-&gt;Create(nn::ssl::Context::SslVersion_Auto);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (result.IsFailure())
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 必要に応じ、nn::ssl::Context を構成します
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//     例：CA 証明書のインポート
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// nn::ssl::Context オブジェクトを CURL ハンドルに設定します
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res = curl_easy_setopt(pCurlHandle, CURLOPT_SSL_CONTEXT, pContext);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (res != CURLE_OK)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// libcurl で HTTPS を実行します
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;} while(0);
+
+&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;// CURL ハンドルを閉じます
+&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;// nn::ssl::Context オブジェクトをクリーンアップします
+&nbsp;&nbsp;&nbsp;&nbsp;if (pContext != nullptr)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pContext-&gt;Destroy();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete pContext;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;// libcurl を終了処理します
+&nbsp;&nbsp;&nbsp;&nbsp;// !!!!!!!!!!!!!!!!!!!!!
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+}
+</pre></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p>詳細については、以下の場所にあるサンプルアプリケーションを参照してください。</p>
+        <ul>
+          <li>
+            <a href="../../../Api/HtmlNX/_page_sample_libcurl_ssl_context_import.html">Samples/Sources/Applications/Libcurl/SslContextImport </a>
+          </li>
+        </ul>
+        <h2 id="Anchor_157461290_h2_3">SSL 接続の使用</h2>
+        <p>上記で説明したとおり、ユーザ側では SSL 接続を明示的に準備する必要もクリーンアップする必要もありません。<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> オブジェクトと同様に、各 CURL ハンドルには <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> オブジェクトが付属しています。このオブジェクトは libcurl の内部で自動的に使用されるので、ユーザによる扱いは不要です。</p>
+        <h3 id="Anchor_157461290_h3_4">CURLOPT_SSL_CONN_FUNCTION_BEFORE / CURLOPT_SSL_CONN_FUNCTION_AFTER</h3>
+        <p>
+          <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> オブジェクトを直接扱う必要がある場合を考慮し、libcurl では以下のオプションが用意されています。</p>
+        <ul>
+          <li>CURLOPT_SSL_CONN_FUNCTION_BEFORE</li>
+          <li>CURLOPT_SSL_CONN_FUNCTION_AFTER</li>
+        </ul>
+        <p>どちらのオプションも、<span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> クラスの DoHandshake() メソッドの前後でコールバック関数が呼び出されるよう設定するために用意されています。</p>
+        <p>SSL_CONN_DATA オプションにより、データポインタをユーザ側で CURL ハンドルに設定できます。データへのポインタは、上記のオプションで設定したコールバック関数に渡されます。以下のような、関数プロトタイプがあります。</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>typedef struct
+{
+&nbsp;&nbsp;bool isHandshakeSuccess; /* SSL ハンドシェイクが成功すると true に設定されます */
+&nbsp;&nbsp;size_t certDataSize;     /* 証明書データのサイズ */
+&nbsp;&nbsp;size_t certCount;        /* 証明書の数 */ 
+} curl_handshake_info;
+
+typedef CURLcode (*curl_ssl_conn_callback_before)(CURL *curl,     /* 簡単なハンドル */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void *ssl_conn, /* 実際は nn::ssl::Connection */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void *userptr); /* SSL_CONN_DATA で設定したデータへのポインタ */
+
+typedef CURLcode (*curl_ssl_conn_callback_after)(CURL *curl,     /* 簡単なハンドル */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void *ssl_conn, /* 実際は nn::ssl::Connection */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void *userptr,  /* SSL_CONN_DATA で設定したデータへのポインタ */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curl_handshake_info handshake_info);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>SSL ハンドシェイクを実行する前に CURLOPT_SSL_CONN_FUNCTION_BEFORE を使用して SSL 接続の詳細を構成できます。SSL ハンドシェイクの詳細を取得するには CURLOPT_SSL_CONN_FUNCTION_AFTER を使用します。</p>
+        <p>例えば、SSL ハンドシェイクの実行中に取得した証明書データを必要とする場合は、これらのコールバック関数を使用する必要があります。これは、SSL ハンドシェイクを実行する前にバッファへのポインタをユーザ側で設定する必要があり、SSL ハンドシェイク後に証明書データを取得するには、そのバッファを参照する必要があるからです。</p>
+        <p>コードの例については、以下の場所にある、libcurl の一般的な HTTPS ユーティリティコードのサンプルを参照してください。</p>
+        <ul>
+          <li>Samples/Sources/Applications/Libcurl/Common/HttpsHelper.cpp</li>
+        </ul>
+        <h2 id="Anchor_157461290_h2_4">証明書の検証</h2>
+        <p>標準バージョンの libcurl と同様に、検証オプションは、curl_easy_setopt() を使用して構成できます。詳細は、<a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a> および <a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a> のマニュアルを参照してください。</p>
+        <p>
+          <a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a> と <a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a> の両方がデフォルトで有効になっています。</p>
+        <p>Nintendo SDK の libcurl には、libcurl の既存の検証オプションのほかに、証明書の検証に関連したいくつかのオプションが用意されています。</p>
+        <ul>
+          <li>CURLOPT_SSL_VERIFYDATE</li>
+          <li>CURLOPT_SSL_SKIP_DEFAULT_VERIFY</li>
+        </ul>
+        <h4 id="Anchor_157461290_h4_4">CURLOPT_SSL_VERIFYDATE</h4>
+        <p>システムの日付を正しく設定していないユーザが多いことも考えられるので、Nintendo SDK の libcurl にはカスタムオプションとして CURLOPT_SSL_VERIFYDATE が用意されています。これにより、開発段階で日付に基づく SSL 証明書の検証失敗を防止できます。</p>
+        <p>CURLOPT_SSL_VERIFYDATA が 1 の場合、サーバーから送信される証明書が有効期限切れまたは有効期限前の場合 SSL ハンドシェークは実行されません。CURLOPT_SSL_VERIFYDATE のデフォルト値は 0 です。つまり、サーバー証明書を確認する際タイム検証が行われないことを意味します。</p>
+        <h4 id="Anchor_157461290_h4_5">例</h4>
+        <div class="expand-container" id="expander-157461290-3">
+          <div class="expand-control" id="expander-control-157461290-3">
+            <span class="expand-control-icon collapsed-icon"> </span>
+            <span class="expand-control-text">verify オプションを構成するサンプルコード</span>
+          </div>
+          <div class="expand-content expand-hidden" id="expander-content-157461290-3">
+            <table class="codeblock">
+              <tbody>
+                <tr>
+                  <td class="code">
+                    <div class="codeblock"><pre>// VERIFYPEER オプションの有効化
+if (curl_easy_setop(curlHandle, CURLOPT_SSL_VERIFYPEER, 1L) != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// ここでエラーを出力
+}
+
+// VERIFYHOST オプションの有効化
+if (curl_easy_setop(curlHandle, CURLOPT_SSL_VERIFYHOST, 2L) != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// eここでエラーを出力
+}
+
+// VERIFYDATE オプションの無効化
+if (curl_easy_setop(curlHandle, CURLOPT_SSL_VERIFYDATE, 0L) != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// ここでエラーを出力
+}</pre></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <h4 id="Anchor_157461290_h4_6">CURLOPT_SSL_SKIP_DEFAULT_VERIFY</h4>
+        <p>SSL ライブラリでは、そのデフォルトの検証オプションを無効にすることがデフォルトでは認められていません。つまり、以下の 2 つのオプションは無効にできません。</p>
+        <ul>
+          <li>
+            <a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a>
+          </li>
+          <li>
+            <a href="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a>
+          </li>
+        </ul>
+        <p>特別な理由のない限り、これらの基本的な検証オプションを無効にすることはお勧めできません。これらのオプションを無効にする必要のある場合のために（テストを目的とした場合など）、Nintendo SDK の libcurl には CURLOPT_SSL_SKIP_DEFAULT_VERIFY オプションが用意されています。</p>
+        <h4 id="Anchor_157461290_h4_7">例</h4>
+        <div class="expand-container" id="expander-157461290-4">
+          <div class="expand-control" id="expander-control-157461290-4">
+            <span class="expand-control-icon collapsed-icon"> </span>
+            <span class="expand-control-text">検証オプションを無効にするためのサンプルコード</span>
+          </div>
+          <div class="expand-content expand-hidden" id="expander-content-157461290-4">
+            <table class="codeblock">
+              <tbody>
+                <tr>
+                  <td class="code">
+                    <div class="codeblock"><pre>// デフォルトのオプションを無効にする前に CURLOPT_SSL_SKIP_DEFAULT_VERIFY オプションを有効にします
+if (curl_easy_setop(curlHandle, CURLOPT_SSL_SKIP_DEFAULT_VERIFY, 1L) != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// ここでエラーを出力
+}
+&nbsp;
+// CURLOPT_SSL_VERIFYPEER オプションの無効化
+if (curl_easy_setop(curlHandle, CURLOPT_SSL_VERIFYPEER, 0L) != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// ここでエラーを出力
+}
+&nbsp;
+// CURLOPT_SSL_VERIFYHOST オプションの無効化
+if (curl_easy_setop(curlHandle, CURLOPT_SSL_VERIFYHOST, 0L) != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// ここでエラーを出力
+}</pre></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <h2 id="Anchor_157461290_h2_5">
+          <span style="color: rgb(117,117,117);">エラー処理</span>
+        </h2>
+        <p>HTTPS 専用に返すことができる libcurl エラーがいくつかあります。詳細は以下の表を参照してください。</p>
+        <table class="wrapped">
+          <colgroup>
+            <col />
+            <col />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th style="text-align: center;">Curl のエラー</th>
+              <th style="text-align: center;">説明</th>
+            </tr>
+            <tr>
+              <td>
+                <span style="color: rgb(51,51,51);">CURLE_PEER_FAILED_VERIFICATION</span>
+              </td>
+              <td>
+                <div class="content-wrapper">
+                  <p>SSL ハンドシェイクでサーバの検証に失敗しました。</p>
+                  <p>
+                    <br />
+                  </p>
+                  <p>
+                    <strong>CURLINFO_SSL_VERIFYRESULT</strong>
+                  </p>
+                  <p>公開バージョンの libcurl の標準機能として用意されている CURLINFO_SSL_VERIFYRESULT で詳細な情報を取得できます。Nintendo SDK の libcurl では、ssl_Result.public.h で定義されている <span class="ApiLink_nn__Result">nn::Result</span> の形式に変換できる値が CURLINFO_SSL_VERIFYRESULT で得られます。この変換を実行するには、<span class="ApiLink_nn__ssl__GetSslResultFromValue">nn::ssl::GetSslResultFromValue</span>() を呼び出してください。</p>
+                  <p>
+                    <br />
+                  </p>
+                  <p>CURLINFO_SSL_VERIFYRESULT として維持されている値は、SSL ハンドシェイクの実行直前に必ず 0 にリセットされます。</p>
+                  <table class="codeblock">
+                    <tbody>
+                      <tr>
+                        <td class="code">
+                          <div class="codeblock"><pre>CURLcode res          = CURLE_OK;
+long     verifyResult = 0;
+
+res = curl_easy_getinfo(curl, CURLINFO_SSL_VERIFYRESULT, &amp;verifyResult);
+if (res != CURLE_OK)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;curl_easy_getinfo - CURLINFO_SSL_VERIFYRESULT failed:%d\n&quot;, res);
+}
+else
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::Result tmpResult;
+&nbsp;&nbsp;&nbsp;&nbsp;if (nn::ssl::GetSslResultFromValue(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;tmpResult,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reinterpret_cast&lt;char*&gt;(&amp;verifyResult),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sizeof(verifyResult)).IsSuccess())
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;CURLINFO_SSL_VERIFYRESULT:%d\n&quot;, tmpResult.GetDescription());
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;else
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;Failed to convert SSL result.\n&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span style="color: rgb(51,51,51);">CURLE_SSL_CONNECT_ERROR</span>
+              </td>
+              <td>
+                <p>SSL ハンドシェイクを完了できませんでした。このエラーが返される状況としていくつかが考えられます（何らかの理由でバックエンド TCP 接続がまだ確立されていない場合、ホスト名の設定に失敗した場合、SSL ハンドシェイク中に TCP 接続がサーバ側で閉じられた場合など）。</p>
+                <p>
+                  <br />
+                </p>
+                <p>
+                  <strong>
+                    <span style="color: rgb(51,51,51);">CURLINFO_SSL_HANDSHAKE_RESULT</span>
+                  </strong>
+                </p>
+                <p>SSL ハンドシェイク中にこの問題が発生した場合は、Nintendo の libcurl にのみ用意されている curl 情報オプション <span style="color: rgb(51,51,51);">CURLINFO_SSL_HANDSHAKE_RESULT で詳細な情報を取得できます。 CURLINFO_SSL_HANDSHAKE_RESULT は、上記の CURLINFO_SSL_VERIFYRESULT と同じ方法で使用できます。 CURLINFO_SSL_HANDSHAKE_RESULT に 0 が設定されている場合は、SSL ハンドシェイクを実行する前に何らかの障害が発生していることを意味します。 この場合、その CURL ハンドルを閉じ、curl プロセスを初めからやり直すことをお勧めします。</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span style="color: rgb(51,51,51);">CURLE_SSL_CACERT</span>
+              </td>
+              <td>
+                <p>証明書ストアでサーバの CA 証明書が見つからなかったため、サーバ証明書を検証できませんでした。</p>
+                <p>組み込み証明書ストアにない CA 証明書を使用しているサーバとの間で SSL ハンドシェイクを実行すると、このエラーが返される傾向があります。</p>
+                <p>
+                  <br />
+                </p>
+                <p>該当の CA 証明書を <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> でインポートすると、この問題を解決できることがあります。</p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span style="color: rgb(51,51,51);">CURLE_SSL_CERTPROBLEM</span>
+              </td>
+              <td>
+                <p>想定されているクライアント証明書がインポートされなかったため、SSL ハンドシェイクを完了できませんでした。</p>
+                <p>
+                  <br />
+                </p>
+                <p>適切なクライアント PKI を <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> でインポートすると、この問題を解決できることがあります。</p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>CURLE_SSL_CTX_FUNCTION_NOT_SET</p>
+                <p>（Nintendo 固有）</p>
+              </td>
+              <td>nn::ssl::Context がインポートされていないにもかかわらずコールバック関数が設定されていないため、HTTPS を開始できませんでした。</td>
+            </tr>
+            <tr>
+              <td>
+                <p>CURLE_SSL_CTX_INVALID</p>
+                <p>（Nintendo 固有）</p>
+              </td>
+              <td>nn::ssl::Context が nn::ssl::Context::Create() で作成されていないため、HTTPS を開始できませんでした。</td>
+            </tr>
+            <tr>
+              <td>
+                <p>CURLE_SSL_CTX_FATAL</p>
+                <p>（Nintendo 固有）</p>
+              </td>
+              <td rowspan="2">内部エラーが発生したため、HTTPS を開始できませんでした。致命的エラーとして扱い、libcurl および SSL ライブラリをクリーンアップしてください（libcurl 外部で初期化している場合）。内部エラーが発生したため、HTTPS を開始できませんでした。致命的エラーとして扱い、libcurl および SSL ライブラリ（libcurl 外部で初期化している場合）をクリーンアップしてください。</td>
+            </tr>
+            <tr>
+              <td>
+                <p>CURLE_SSL_INVALID_REFERENCE</p>
+                <p>（Nintendo 固有）</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__ssl__Context', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_context.html' )
+SetUrl( 'ApiLink_nn__ssl__Initialize', '../../../Api/HtmlNX/namespacenn_1_1ssl.html#aaa943d1a4363d560d45d53dfa2182683' )
+SetUrl( 'ApiLink_nn__ssl__Finalize', '../../../Api/HtmlNX/namespacenn_1_1ssl.html#a56d990644d149228c45f0c5ece11a9d9' )
+SetUrl( 'ApiLink_nn__ssl__Connection', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html' )
+SetUrl( 'ApiLink_nn__ssl__Context__Destroy', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_context.html#a99a0b8026a5495ad0ba2540010a6c533' )
+SetUrl( 'ApiLink_nn__Result', '../../../Api/HtmlNX/classnn_1_1_result.html' )
+SetUrl( 'ApiLink_nn__ssl__GetSslResultFromValue', '../../../Api/HtmlNX/namespacenn_1_1ssl.html#a2abf903b13b976d609303079719504a6' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

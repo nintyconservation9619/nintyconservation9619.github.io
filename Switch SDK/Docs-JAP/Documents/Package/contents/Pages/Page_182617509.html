@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>LightEvent クラス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- LightEvent クラス -->
+<div class="pagetitle" id="PageId_182617509">LightEvent クラス</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_182617509_h1_1">LightEvent クラス</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_182617509_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_182617509_h2_2">LightEvent クラスの使用例</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_182617509_h1_1">LightEvent クラス</h1>
+<h2 id="Anchor_182617509_h2_1">機能概要</h2>
+<p>
+  <span class="ApiLink_nn__os__LightEvent">nn::os::LightEvent</span> クラスは、1bit （二値）のシグナル状態／非シグナル状態によってスレッド間で同期を行なうための機能です。</p>
+<p>
+  <span class="ApiLink_nn__os__LightEvent">nn::os::LightEvent</span> クラスは、<span class="ApiLink_nn__os__LightEventType">nn::os::LightEventType</span> オブジェクトを利用した <a href="../Pages/Page_182617471.html">軽量イベント機能</a> をラッピングしたもので以下のメンバ関数を持ちます。API リファレンスはリンク先を参照して下さい。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>名前</th>
+      <th>説明</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td>LightEvent</td>
+      <td>コンストラクタ</td>
+      <td>
+        <span class="ApiLink_nn__os__InitializeLightEvent">nn::os::InitializeLightEvent</span>() 同等の初期化を実行</td>
+    </tr>
+    <tr>
+      <td>~LightEvent</td>
+      <td>デストラクタ</td>
+      <td>
+        <span class="ApiLink_nn__os__FinalizeLightEvent">nn::os::FinalizeLightEvent</span>() 同等の破棄を実行</td>
+    </tr>
+    <tr>
+      <td>Wait</td>
+      <td>イベントの待機</td>
+      <td>
+        <span class="ApiLink_nn__os__WaitLightEvent">nn::os::WaitLightEvent</span>() 同等のイベントの待機</td>
+    </tr>
+    <tr>
+      <td>TryWait</td>
+      <td>イベントのポーリング</td>
+      <td>nn::os::TryWaitLightEvent() 同等のイベントのポーリング</td>
+    </tr>
+    <tr>
+      <td>TimedWait</td>
+      <td>イベントの時限付き待機</td>
+      <td>
+        <span class="ApiLink_nn__os__TimedWaitLightEvent">nn::os::TimedWaitLightEvent</span>() 同等のイベントの時限付き待機</td>
+    </tr>
+    <tr>
+      <td>Signal</td>
+      <td>イベントのシグナル化</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__os__SignalLightEvent">nn::os::SignalLightEvent</span>() 同等のイベントのシグナル化</p>
+      </td>
+    </tr>
+    <tr>
+      <td>Clear</td>
+      <td>イベントの非シグナル化</td>
+      <td>
+        <span class="ApiLink_nn__os__ClearLightEvent">nn::os::ClearLightEvent</span>() 同等のイベントの非シグナル化</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_182617509_h2_2">LightEvent クラスの使用例</h2>
+<p>ここでは例として、<span class="ApiLink_nn__os__LightEvent">nn::os::LightEvent</span> クラスを使った StickyLightEvent クラスを実装します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="k">class</span> <span class="nc">StickyLightEvent</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+ &nbsp; &nbsp;<span class="n">StickyLightEvent</span><span class="p">()</span> <span class="o">:</span> <span class="n">m_LightEvent</span><span class="p">(</span><span class="nn">nn::os::</span><span class="n">EventClearMode_ManualClear</span><span class="p">)</span> <span class="p">{}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span> <span class="n">Wait</span><span class="p">()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">m_LightEvent</span><span class="p">.</span><span class="n">Wait</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span> <span class="n">Set</span><span class="p">()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">m_LightEvent</span><span class="p">.</span><span class="n">Signal</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+ &nbsp; &nbsp;<span class="kt">bool</span> <span class="n">IsSignaled</span><span class="p">()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">m_LightEvent</span><span class="p">.</span><span class="n">TryWait</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">LightEvent</span>   <span class="n">m_LightEvent</span><span class="p">;</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>StickyLightEvent クラスは、１度セットしたらクリアすることの出来ない 1bit のイベントフラグを提供する機能です。インスタンス化したオブジェクトが破棄されるまで状態が残ります。</p>
+<p>コンストラクタにて m_LightEvent を初期化しています。クリアモードを Manual にすることで自動的にクリアされないようにします。</p>
+<p>Wait() はイベントがセットされるまで待機する関数です。複数のスレッドが同時に待機することも出来ます。イベントが既にセットされている状態では待機せずに即座にリターンします。</p>
+<p>Set() はイベントをセットする関数です。一度セットするとこのイベントはもうクリアすることは出来ません。複数のスレッドが待機している状態で Set() を発行した場合は、それら全てのスレッドが待ち解除されます。</p>
+<p>IsSignaled() はイベントの状態を返す関数です。イベントが既にセットされていれば true を、そうでなければ false を返します。</p>
+<p>このような StickyLightEvent 機能は、オブジェクトやモジュールの初期化を行なう場合などに使用されることがあります。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__LightEvent', '../../../Api/HtmlNX/classnn_1_1os_1_1_light_event.html' )
+SetUrl( 'ApiLink_nn__os__LightEventType', '../../../Api/HtmlNX/structnn_1_1os_1_1_light_event_type.html' )
+SetUrl( 'ApiLink_nn__os__InitializeLightEvent', '../../../Api/HtmlNX/namespacenn_1_1os.html#af5900620f2a25ffdd500d7fbcba5fe26' )
+SetUrl( 'ApiLink_nn__os__FinalizeLightEvent', '../../../Api/HtmlNX/namespacenn_1_1os.html#a88b4a0191e818ad124b28b818349f072' )
+SetUrl( 'ApiLink_nn__os__WaitLightEvent', '../../../Api/HtmlNX/namespacenn_1_1os.html#a148036d27d59d8b674c3f1b7579aa5c9' )
+SetUrl( 'ApiLink_nn__os__TimedWaitLightEvent', '../../../Api/HtmlNX/namespacenn_1_1os.html#a6aeea3ec3d35c57cd757b4a3d2ff7273' )
+SetUrl( 'ApiLink_nn__os__SignalLightEvent', '../../../Api/HtmlNX/namespacenn_1_1os.html#a07e40a45392d6eb98e2ca635bc0c3506' )
+SetUrl( 'ApiLink_nn__os__ClearLightEvent', '../../../Api/HtmlNX/namespacenn_1_1os.html#ab236036e46ae861732a4c6418b63ec01' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

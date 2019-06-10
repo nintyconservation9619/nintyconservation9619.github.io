@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダーランタイムフロー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダーランタイムフロー -->
+<div class="pagetitle" id="PageId_286721547">シェーダーランタイムフロー</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_286721547_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_286721547_h1_2">クラス</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_286721547_h2_1">リソースクラス</a>
+      </li>
+      <li>
+        <a href="#Anchor_286721547_h2_2">インスタンスクラス</a>
+      </li>
+      <li>
+        <a href="#Anchor_286721547_h2_3">ユーティリティクラス</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_286721547_h1_3">処理フロー</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_286721547_h2_4">初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_286721547_h2_5">描画に使用するシェーダープログラムの更新</a>
+      </li>
+      <li>
+        <a href="#Anchor_286721547_h2_6">描画</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_286721547_h1_1">概要</h1>
+<p>ここでは g3d ランタイムのシェーダー関連のクラスの説明と、簡単な処理フローの概要説明を行います。具体的なコード例による解説は「<a href="../Pages/Page_204215072.html">モデルを描画する</a>」を確認して下さい。</p>
+<h1 id="Anchor_286721547_h1_2">クラス</h1>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1g3d.html">nn::g3d</a> のシェーダー関連の主なクラスを説明します。</p>
+<h2 id="Anchor_286721547_h2_1">リソースクラス</h2>
+<p>シェーダーアーカイブファイルの内部構造を表現するクラスです。&nbsp;</p>
+<h3 id="Anchor_286721547_h3_1">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html">nn::g3d::ResShaderFile</a>
+</h3>
+<p>シェーダーアーカイブのバイナリーヘッダーや文字列プールなどの管理リソースと&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html" rel="nofollow">nn::g3d::ResShaderArchive</a>&nbsp;のポインタを保持します。ランタイムをシェーダーアーカイブファイルをロードする際に <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html#a39a1802d90e4a26b504d97710bfdca5a">nn::g3d::ResShaderFile::ResCast()</a> でキャストした後、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html#a6ca625333d1fb3f4b903d0ee4533666c">nn::g3d::ResShaderFile::Setup()</a> でリソース全体のセットアップを行います。</p>
+<h3 id="Anchor_286721547_h3_2">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html">nn::g3d::ResShaderArchive</a>
+</h3>
+<p>シェーダーアーカイブ本体を表すリソースクラスです。一つ、または複数の <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html" rel="nofollow">nn::g3d::ResShadingModel</a>&nbsp;のポインタを保持します。</p>
+<h3 id="Anchor_286721547_h3_3">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html">nn::g3d::ResShadingModel</a>
+</h3>
+<p>シェーディングモデルを表すリソースクラスです。一つ、または複数の <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>&nbsp;や <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_uniform_block_var.html">nn::g3d::ResUniformBlockVar</a>、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_sampler_var.html">nn::g3d::ResSamplerVar</a>、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_option.html">nn::g3d::ResShaderOption</a>、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_attr_var.html">nn::g3d::ResAttrVar</a> 等へのポインタを保持します。シェーダーアノテーションで記述したバリエーションの選択や頂点属性のロケーションの取得を行います。</p>
+<h3 id="Anchor_286721547_h3_4">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>
+</h3>
+<p>シェーダーバリエーションを表すリソースクラスです。一つの&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_variation.html" rel="nofollow">nn::gfx::ResShaderVariation</a>&nbsp;のポインタを保持します。シェーダーアノテーションで記述したサンプラー、ユニフォームブロック、シェーダーストレージブロックのロケーションの取得や GPU へのロードを行います。</p>
+<h2 id="Anchor_286721547_h2_2">インスタンスクラス</h2>
+<p>インスタンスクラスは、描画に使用するバリエーション (<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>) を決定するために利用します。バリエーションを決定するためのオプション変数の type に応じた二つのクラスが存在します。オプション変数の type については&nbsp;<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>&nbsp;の「オプション変数のタイプ」を確認して下さい。</p>
+<h3 id="Anchor_286721547_h3_5">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a>
+</h3>
+<p>描画に使用する <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>&nbsp;の決定と更新を行うクラスです。type が dynamic なオプション変数により決定されるバリエーションを表すシェーダーキーを保持します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj</a> のポインタを保持し、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj </a>の上位層に位置します。</p>
+<h3 id="Anchor_286721547_h3_6">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj</a>
+</h3>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;は、type が static なオプション変数に対応するバリエーションの範囲を決定します。また、ユニフォーム変数分岐 (branch が true のオプション変数による分岐) を実現するために、オプションユニフォームブロックバッファの更新を行います。</p>
+<h2 id="Anchor_286721547_h2_3">ユーティリティクラス</h2>
+<h3 id="Anchor_286721547_h3_7">
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_utility.html">nn::g3d::ShaderUtility</a>
+</h3>
+<p>モデルリソースのマテリアル情報を元にしたシェーダーインスタンスの初期化や、シェーダーリソースのマテリアルユニフォームブロック情報からモデルのマテリアル設定を行う static 関数を提供します。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>関数</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_utility.html#ad580b2ac794fb58d7d320dff65eb1f79">nn::g3d::ShaderUtility::InitializeShaderKey()</a>
+      </td>
+      <td>モデルリソースのマテリアルの <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html">nn::g3d::ResShaderAssign</a> のオプション変数情報を元に <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;のシェーダーキーを初期化します。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_utility.html#a26b394ba1043958e5f64a6d6f25efe9b">nn::g3d::ShaderUtility::BindShaderParam()</a>
+      </td>
+      <td>モデルリソースのマテリアルに、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;が持つマテリアルユニフォームブロックのサイズと各ユニフォーム変数のオフセットを関連付けます。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_utility.html#abf73a987c98be174ebcc853e49ed072f">nn::g3d::ShaderUtility::InitializeShaderParam()</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html">nn::g3d::MaterialObj</a> が保持するシェーダーパラメーター値に、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html" rel="nofollow">nn::g3d::ResShadingModel</a>&nbsp;がもつユニフォームブロックの初期値を設定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_286721547_h1_3">処理フロー</h1>
+<p>シェーダーアーカイブファイルのロードからシェーダーを使用した描画までのフローを説明します。</p>
+<h2 id="Anchor_286721547_h2_4">初期化</h2>
+<h3 id="Anchor_286721547_h3_8">シェーダーアーカイブの初期化</h3>
+<p>ロードしたシェーダーアーカイブファイルを <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html">nn::g3d::ResShaderFile</a> にキャストした後、初期化します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html#ab2a9392d9a139efe97b011ac5aec96c4">nn::g3d::ResShaderFile::GetResShaderArchive()</a> でシェーダーアーカイブの本体である <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html" rel="nofollow">nn::g3d::ResShaderArchive</a>&nbsp;を取得します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ユーザーの実装でファイルをロード
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">pFile</span> <span class="o">=</span> <span class="n">LoadFile</span><span class="p">(</span><span class="s">&quot;ShaderArchive.bfsha&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;
+<span class="c1">// ファイルのポインタを nn::g3d::ResShaderFile::ResCast() を使用してキャスト
+</span><span class="nn">nn::g3d::</span><span class="n">ResShaderFile</span><span class="o">*</span> <span class="n">pResShaderFile</span> <span class="o">=</span> <span class="nn">nn::g3d::ResShaderFile::</span><span class="n">ResCast</span><span class="p">(</span><span class="n">pFile</span><span class="p">);</span>
+&nbsp;
+<span class="c1">// nn::g3d::ResShaderFile のセットアップ
+</span><span class="n">pResShaderFile</span><span class="o">-&gt;</span><span class="n">Setup</span><span class="p">(</span><span class="n">pDevice</span><span class="p">);</span>
+&nbsp;&nbsp;
+<span class="c1">// nn::g3d::ResShaderArchive を取得
+</span><span class="nn">nn::g3d::</span><span class="n">ResShaderArchive</span> <span class="n">pResShaderArchive</span> <span class="o">=</span> <span class="n">pResShaderFile</span><span class="o">-&gt;</span><span class="n">GetResShaderArchive</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_9">モデルリソースのシェーダーパラメーターを初期化</h3>
+<p>シェーディングモデルのマテリアルユニフォームブロックを元に、モデルリソースのシェーダーパラメーターを初期化します。</p>
+<p>
+  <span style="color: rgb(33,33,33);">シェーディングモデルが持つマテリアルユニフォームブロックの情報 (オフセットやサイズなど) をモデルに反映します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_utility.html#a26b394ba1043958e5f64a6d6f25efe9b">nn::g3d::ShaderUtility::BindShaderParam()</a><span style="color: rgb(33,33,33);">&nbsp;を利用することでまとめて設定が可能です。</span></span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// モデルのマテリアルに指定されている名前の nn::g3d::ResShaderArchive を取得
+</span><span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">ResShaderAssign</span><span class="o">*</span> <span class="n">pResShaderAssign</span> <span class="o">=</span> <span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">GetShaderAssign</span><span class="p">();</span>
+<span class="nn">nn::g3d::</span><span class="n">ResShadingModel</span><span class="o">*</span> <span class="n">pResShadingModel</span> <span class="o">=</span> <span class="n">pResShaderArchive</span><span class="o">-&gt;</span><span class="n">FindShadingModel</span><span class="p">(</span><span class="n">pResShaderAssign</span><span class="o">-&gt;</span><span class="n">GetShadingModelName</span><span class="p">());</span>
+
+
+<span class="c1">// モデルのマテリアルリソースに、nn::g3d::ResShadingModel が持つマテリアルユニフォームブロックのサイズと各ユニフォーム変数のオフセットを設定
+</span><span class="nn">nn::g3d::ShaderUtility::</span><span class="n">BindShaderParam</span><span class="p">(</span><span class="n">pResMaterial</span><span class="p">,</span> <span class="n">pResShadingModel</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />マテリアルユニフォーム変数のアノテーションに converter を設定している場合は、モデルリソースの <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html">nn::g3d::ResShderParam</a> に変換コールバックを設定することができます。コールバックを使用することで <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html#acb09821f66b8cc37c265e6b8207dea33">nn::g3d::MaterialObj::CalculateMaterial()</a> でライブラリー内でマテリアルユニフォームブロック変数を計算する際にユーザー独自の変換計算に置き換えることができます。詳しくは<a href="../Pages/Page_106332818.html">ユニフォームブロック</a>のマテリアルを参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// モデルマテリアルのシェーダーパラメータを取得
+</span><span class="nn">nn::g3d::</span><span class="n">ResShaderParam</span><span class="o">*</span> <span class="n">pResShaderParam</span> <span class="o">=</span> <span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">GetShaderParam</span><span class="p">(</span><span class="n">shaderParamIndex</span><span class="p">);</span>
+
+<span class="c1">// アノテーションで指定したコンバーター名を取得
+</span><span class="kt">int</span> <span class="n">materialBlockIndex</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetSystemBlockIndex</span><span class="p">(</span><span class="nn">nn::g3d::ResUniformBlockVar::</span><span class="n">Type_Material</span><span class="p">);</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pConverter</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetUniformBlock</span><span class="p">(</span><span class="n">materialBlockIndex</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">FindUniform</span><span class="p">(</span><span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">())</span><span class="o">-&gt;</span><span class="n">GetConverter</span><span class="p">();</span>
+
+<span class="c1">// コンバーター名が一致していた場合は独自の変換計算コールバック関数をセットする。
+// 毎フレーム変換処理を行いたい場合は、nn::g3d::ResMaterial::SetVolatile() で毎フレーム変換処理が行われるように設定する。
+</span><span class="k">if</span> <span class="p">(</span><span class="n">pConverter</span> <span class="o">&amp;&amp;</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">pConverter</span><span class="p">,</span> <span class="s">&quot;texsrt_ex&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">SetConvertShaderParamCallback</span><span class="p">(</span><span class="nn">nn::g3d::ResShaderParam::</span><span class="n">ConvertTexSrtExCallback</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">SetVolatile</span><span class="p">(</span><span class="n">shaderParamIndex</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_10">nn::g3d::ShadingModelObj を初期化</h3>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;を初期化します。ShadingModelObj は static なオプション変数で決定されるバリエーション範囲を管理するシェーダーキーを保持します。モデルのマテリアルの設定によってバリエーション範囲は異なるので、マテリアルの数だけ初期化する必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// nn::g3d::ResShadinModel を元に nn::g3d::ShadingModelObj::Builder を作成
+</span><span class="nn">nn::g3d::ShadingModelObj::</span><span class="n">Builder</span> <span class="n">builder</span><span class="p">(</span><span class="n">pResShadingModel</span><span class="p">);</span>
+
+
+<span class="c1">// nn::g3d::ShadingModelObj を初期化
+</span><span class="nn">nn::g3d::</span><span class="n">ShadingModelObj</span> <span class="n">shadingModelObj</span><span class="p">;</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::g3d::ShadingModelObj 内のバッファサイズを計算
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">builder</span><span class="p">.</span><span class="n">CalculateMemorySize</span><span class="p">();</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::g3d::ShadingModelObj 内のバッファを確保
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">alignment</span> <span class="o">=</span> <span class="nn">nn::g3d::ShadingModelObj::</span><span class="n">Alignment_Buffer</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">bufferSize</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="n">GetWorkMemorySize</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="n">Allocate</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">,</span> <span class="n">alignment</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 初期化
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shadingModelObj</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// nn::g3d::ShadingModelObj のオプションユニフォームブロックのバッファーの初期化
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">shadingModelObj</span><span class="p">.</span><span class="n">CalculateBlockBufferSize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">ptrdiff_t</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">AllocateMemoryPool</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">shadingModelObj</span><span class="p">.</span><span class="n">GetBlockBufferAlignment</span><span class="p">(</span><span class="n">pDevice</span><span class="p">));</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">shadingModelObj</span><span class="p">.</span><span class="n">SetupBlockBuffer</span><span class="p">(</span><span class="n">pDevice</span><span class="p">,</span> <span class="n">GetMemoryPool</span><span class="p">(),</span> <span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_11">static シェーダーキーを初期化</h3>
+<p>モデルリソースの <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html">nn::g3d::ResShaderAssign</a> に登録されている static オプションの値を、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;に反映させて static シェーダーキーを初期化します。その後シェーダーキーを元に、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#a7344a8679fb60796cb12e788a215499b">nn::g3d::ShadingModelObj::UpdateShaderRange()</a> でプリプロセッサー分岐の static オプションを元にシェーダープログラムの範囲を更新し、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#a64b7fb97ce4d006bb694c8cd5d5a57a5">nn::g3d::ShadingModelObj::CalculateOptionBlock()</a> でユニフォーム変数分岐の static オプションの値を元にオプションユニフォームブロックのバッファーを更新します。static オプションの値はモデルリソースの <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html">nn::g3d::ResShaderAssign</a>&nbsp;で静的に設定されているため、基本的に一度シェーダーキーを初期化してUpdateShaderRange() と CalculateOptionBlock() で反映しておけば、毎フレームシェーダーキーの更新を行う必要はありません。ただし、ここで初期化されたユニフォーム変数分岐のオプションユニフォームブロックのバッファーの値は毎フレームシェーダーにセットする必要があることに注意してください。プリプロセッサー分岐とユニフォーム変数分岐の詳細は<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>を確認していください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ResShaderAssign のオプション変数の値を元に static シェーダーキーを初期化
+</span><span class="nn">nn::g3d::ShaderUtility::</span><span class="n">InitializeShaderKey</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shadingModelObj</span><span class="p">,</span> <span class="n">pResShaderAssign</span><span class="p">);</span>
+
+
+<span class="c1">// プリプロセッサー分岐 (branch が false) のオプション変数に対応するシェーダープログラムの範囲を更新
+</span><span class="n">shadingModelObj</span><span class="p">.</span><span class="n">UpdateShaderRange</span><span class="p">();</span>
+
+
+<span class="c1">// ユニフォーム変数分岐 (branch が true) のオプション変数に対応するユニフォームブロックバッファを更新
+</span><span class="n">shadingModelObj</span><span class="p">.</span><span class="n">CalculateOptionBlock</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_12">nn::g3d::ShaderSelector を作成</h3>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;を元に <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a> を初期化します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a>&nbsp;は dynamic オプションを元にしたシェーダーキーを管理するクラスです。<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;はマテリアル別に作成しますが、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a>&nbsp;は dynamic オプションで操作する粒度(シェイプ等のより細かい単位) で作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// nn::g3d::ShadingModelObj を元に nn::g3d::ShaderSelector::Builder を作成
+</span><span class="nn">nn::g3d::ShaderSelector::</span><span class="n">Builder</span> <span class="n">builder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shadingModelObj</span><span class="p">);</span>
+
+
+<span class="c1">// nn::g3d::ShaderSelector を初期化
+</span><span class="nn">nn::g3d::</span><span class="n">ShaderSelector</span> <span class="n">shaderSelector</span><span class="p">;</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::g3d::ShadingModelObj 内のバッファサイズを計算
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">builder</span><span class="p">.</span><span class="n">CalculateMemorySize</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::g3d::ShadingModelObj 内のバッファを確保
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">alignment</span> <span class="o">=</span> <span class="nn">nn::g3d::ShaderSelector::</span><span class="n">Alignment_Buffer</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">bufferSize</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="n">GetWorkMemorySize</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="n">Allocate</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">,</span> <span class="n">alignment</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 初期化
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="n">shaderSelector</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_286721547_h2_5">描画に使用するシェーダープログラムの更新</h2>
+<h3 id="Anchor_286721547_h3_13">dynamic シェーダーキーの更新</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a>&nbsp;が管理する dynamic シェーダーキーを更新します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a>&nbsp;で管理する dynamic シェーダーキーはランライムで任意のタイミングで更新することができます。ただ、ここで更新できるのはプリプロセッサー分岐の dynamic オプションに関するものだけです。ユニフォーム分岐の dynamic オプションはデフォルト値に固定されているため、値を更新することができません。詳細は<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>の「ユニフォーム変数分岐の dynamic オプションの場合」を確認して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ShaderSelector からオプション変数名引きでオプション変数のインデックスを取得
+</span><span class="kt">int</span> <span class="n">optionIndex</span> <span class="o">=</span> <span class="n">pShaderSelector</span><span class="o">-&gt;</span><span class="n">FindDynamicOptionIndex</span><span class="p">(</span><span class="n">pOptonName</span><span class="p">);</span>
+
+
+<span class="c1">// nn::g3d::ResShaderOption を取得
+</span><span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">ResShaderOption</span><span class="o">*</span> <span class="n">pResShaderOption</span> <span class="o">=</span> <span class="n">pShaderSelector</span><span class="o">-&gt;</span><span class="n">GetDynamicOption</span><span class="p">(</span><span class="n">optionIndex</span><span class="p">);</span>
+
+
+<span class="c1">// 更新したいオプションの値を文字列で指定し、指定した値に対応する choice のインデックスを取得
+</span><span class="kt">int</span> <span class="n">choiceIndex</span> <span class="o">=</span> <span class="n">pResShaderOption</span><span class="o">-&gt;</span><span class="n">FindChoiceIndex</span><span class="p">(</span><span class="s">&quot;true&quot;</span><span class="p">);</span>
+
+
+<span class="c1">// ShaderSelector のシェーダーキーを更新
+</span><span class="n">pShaderSelector</span><span class="o">-&gt;</span><span class="n">WriteDynamicKey</span><span class="p">(</span><span class="n">optionIndex</span><span class="p">,</span> <span class="n">choiceIndex</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_14">使用するシェーダープログラムを決定</h3>
+<p>シェーダーキーを更新した後、シェーダーキーが対応するシェーダープログラムを決定します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html#a79873e8ffad5ccd81bc0373f11bf7a44">ShaderSelector::UpdateVariation()</a> を呼ぶことで、ShaderSelector が内部で保持するシェーダープログラムのポインタが更新されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// シェーダーキーに応じたシェーダープログラムに更新
+</span><span class="n">pShaderSelector</span><span class="o">-&gt;</span><span class="n">UpdateVariation</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_286721547_h2_6">描画</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>&nbsp;や頂点ステート、サンプラーやユニフォームブロックをセットした後、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_mesh.html#a173bc09329f2ceac966449db0fc95002">nn::g3d::ResMesh::Draw()</a> で描画を行います。</p>
+<h3 id="Anchor_286721547_h3_15">シェーダーをコマンドバッファーにロード</h3>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ad74fda291355558a5ff65c61c43a02ab" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;と <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a>&nbsp;によって決定された <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>&nbsp;をコマンドバッファーにセットします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// シェーダーキーに対応した ShaderProgram を取得する
+</span><span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">ResShaderProgram</span><span class="o">*</span> <span class="n">pResShaderProgram</span> <span class="o">=</span> <span class="n">pShaderSelector</span><span class="o">-&gt;</span><span class="n">GetProgram</span><span class="p">();</span>
+<span class="n">pResShaderProgram</span><span class="o">-&gt;</span><span class="n">Load</span><span class="p">(</span><span class="n">pCommandBuffer</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_16">サンプラーをコマンドバッファーにロード</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html#a230aa75c74402d3c287ff42b4a1b036d">nn::g3d::ShaderProgram::GetSamplerLocation()</a> でサンプラーのロケーションを取得して、コマンドバッファーにセットします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 頂点ステージのサンプラーロケーションを取得してコマンドバッファーにセット
+</span><span class="kt">int</span> <span class="n">locationVertexShader</span> <span class="o">=</span> <span class="n">pResShaderProgram</span><span class="o">-&gt;</span><span class="n">GetSamplerLocation</span><span class="p">(</span><span class="n">samplerIndex</span><span class="p">,</span> <span class="nn">nn::g3d::</span><span class="n">Stage_Vertex</span><span class="p">);</span>
+
+<span class="c1">// ロード。textureDescriptorSlot と samplerDescriptorSlot はアプリケーション側で管理する必要がある
+</span><span class="k">if</span> <span class="p">(</span><span class="n">locationVertexShader</span> <span class="o">!=</span> <span class="nn">nn::g3d::</span><span class="n">ShaderLocationNone</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCommandBuffer</span><span class="o">-&gt;</span><span class="n">SetTextureAndSampler</span><span class="p">(</span><span class="n">locationVertexShader</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">ShaderStage_Vertex</span><span class="p">,</span> <span class="n">textureDescriptorSlot</span><span class="p">,</span> <span class="n">samplerDescriptorSlot</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_286721547_h3_17">ユニフォームブロックをコマンドバッファーにロード</h3>
+<p>スケルトン、シェイプ、マテリアル、オプションユニフォームブロックのインデックスを <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html#a803bbe3a64aca7e4a53a803e0b3e4c56">nn::g3d::ResShadingModel::GetSystemBlockIndex()</a> で取得したあと、ロケーションを <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html#ac913291aa562765be2d267a4c5829b92">nn::g3d::ResShaderProgram::GetUniformBlockLocation()</a> で取得し、各モデルインスタンスのユニフォームブロックバッファーの値をコマンドバッファーにセットします。以下は、マテリアルユニフォームブロックを頂点ステージにセットする例です。マテリアルは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html">nn::g3d::MaterialObj</a>、シェイプは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html">nn::g3d::ShapeObj</a>、スケルトンは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html">nn::g3d::SkeletonObj</a>、オプションは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj</a> で管理されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// マテリアルユニフォームブロックのインデックスを取得
+</span><span class="kt">int</span> <span class="n">materialUniformBlockIndex</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetSystemBlockIndex</span><span class="p">(</span><span class="nn">nn::g3d::ResUniformBlockVar::</span><span class="n">Type_Material</span><span class="p">);</span>
+
+
+<span class="c1">// MaterialObj で計算後のユニフォームブロックバッファーを取得
+</span><span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">MaterialObj</span><span class="o">*</span> <span class="n">pMaterialObj</span> <span class="o">=</span> <span class="n">pModelObj</span><span class="o">-&gt;</span><span class="n">GetMaterial</span><span class="p">(</span><span class="n">pShapeObj</span><span class="o">-&gt;</span><span class="n">GetMaterialIndex</span><span class="p">());</span>
+<span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">Buffer</span><span class="o">*</span> <span class="n">pMaterialUniformBlock</span> <span class="o">=</span> <span class="n">pMaterialObj</span><span class="o">-&gt;</span><span class="n">GetMaterialBlock</span><span class="p">(</span><span class="n">bufferIndex</span><span class="p">);</span>
+
+
+<span class="k">if</span> <span class="p">(</span><span class="n">materialUniformBlockIndex</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">pMaterialObj</span><span class="o">-&gt;</span><span class="n">IsBlockBufferValid</span><span class="p">())</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユニフォームブロックバッファーの GPU アドレスとサイズを取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">GpuAddress</span> <span class="n">gpuAddress</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pMaterialUniformBlock</span><span class="o">-&gt;</span><span class="n">GetGpuAddress</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gpuAddress</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">pMaterialObj</span><span class="o">-&gt;</span><span class="n">GetMaterialBlockSize</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 頂点ステージのユニフォームブロックのロケーションを取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">locationVS</span> <span class="o">=</span> <span class="n">pResShaderProgram</span><span class="o">-&gt;</span><span class="n">GetUniformBlockLocation</span><span class="p">(</span><span class="n">materialUniformBlockIndex</span><span class="p">,</span> <span class="nn">nn::g3d::</span><span class="n">Stage_Vertex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">locationVS</span> <span class="o">!=</span> <span class="nn">nn::g3d::</span><span class="n">ShaderLocationNone</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCommandBuffer</span><span class="o">-&gt;</span><span class="n">SetConstantBuffer</span><span class="p">(</span><span class="n">locationVS</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">ShaderStage_Vertex</span><span class="p">,</span> <span class="n">gpuAddress</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>利用上の注意</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 利用上の注意 -->
+<div class="pagetitle" id="PageId_208416174">利用上の注意</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_208416174_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_208416174_h1_2">時刻の巻き戻りや実際の経過時間以上の進みが発生した場合の考慮</a>
+    </li>
+    <li>
+      <a href="#Anchor_208416174_h1_3">Windows版における注意事項</a>
+    </li>
+    <li>
+      <a href="#Anchor_208416174_h1_4">単調増加クロックの比較ができなくなる条件</a>
+    </li>
+    <li>
+      <a href="#Anchor_208416174_h1_5">単調増加クロックの比較ができなくなる前後での経過時間の計測について</a>
+    </li>
+    <li>
+      <a href="#Anchor_208416174_h1_6">nn::time::SystemClockContext の比較による時計の補正・操作判定について</a>
+    </li>
+    <li>
+      <a href="#Anchor_208416174_h1_7">時計の時刻や操作による時刻ずれがアプリケーションに大きな影響を与える場合に推奨される実装方法</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_208416174_h1_1">はじめに</h1>
+<p>TIME ライブラリ利用時の注意点についてまとめます。</p>
+<h1 id="Anchor_208416174_h1_2">時刻の巻き戻りや実際の経過時間以上の進みが発生した場合の考慮</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>TIME ライブラリを通して得られる時刻は、巻き戻りや、実際の経過時間以上に進むことがあります。</p>
+    <p>システム側の最新時刻に常に追従させる必要がないアプリケーションでは、 &nbsp;<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_adjustable_user_system_clock.html">nn::time::AdjustableUserSystemClock</a>,&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_adjustable_network_system_clock.html">nn::time::AdjustableNetworkSystemClock</a>&nbsp;の利用を強く推奨します。</p>
+  </div>
+</div>
+<p>
+  <br />
+  <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html">nn::time::StandardUserSystemClock</a>&nbsp;は本体設定で自由に設定でき、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>&nbsp;はシステムによって自動的に補正されます。これらは、アプリケーションが起動中にも起こりえます。</p>
+<p>このような場合でも、アプリケーションの進行に不具合がないよう実装してください。<br />例えば、以下のような場合にもアプリケーションが不具合なく進行することが求められます。</p>
+<ul>
+  <li>現在時刻をセーブデータに保持するようなケースで、アプリケーション起動中の現在時刻が、セーブデータの日時より過去になっている</li>
+  <li>現在時刻から季節を判別・反映するようなケースで、1フレーム経過すると夏から冬になっている</li>
+</ul>
+<h1 id="Anchor_208416174_h1_3">Windows版における注意事項</h1>
+<ul>
+  <li>内部で利用する一定のペースで単調増加するカウンタに PC の時計を代用しています。<ul><li>PC の時計が操作された場合には、TIME ライブラリを通して得られる時刻がその操作の分だけずれます。このずれが発生したことを TIME ライブラリで検知する方法はありません。</li><li>ただし、 TIME ライブラリの初期化から終了までの間に PC の時計が操作されても、TIME ライブラリを通して得られる時刻は影響を受けません。</li></ul></li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html">nn::time::StandardUserSystemClock</a>&nbsp;が指す時刻の初期値は PC の時計の時刻です。<ul><li>TIME ライブラリの初回利用時にこの値がセットされます。</li></ul></li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>&nbsp;は PC の時計の時刻を使って補正されます。<ul><li>TIME ライブラリの初期化から終了までの間に PC の時計が操作されても、TIME ライブラリを通して得られる時刻は影響を受けません。</li></ul></li>
+  <li>Windows 上で動作させた場合、このライブラリは fs ライブラリの機能を使用します。<ul><li><a href="../../../Api/HtmlNX/namespacenn_1_1fs.html#ac021c163ba94a44a2b53cb848c462930">nn::fs::SetAllocator()</a>&nbsp;で設定したアロケータか malloc() によって fs ライブラリがメモリを確保できる状態で利用してください。詳細は fs ライブラリのマニュアルを参照してください。</li></ul></li>
+</ul>
+<h1 id="Anchor_208416174_h1_4">単調増加クロックの比較ができなくなる条件</h1>
+<p>セーブデータ等に保存した単調増加クロック( <span class="ApiLink_nn__time__StandardSteadyClock">nn::time::StandardSteadyClock</span> )の値が、次回起動時の値と比較できなくなる条件は、以下の通りです。</p>
+<ul style="list-style-type: square;">
+  <li>電池切れによってクロックへの電源供給が途絶えた場合(単調増加クロックのリセット)</li>
+  <li>修理対応のよって別本体へのデータ移行が行われた場合</li>
+  <li>セーブデータがデバイスをまたいで移行された場合</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>デバイスの電源が入っている状態では、上記のケースは発生しません。&nbsp;&nbsp;</p>
+  </div>
+</div>
+<p>
+  <br />修理対応での別本体データ移行に限らず、上記リセットが行われた場合、時計は以下の挙動を採ります。</p>
+<ul style="list-style-type: square;">
+  <li>別本体へのデータ移行をまたいで得られた&nbsp;<span class="ApiLink_nn__time__SteadyClockTimePoint">nn::time::SteadyClockTimePoint</span> 同士は比較できません。<br /><span class="ApiLink_nn__time__GetSpanBetween">nn::time::GetSpanBetween</span>() が失敗します。</li>
+  <li>別本体へのデータ移行をまたいで得られた <span class="ApiLink_nn__time__SystemClockContext">nn::time::SystemClockContext</span> 同士は必ず不一致となります。</li>
+  <li>
+    <span class="ApiLink_nn__time__StandardNetworkSystemClock">nn::time::StandardNetworkSystemClock</span> は未補正になり、<span class="ApiLink_nn__time__StandardNetworkSystemClock__GetCurrentTime">nn::time::StandardNetworkSystemClock::GetCurrentTime</span>() が失敗します。<ul style="list-style-type: square;"><li>システムによる自動的な補正処理はネットワーク接続後に速やかに試行されます。</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__time__StandardUserSystemClock">nn::time::StandardUserSystemClock</span> は 2017年1月1日 00:00:00(UTC) がさす時刻になります。<br /><ul style="list-style-type: square;"><li>本体に設定されているタイムゾーンの時差によって、年月日時分秒の表記にはずれがあります。</li></ul></li>
+  <li>その他、タイムゾーンやインターネットで時間をあわせるかどうかの設定においては、移行前から引き継がれます。</li>
+</ul>
+<h1 id="Anchor_208416174_h1_5">単調増加クロックの比較ができなくなる前後での経過時間の計測について</h1>
+<p>
+  <span class="ApiLink_nn__time__ClockSnapshot">nn::time::ClockSnapshot</span> を利用することで、単調増加クロックの比較ができないケースでも、ネットワーク時計( <span class="ApiLink_nn__time__StandardNetworkSystemClock">nn::time::StandardNetworkSystemClock</span> ) の時刻を利用して経過時間を計算できます。<br />ただし、ネットワーク時計が補正されていない場合にはこれを利用しても経過時間の計算できないことに注意が必要です。</p>
+<p>詳細は <span class="ApiLink_nn__time__CalculateSpanBetween">nn::time::CalculateSpanBetween</span>() を参照してください。</p>
+<h1 id="Anchor_208416174_h1_6">nn::time::SystemClockContext の比較による時計の補正・操作判定について</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>時計のコンテキストの取得元がどの時計であっても、 <span class="ApiLink_nn__time__SystemClockContext">nn::time::SystemClockContext</span> の不一致時に、時計をユーザーが操作したと決めつけることはしないでください。</p>
+    <p>時計をユーザーが操作したかどうかは、 <span class="ApiLink_nn__time__ClockSnapshot">nn::time::ClockSnapshot</span> を利用し <span class="ApiLink_nn__time__">nn::time::</span><span style="color: rgb(37,53,85);">CalculateStandardUserSystemClockDifferenceByUser() で判定してください。</span></p>
+  </div>
+</div>
+<p>ネットワーク経由でのシステムによる自動的な時刻補正が行われた場合にも、時計から得られる <span class="ApiLink_nn__time__SystemClockContext">nn::time::SystemClockContext</span> は変更されます。</p>
+<p>よって、この自動補正の前後の <span class="ApiLink_nn__time__SystemClockContext">nn::time::SystemClockContext</span> を比較した場合、不一致となります。</p>
+<p>この挙動は <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>&nbsp;だけに限らず、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html">nn::time::StandardUserSystemClock</a>&nbsp;でも以下の条件を満たす場合に当てはまります。</p>
+<ul style="list-style-type: square;">
+  <li>本体設定の「インターネットで時間をあわせる」がONになっている場合</li>
+  <li>または DevMenu の Device ページで &quot;Automatic Correction&quot; にチェックを入れている場合</li>
+</ul>
+<h1 id="Anchor_208416174_h1_7">時計の時刻や操作による時刻ずれがアプリケーションに大きな影響を与える場合に推奨される実装方法</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ネットワーク時計の時刻を利用することで、<span class="ApiLink_nn__time__StandardSteadyClock">nn::time::StandardSteadyClock</span> のリセットをまたいだ経過時間や、リセット前の時刻を扱うことができます。</p>
+  </div>
+</div>
+<p>以下の方法を推奨します。</p>
+<ul style="list-style-type: square;">
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>&nbsp;の時刻を利用する</li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>&nbsp;の操作検知を行わず常にその時刻を信じる</li>
+</ul>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>&nbsp;が未補正の場合、 <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html">nn::time::StandardUserSystemClockの</a>時刻を利用するしかありません。<br />この時計はユーザーが自由に時刻を操作できます。</p>
+<p>例えば、毎週決まった曜日に発生するイベントがあるとして、イベント発生直後に時計を1週間進めて再度イベントを発生させることができてしまいます。その場合でも、シャットダウンをまたぐ経過時間を計測し、前回イベント発生から 6 日以上経過しているときにだけイベントを発生させるなどの、ある程度問題を回避できます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__time__StandardSteadyClock', '../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html' )
+SetUrl( 'ApiLink_nn__time__SteadyClockTimePoint', '../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html' )
+SetUrl( 'ApiLink_nn__time__GetSpanBetween', '../../../Api/HtmlNX/namespacenn_1_1time.html#a029976fde1c33e311557957f3fc57a6b' )
+SetUrl( 'ApiLink_nn__time__SystemClockContext', '../../../Api/HtmlNX/structnn_1_1time_1_1_system_clock_context.html' )
+SetUrl( 'ApiLink_nn__time__StandardNetworkSystemClock', '../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html' )
+SetUrl( 'ApiLink_nn__time__StandardNetworkSystemClock__GetCurrentTime', '../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2' )
+SetUrl( 'ApiLink_nn__time__StandardUserSystemClock', '../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html' )
+SetUrl( 'ApiLink_nn__time__ClockSnapshot', '../../../Api/HtmlNX/classnn_1_1time_1_1_clock_snapshot.html' )
+SetUrl( 'ApiLink_nn__time__CalculateSpanBetween', '../../../Api/HtmlNX/namespacenn_1_1time.html#a992889d77943f2f8f8d0c827ebd7eef1' )
+SetUrl( 'ApiLink_nn__time__', '../../../Api/HtmlNX/namespacenn_1_1time.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,1486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>S2R</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    S2R : Move Special Register to Register<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Move Special Register to Register" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "S2R", subsection => 12 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "CS2R", subsection => 12 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>S2R</b></code>    <code>Rd, SRa</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "S2R" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CS2R</b></code>   <code>Rd, SRa</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code></code>         <code></code>         <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CS2R" } -->
+
+</pre>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Both <b>CS2R</b> and <b>S2R</b> moves special register SRa to register Rd.</p>
+These special registers typically have architectural state that is setup by external methods or bundles and not 
+produced by program execution itself.<p>
+<b>S2R</b>  is a variable latency read of special registers.</p> 
+<p> A subset of these special registers are tightly coupled with
+instruction executions i.e. these can be read and written back to
+register file with fixed latency from issue cycle. This subset can read
+via the <b>CS2R</b> instruction. Reading special registers outside this subset with CS2R returns 0. 
+</p>
+<p>
+It is desirable to use special registers by name, e.g. SR_LaneId, rather than by number, e.g. SR0, to avoid problems 
+if special registers change numeric assignments in the future.  The numeric names for special register 
+operands are SR0 to SR255.</p>
+<p>
+Unimplemented special registers read as zero.  Unused bit fields in special registers read as zero.</p>
+<p>
+
+The following table indicates the special registers that can be read with <b>CS2R/S2R</b> </p>
+
+<table border="1" cellpadding="5%">
+    <caption><em>Special register table </em></caption>
+<tbody><tr>
+    <th> SR# </th>
+    <th> Name </th>
+    <th> Type/Bits </th>
+    <th> CS2R (coupled) </th>
+    <th> Shader Types/Description </th>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR0  </td>
+    <td> SR_LaneId </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 4:0 </td>
+    <td>  </td>
+    <td> Virtual thread lane, 0 to SR_VirtCfg.WarpSz-1. (Same information as bits 4:0 of SR3) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:5 </td>
+    <td>  </td>
+    <td> zero </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR1  </td>
+    <td> Reserved </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR2  </td>
+    <td> SR_VirtCfg </td>
+    <td> WARP </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Virtual Configuration after floorsweeping and throttle/limit methods. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .WarpSz  </td>
+    <td> 5:0 </td>
+    <td>  </td>
+    <td> Warp size is number of thread lanes per warp, constant 32. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>          </td>
+    <td> 7:6 </td>
+    <td>  </td>
+    <td> zero </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .NWarp   </td>
+    <td> 14:8 </td>
+    <td>  </td>
+    <td> Virtual Number of warps per SM, (1..MAX) where MAX is 48 before SPA3.0 and 64 after. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .NArrayLower  </td>
+    <td> 19:16 </td>
+    <td>  </td>
+    <td> Lower 4 bits of Virtual Number of thread arrays (CTAs). (1..MAX) where MAX = 16 for SPA 5.0 and above. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .NSM          </td>
+    <td> 28:20 </td>
+    <td>  </td>
+    <td> Virtual Number of SMs total, 1 to GPU max. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .NArrayUpper  </td>
+    <td> 30:29 </td>
+    <td>  </td>
+    <td> Upper bits of virtual Number of thread arrays (CTAs).  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR3  </td>
+    <td> SR_VirtId </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 31:0  </td>
+    <td>  </td>
+    <td> Virtual Id after floorsweeping and throttle/limit methods. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .LaneId        </td>
+    <td>  4:0  </td>
+    <td>  </td>
+    <td> Virtual thread lane, 0 to SR_VirtCfg.WarpSz-1. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td>  7:5  </td>
+    <td>  </td>
+    <td> zero </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .WarpId        </td>
+    <td>  14:8 </td>
+    <td>  </td>
+    <td> Virtual warp id, 0 to SR_VirtCfg.NWarp-1. This field was 13:8 prior to SPA 5.3 </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 15:15 </td>
+    <td>  </td>
+    <td> zero </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .ArrayIdLower  </td>
+    <td> 19:16 </td>
+    <td>  </td>
+    <td> Lower 4 bits of Virtual thread array (CTA) id, 0 to SR_VirtCfg.NArray-1. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .SMId          </td>
+    <td> 28:20 </td>
+    <td>  </td>
+    <td> Virtual SM id, 0 to SR_VirtCfg.NSM-1. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .ArrayIdUpper  </td>
+    <td> 30:29 </td>
+    <td>  </td>
+    <td> Upper bits of Virtual thread array (CTA) id. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 31:31 </td>
+    <td>  </td>
+    <td> zero </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR4..7  </td>
+    <td> SR_PM0..3 </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td>                                                      Per Subpartition Performance counter. 
+                                                     They are configured via statebundles from pushbuffer methods 
+                                                     and context switched.Each thread will see a copy of perf counters 
+                                                     in its own subpartition.
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR8..11  </td>
+    <td> SR_PM4..7 </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td>
+Shared Performance counter. They are configured via statebundles from
+pushbuffer methods and context switched. Thse perf counters are
+counting events in shared units like MIOS and PIXOUT. </td>
+</tr>
+
+<tr bgcolor="#c2dfff">
+    <td> SR12 - SR14  </td>
+    <td> Reserved </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR15  </td>
+    <td> SR_ORDERING_TICKET valid in pixel shader only </td>
+    <td> <!-- Warp -->[Warp] </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 8:0 </td>
+    <td>  </td>
+    <td> Ticket dispenser ID. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 15:9 </td>
+    <td>  </td>
+    <td>
+Ticket increment value. Zero for all but last warp of TC tile. For the
+last warp , the increment value is 128-N where N is the number of warps
+in TC tile. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:16 </td>
+    <td>  </td>
+    <td>
+Assigned Ticket value.To be used to match global ticket counter to
+determine if warp is allowed to proceed with pixel blend operations. </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR16  </td>
+    <td> SR_PRIM_TYPE </td>
+    <td> <!-- Warp -->[Warp] </td>
+    <td> N </td>
+    <td> valid in all shader types (see below) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 13:0 </td>
+    <td>  </td>
+    <td> <pre>warp input primitive type and size<br>Return values are:                        <br><table>
+<tbody><tr>
+    <th> Shader </th>
+    <th> SR read value </th>
+</tr>
+<tr>
+    <td> VSa:     </td>
+    <td> POINT,LINE,TRIANGLE,PATCH </td>
+</tr>
+<tr>
+    <td> VSb:     </td>
+    <td> POINT,LINE,TRIANGLE,PATCH </td>
+</tr>
+<tr>
+    <td> TI/TS:   </td>
+    <td> POINT,LINE,TRIANGLE,PATCH </td>
+</tr>
+<tr>
+    <td> GS:      </td>
+    <td> POINT,LINE,TRIANGLE,PATCH </td>
+</tr>
+<tr>
+    <td> PS:      </td>
+    <td> 0                         </td>
+</tr>
+<tr>
+    <td> Compute: </td>
+    <td> 0                         </td>
+</tr>
+</tbody></table>
+Where
+<table>
+<tbody><tr>
+    <th> Type </th>
+    <th> Enum value </th>
+</tr>
+<tr>
+    <td> POINT    </td>
+    <td> 0x0001                              </td>
+</tr>
+<tr>
+    <td> LINE     </td>
+    <td> 0x0002 | (adjancency &lt;&lt; 8)    </td>
+</tr>
+<tr>
+    <td> TRIANGLE </td>
+    <td> 0x0004 | (adjancency &lt;&lt; 8)    </td>
+</tr>
+<tr>
+    <td> PATCH    </td>
+    <td> 0x0008 | (size of patch &lt;&lt; 8) </td>
+</tr>
+</tbody></table>
+</pre>
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR17  </td>
+    <td> SR_INVOCATION_ID </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> valid in all shader types (see below) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 4:0 </td>
+    <td>  </td>
+    <td> <pre>Primitive invocation id (when hw generates multiple instances of a primitive)                 <br><b>GS Shaders:</b>                                                                           <br>  Hw is  generating multiple instances: return(invocation id) in range of [0,InvocationCount-1] <br>  Hw not generating multiple instances: return(0)                                               <br><b>TI/TS Shaders:</b>
+  return(invocation id); [0,InvocationCount-1]                                                  
+<b>Other Shaders:</b>
+  return(0) 
+</pre>
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR18  </td>
+    <td> SR_Y_DIRECTION </td>
+    <td> [WARP] </td>
+    <td> N </td>
+    <td> valid in all shader types except compute </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> <pre>A floating point number (either -1.0 or +1.0) tied to the SetWindowOrigin method.         <br>It can be combined with an FMUL to correct the sign of the y derivitives calculated       <br>in an OpenGL program to insure they work for both render-to-texture and normal rendering. <br><table>
+<tbody><tr>
+    <th> SetWindowOrigin.Mode </th>
+    <th> SR read value </th>
+</tr>
+<tr>
+    <td> UPPER_LEFT </td>
+    <td> +1.0f </td>
+</tr>
+<tr>
+    <td> LOWER_LEFT </td>
+    <td> -1.0f </td>
+</tr>
+</tbody></table>
+</pre>
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR19  </td>
+    <td> SR_THREAD_KILL </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> PS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> <pre>A boolean register value indicating if the thread has been killed.                                  <br>Helper pixels (pixels with no coverage used to round out quads) start execution in a killed state.   <br>Pixel shaders can also use be killed with the <a href="opKIL.htm">KIL</a> instruction.             <br>A pixel thread that is killed  will have it's outputs automatically discarded and                    <br>is not allowed to execute global store commands.                                                     <br><b>PS Shaders:</b>
+if(thread has been killed or is helper pixel): 
+      return(0xffff_ffff)                               
+else:
+      return(0)                                                                                 
+<b>Other Shaders</b>:<br>      return(0)                                                                                         <br></pre>
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR20  </td>
+    <td> SM_SHADER_TYPE </td>
+    <td> [WARP] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> <pre>Read the shader type of the currently running thread (Enumerated as below)<br><table>
+<tbody><tr>
+    <th> ShaderType </th>
+    <th> Value </th>
+</tr>
+<tr>
+    <td> Vertex A           </td>
+    <td> 0 </td>
+</tr>
+<tr>
+    <td> Vertex B           </td>
+    <td> 1 </td>
+</tr>
+<tr>
+    <td> Tessellation Init  </td>
+    <td> 2 </td>
+</tr>
+<tr>
+    <td> Tessellation       </td>
+    <td> 3 </td>
+</tr>
+<tr>
+    <td> Geometry           </td>
+    <td> 4 </td>
+</tr>
+<tr>
+    <td> Pixel              </td>
+    <td> 5 </td>
+</tr>
+<tr>
+    <td> Compute            </td>
+    <td> 6 </td>
+</tr>
+</tbody></table>
+</pre>
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR21  </td>
+    <td> SR_DirectCBEWriteAddressLow </td>
+    <td> <!-- Warp -->[Warp] </td>
+    <td> N </td>
+    <td> VSB &amp; TI only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Lower 32b of CBE (circular buffer entry ) address in global memory for VTG shaders. <br>
+This field is 0 unless SR_DirectCBEWriteEnabled==1.                                  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR22  </td>
+    <td> SR_DirectCBEWriteAddressHigh </td>
+    <td> <!-- Warp -->[Warp] </td>
+    <td> N </td>
+    <td> VSB &amp; TI only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> Upper 8b of CBE (circular buffer entry ) address in global memory for VTG shaders. <br>
+This field is 0 unless SR_DirectCBEWriteEnabled==1.                                  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:8 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR23  </td>
+    <td> SR_DirectCBEWriteEnable </td>
+    <td> <!-- Warp -->[Warp] </td>
+    <td> N </td>
+    <td> VSB &amp; TI only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 0:0 </td>
+    <td>  </td>
+    <td> Maps to CopyOutOptIn bit in SPH header. Can be valid only in VS and TS shaders. <br>
+Shader can query this bit to determine if it is the last alpha stage and        <br>
+expected to write output directly to CBE structure in global memory (L2).        </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR24  </td>
+    <td> SR_MACHINE_ID_0 </td>
+    <td> SM </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> <pre>A completely SW defined value, set with a PRI.  <br>Possible uses might include<br>    - Affinity interpretation: enum value telling how to interpret affinity<br>    - Double Precision or not bit<br>    - Family &amp; Chip Codes<br>    - ISA codes<br></pre>
+ </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR25..27  </td>
+    <td> SR_MACHINE_ID_1..3 </td>
+    <td> SM </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> 31:0    Reserved for future.  Reads as zero </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR28  </td>
+    <td> SR_AFFINITY </td>
+    <td> SM </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> Affinity[0] value  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 15:8  </td>
+    <td>  </td>
+    <td> Affinity[1] value  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 23:16 </td>
+    <td>  </td>
+    <td> Affinity[2] value  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:24 </td>
+    <td>  </td>
+    <td> Affinity[3] value<br>
+Each of the 4 elements in the array is a seperate byte value. <br>
+SW can determine if two SMs are "affine" if they have the same affinity array values. <br>
+For GF100, Affinity[0] contains the logical GPC# an SM is attached to.  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR29  </td>
+    <td> SR_INVOCATION_INFO </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> VTG only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .primIndex  </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> primitive index of the thread. Note: For vertex shaders/Single instance geometry this corresponds to laneId. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .vertexPerPrim  </td>
+    <td> 21:16 </td>
+    <td>  </td>
+    <td> vertices per primitive. Note (.primIndex *.vertexPerPrim) is used as offset for reading vertex handle using <b>ISBERD</b> </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR30  </td>
+    <td> SR_WScaleFactor_XY </td>
+    <td> [WARP] </td>
+    <td> N </td>
+    <td> VTG only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> fp32 representation of XY plane scalefactor (1.0 or 256.0 based) on SM state. <!-- Warp --> </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR31  </td>
+    <td> SR_WScaleFactor_Z </td>
+    <td> [WARP] </td>
+    <td> N </td>
+    <td> VTG only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> fp32 representation of Z plane scalefactor (1.0 or 256.0 based) on SM state. <!-- Warp --> </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR32  </td>
+    <td> SR_Tid </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0  </td>
+    <td>  </td>
+    <td> Thread Id (all component fields combined) within CTA  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .x  </td>
+    <td> 10:0  </td>
+    <td>  </td>
+    <td> tid.x  (Tesla compatible)  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 15:11 </td>
+    <td>  </td>
+    <td> zero  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .y  </td>
+    <td> 25:16 </td>
+    <td>  </td>
+    <td> tid.y  (Tesla compatible)  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .z  </td>
+    <td> 31:26 </td>
+    <td>  </td>
+    <td> tid.z  (Tesla compatible)  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR33  </td>
+    <td> SR_Tid.X </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 10:0 </td>
+    <td>  </td>
+    <td> Thread Id X component within CTA. Ranges between 0 and SR_NTid.X - 1 </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR34  </td>
+    <td> SR_Tid.Y </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 9:0 </td>
+    <td>  </td>
+    <td> Thread Id Y component within CTA. Ranges between 0 and SR_NTid.Y - 1 </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR35  </td>
+    <td> SR_Tid.Z </td>
+    <td> [THREAD] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 5:0 </td>
+    <td>  </td>
+    <td> Thread Id Z component within CTA. Ranges between 0 and SR_NTid.Z - 1 </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR36  </td>
+    <td> Reserved </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR37  </td>
+    <td> SR_CTAid.X </td>
+    <td> [CTA] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> CTA Id X component within grid. Ranges between 0 and SR_NCTAid.X - 1 </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR38  </td>
+    <td> SR_CTAid.Y </td>
+    <td> [CTA] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 15:0 </td>
+    <td>  </td>
+    <td> CTA Id Y component within grid. Ranges between 0 and SR_NCTAid.Y - 1 </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR39  </td>
+    <td> SR_CTAid.Z </td>
+    <td> [CTA] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 15:0 </td>
+    <td>  </td>
+    <td> CTA Id Z component within grid. Ranges between 0 and SR_NCTAid.Z - 1 </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR40  </td>
+    <td> SR_NTid </td>
+    <td> [CTA] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 12:0 </td>
+    <td>  </td>
+    <td> Total number of live threads remaining in CTA, initialized from CTA size
+(set by SetCtaResourceAllocation method's ThreadCount field)
+and every time a warp completes, 32 is subtracted.
+If ThreadCount is not a multiple of 32, SR_NTid may be (32 - ThreadCount mod 32)
+shy of the actual remaining thread count.
+This count changes only when a whole warp completes. If only a subset of
+threads in a warp complete, SR_NTid does not change. </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR41  </td>
+    <td> SR_CirQueueIncrMinusOne </td>
+    <td> [CTA] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .incrMinusOne  </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> Circular queue increment (of work) associated withis CTA, minus one.
+Typically this value is  QMD.QueueEntriesPerCtaMinusOne.
+However for CWD can launch work with partially occupied CTAs when  
+QMD.CoalesceWaitingPeriod expires. 
+This field is 0 unless SR_CirQueueIncrMinusOne.isQueue==1. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 30:8 </td>
+    <td>  </td>
+    <td> Reserved </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> .isQueue  </td>
+    <td> 31:31 </td>
+    <td>  </td>
+    <td> Set to 1 if task is launched as GWC circular queue, 0 if launched as grid. Note that </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR42  </td>
+    <td> SR_NLATC </td>
+    <td> [CTA] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 12:0 </td>
+    <td>  </td>
+    <td> Total number of launched and alive (non-exited) 
+threads of a CTA, initialized to zero at CTA launch, 
+and incremented every warp launch by 32 threads and decremented by 32 
+every time a warp exits.  Once a CTA is fully loaded, SR42 will only be 
+different from SR40 if ThreadCount is not a multiple 
+of 32, in which case SR42 will be greater than SR40 by ThreadCount mod 32.  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR43..47  </td>
+    <td> Reserved </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR48  </td>
+    <td> SR_SWinLo </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:24 </td>
+    <td>  </td>
+    <td> Shared Window base address in bytes, multiple of 16MB
+Set by SetShaderSharedMemoryWindow method </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR49  </td>
+    <td> SR_SWINSZ </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 24:24 </td>
+    <td>  </td>
+    <td> Shared Window size in bytes (CONSTANT 16MB)  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR50  </td>
+    <td> SR_SMemSz </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 23:7 </td>
+    <td>  </td>
+    <td> Shared memory allocated size in bytes, multiple of 128B
+Set by SetSharedMemorySize method  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR51  </td>
+    <td> SR_SMemBanks </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 5:5 </td>
+    <td>  </td>
+    <td> Number of 32-bit banks in L1/Shared RAM (CONSTANT == 32)  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR52  </td>
+    <td> SR_LWinLo </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:24 </td>
+    <td>  </td>
+    <td> Local Window base address in bytes, multiple of 16MB
+Set by SetShaderLocalMemoryWindow method  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR53  </td>
+    <td> SR_LWINSZ </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 24:24 </td>
+    <td>  </td>
+    <td> Local Window size in bytes (CONSTANT == 16MB)  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR54  </td>
+    <td> SR_LMemLoSz </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 19:4 </td>
+    <td>  </td>
+    <td> Local memory low allocated size in bytes per thread, multiple of 16B 
+Set by SetShaderThreadMemoryLowSize method in Compute
+Set by a field in the Shader Program Header for Graphics </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR55  </td>
+    <td> SR_LMemHiOff </td>
+    <td> [Global] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 24:4 </td>
+    <td>  </td>
+    <td> Local memory high allocated offset in bytes per thread, multiple of 16B
+LMemHiOff = LWINSZ - LMemHiSz;  LMemHiSz is allocated size in bytes per thread.  
+LMemHiSz is set by SetShaderThreadMemoryHighSize method for Compute
+It is set by a field in the Shader Program Header for Graphics </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR56  </td>
+    <td> SR_EqMask </td>
+    <td> [Thread] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Mask of thread position in current warp, i.e., (1&lt;&lt;(TID&amp;0x1f))  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR57  </td>
+    <td> SR_LtMask </td>
+    <td> [Thread] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Mask of all lower thread positions in current warp, i.e., 
+(1&lt;&lt;(TID&amp;0x1f))-1  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR58  </td>
+    <td> SR_LeMask </td>
+    <td> [Thread] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Mask of current and all lower thread positions, i.e., SR_EqMask | SR_LtMask  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR59  </td>
+    <td> SR_GtMask </td>
+    <td> [Thread] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0  </td>
+    <td>  </td>
+    <td> Mask of all higher thread positions, i.e., ~SR_LeMask  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR60  </td>
+    <td> SR_GeMask </td>
+    <td> [Thread] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Mask of current and all higher thread positions, i.e., ~SR_LtMask </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR61  </td>
+    <td> SR_RegAlloc </td>
+    <td> [Warp] </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> Set by SetPipeline[].RegisterCount method (graphics) or RegisterCount field in QMD (for compute) </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR62..63  </td>
+    <td> Reserved for future </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR64  </td>
+    <td> SR_GlobalErrorStatus </td>
+    <td> SM </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> Mode  </td>
+    <td> 3:0 </td>
+    <td>  </td>
+    <td> <pre>Presented to all warps that enter the trap handler.<br>Results undefined if PRI is changed when SM is not paused.<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> SingleStepEnabled  </td>
+    <td> 0:0 </td>
+    <td>  </td>
+    <td> <pre>Indicates that the SM is in single step mode.  In the absence of other bits set in the <br>Error Status Register, this is the primary indication of why a warp enters a trap handler.<br>This is controlled by the PRI_SM_DBGR_CONTROL0.SINGLE_STEP_MODE (settings are ENABLE/DISABLE).<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> Preemption  </td>
+    <td> 2:1 </td>
+    <td>  </td>
+    <td> <pre>Enumeration Values:<br>  0: NORMAL - no preemption request in progress<br>  1: PREEMPTION_SAVE - preemption save in progress<br>  2: PREEMPTION_RESTORE - preemtion restore in progress<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> reserved  </td>
+    <td> 3:3 </td>
+    <td>  </td>
+    <td> Reserved </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> Global Errors  </td>
+    <td> 31:4 </td>
+    <td>  </td>
+    <td> <pre>Contains state that must be visible to all warps or errors that cannot be charged to a single warp.<br>Presented to all warps that enter the trap handler.<br>Results undefined if PRI is changed when SM is not paused.<br>Semantics:<br>  - Global errors caused by warps outside of the trap handler are not guaranteed by HW to be <br>    reported before entering trap handler.  SW must flush global faults (e.g., L1 store faults) <br>    by using a <a href="opCCTL.htm">CCTL.IVALL</a> operation.<br>  - Global errors are <b>not</b> disabled while in the trap handler.  (There is no double buffering.)<br>  - Global errors caused by warps inside the trap handler are not guaranteed by HW to be reported before <br>    leaving the trap handler.  SW must flush and check for global faults before <a href="opRTT.htm">RTT</a>.<br>  - Cleared by CPU while SM is paused via PRI.<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 4:4 </td>
+    <td>  </td>
+    <td> <pre>Indicates CPU has instructed this SM to stop.  All warps should prepare<br>state and then execute a <a href="opBPT.htm">BPT.PAUSE</a> to yield control to the CPU.<br>This is controlled by the CPU writing to PRI_SM_DBGR_CONTROL0.STOP_TRIGGER.<br>Note that if any warp is executing IDE critical section (i.e instructions between <a href="opIDE.htm">IDE.DI</a> and  <a href="opIDE.htm">IDE.EN</a>), <br>then CPU_STOP is delayed, until no warp is in critical section. However if PRI_SM_DBGR_CONTROL0.STOP_IS_NOT_MASKABLE is set, <br>then check for any warp being in critical section is not performed while processing CPU_STOP event.<br>Setting PRI_SM_DBGR_CONTROL0.STOP_IS_NOT_MASKABLE is expected to be used by the CPU to debug code in IDE critical section.<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 5:5 </td>
+    <td>  </td>
+    <td> <pre>Indication if any warp is in IDE critical section. <br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 6:6 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 7:7 </td>
+    <td>  </td>
+    <td> <pre>Multiple Warp Errors<br>Indicates that a warp error occurred while this SM's warp error register was non-zero (a warp error is still<br>pending) on this SM.  Since the second error's information (including its warp number) cannot be captured,<br>the multiple errors bit is indication that at least one error has been lost.<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 8:8 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 9:9 </td>
+    <td>  </td>
+    <td> <pre>Single Warp Error<br>Indicates that a warp error has been detected on this SM and that error has not yet been cleared (by <br>the CPU via PRI).  When warp errors are cleared via PRI, this state is cleared immediately.  <br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 10:10 </td>
+    <td>  </td>
+    <td> <pre>Warp Trap 1 <br>Indicates that at least one warp on the SM executed BPT.TRAP with an immediate of 1.<br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 11:11 </td>
+    <td>  </td>
+    <td> <pre>Warp Trap 2+<br>Indicates that at least one warp on the SM executed BPT.TRAP with an immediate of 2 or greater. <br></pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 12:12 </td>
+    <td>  </td>
+    <td> Reserved for BPT.INT.  Will always be read as 0 via S2R.  </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:13 </td>
+    <td>  </td>
+    <td> Reserved </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR65  </td>
+    <td> Reserved For Future </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR66  </td>
+    <td> SR_WarpErrorStatus </td>
+    <td> SM </td>
+    <td> N </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> Warp Errors  </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> <pre>   Contains errors known to be caused by this thread's warp.<br>   These error are presented only to the warp that is responsible for the error.<br>   Semantics:<br>     - Only the first-detected warp error from a single warp is reported.  <br>     - If more than 1 warp error is seen, then "Multiple Warp Errors" is set and subsequent errors from the <br>       same warp or from other warps are lost. (There is no double buffering)<br>     - All warp errors will be reported before entering the trap handler.<br>     - All warp errors caused be any warp in the trap handler will be ignored.  Innocuous ones will be allowed silently <br>       and blatantly dangerous/corrupting ones will result in immediate and silent warp termination.<br>     - Error status is not cleared after the warp that caused the error reads SR_WarpErrorStatus.<br>   Enumeration Values:<br>     0: no errors<br>     1: STACK_ERROR<br>     2: API_STACK_ERROR<br>     3: Not Used <br>     4: PC_WRAP<br>     5: MISALIGNED_PC<br>     6: PC_OVERFLOW<br>     7: Not Used<br>     8: MISALIGNED_REG<br>     9: ILLEGAL_INSTR_ENCODING<br>    10: Not Used<br>    11: ILLEGAL_INSTR_PARAM<br>    12: INVALID_CONST_ADDR<br>    13: OOR_REG<br>    14: OOR_ADDR<br>    15: MISALIGNED_ADDR<br>    16: INVALID_ADDR_SPACE<br>    17: Not Used <br>    18: INVALID_CONST_ADDR_LDC<br>    19: Not Used<br>    20: Not Used <br>    21: Not Used <br>    22: PHYSICAL_STACK_OVERFLOW<br>    23: MMU_FAULT<br> </pre></td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> reserved  </td>
+    <td> 23:8 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> Trap Immediate  </td>
+    <td> 26:24 </td>
+    <td>  </td>
+    <td> <pre>Non-zero indicates that this warp personally executed a BPT.TRAP<br>instruction.  The BPT.TRAP immediate is provided in this field.<br>BPT.TRAP 0; is illegal.<br>Cleared on <a href="opRTT.htm">RTT</a>
+</pre>
+ </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td> reserved  </td>
+    <td> 31:27 </td>
+    <td>  </td>
+    <td> Reserved </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR67  </td>
+    <td> Reserved </td>
+    <td>  </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR68 - SR71  </td>
+    <td> Reserved for future </td>
+    <td>   </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR72..75  </td>
+    <td> SR_PM_HI0..3 </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>               </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td>
+Upper 8 bits of per Subpartition Performance counter. Lower 32 bits are
+in SR_PM0..3. Note: The upper 8 bits saturate when their value becomes
+0xFF. These can reset only by PRI write to
+NV_PTPC_PRI_SM_DSM_PERF_COUNTER_STATUS_S[n], where n = 0..3 specifying
+the subpartition warp belongs to. Each register has 4 8-bit wide
+fields, one corresponding each of SR_PM_HI0..3 in subpartition. </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR76..79  </td>
+    <td> SR_PM_HI4..7 </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td>
+Upper 8 bits of Shared Performance counter. Lower 32 bits are in
+SR_PM4..7. Note: The upper 8 bits saturate when their value becomes
+0xFF. These can reset only by PRI write to
+NV_PTPC_PRI_SM_DSM_PERF_COUNTER_STATUS1. There are 4 8-bit wide fields,
+one for each of SM_PM_HI4..7. </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR76..79  </td>
+    <td> SR_PM_HI4..7 </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>                </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td>                                                      Upper 8 bits of Shared Performance counter.
+                                                     Lower 32 bits are in SR_PM4..7.
+ </td>
+</tr>
+
+
+<tr bgcolor="#c2dfff">
+    <td> SR80  </td>
+    <td> SR_ClockLo     </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Real-time (tepid) SM clock counter, low 32-bits, wraps silently. </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR81  </td>
+    <td> SR_ClockHi     </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Real-time (tepid) SM clock counter, high 32-bits, wraps silently. </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR82  </td>
+    <td> SR_GlobalTimerLo </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Lower 32 bits of  globally sychronized (PTIMER) timestamp
+(currently in nanoseconds, with resolution of 32 ns).  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR83  </td>
+    <td> SR_GlobalTimerHi </td>
+    <td> SM </td>
+    <td> Y </td>
+    <td> valid in all shader types </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Upper 32 bits of  globally sychronized (PTIMER) timestamp 
+(currently in nanoseconds, with resolution of 32 ns). </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR84 - SR95  </td>
+    <td> Reserved for future </td>
+    <td>   </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR96  </td>
+    <td> SR_HwTaskId </td>
+    <td> [Warp] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 4:0  </td>
+    <td>  </td>
+    <td> HW internal task id assigned by CWD. Max number of tasks is per chip constant, 
+architectural limit is 32 tasks. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:5 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR97  </td>
+    <td> SR_CircularQueueEntryIndex </td>
+    <td> [Warp] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 23:0 </td>
+    <td>  </td>
+    <td> Index to the GPU Work Creation (GWC) circular queue. 
+Used for ticket # to an ordered queue.
+This field is 0 unless SR_CirQueueIncrMinusOne.isQueue==1. </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:24 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR98  </td>
+    <td> SR_CircularQueueEntryAddressLow </td>
+    <td> [Warp] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:0 </td>
+    <td>  </td>
+    <td> Lower 32b of GWC circular queue entry address.
+This field is 0 unless SR_CirQueueIncrMinusOne.isQueue==1.  </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR99  </td>
+    <td> SR_CircularQueueEntryAddressHigh </td>
+    <td> [Warp] </td>
+    <td> N </td>
+    <td> CS only (reads as zero otherwise) </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 7:0 </td>
+    <td>  </td>
+    <td> Upper 8b of GWC circular queue entry address
+This field is 0 unless SR_CirQueueIncrMinusOne.isQueue==1.   </td>
+</tr>
+<tr>
+    <td>         </td>
+    <td>   </td>
+    <td> 31:8 </td>
+    <td>  </td>
+    <td> reserved </td>
+</tr>
+<tr bgcolor="#c2dfff">
+    <td> SR100 - SR255  </td>
+    <td> Reserved for future </td>
+    <td>   </td>
+    <td> N </td>
+    <td>  </td>
+</tr>
+
+</tbody></table>
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><b>S2R</b> R0, SR_LaneId;<br><b>S2R</b> R0, SR2;<br><br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

@@ -1,0 +1,276 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NintendoWare Sound の NintendoSDK 移行ガイド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NintendoWare Sound の NintendoSDK 移行ガイド -->
+<div class="pagetitle" id="PageId_83955840">NintendoWare Sound の NintendoSDK 移行ガイド</div>
+<div class="text_separate">
+<h1 id="Anchor_83955840_h1_1">NintendoWare Sound の NintendoSDK 移行ガイド</h1>
+<p>NW4F &rArr; NintendoSDK NintendoWare へのサウンド開発環境 移行ガイドです。<br />NW4F から移行される方は、以下の点にご注意ください。</p>
+<h2 id="Anchor_83955840_h2_1">NintendoSDK の NintendoWare オーディオランタイムライブラリ</h2>
+<p>NintendoSDK の NintendoWare オーディオ開発環境では、以下の通りモジュールが整理されました。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <thead>
+    <tr>
+      <th class="highlight-blue">
+        <div class="tablesorter-header-inner">NintendoSDK NintendoWare<br />オーディオモジュール</div>
+      </th>
+      <th class="highlight-blue">
+        <div class="tablesorter-header-inner">NW4F&nbsp;サウンドモジュール</div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__atk">nn::atk</span>
+      </td>
+      <td>nw::snd</td>
+    </tr>
+    <tr>
+      <td>nn::atk::viewer</td>
+      <td>
+        <p>nw::snd::edit</p>
+        <p>nw::snd::ctrl</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__atk">nn::atk</span> では、nw::snd をベースとしつつも、NintendoSDK 向けにインターフェイスや仕様を調整したメインライブラリで、下位ライブラリである <span class="ApiLink_nn__audio">nn::audio</span> の新機能への対応や <span class="ApiLink_nn__atk">nn::atk</span> 自体への機能追加も行われます。</p>
+<p>詳しくは、<a href="../Pages/Page_94756054.html">NintendoWare オーディオ の変更点</a>&nbsp;を参照ください。</p>
+<h2 id="Anchor_83955840_h2_2">サウンドプロジェクトファイルの互換性</h2>
+<p>NintendoSDK 版&nbsp;SoundMaker で利用するサウンドプロジェクトファイルは、NW4F と同じ .fspj ファイルです。</p>
+<p>NW4F のサウンドプロジェクトファイル (.fspj) を NintendoSDK 版 SoundMaker で読み込むと自動でアップデートされます。<br />ただし、一度アップデートすると、 NW4F 版&nbsp;SoundMaker で開けなくなってしまうので、ご注意ください。</p>
+<h2 id="Anchor_83955840_h2_3">バイナリリソースファイルの互換性</h2>
+<p>各種バイナリリソースファイル（.bfsar, .bfstm など）は、Wii U と同じ拡張子ですが、NintendoSDK ではエンディアンがリトルエンディアンに変わります。<br />Wii U 向けのバイナリリソースファイルをそのまま利用することはできないため、NintendoSDK で再コンバートしてください。</p>
+<h2 id="Anchor_83955840_h2_4">コマンドライン引数仕様の変更</h2>
+<p>コマンドライン引数仕様が以下の通り変更になりました。</p>
+<h3 id="Anchor_83955840_h3_1">WaveConverter.exe</h3>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>NW4F 仕様</th>
+      <th>NintendoSDK 仕様</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>(非公開)</td>
+      <td>-v, --verbose</td>
+      <td>ログの詳細出力</td>
+    </tr>
+    <tr>
+      <td>(非公開)</td>
+      <td>--format&nbsp;&lt;format-type&gt;</td>
+      <td>出力する波形バイナリファイルフォーマットの指定 (bstm or bfwav)</td>
+    </tr>
+    <tr>
+      <td>(非公開)</td>
+      <td>--encoding &lt;encoding-type&gt;</td>
+      <td>出力エンコーディングの指定 (pcm16 or adpcm)<br />※pcm8 は利用できません&nbsp;</td>
+    </tr>
+    <tr>
+      <td>(非公開)</td>
+      <td>-o, --output &lt;output-filepath&gt;</td>
+      <td>出力ファイルパス</td>
+    </tr>
+    <tr>
+      <td>(非公開)</td>
+      <td>--loop-start &lt;frame&gt;</td>
+      <td>ループ開始フレーム</td>
+    </tr>
+    <tr>
+      <td>(非公開)</td>
+      <td>--loop-end &lt;frame&gt;</td>
+      <td>ループ終了フレーム</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955840_h3_2">SoundProjectConverter.exe</h3>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>NW4F 仕様</th>
+      <th>NintendoSDK 仕様</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>-c</td>
+      <td>(変更なし)</td>
+      <td>ファイルの更新日時を無視して、すべて再コンバートする</td>
+    </tr>
+    <tr>
+      <td>-p, --parallel &lt;conversion-count-max&gt;</td>
+      <td>-j, --jobs &lt;conversion-count-max&gt;</td>
+      <td>並列コンバート数の指定</td>
+    </tr>
+    <tr>
+      <td>-s, --silent</td>
+      <td>(変更なし)</td>
+      <td>ログの抑制</td>
+    </tr>
+    <tr>
+      <td>-v, --verbose</td>
+      <td>(変更なし)</td>
+      <td>ログの詳細出力</td>
+    </tr>
+    <tr>
+      <td>--ignore-pre-convert-commands</td>
+      <td>(変更なし)</td>
+      <td>コンバート前コマンドの無効化</td>
+    </tr>
+    <tr>
+      <td>--ignore-post-convert-commands</td>
+      <td>(変更なし)</td>
+      <td>コンバート後コマンドの無効化</td>
+    </tr>
+    <tr>
+      <td>
+        <code class="plain plain">&lt;input-filepath&gt;</code>
+      </td>
+      <td>(変更なし)</td>
+      <td>サウンドプロジェクトファイルパス</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955840_h3_3">SoundProjectWaveExporter.exe</h3>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>NW4F 仕様</th>
+      <th>NintendoSDK 仕様</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>-m, --monaural</td>
+      <td>(変更なし)</td>
+      <td>モノラル波形出力する</td>
+    </tr>
+    <tr>
+      <td>-o</td>
+      <td>-o, --output</td>
+      <td>出力ファイルパス</td>
+    </tr>
+    <tr>
+      <td>-s, --silent</td>
+      <td>(変更なし)</td>
+      <td>ログ出力の抑制</td>
+    </tr>
+    <tr>
+      <td>-t <code class="plain plain">&lt;time&gt;</code></td>
+      <td>-t, --time <code class="plain plain">&lt;time&gt;</code></td>
+      <td>波形の最大出力時間</td>
+    </tr>
+    <tr>
+      <td>
+        <code class="plain plain">&lt;input-filepath&gt;</code>
+      </td>
+      <td>(変更なし)</td>
+      <td>サウンドプロジェクトファイルパス</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955840_h3_4">SoundMaker.exe</h3>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>NW4F 仕様</th>
+      <th>NintendoSDK 仕様</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>-command <code class="plain plain">&lt;command-strings&gt;</code></td>
+      <td>--command <code class="plain plain">&lt;command-strings&gt;</code></td>
+      <td>SoundMaker で実行するコマンド</td>
+    </tr>
+    <tr>
+      <td>
+        <code class="plain plain">&lt;input-filepath&gt;</code>
+      </td>
+      <td>(変更なし)</td>
+      <td>SoundMaker で開くサウンドプロジェクトファイルパス</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955840_h2_5">AnimSoundMaker の提供中止</h2>
+<p>NintendoSDK では、アニメーションサウンド機能の提供を中止しました。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk', '../../../Api/HtmlNX/namespacenn_1_1atk.html' )
+SetUrl( 'ApiLink_nn__audio', '../../../Api/HtmlNX/namespacenn_1_1audio.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

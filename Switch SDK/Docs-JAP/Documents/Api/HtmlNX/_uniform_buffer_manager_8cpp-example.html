@@ -1,0 +1,249 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: UniformBufferManager.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">UniformBufferManager.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_uniform_buffer_manager_8cpp.html" title="This file defines a class that manages memory for uniform buffers by using multiple chunks of of GPU ...">UniformBufferManager.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_uniform_buffer_manager_8h.html">nvntutorial/UniformBufferManager.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * UniformBufferManager Constructor</span></div>
+<div class="line"><span class="comment"> * --------------------------------</span></div>
+<div class="line"><span class="comment"> * Initialize the managers memory pool with the proper</span></div>
+<div class="line"><span class="comment"> * size and set initial values for the manager.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">UniformBufferManager::UniformBufferManager(<a name="_a0"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice, <span class="keywordtype">size_t</span> chunkSize, <span class="keywordtype">int</span> numChunks <span class="comment">/*= 2*/</span>) :</div>
+<div class="line">    m_NumChunks(numChunks),</div>
+<div class="line">    m_WriteIndex(0),</div>
+<div class="line">    m_CurrentChunk(0),</div>
+<div class="line">    m_BufferAddress(0),</div>
+<div class="line">    m_pMappedBuffer(NULL),</div>
+<div class="line">    m_pDevice(pDevice),</div>
+<div class="line">    m_bufferAlignment(0)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a1"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_NumChunks &gt; 0, <span class="stringliteral">&quot;Zero or negative number of chunks requested of uniform buffer manager\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Requested size. */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> size = chunkSize * m_NumChunks;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Align the size properly. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (size &lt; g_MinimumPoolSize)</div>
+<div class="line">    {</div>
+<div class="line">        m_PoolSize = g_MinimumPoolSize;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        m_PoolSize = Align(size, <a name="a2"></a><a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the memory pool. */</span></div>
+<div class="line">    m_Pool.Init(NULL, m_PoolSize, <a name="a3"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a name="a4"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>, m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create an NVN buffer to provide memory from. */</span></div>
+<div class="line">    <a name="_a5"></a><a class="code" href="struct_n_v_nbuffer_builder.html">NVNbufferBuilder</a> bufferBuilder;</div>
+<div class="line">    <a name="a6"></a><a class="code" href="group__nvn__c__functions.html#ga7f1e5a40cc9b049892a527b95ac9b9fc">nvnBufferBuilderSetDevice</a>(&amp;bufferBuilder, m_pDevice);</div>
+<div class="line">    <a name="a7"></a><a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;bufferBuilder);</div>
+<div class="line">    <a name="a8"></a><a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;bufferBuilder, m_Pool.GetMemoryPool(), 0, m_PoolSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a name="a9"></a><a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(&amp;m_Buffer, &amp;bufferBuilder))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize uniform block&#39;s buffer&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get the mapped buffer pointer and NVNbufferAddress. */</span></div>
+<div class="line">    m_pMappedBuffer = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(<a name="a10"></a><a class="code" href="group__nvn__c__functions.html#gaa3a80a57023737b594e83a9fa04282c6">nvnBufferMap</a>(&amp;m_Buffer));</div>
+<div class="line">    m_BufferAddress = <a name="a11"></a><a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(&amp;m_Buffer);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get the size of the per frame chunks. */</span></div>
+<div class="line">    <span class="keywordtype">int</span> bufferAlignment = 0;</div>
+<div class="line">    <a name="a12"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a13"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ac5b90148e47e9a26cd38b367123ff374">NVN_DEVICE_INFO_UNIFORM_BUFFER_ALIGNMENT</a>, &amp;bufferAlignment);</div>
+<div class="line">    m_bufferAlignment = bufferAlignment;</div>
+<div class="line"></div>
+<div class="line">    m_ChunkSize = Align(m_PoolSize / m_NumChunks, m_bufferAlignment);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * UniformBufferManager Destructor</span></div>
+<div class="line"><span class="comment"> * -------------------------------</span></div>
+<div class="line"><span class="comment"> * Clean up NVN data and memory allocations.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">UniformBufferManager::~UniformBufferManager()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; m_ManagedBuffers.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (m_ManagedBuffers[i])</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">delete</span> m_ManagedBuffers[i];</div>
+<div class="line">            m_ManagedBuffers[i] = NULL;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a14"></a><a class="code" href="group__nvn__c__functions.html#ga3e56941d8153c1e1b2ba861189ea993d">nvnBufferFinalize</a>(&amp;m_Buffer);</div>
+<div class="line"></div>
+<div class="line">    m_Pool.Shutdown();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * UniformBufferManager::CreateUniformBuffer</span></div>
+<div class="line"><span class="comment"> * -----------------------------------------</span></div>
+<div class="line"><span class="comment"> * Create a ManagedUniformBuffer of the given size from the pool.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">ManagedUniformBuffer* UniformBufferManager::CreateUniformBuffer(<span class="keywordtype">size_t</span> bufferSize)</div>
+<div class="line">{</div>
+<div class="line">    ManagedUniformBuffer* buffer = <span class="keyword">new</span> ManagedUniformBuffer(m_pDevice, bufferSize, m_BufferAddress, m_pMappedBuffer, <span class="keyword">this</span>);</div>
+<div class="line">    m_ManagedBuffers.push_back(buffer);</div>
+<div class="line">    <span class="keywordflow">return</span> buffer;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * UniformBufferManager::SwapPools</span></div>
+<div class="line"><span class="comment"> * -------------------------------</span></div>
+<div class="line"><span class="comment"> * Swap the memory memory pools so that memory written to</span></div>
+<div class="line"><span class="comment"> * in the previous frame isn&#39;t written to until a later frame</span></div>
+<div class="line"><span class="comment"> *</span></div>
+<div class="line"><span class="comment"> * NOTE: This function should only be called if you can guarantee</span></div>
+<div class="line"><span class="comment"> *       that the memory in the next chunk is safe to start writing</span></div>
+<div class="line"><span class="comment"> *       to.  This can be done by registering an instance of this</span></div>
+<div class="line"><span class="comment"> *       class with an instance of the FrameBufferedSyncManager and</span></div>
+<div class="line"><span class="comment"> *       inserting a sync through InsertFence().</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> UniformBufferManager::SwapPools()</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* If there is only undivided chunk in the memory pool, then there is nothing to swap */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (m_NumChunks == 1)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_CurrentChunk = (m_CurrentChunk + 1) % m_NumChunks;</div>
+<div class="line">    m_WriteIndex = m_CurrentChunk * m_ChunkSize;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">unsigned</span> i = 0; i &lt; m_ManagedBuffers.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        m_ManagedBuffers[i]-&gt;Reset();</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * UniformBufferManager::GetNumChunks</span></div>
+<div class="line"><span class="comment"> * ----------------------------------</span></div>
+<div class="line"><span class="comment"> * Retrieve number of chunks uniform buffer manager is using</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">int</span> UniformBufferManager::GetNumChunks()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_NumChunks;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * UniformBufferManager::GetMemoryChunk</span></div>
+<div class="line"><span class="comment"> * ------------------------------------</span></div>
+<div class="line"><span class="comment"> * Get the offset into the pool of a writable chunk of memory</span></div>
+<div class="line"><span class="comment"> * of the given size.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">ptrdiff_t UniformBufferManager::GetMemoryChunk(<span class="keywordtype">size_t</span> size)</div>
+<div class="line">{</div>
+<div class="line">    ptrdiff_t val = m_WriteIndex.fetch_add(Align(size, m_bufferAlignment), std::memory_order_relaxed);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check for overrunning buffer. */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(((m_WriteIndex - (m_CurrentChunk * m_ChunkSize)) &lt; m_ChunkSize) &amp;&amp; <span class="stringliteral">&quot;Bytes written to uniform buffer pool exceeds buffer limits&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> val;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

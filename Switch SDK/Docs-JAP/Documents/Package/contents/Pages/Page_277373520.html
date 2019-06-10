@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アクセス優先度</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アクセス優先度 -->
+<div class="pagetitle" id="PageId_277373520">アクセス優先度</div>
+<div class="text_separate">
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span style="color: rgb(51,51,51);">アクセス優先度は&nbsp;NX Addon 5.1.0 以降で利用できます。</span>
+    </p>
+  </div>
+</div>
+<h1 id="Anchor_277373520_h1_1">機能概要</h1>
+<p>本ページではアクセス優先度について説明します。アクセス優先度とは、ファイルシステム操作の優先順位です。アクセス優先度を適切に設定することで、優先すべき処理に伴うファイルシステム操作の応答時間を相対的に改善することが出来ます。</p>
+<h1 id="Anchor_277373520_h1_2">アクセス優先度の種類</h1>
+<p>アクセス優先度は、優先度の高い順に次の 3 つの種類があります。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>アクセス優先度</th>
+      <th>概要</th>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__fs__Priority_Realtime">nn::fs::Priority_Realtime</span>
+        </p>
+      </td>
+      <td>リアルタイム処理に適した高優先度でアクセスすることを指定します</td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__fs__Priority_Normal">nn::fs::Priority_Normal</span>
+        </p>
+      </td>
+      <td>通常優先度でアクセスすることを指定します</td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__fs__Priority_Low">nn::fs::Priority_Low</span>
+        </p>
+      </td>
+      <td>低優先度でアクセスすることを指定します</td>
+    </tr>
+  </tbody>
+</table>
+<p>優先度の高いものほど、より優先的に処理されます。</p>
+<p>
+  <span class="ApiLink_nn__fs__Priority_Normal">nn::fs::Priority_Normal</span>&nbsp;は、モデルやテクスチャ、シーン情報など、一般的なファイルの読み込みに適した優先度です。 <span class="ApiLink_nn__fs__Priority_Low">nn::fs::Priority_Low</span>&nbsp;は、オートセーブやシーンの先読みなど、アクセスが空いている時に実行されればよいアクセスに適した優先度です。 <span class="ApiLink_nn__fs__Priority_Realtime">nn::fs::Priority_Realtime</span>&nbsp;は、動画や楽曲データのストリーミング再生などリアルタイム性が必要なアクセスに適した優先度です。</p>
+<h1 id="Anchor_277373520_h1_3">アクセス優先度の設定</h1>
+<p>アクセス優先度は&nbsp;<a href="../Pages/Page_83955697.html">スレッド</a>&nbsp;毎に設定することができます。FS&nbsp;アクセスに伴う処理も適切な優先度になるよう、アクセス優先度に対応させて&nbsp;<a href="../Pages/Page_83955697.html">スレッド優先度</a>&nbsp;を適切に設定するようにしてください。</p>
+<p>アクセス優先度は、FS における処理順序を規定するものであり、アプリケーションのスレッド優先度を規定するものではありません。例えば、ストリーミングデータを読み込むスレッドは、アクセス優先度として&nbsp;<span class="ApiLink_nn__fs__Priority_Realtime">nn::fs::Priority_Realtime</span>&nbsp;を設定し、スレッド優先度も他のストリーミングデータを処理するスレッドに近いものを設定してください。もしアクセス優先度として&nbsp;<span class="ApiLink_nn__fs__Priority_Realtime">nn::fs::Priority_Realtime</span>&nbsp;を設定したスレッドの優先度が低く設定されていると、FS が早く応答しても、他のスレッドの処理でブロックされる状態になります。</p>
+<p>
+  <span style="color: rgb(33,33,33); text-decoration: none;">自スレッドのアクセス優先度</span>は <span class="ApiLink_nn__fs__SetPriorityOnCurrentThread">nn::fs::SetPriorityOnCurrentThread</span>() で設定し、<span class="ApiLink_nn__fs__GetPriorityOnCurrentThread">nn::fs::GetPriorityOnCurrentThread</span>() で取得します。自スレッド以外のスレッドに対してアクセス優先度を設定することは出来ません。</p>
+<p>一度もアクセス優先度を設定していないスレッドの場合、デフォルト値である <span class="ApiLink_nn__fs__Priority_Normal">nn::fs::Priority_Normal</span> が設定されます。</p>
+<h1 id="Anchor_277373520_h1_4">アクセス優先度の決め方</h1>
+<p>アクセス優先度は、相対的な処理順を決定するものであるため、全てのアクセスを <span class="ApiLink_nn__fs__Priority_Realtime">nn::fs::Priority_Realtime</span> に設定しても、パフォーマンスは向上しません。</p>
+<p>動画や楽曲データのストリーミング再生など、リアルタイム性が要求されるアクセスに限定して <span class="ApiLink_nn__fs__Priority_Realtime">nn::fs::Priority_Realtime</span> を使用することを推奨します。</p>
+<p>セーブデータの更新など、ユーザに進行を示す表示を行えるアクセスやバックグラウンドで処理できるアクセスは、<span class="ApiLink_nn__fs__Priority_Low">nn::fs::Priority_Low</span> を使用することを推奨します。</p>
+<p>本体保存メモリー、ゲームカード、SD カードへの通信経路はそれぞれ一つのため、優先度の低いアクセスを処理している間に優先度の高いアクセスを要求した場合、優先度の低いアクセスの中断が完了するまでの処理時間が優先度の高いアクセスのオーバーヘッドになります。中断されるアクセスの優先度が低いほど、オーバーヘッドの時間は短くなります。</p>
+<h1 id="Anchor_277373520_h1_5">注意事項</h1>
+<p>アクセス優先度を利用する際には、以下の点についてご注意ください。</p>
+<ul>
+  <li>アクセス優先度の高いファイルシステム操作により中断が発生すると FS パフォーマンスが低下します。<ul><li>ファイルを連続したオフセットアドレスでアクセスするシーケンシャルアクセスの方が不連続のオフセットアドレスでアクセスするランダムアクセスより速いためです。詳細は&nbsp;<span style="color: rgb(51,51,51);">FS ライブラリ &gt;&nbsp;</span>&nbsp;<a href="../Pages/Page_185130689.html">パフォーマンス</a>&nbsp;を参照してください。</li></ul></li>
+  <li>複数のスレッドでアクセスした際の処理順序は、アクセス優先度がどのように設定されていても保証されません。ファイルアクセスの処理順序に依存した実装をしないでください。</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__fs__Priority_Realtime', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a2e4a9f55e854a9755c9264838caa97d3a0fa1620fa464966eddf7e9a82a0eef91' )
+SetUrl( 'ApiLink_nn__fs__Priority_Normal', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a2e4a9f55e854a9755c9264838caa97d3a3fe1f52283573973940fa566d116289e' )
+SetUrl( 'ApiLink_nn__fs__Priority_Low', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a2e4a9f55e854a9755c9264838caa97d3aa4c563bb69a4dfd6ac970ba42def209a' )
+SetUrl( 'ApiLink_nn__fs__SetPriorityOnCurrentThread', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a3280722d232526f011908c2e7e50400d' )
+SetUrl( 'ApiLink_nn__fs__GetPriorityOnCurrentThread', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a1b0bae7e05be65b11e83a5a63640680f' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

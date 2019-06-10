@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>LDL/LDS</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    LDL : Load within Local Memory Window<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "LDL", description => "Load within Local Memory Window" } -->
+    LDS : Local within Shared Memory Window<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "LDS", description => "Local within Shared Memory Window" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "LDS", subsection => 5 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "LDL", subsection => 5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+  
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>LDL</b>{.cop}{.sz}</code>   <code>Rd, [Ra + ImmS24]</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Load within Local window</code>            </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LDL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LDS</b>{.U}{.sz}</code>     <code>Rd, [Ra + ImmS24]</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Load within Shared window</code>           </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LDS" } -->
+
+  Omit register Ra to specify an unsigned absolute address within a window:
+<code>        <code>{@{!}Pg}</code>   <code><b>LDL</b>{.cop}{.sz}</code>   <code>Rd, [ImmU24]</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Load from absolute Local address</code>    </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LDL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LDS</b>{.sz}</code>         <code>Rd, [ImmU24]</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Load from absolute Shared address</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LDS" } -->
+
+ .cop:  { <b>.CA*, .CS, .LU, .CV , .CI</b>}    // Cache all*, global, streaming, last-use, volatile, inconsistent
+          <b>.CA</b>*   Cache at all levels, likely to be accessed again (default).
+          <b>.CS</b>    .CS  maps to .CA.
+          <b>.LU</b>    Last use, if Local address and line is fuly covered, load, then invalidate line,
+                 otherwise evict first.
+          <b>.CV</b>    Cache as volatile (consider cached system memory lines stale, fetch again).
+          <b>.CI</b>    Cache as inconsistent data (expected to be used only with invariant data).
+
+  .U :    uniform hint. Indicates that the addresses are likely to be 
+            - same across all active threads
+            - or thread pairs (tn and tn^1) have same addresses for all active threads // architecture specific 
+            - or thread pairs (tn and tn^2) have same addresses for all active threads // architecture specific 
+            This hint is used to amplify the data bandwidth for shared loads.
+
+  .sz:    { <b>.U8, .S8, .U16, .S16, .32*, .64, .128 </b> }       Bit size in memory, unsigned or sign-extended
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>LDL</b> and <b>LDS</b> load register Rd from memory within the
+<b>Local</b> or <b>Shared</b> address window, respectively.
+</p>
+
+<p>
+If register Ra is omitted, equal to <tt>RZ</tt>, or beyond the set of
+registers supported for the shader, the effective address is the
+zero-extended absolute <b>unsigned</b> immediate offset.
+An omitted <tt>Ra</tt> register is assembled as <tt>RZ</tt>.
+Otherwise, the effective address is equal to the sum of register Ra
+and the signed-extended <b>signed</b> immediate offset. A negative
+offset is written as <tt>[Ra - offset]</tt> or <tt>[Ra + -offset]</tt>.
+An omitted immediate offset is assembled as zero. All offsets are in bytes.
+</p>
+
+<p>
+Each address window is 16 MB in size; the allocated per-thread Local and
+per-CTA Shared sizes are set by the driver.
+</p>
+
+<p>
+Memory addresses must be naturally aligned, on a byte address that is a
+multiple of the access size. Misaligned addresses are forced to align to
+access size and can optionally raise an error. An address outside the
+window or outside the allocated memory within the window sets Rd to 0
+and causes an error.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Execution Behavior          # -->
+<!-- ############################### -->
+<h3>Execution Behavior:</h3>
+
+<p>
+Within a warp of 32 parallel threads, load instructions coalesce Local accesses that fall in the 
+same 128B cache line into one access, and serialize accesses to each different cache line.  
+Local addresses coalesce to a single access when the threads of a warp access the same Local per-thread address. </p>
+<p>
+Shared memory is partitioned into 32 parallel banks of 32 bits.  Loads from Shared memory execute in parallel 
+unless parallel threads within a warp access conflicting addresses in a memory bank.  Conflicting accesses 
+are serialized to each different address in a memory bank.</p>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>LDL</b>.32     R0, [R1 - 0x004];
+<b>LDS</b>.32     R0, [R1 + 424];
+<b>LDS</b>.32     R0, [424];          // absolute address 424 within Shared window
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

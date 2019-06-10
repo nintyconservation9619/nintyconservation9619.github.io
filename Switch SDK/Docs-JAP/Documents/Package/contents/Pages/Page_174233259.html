@@ -1,0 +1,329 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>動作環境制御機能</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 動作環境制御機能 -->
+<div class="pagetitle" id="PageId_174233259">動作環境制御機能</div>
+<div class="text_separate">
+<h1 id="Anchor_174233259_h1_1">動作環境制御機能</h1>
+<h2 id="Anchor_174233259_h2_1">機能概要</h2>
+<p>アプリケーション自身の動作や、アプリケーションから呼び出された SDK の各種機能を制御するための機能です。</p>
+<p>一部の動作環境制御に関しては、アプリケーションをビルドする際に指定したアプリケーション管理データによっても決定されます。アプリケーション管理データについては <a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a> を参照してください。</p>
+<h2 id="Anchor_174233259_h2_2">動作環境制御機能の使用方法</h2>
+<p> <span class="ApiLink_nn__oe">nn::oe</span> にある API を利用するには、以下のように OE ライブラリヘッダを include してください。<br />  </p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/oe.h&gt;
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_174233259_h2_3">通知メッセージのハンドリング</h2>
+<p>プログラムは、システムの状態変化やプログラム動作環境上の状態変化に対する通知メッセージを受けることができます。</p>
+<p>詳細は <a href="../Pages/Page_166065886.html">プログラムへの通知メッセージ</a> のページを参照し、必要に応じたメッセージのハンドリングを行なうようにして下さい。</p>
+<h2 id="Anchor_174233259_h2_4">スクリーンショット撮影の許可／不許可</h2>
+<p>ユーザはアプリケーションプログラムや本体機能が動作している最中に、キャプチャーボタンを短押しすることで、その時の出力画面のスクリーンショットを撮影し、アルバムに保存することができます。キャプチャーボタン短押し時の動作については「<a href="../Pages/Page_258035870.html">キャプチャーボタンの動作</a>」を参照して下さい。</p>
+<p>プログラムはシーンに応じて、このスクリーンショット撮影を以下の API を使って許可／不許可に制御することができます。また、保存したスクリーンショット画像に埋め込む回転方向の情報を指定することできます。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__EnableScreenShot">nn::oe::EnableScreenShot</span>()</td>
+      <td>スクリーンショット撮影を許可にします。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__DisableScreenShot">nn::oe::DisableScreenShot</span>()</td>
+      <td>スクリーンショット撮影を不許可にします。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__SetScreenShotImageOrientation">nn::oe::SetScreenShotImageOrientation</span>()</td>
+      <td>スクリーンショット画像の回転方向を指定します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>上記 API のうち、<span class="ApiLink_nn__oe__DisableScreenShot">nn::oe::DisableScreenShot</span>() でスクリーンショット撮影を不許可にしている間は、後述のプレイ動画撮影も不許可となります。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>スクリーンショット撮影を有効にするには、<a href="../Pages/Page_166503043.html"> nmeta ファイルの書き方 </a> に記載の「スクリーンショット撮影」を許可にしておく必要があります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>スクリーンショット撮影の許可／不許可を変更する場合は、実際の出画画像変更に対して数フレーム（2～3 フレーム）の余裕を持ってから切り替えるようにして下さい。</p>
+    <p>例えば、撮影許可から不許可に変更する場合は、先に <span class="ApiLink_nn__oe__DisableScreenShot">nn::oe::DisableScreenShot</span>() を発行して数フレーム後に実際に撮影不許可な画像を出画し、撮影不許可から許可に変更する場合は、先に撮影許可な画像を出画して数フレーム後に <span class="ApiLink_nn__oe__EnableScreenShot">nn::oe::EnableScreenShot</span>() を発行するようにして下さい。</p>
+  </div>
+</div>
+<h2 id="Anchor_174233259_h2_5">動画撮影の許可／不許可</h2>
+<p>ユーザはアプリケーションが動作している最中に、キャプチャーボタンを長押しすることでそれまでのプレイ映像を動画ファイルとしてアルバムに保存することができます。キャプチャーボタン長押し時の動作については「<a href="../Pages/Page_258035870.html">キャプチャーボタンの動作</a>」を参照して下さい（保存される動画ファイルの詳細については、本体機能ガイドの「システムアプリ＞撮影機能・アルバム」ページを参照して下さい）。</p>
+<p>アプリケーションはシーンに応じて、この動画撮影を以下の API を使って許可／不許可に制御することができます。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__EnableRecording">nn::oe::EnableRecording</span>()</td>
+      <td>動画撮影を有効にし、動画ファイルの保存を許可にします。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__DisableRecording">nn::oe::DisableRecording</span>()</td>
+      <td>動画撮影を無効にし、動画ファイルの保存を不許可にします。</td>
+    </tr>
+  </tbody>
+</table>
+<p>ただし、前述のスクリーンショット撮影が不許可になっている間は、上記 API に関係なく動画撮影は不許可となり動画ファイルは保存できなくなります。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>動画撮影を有効にするには、<a href="../Pages/Page_166503043.html"> nmeta ファイルの書き方 </a> に記載の「動画撮影」を有効にしておく必要があります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>動画撮影の許可／不許可を変更する場合も、実際の出画画像変更に対して数フレーム（2～3 フレーム）の余裕を持ってから切り替えるようにして下さい。</p>
+    <p>例えば、動画撮影許可から不許可に変更する場合は、先に <span class="ApiLink_nn__oe__DisableRecording">nn::oe::DisableRecording</span>() を発行して数フレーム後に実際に動画撮影不許可な画像を出画し、動画撮影不許可から許可に変更する場合は、先に動画撮影許可な画像を出画して数フレーム後に <span class="ApiLink_nn__oe__EnableRecording">nn::oe::EnableRecording</span>() を発行するようにして下さい。</p>
+  </div>
+</div>
+<h2 id="Anchor_174233259_h2_6">権利表記画像の合成</h2>
+<p align="left">キャプチャーボタンによってアルバムに保存される画面写真や動画ファイルに対して、特定の権利表記画像を合成させることができます。権利表記画像を合成するには以下の API を使用します。nn::oe::InitializeCopyrightFrameBuffer() でフレームバッファを設定および初期化した後、nn::oe::SetCopyrightImage() で実際の画像を登録します。その後は、必要に応じて nn::oe::SetCopyrightVisibility() にて権利表記画像の合成有無を変更できます。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__InitializeCopyrightFrameBuffer">nn::oe::InitializeCopyrightFrameBuffer</span>()</td>
+      <td>権利表記合成用のフレームバッファを設定します。最初に呼ぶ必要があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__SetCopyrightImage">nn::oe::SetCopyrightImage</span>()</td>
+      <td>権利表記画像を上記で設定したフレームバッファに転送します。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__SetCopyrightVisibility">nn::oe::SetCopyrightVisibility</span>()</td>
+      <td>権利表記画像を合成するか否かを指定します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__oe__SetCopyrightImage">nn::oe::SetCopyrightImage</span>() を使って権利表記画像を頻繁に更新しないで下さい。この画像は <span class="ApiLink_nn__oe__InitializeCopyrightFrameBuffer">nn::oe::InitializeCopyrightFrameBuffer</span>() でシステムに渡されたフレームバッファに内容が保持されるため、毎フレーム設定し直す必要はありません。また、権利表記画像を変更する場合は、一度 <span class="ApiLink_nn__oe__SetCopyrightVisibility">nn::oe::SetCopyrightVisibility</span>(false) で合成を一旦停止し、Vsync 同期を経てから <span class="ApiLink_nn__oe__SetCopyrightImage">nn::oe::SetCopyrightImage</span>() で画像を変更し、再び&nbsp;<span class="ApiLink_nn__oe__SetCopyrightVisibility">nn::oe::SetCopyrightVisibility</span>(true) で合成を再開するようにして下さい。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p align="left">権利表記画像の合成機能を、他の目的で使用しないで下さい。</p>
+    <p align="left">権利表記付加機能により、スクリーンショット撮影した画像ファイルや動画ファイルに対して特別な情報を付加して保存を行っています。将来的に、この情報に基づいて一部の編集に制限を設けたりする可能性もありますので、本機能を他の用途で使用しないようにして下さい。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_174233259_h2_7">音声ボリュームバランスの制御</h2>
+<p>プログラムから呼び出すことができる SDK の機能の中には、UI（ユーザインターフェース）を伴なうものがあります。例えば、ソフトウェアキーボードのように、その API の呼出しによって画面と音声が切替えられるようなものがあります。</p>
+<p>呼び出した SDK の機能によってはプログラム自身の音声出力と、呼び出した SDK 機能の音声出力が混合出力されることを前提としたものもあります。このような機能では、以下の API によって音声混合時の音量バランスを指定できる場合があります。ただし、この音量バランス値はあくまで呼出元プログラムからの期待値であり、実際の音量バランスは呼び出した機能によって決定されますので詳細は SDK 機能の API リファレンスやマニュアルを参照して下さい。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>&nbsp;API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__SetExpectedVolumeBalance">nn::oe::SetExpectedVolumeBalance</span>()</td>
+      <td>プログラム自身と呼び出した SDK 機能の音量バランスを指定します。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__GetExpectedVolumeBalance">nn::oe::GetExpectedVolumeBalance</span>()</td>
+      <td>プログラム自身と呼び出した SDK 機能の音量バランスを取得します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_174233259_h2_8">テーマカラーの指定</h2>
+<p>上記の音量バランスと同様、プログラムから呼び出した SDK 機能において UI を伴なうものに対して、その UI のテーマカラーを以下の API で指定できます。こちらもあくまで呼出元プログラムからの期待値であり、実際の UI のカラーは呼び出した機能によって決定されますので詳細は SDK 機能の API リファレンスやマニュアルを参照して下さい。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>&nbsp;API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__SetExpectedThemeColor">nn::oe::SetExpectedThemeColor</span>()</td>
+      <td>呼び出した SDK 機能のテーマカラーを指定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_174233259_h2_9">ユ―ザ無操作時の自動スリープ、画面焼け軽減機能発動時間の制御</h2>
+<p>ユーザによる無操作状態が一定時間継続すると、システムがそれを検知して自動スリープや画面焼け軽減機能が発動するようになっています。</p>
+<p>プログラムは以下の API を使用することで、一部のシーンにおいてそのような機能が発動するのを遅延させることができます。例えば、動画再生中やスタッフロール等の演出を行なっている場合など、ユーザがしばらく無操作の状態になることを予期したシーンにおいて利用されることを想定しています。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>&nbsp;API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__SetUserInactivityDetectionTimeExtended">nn::oe::SetUserInactivityDetectionTimeExtended</span>()</td>
+      <td>自動スリープや画面焼け軽減発動時間延長の有効／無効を指定します。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__IsUserInactivityDetectionTimeExtended">nn::oe::IsUserInactivityDetectionTimeExtended</span>()</td>
+      <td>上記機能が現在有効か否かを取得します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_174233259_h2_10">起動ストレージの取得</h2>
+<p>開発時において、プログラムがどのストレージから起動したかによって、各種セーブデータを保存する場所を変更したい場合があります。このような目的に対応するため、以下の API でプログラムが起動したストレージ種別を取得することができます。また、プログラムに適用されているパッチのストレージ情報も同時に取得できます。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>API</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__GetLaunchStorageInfoForDebug">nn::oe::GetLaunchStorageInfoForDebug</span>()</td>
+      <td>
+        <p>プログラムの起動ストレージおよびパッチストレージを取得します。</p>
+        <p>
+          <br />
+        </p>
+        <p>この API を使用するには明示的に以下をインクルードする必要があります。</p>
+        <p>#include &lt;nn/oe/oe_DebugApis.h&gt;</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>なお、とあるバージョンの SDK でビルドされたプログラムを、より新しいファームウェアや開発機上で起動した場合、未知のストレージからプログラムが起動することがあり得ます。このような場合には <span class="ApiLink_nn__oe__StorageTypeForDebug_Unknown">nn::oe::StorageTypeForDebug_Unknown</span> が返されることがあるため、本 API 使用時にはこのような返値を考慮した上で実装されることを推奨します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Include/nn/oe/oe_DebugApis.h に含まれる各種 API は全て開発目的でのみ使用可能で、製品 ROM では使用することができません。</p>
+  </div>
+</div>
+<h2 id="Anchor_174233259_h2_11">本体スリープへの対応</h2>
+<p>システムのスリープは、<a href="../Pages/Page_107328760.html">DevMenuCommand</a> の「<a href="../Pages/Page_107328760.html#Anchor_107328760_スリープモードの制御">スリープモードの制御</a>」 に示す default と pseudo モードがあります。前者は実際のスリープに入るモードです。後者は疑似スリープに入った後、１秒程度の間を置いて自動的に疑似スリープから起床するモードで、アプリケーションの開発時に利用することができます。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe', '../../../Api/HtmlNX/namespacenn_1_1oe.html' )
+SetUrl( 'ApiLink_nn__oe__EnableScreenShot', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a0bf3aaf4d05ad1ce25d701869cf8ea6e' )
+SetUrl( 'ApiLink_nn__oe__DisableScreenShot', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a7aaaee79f14cf5ed8ebfe536ba5f716b' )
+SetUrl( 'ApiLink_nn__oe__SetScreenShotImageOrientation', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a2ae02b6314e1f5fe5ceec7b7b32692a2' )
+SetUrl( 'ApiLink_nn__oe__EnableRecording', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a5b32512e848e2c2d2169a716fb19a955' )
+SetUrl( 'ApiLink_nn__oe__DisableRecording', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a39a5d59ac4d17350a84c117aa0fc5213' )
+SetUrl( 'ApiLink_nn__oe__InitializeCopyrightFrameBuffer', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ac6e955e4a3a576a2b0077b1938176dc4' )
+SetUrl( 'ApiLink_nn__oe__SetCopyrightImage', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ae5c5eb6bcfae4690567e500dc8185ed1' )
+SetUrl( 'ApiLink_nn__oe__SetCopyrightVisibility', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a4b792d99120fdd692163f629f870280f' )
+SetUrl( 'ApiLink_nn__oe__SetExpectedVolumeBalance', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a5d07d123fcacb8b074ed97f486c8fe04' )
+SetUrl( 'ApiLink_nn__oe__GetExpectedVolumeBalance', '../../../Api/HtmlNX/namespacenn_1_1oe.html#aa7dda08d11df88235b705a5b54c688c2' )
+SetUrl( 'ApiLink_nn__oe__SetExpectedThemeColor', '../../../Api/HtmlNX/namespacenn_1_1oe.html#accebbb1e7485a01bdcb5a3ec7ff44717' )
+SetUrl( 'ApiLink_nn__oe__SetUserInactivityDetectionTimeExtended', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a7c22abba7b05db494231a2893edfcf91' )
+SetUrl( 'ApiLink_nn__oe__IsUserInactivityDetectionTimeExtended', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a6512e9342012d8219ba1dc20faa949c0' )
+SetUrl( 'ApiLink_nn__oe__GetLaunchStorageInfoForDebug', '../../../Api/HtmlNX/namespacenn_1_1oe.html#af0151d16e6becb6266e137e4fe19e5de' )
+SetUrl( 'ApiLink_nn__oe__StorageTypeForDebug_Unknown', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a32c1a3713c59472e22f1ef6e6b777a98aecd7cfbb011ae7a09d90c660a8d29496' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

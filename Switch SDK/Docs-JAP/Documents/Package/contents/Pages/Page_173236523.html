@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Zファイティング抑制</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Zファイティング抑制 -->
+<div class="pagetitle" id="PageId_173236523">Zファイティング抑制</div>
+<div class="text_separate">
+<h1 id="Anchor_173236523_h1_1">Zファイティング抑制</h1>
+<p>ここではパーティクルが別のポリゴンと同じ位置に描画されたときのちらつきを抑える機能「Zファイティング抑制」について説明します。</p>
+<h2 id="Anchor_173236523_h2_1">概要</h2>
+<p>「Zファイティング抑制」は、パーティクルの深度情報に固定値を加算して少しだけ手前に描画する機能です。<br />別のパーティクルと同じ位置に描画されたときに発生するちらつき「Zファイティング」を抑制できます。<br />本機能を使用することで、アプリ側でエミッタ位置を微調整する必要が無くなります。</p>
+<h3 id="Anchor_173236523_h3_1">パーティクルオフセットとの違い</h3>
+<p>本機能は 「パーティクルオフセット」とは異なり、「ポリゴンの前後関係を調整する」ための機能ではありません。<br />そのため、深度値に加算する値はランタイムが内部で持つ設定値に固定されています。</p>
+<p>「Z値をオフセット」 機能でも微小量をオフセット値として設定することで類似の操作を行うことが可能です。<br />しかし、「Z値をオフセット」のオフセット値の単位はワールド座標系のため、最終的な深度値のオフセット量はカメラ距離に応じて変動します。<br />このため、カメラとエフェクトの距離が大きくなった場合、近くでは問題なかったオフセット量でも、深度値の精度限界のために Z ファイティングが発生する場合があります。</p>
+<p>本機能では、カメラ距離に応じて計算された深度値に対して固定値を加算することで、カメラとの距離による問題を起こしにくくしています。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>&nbsp;以下は関連ページへのリンクです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_174067452.html">Zファイティング</a>
+      </th>
+      <td>
+        <span class="keyword">「Zファイティング」について説明します。</span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_94754645.html">パーティクルオフセット</a>
+      </th>
+      <td>ゲーム内のオブジェクトとパーティクルの重なりを調整する機能「パーティクルオフセット」について説明します。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_94758904.html">Z値をオフセット</a>
+      </th>
+      <td>パーティクルの深度値を操作することでポリゴンの重なりを解消できる機能「Z値をオフセット」について説明します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>以下は「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> 設定項目」の概要です。</p>
+<h3 id="Anchor_173236523_h3_2">Zファイティング抑制</h3>
+<p>Zファイティングを抑制するかどうかを、「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520244.png" class="embedded-image" /></span> チェックボックス」ON/OFF で切り替えます。<br />この設定値は、 <span class="ApiLink_nn__vfx__ViewParam__Set">nn::vfx::ViewParam::Set</span>() 関数を用いてゲームアプリケーション側からプログラマにより変更可能です。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本機能を使用する際、以下の点にご注意ください。</p>
+    <ul>
+      <li>上述の通り、ポリゴンの前後関係を調整する目的では使用しないでください。</li>
+      <li>エミッタ内での Z ファイティングの抑制はできません。この場合はエミッタ形状に厚みを持たせるなどして同じ平面上に重ならないように設定してください。</li>
+    </ul>
+  </div>
+</div>
+<h2 id="Anchor_173236523_h2_2">設定例</h2>
+<p>以下は「Zファイティング抑制」を&nbsp;ON/OFF した場合の比較画像です。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955557/174066088.gif" height="250" class="embedded-image" />
+  </span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">A</span>
+      </th>
+      <th>ON</th>
+      <td>Zファイティング抑制を ON にした場合、同じ位置にポリゴンが重なった時のちらつきが発生しません。</td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">B</span>
+      </th>
+      <th>OFF（デフォルト）</th>
+      <td>Zファイティング抑制を OFF にした場合、同じ位置にポリゴンが重なった時にちらつきが発生します。</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__vfx__ViewParam__Set
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

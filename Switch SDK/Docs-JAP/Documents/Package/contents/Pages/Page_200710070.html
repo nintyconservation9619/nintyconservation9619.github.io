@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メモリトラッキング</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メモリトラッキング -->
+<div class="pagetitle" id="PageId_200710070">メモリトラッキング</div>
+<div class="text_separate">
+<p>メモリトラッキング API は、ヒープ管理に関する問題を見つけるのに役立ちます。この API は提供された Heap Inspector ツールと連携して動作します。Heap Inspector ツールは NintendoSDK/Tools/HeapInspector にあり、Nintendo NX CPU プロファイラパッケージの一部として提供されています。</p>
+<h1 id="Anchor_200710070_h1_1">メモリトラッキング API の統合</h1>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>メモリトラッキング API を使用すると、メモリの割り当て、解放、および再割り当てに関する過度のオーバーヘッドが生じる可能性があります。これは、あらゆるメモリ動作を内部に記録して、それを PC にリアルタイムで中継することが原因です。以下に示す関数の詳細については、API リファレンスページを確認してください。</p>
+  </div>
+</div>
+<ol>
+  <li>Nintendo NX CPU プロファイラを初期化します。</li>
+  <li>
+    <p>アプリケーションでヒープごとに <span class="ApiLink_nn__profiler__RecordHeapRange">nn::profiler::RecordHeapRange</span> を呼び出すことによって、アプリケーションのヒープを登録します。例：</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">void</span><span class="o">*</span> <span class="n">startAddr</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">endAddr</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">UINTPTR_MAX</span><span class="p">);</span>
+<span class="nn">nn::profiler::</span><span class="n">RecordHeapRange</span><span class="p">(</span><span class="n">startAddr</span><span class="p">,</span> <span class="n">endAddr</span><span class="p">,</span> <span class="s">&quot;Example&quot;</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>割り当て、解放、および再割り当てをログに記録します。<ol><li>メモリの割り当て、解放、または再割り当てを行う場所をそれぞれ見つけます。これらは、中心的な場所にあることが理想的です。これらの関数は、プロファイラ API を初期化する前に呼び出すこともできます。ただし、トラッキングできるのは、プロファイラ API の初期化の後のメモリの動作のみです。</li><li>各動作の後に、対応する Track 動作を指定します。例えば、malloc を呼び出した後、以下を指定します:<br /><span class="ApiLink_nn__profiler__TrackMalloc">nn::profiler::TrackMalloc</span>(memory, size);</li><li><p>[オプション] 各動作の前に、トラッキング ID を生成します。これにより、データが PC に到達するときのメモリの動作の順序が強制的に適用されるようになります。この場合、ステップ 3b の引数リストでもこの トラッキング ID を使用する必要があります。例：</p><table class="codeblock"><tbody><tr><td class="code"><div class="codeblock"><pre><span class="k">auto</span> <span class="n">id</span> <span class="o">=</span> <span class="nn">nn::profiler::</span><span class="n">GenerateNextTrackingId</span><span class="p">();</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="nn">nn::profiler::</span><span class="n">TrackMalloc</span><span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span></pre></div></td></tr></tbody></table></li></ol></li>
+</ol>
+<h1 id="Anchor_200710070_h1_2">Heap Inspector ツールの設定</h1>
+<ol>
+  <li>'@NvMemoryProfiler' に対する HTCS 予約を作成します。<ol><li>Target Manager で、「Tools（ツール）」-&gt;「HTCS ポート・マッピング」の順に移動します。</li><li>テキストファイルを編集して、SDEV のシリアル番号にポート名 '@NvMemoryProfiler' と 10000 未満のポート番号を付けて予約を追加します。例：<br />XAW02121004141, @NvMemoryProfiler, 6569</li><li>テキストファイルを保存して閉じます。</li><li>SDEV をリセットします。</li></ol></li>
+  <li>Heap Inspector で NX プラグインオプションを設定します。<ol><li>Heap Inspector を起動します。</li><li>「Tools（ツール）」-&gt;「Options（オプション）」-&gt;「NX」の順に移動します。</li><li>NX アドオンで生成される addr2line 実行可能ファイルに対し「'Path to addr2line.exe'（addr2line.exe へのパス）」を設定します。これは、Compilers フォルダに配置します。例：<br />F:\NintendoSDK\Compilers\NX\nx\aarch64\bin\aarch64-nintendo-nx-elf-addr2line.exe</li><li>同様に、NX アドオンで生成される readelf 実行可能ファイルに対して「'Path to readelf.exe'（readelf.exe へのパス）」を設定します。これは、Compilers フォルダに配置します。例：<br />F:\NintendoSDK\Compilers\NX\nx\aarch64\bin\aarch64-nintendo-nx-elf-readelf.exe</li></ol></li>
+  <li>接続プロファイルを作成します。<ol><li>Heap Inspector で、「Live/Recoding（ライブ/記録）」-&gt;「接続」の順に移動します。</li><li>「接続」ウィンドウで、接続グループの「...」ボタンをクリックします。</li><li>「追加」ボタンをクリックします。</li><li>接続に関する設定を行います。名前は任意で指定します。IP アドレスは 127.0.0.1 にします。ポートは、1b で設定したものと同じにします。例：<br />名前：SDEV 4141<br />IP アドレス：127.0.0.1<br />ポート：6569</li></ol></li>
+  <li>ランタイムに接続します。<ol><li>「接続」ウィンドウで、ステップ 3 で作成した接続プロファイルを選択します。</li><li>一般的には、「コールスタック」モードを「フル」に設定することをお勧めします。</li><li>接続するには「OK」ボタンをクリックします。</li></ol></li>
+</ol>
+<p>注意：ステップ 2 をスキップすると、コールスタックがアドレスのみとなり、関数が 'Unresolved symbol'（未解決シンボル）として表示されます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__profiler__RecordHeapRange', '../../../Api/HtmlNX/namespacenn_1_1profiler.html#a3bf0a5b9753b627089dfcc0d0493d64c' )
+SetUrl( 'ApiLink_nn__profiler__TrackMalloc', '../../../Api/HtmlNX/namespacenn_1_1profiler.html#aa69d91e1c97014ba96993db2700e1fbd' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>インゲーム編集</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- インゲーム編集 -->
+<div class="pagetitle" id="PageId_83955770">インゲーム編集</div>
+<div class="text_separate">
+<h1 id="Anchor_83955770_h1_1">インゲーム編集</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955770_h2_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955770_h2_2">インゲーム編集の紹介</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955770_h3_1">インゲーム編集でできること</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_2">導入の利点</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_3">インゲーム編集の仕組み</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_4">編集の手順</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_83955770_h2_3">インゲーム編集の仕様</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955770_h3_5">動作条件</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_6">編集可能なアイテム種別</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_7">編集内容が反映されるタイミング</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_8">編集対象ファイルの更新監視</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955770_h3_9">サウンドアーカイブとサウンドプロジェクトの整合性</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_83955770_h2_4">atk::viewer ライブラリの組み込み（プログラマー向け）</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_83955770_h2_1">概要</h2>
+<p>インゲーム編集は&nbsp;Atk の機能の１つで、組み込んだアプリケーションは SoundMaker に接続可能となり、 アプリケーションを実行しながらサウンドアーカイブの内容を調整することができるようになります。</p>
+<h2 id="Anchor_83955770_h2_2">インゲーム編集の紹介</h2>
+<h3 id="Anchor_83955770_h3_1">インゲーム編集でできること</h3>
+<p>例えば、次のような編集が可能です。</p>
+<ul>
+  <li>サウンドの音量等、各種パラメータを調整する</li>
+  <li>ストリームサウンドトラックを追加、削除する</li>
+  <li>波形やシーケンスデータ、バンクを差し替える</li>
+  <li>アプリケーション上でサウンドを再生する</li>
+</ul>
+<p>※SoundMaker 上では、サウンドの種類を変えることはできません。(ウェーブサウンド&rarr;シーケンスサウンド)</p>
+<p>&nbsp;</p>
+<h3 id="Anchor_83955770_h3_2">導入の利点</h3>
+<p>インゲーム編集を利用いただくことで、次のような利点が生まれます。</p>
+<ul>
+  <li>Try &amp; Error の回数を増やすことができる<p>これまでは、パラメータや波形の調整する度に、アプリケーションの再起動が必要でした。<br />インゲーム編集を使うと、再起動なしで音量変更や、波形差し替えを即座に反映させることができます。</p></li>
+  <li>アプリケーション上で調整できる<p>実際のアプリケーション上で、リアルタイムに聞こえ方を確認しながらパラメータを調整できます。</p></li>
+</ul>
+<h3 id="Anchor_83955770_h3_3">インゲーム編集の仕組み</h3>
+<p>インゲーム編集の仕組みを簡単に説明します。</p>
+<p>インゲーム編集を行うには、アプリケーションに atk::viewer ライブラリを組み込み、SoundMaker とホストターゲット間接続できるようにする必要があります。<br />SoundMaker は、編集されたデータを atk::viewer ライブラリに転送し、atk::viewer ライブラリはその転送データを使って、 atk ライブラリが再生するデータを差し替えます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955770/94713365.png" width="600" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_83955770_h3_4">編集の手順</h3>
+<ol>
+  <li>SoundMaker で編集対象のプロジェクトを開きます</li>
+  <li>atk::viewer ライブラリを組み込んだアプリケーションと SoundMaker を接続します<ul><li>SoundMaker のツールバーから、プラットフォームと接続先（PC or 実機）を選択し、接続ボタン <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955770/108659873.PNG" class="embedded-image" /></span>&nbsp;を押してください</li></ul></li>
+  <li>SoundMaker のリストにて、編集したいサウンド、バンクに編集チェックをつけます</li>
+  <li>自動でコンバートされ、編集データが転送されます<br />転送されたデータは、キャッシュされます&nbsp;</li>
+  <li>次のサウンド再生から変更が適用されます<br />キャッシュがあれば優先して利用し、なければ元のデータを利用します</li>
+</ol>
+<h2 id="Anchor_83955770_h2_3">インゲーム編集の仕様</h2>
+<h3 id="Anchor_83955770_h3_5">動作条件</h3>
+<ul>
+  <li>デフォルトでは Debug / Develop ビルド時のみ有効化されます</li>
+  <li>名前でマッチングするため、サウンドプロジェクト設定の '文字列テーブルを出力する' にチェックを入れておく必要があります</li>
+</ul>
+<h3 id="Anchor_83955770_h3_6">編集可能なアイテム種別</h3>
+<p>インゲーム編集で編集可能なアイテムは次の通りです。</p>
+<ul>
+  <li>ストリームサウンド</li>
+  <li>ウェーブサウンド</li>
+  <li>シーケンスサウンド</li>
+  <li>バンク</li>
+</ul>
+<p>※プレイヤー、波形アーカイブ、グループは対象外です。</p>
+<h3 id="Anchor_83955770_h3_7">編集内容が反映されるタイミング</h3>
+<p>編集データの転送が完了すると、次のサウンド再生から編集内容が反映されます。<br />ただし、各種サウンドの音量とストリームサウンドトラックの音量については、 再生中のサウンドに対しても即時反映されます。</p>
+<h3 id="Anchor_83955770_h3_8">編集対象ファイルの更新監視</h3>
+<p>SoundMaker は、インゲーム編集対象アイテムが参照するファイルの更新を監視し、自動で再転送を行います。<br /> 例えば、ウェーブサウンドを編集対象にしておけば、外部エディタから該当する波形ファイルを上書き保存するだけで、 実行中のアプリケーションに変更が反映されます。</p>
+<h3 id="Anchor_83955770_h3_9">サウンドアーカイブとサウンドプロジェクトの整合性</h3>
+<p>アプリケーションで再生されようとしているサウンドの名前に一致した編集データが適用されるため、 SoundMaker で開いているサウンドプロジェクトに修正が加えられ、以前にそのプロジェクトから作られて アプリケーションに既に読み込まれているサウンドアーカイブとの同期が取られていない状態になっても、 問題なく動作します。</p>
+<h2 id="Anchor_83955770_h2_4">atk::viewer ライブラリの組み込み（プログラマー向け）</h2>
+<p>SDK サンプル解説書の <a href="../../../Api/HtmlNX/_page_sample_atk_viewer.html">AtkViewerサンプル</a>&nbsp;のドキュメントを参照ください。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ディスクリプタプールについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ディスクリプタプールについて -->
+<div class="pagetitle" id="PageId_100732452">ディスクリプタプールについて</div>
+<div class="text_separate">
+<h1 id="Anchor_100732452_h1_1">vfxランタイムでのディスクリプタプールの扱い</h1>
+<p>vfxランタイム内部でのディスクリプタプールの扱いについて説明します。</p>
+<p>テクスチャオブジェクトやサンプラオブジェクトは、ディスクリプタプールに登録しディスクリプタスロットを取得した上で利用されます。ディスクリプタ プールは、アプリで１つしか用意されないので、vfxランタイム内部で生成されるオブジェクトはコールバック関数を通して、生成されたオブジェクトの情報をアプリ側に通知し、アプリ側でディスクリプタプール への登録、ディスクリプタスロットの取得を行っていただく必要があります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757084/94709916.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ディスクリプタスロットの管理には、 gfxutil モジュールの gfx_DescriptorPoolAllocator や gfx_TransientDescriptorAllocator を利用することができます。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h2 id="Anchor_100732452_h2_1">テクスチャ</h2>
+<p>vfxランタイム内部では、以下のテクスチャをディスクリプタプールに登録する必要があります。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラス内で生成されるテクスチャ</li>
+  <li>エフェクトバイナリに含まれるテクスチャ</li>
+</ul>
+<h3 id="Anchor_100732452_h3_1">nn::vfx::System クラス内で生成されるテクスチャ</h3>
+<p>
+  <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 生成時に、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 内部で生成されるテクスチャを <span class="ApiLink_nn__vfx__RegisterTextureViewToDescriptorPool">nn::vfx::RegisterTextureViewToDescriptorPool</span> を呼び出してテクスチャをディスクリプタプールに登録する必要があります。現在、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 生成時に　カールノイズテクスチャ を１枚(&nbsp;<span class="ApiLink_nn__vfx__SystemParameters_StaticTextureDescriptorSlotCount">nn::vfx::SystemParameters_StaticTextureDescriptorSlotCount</span> ) 生成しています。このテクスチャは、カールノイズを利用したパーティクル挙動で利用されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エフェクトシステムを生成します。
+</span><span class="n">m_pVfxSys</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">nn::vfx::</span><span class="n">System</span><span class="p">(</span> <span class="n">config</span> <span class="p">);</span>
+&nbsp;
+<span class="c1">// エフェクトシステムが生成するテクスチャをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span> <span class="n">pRegisterTextureSlotCallback</span><span class="p">,</span> <span class="nb">NULL</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトシステムが生成するテクスチャをディスクリプタプールから破棄する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">UnregisterTextureViewFromDescriptorPool</span><span class="p">(</span> <span class="n">pUnregisterTextureSlotCallback</span><span class="p">,</span> <span class="nb">NULL</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_100732452_h3_2">エフェクトバイナリに含まれるテクスチャ</h3>
+<p>エフェクトバイナリに含まれるテクスチャもディスクリプタプールに登録する必要があります。こちらは、バイナリ登録後に <span class="ApiLink_nn__vfx__Resource">nn::vfx::Resource</span> クラス経由でディスクリプタプールへの登録を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エフェクトシステムにエフェクトバイナリを登録する。
+</span><span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">EntryResource</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">vfxHeap</span><span class="p">,</span> <span class="n">binary</span><span class="p">,</span> <span class="n">resourceId</span> <span class="p">);</span>
+&nbsp;
+<span class="c1">// リソース内に含まれるテクスチャをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">GetResource</span><span class="p">(</span> <span class="n">newResId</span> <span class="p">)</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span> <span class="n">pRegisterTextureSlotCallback</span><span class="p">,</span> <span class="nb">NULL</span> <span class="p">);</span>
+
+<span class="c1">// リソース内に含まれるテクスチャをディスクリプタプールから破棄する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">GetResource</span><span class="p">(</span> <span class="n">newResId</span> <span class="p">)</span><span class="o">-&gt;</span><span class="n">UnregisterTextureViewFromDescriptorPool</span><span class="p">(</span> <span class="n">pUnregisterTextureSlotCallback</span><span class="p">,</span> <span class="nb">NULL</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_100732452_h3_3">コールバック関数</h3>
+<p>ディスクリプタプールへの登録や破棄は、ユーザーが記述したコールバック関数経由で行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//  テクスチャをディスクリプタプールへ登録するコールバック関数
+</span><span class="kt">bool</span> <span class="nf">AllocateSlotForTexture</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">*</span> <span class="n">dstSlot</span><span class="p">,</span> <span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">TextureView</span><span class="o">&amp;</span> <span class="n">textureView</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// pUserData には、テクスチャディスクリプタプールへ登録するためのオブジェクトなどを渡せる
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">TextrueDescriptorManger</span><span class="o">*</span> <span class="n">manger</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span> <span class="n">TextrueDescriptorManger</span><span class="o">*</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">pUserData</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// textureView をディスクリプタプールに登録し、登録先の dstSlot を返す必要があります。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">slot</span> <span class="o">=</span> <span class="n">manger</span><span class="o">-&gt;</span><span class="n">GetEmptyTextureDescriptorSlot</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">BeginUpdate</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">SetTextureView</span><span class="p">(</span> <span class="n">slot</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureView</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">EndUpdate</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">GetDescriptorSlot</span><span class="p">(</span> <span class="n">dstSlot</span><span class="p">,</span> <span class="n">slot</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// エフェクトシステム生成直後に、システム内部で生成されるテクスチャをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span> <span class="n">AllocateSlotForTexture</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_100732452_h2_2">サンプラ</h2>
+<p>現在、vfx ランタイムで利用されるサンプラは、利用可能なサンプラパターンを <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラス生成時に生成し、以降はそれを使いまわすような仕様になっています。生成されるパターンは、テクスチャフィルタ、テクスチャラップU、テクスチャラップV の組み合わせで全32パターン(&nbsp;<span class="ApiLink_nn__vfx__SystemParameters_StaticSamplerDescriptorSlotCount">nn::vfx::SystemParameters_StaticSamplerDescriptorSlotCount</span> )生成されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//  テクスチャをディスクリプタプールへ登録するコールバック関数
+</span><span class="kt">bool</span> <span class="nf">AllocateSlotForSampler</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">*</span> <span class="n">dstSlot</span><span class="p">,</span> <span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">Sampler</span><span class="o">&amp;</span> <span class="n">sampler</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SamplerDescriptorManger</span><span class="o">*</span> <span class="n">manger</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span> <span class="n">SamplerDescriptorManger</span><span class="o">*</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">pUserData</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Sampler をディスクリプタプールに登録し、登録先の dstSlot を返す必要があります。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">slot</span> <span class="o">=</span> <span class="n">manger</span><span class="o">-&gt;</span><span class="n">GetEmptyTextureDescriptorSlot</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">BeginUpdate</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">SetSampler</span><span class="p">(</span> <span class="n">slot</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sampler</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">EndUpdate</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::DescriptorPool::</span><span class="n">GetDescriptorSlot</span><span class="p">(</span> <span class="n">dstSlot</span><span class="p">,</span> <span class="n">slot</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+&nbsp;
+<span class="c1">// システムが生成するサンプラをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">RegisterSamplerToDescriptorPool</span><span class="p">(</span> <span class="n">pRegisterSamplerSlotCallback</span> <span class="p">);</span>
+
+<span class="c1">// システムが生成したサンプラをディスクリプタプールから破棄する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">UnregisterSamplerFromDescriptorPool</span><span class="p">(</span> <span class="n">pUnregisterSamplerSlotCallback</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html' )
+// ApiLink_nn__vfx__RegisterTextureViewToDescriptorPool
+SetUrl( 'ApiLink_nn__vfx__SystemParameters_StaticTextureDescriptorSlotCount', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#a066f6ff695f03644411e5d69515b4d94a5426950b49fdf6f4e3bb1ee224af8664' )
+SetUrl( 'ApiLink_nn__vfx__Resource', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_resource.html' )
+SetUrl( 'ApiLink_nn__vfx__SystemParameters_StaticSamplerDescriptorSlotCount', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#a066f6ff695f03644411e5d69515b4d94a11fe686b52d57c44f8e856118bb15108' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

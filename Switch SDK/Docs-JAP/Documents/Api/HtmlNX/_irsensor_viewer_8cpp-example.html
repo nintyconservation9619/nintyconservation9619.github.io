@@ -1,0 +1,251 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: IrsensorViewer.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">IrsensorViewer.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_ir_sensor_viewer.html">モーションIRカメラの状態取得のサンプルプログラム</a> および <a class="el" href="_ir_sensor_viewer_8cpp.html" title="nn::irsensor ライブラリの使い方を示すサンプルプログラム ">IrsensorViewer.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// NintendoSDK のヘッダファイルをインクルードする前に、NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET マクロを</span></div>
+<div class="line"><span class="comment">// 定義することで、DebugFontWriter::Print() の入力文字コードを Windows のロケールのデフォルト</span></div>
+<div class="line"><span class="comment">// (日本語の場合、CP932)に変更できます。</span></div>
+<div class="line"><span class="comment">//#define NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/irsensor.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/gfx/gfx_GraphicsFramework.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/gfx/util/gfx_DebugFontTextWriter.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/gfx/gfx_PrimitiveRenderer.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="init___malloc_8h.html">nn/init/init_Malloc.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;GraphicsSystem.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;IrSensorDemo.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;ImageTransferModeState.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;WindowMessage.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_NX)</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nv___memory_management_8h.html">nv/nv_MemoryManagement.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> FrameRate = 60;</div>
+<div class="line"></div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a0"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// Initialization</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6">nn::hid::NpadIdType</a> npadIds[] =</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a1"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">::nn::hid::NpadId::No1</a>,</div>
+<div class="line">        <a name="a2"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa127a6d25de9fd544768ee18734f5b6f">::nn::hid::NpadId::No2</a></div>
+<div class="line">    };</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Memory</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line"></div>
+<div class="line">    <a name="_a3"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html">nn::mem::StandardAllocator</a> appAllocator;</div>
+<div class="line">    <span class="keywordtype">void</span>* workMemoryBuffers[<a name="a4"></a><a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(npadIds)];</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> appMemorySize  = 128 * 1024 * 1014;</div>
+<div class="line">    nn::Bit8* pAppMemory        = <span class="keyword">new</span> nn::Bit8[appMemorySize];</div>
+<div class="line"></div>
+<div class="line">    appAllocator.<a name="a5"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#acdb0dd01602811a4f469c87c348d3ed1">Initialize</a>(pAppMemory, appMemorySize);</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_NX)</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> graphicsMemorySize = 8 * 1024 * 1024;</div>
+<div class="line">    <span class="keywordtype">void</span>* pGraphicsMemory = <a name="a6"></a><a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#a92e4acf8d64741832b04dd18823f4275">nns::gfx::GraphicsFramework::DefaultAllocateFunction</a>(graphicsMemorySize, 1, <span class="keyword">nullptr</span>);</div>
+<div class="line">    <a name="a7"></a><a class="code" href="namespacenv.html#a7d85cfdd1bae1b635cc66b8d58077688">nv::SetGraphicsAllocator</a>(<a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#a92e4acf8d64741832b04dd18823f4275">nns::gfx::GraphicsFramework::DefaultAllocateFunction</a>, <a name="a8"></a><a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#a6ee180dc54a02394b97fb1b49a686545">nns::gfx::GraphicsFramework::DefaultFreeFunction</a>, <a name="a9"></a><a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#ac550d1cec0dfa1d8411f8437953c74ac">nns::gfx::GraphicsFramework::DefaultReallocateFunction</a>, <span class="keyword">nullptr</span>);</div>
+<div class="line">    <a name="a10"></a><a class="code" href="namespacenv.html#a5ef00427dfc2493551bb66b37731bb35">nv::SetGraphicsDevtoolsAllocator</a>(<a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#a92e4acf8d64741832b04dd18823f4275">nns::gfx::GraphicsFramework::DefaultAllocateFunction</a>, <a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#a6ee180dc54a02394b97fb1b49a686545">nns::gfx::GraphicsFramework::DefaultFreeFunction</a>, <a class="code" href="classnns_1_1gfx_1_1_graphics_framework.html#ac550d1cec0dfa1d8411f8437953c74ac">nns::gfx::GraphicsFramework::DefaultReallocateFunction</a>, <span class="keyword">nullptr</span>);</div>
+<div class="line">    <a name="a11"></a><a class="code" href="namespacenv.html#aacadc57952b370f2286108f5835ce726">nv::InitializeGraphics</a>(pGraphicsMemory, graphicsMemorySize);</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Graphics</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line"></div>
+<div class="line">    GraphicsSystem* pGraphicsSystem = new ::GraphicsSystem();</div>
+<div class="line">    pGraphicsSystem-&gt;SetApplicationHeap(&amp;appAllocator);</div>
+<div class="line">    pGraphicsSystem-&gt;Initialize();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Initialize Hid</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line"></div>
+<div class="line">    <a name="a12"></a><a class="code" href="namespacenn_1_1hid.html#a54ad6953b9cef17b4d79171e819b0048">nn::hid::InitializeNpad</a>();</div>
+<div class="line">    <a name="a13"></a><a class="code" href="namespacenn_1_1hid.html#ac04a55a989058f9d69c5c3e4e29c4480">nn::hid::SetSupportedNpadStyleSet</a>(</div>
+<div class="line">        ::nn::hid::NpadStyleJoyRight::Mask</div>
+<div class="line">        | ::nn::hid::NpadStyleJoyLeft::Mask</div>
+<div class="line">        | ::nn::hid::NpadStyleHandheld::Mask</div>
+<div class="line">        | ::nn::hid::NpadStyleFullKey::Mask);</div>
+<div class="line">    <a name="a14"></a><a class="code" href="namespacenn_1_1hid.html#a82326d8c0d5f888fce443798bb829e97">nn::hid::SetSupportedNpadIdType</a>(npadIds, <a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(npadIds));</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Initialize Demo</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line"></div>
+<div class="line">    IrSensorDemo demoStates[<a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(npadIds)];</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(npadIds); i++)</div>
+<div class="line">    {</div>
+<div class="line">        workMemoryBuffers[i] = appAllocator.<a name="a15"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#a53438b7a6199e4f100c59312d2f123cf">Allocate</a>(ImageTransferModeState::WorkMemorySize, ImageTransferModeState::WorkMemoryAlignement);</div>
+<div class="line">        demoStates[i].Initialize(npadIds[i], pGraphicsSystem, workMemoryBuffers[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    EnableWindowMessage(pGraphicsSystem-&gt;GetNativeWindowHandle());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Main Loop</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line">    <span class="keywordtype">bool</span> exit = <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">while</span> (!exit)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">switch</span> (GetWindowMessage(pGraphicsSystem-&gt;GetNativeWindowHandle()))</div>
+<div class="line">        {</div>
+<div class="line">        <span class="keywordflow">case</span> WindowMessage_Close:</div>
+<div class="line">            exit = <span class="keyword">true</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <a name="_a16"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html">nn::gfx::util::DebugFontTextWriter</a>* pTextWriter = &amp;pGraphicsSystem-&gt;GetDebugFont();</div>
+<div class="line">        pGraphicsSystem-&gt;BeginDraw();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(npadIds); ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span> (!demoStates[i].Run(i, pGraphicsSystem, pTextWriter))</div>
+<div class="line">            {</div>
+<div class="line">                exit = <span class="keyword">true</span>;</div>
+<div class="line">                <span class="keywordflow">break</span>;</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        pTextWriter-&gt;<a name="a17"></a><a class="code" href="classnn_1_1gfx_1_1util_1_1_debug_font_text_writer.html#add0b5d280cff054eb7f39f26221828fc">Draw</a>(&amp;pGraphicsSystem-&gt;GetCommandBuffer());</div>
+<div class="line">        pGraphicsSystem-&gt;EndDraw();</div>
+<div class="line"></div>
+<div class="line">        pGraphicsSystem-&gt;Synchronize(</div>
+<div class="line">            <a name="a18"></a><a class="code" href="classnn_1_1_time_span.html#a52a2856f56e7b046cbb28056e235cc34">nn::TimeSpan::FromNanoSeconds</a>(1000 * 1000 * 1000 / FrameRate));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Finalization</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Finalize Demo</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(npadIds); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        demoStates[i].Finalize();</div>
+<div class="line">        appAllocator.<a name="a19"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#ad81377b59c5e1532869b003cd9b5f318">Free</a>(workMemoryBuffers[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Finalize Graphics</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line"></div>
+<div class="line">    pGraphicsSystem-&gt;Finalize();</div>
+<div class="line">    <span class="keyword">delete</span> pGraphicsSystem;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    <span class="comment">// Finalize Memory</span></div>
+<div class="line">    <span class="comment">//</span></div>
+<div class="line">    appAllocator.<a name="a20"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#a6027bb6b016064edb1b007651d4af419">Finalize</a>();</div>
+<div class="line">    <span class="keyword">delete</span>[] pAppMemory;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

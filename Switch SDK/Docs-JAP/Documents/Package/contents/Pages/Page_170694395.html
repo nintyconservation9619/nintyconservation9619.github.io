@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ビルド手順: アプリケーションイメージの作成</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ビルド手順: アプリケーションイメージの作成 -->
+<div class="pagetitle" id="PageId_170694395">ビルド手順: アプリケーションイメージの作成</div>
+<div class="text_separate">
+<h1 id="Anchor_170694395_h1_1">アプリケーションイメージの作成</h1>
+<h2 id="Anchor_170694395_h2_1">nmeta ファイルの準備</h2>
+<p>nmeta ファイルは、アプリケーションごとに設定することが可能なパラメータを記述するためのファイルです。</p>
+<p>NintendoSDK で提供している以下のファイルをコピーしてアプリケーションのビルドに使用してください。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>アプリケーションの種類</th>
+      <th>nmeta ファイル</th>
+    </tr>
+    <tr>
+      <td>64bit アプリケーション</td>
+      <td>%NINTENDO_SDK_ROOT%\Resources\SpecFiles\Application.aarch64.lp64.nmeta</td>
+    </tr>
+    <tr>
+      <td>32bit アプリケーション</td>
+      <td>%NINTENDO_SDK_ROOT%\Resources\SpecFiles\Application.arm.ilp32.nmeta</td>
+    </tr>
+  </tbody>
+</table>
+<p>nmeta ファイルはアプリケーション固有の情報を記述するファイルであり、アプリケーションごとに開発者が編集する必要があります。詳細は <a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a> を参照してください。</p>
+<h2 id="Anchor_170694395_h2_2">npdm ファイル作成</h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_170694395/171970412.png" class="embedded-image" />
+  </span>
+</p>
+<p>npdm ファイルはアプリケーションの実行に関するメタ情報を表すファイルです。npdm ファイルは nmeta ファイルから MakeMeta を使用して作成します。</p>
+<p>npdm ファイルを作成する際の MakeMeta の使用方法は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>MakeMeta
+&nbsp;&nbsp;&nbsp;&nbsp;--desc %NINTENDO_SDK_ROOT%\Resources\SpecFiles\Application.desc
+&nbsp;&nbsp;&nbsp;&nbsp;--meta &lt;nmeta ファイル&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;-o &lt;出力ファイル&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>コマンドラインオプションで指定されている Application.desc ファイルは、一般的なアプリケーションが利用できる機能の権限範囲を記述したファイルです。</p>
+    <p>このファイルは改変せず、NintendoSDK によって提供されるファイルをそのまま指定してください。また、異なるバージョンの NintendoSDK に含まれている Application.desc ファイルをコピーして利用しないようご注意ください。</p>
+    <p>.desc ファイルは提出時の確認に使用する場合がありますので、パッケージのファイルを個別にコピーやリネームせず、パッケージから直接参照するようにしてください。</p>
+  </div>
+</div>
+<h2 id="Anchor_170694395_h2_3">nrr ファイル作成</h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_170694395/171969617.png" class="embedded-image" />
+  </span>
+</p>
+<p>nrr ファイルは RO ライブラリで nro ファイルを利用するために必要な管理ファイルです。nrr ファイルは nro ファイルから MakeNrr を使用して作成します。RO ライブラリの機能を必要としない場合、この手順は省略可能です。</p>
+<p>nrr ファイルを作成する際の MakeNrr の使用方法は以下のようになります。1 つの nrr ファイルに複数の nro ファイルを登録することが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>MakeNrr
+&nbsp;&nbsp;&nbsp;&nbsp;-o &lt;出力ファイル&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;入力ファイル&gt;...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>nrr ファイルは、後述する手順でアプリケーションのデータ領域ディレクトリに格納する必要があります。アプリケーションの実行時に RO ライブラリから参照されます。</p>
+    <p>nrr ファイルには、配置場所などに関する制約があります。詳細は&nbsp;<a href="../Pages/Page_161307762.html"><span class="sv-ti-title-text">RO ライブラリ</span></a> を参照してください。</p>
+  </div>
+</div>
+<h2 id="Anchor_170694395_h2_4">アプリケーションイメージ作成の準備</h2>
+<p>アプリケーションイメージを作成するためには、あらかじめアプリケーションの実行に必要となるファイルを後述する形式に沿っていくつかのディレクトリに集約しておく必要があります。アプリケーションイメージの作成に使用するディレクトリは次の 2 つです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>ディレクトリ名</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>コード領域ディレクトリ</td>
+      <td>nso ファイル、npdm ファイル等のプログラムコードに関するファイルを集約するディレクトリです。アプリケーションイメージの作成に必須です。</td>
+    </tr>
+    <tr>
+      <td>データ領域ディレクトリ</td>
+      <td>リソースデータとして使用するファイルを集約するディレクトリです。アプリケーションイメージの作成に必須ではありません。<a href="../Pages/Page_107338701.html">ファイルシステムライブラリのリファレンス</a>も参照してください。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_170694395_h3_1">コード領域ディレクトリの作成</h3>
+<p>コード領域ディレクトリには以下のファイルを格納します。ビルドターゲットとビルドタイプについては&nbsp;<a href="../Pages/Page_106361459.html">ビルドターゲットとビルドタイプ</a> を参照してください。</p>
+<ul>
+  <li>アプリケーションの nso ファイル</li>
+  <li>アプリケーションの npdm ファイル</li>
+  <li>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\nnrtld.nso</li>
+  <li>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\nnSdk.nso</li>
+  <li>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\&lt;アプリケーションが追加で使用する共有ライブラリ 1&gt;.nso</li>
+  <li>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\&lt;アプリケーションが追加で使用する共有ライブラリ 2&gt;.nso</li>
+  <li>...</li>
+  <li>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\&lt;アプリケーションが追加で使用する共有ライブラリ X&gt;.nso</li>
+</ul>
+<p>ただし、アプリケーションが追加で使用する共有ライブラリの nso ファイル (以下、追加の nso ファイル) は 0 個以上 10 個以下でなければなりません。</p>
+<p>これらのファイルを以下に示すようにコード領域ディレクトリの直下にコピーしてください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;コード領域ディレクトリ&gt;
+├ &lt;アプリケーションの nso ファイル&gt;
+├ &lt;アプリケーションの npdm ファイル&gt;
+├ nnrtld.nso
+├ nnSdk.nso
+├ &lt;アプリケーションが追加で使用する共有ライブラリ 1&gt;.nso
+├ &lt;アプリケーションが追加で使用する共有ライブラリ 2&gt;.nso
+├ ...
+└ &lt;アプリケーションが追加で使用する共有ライブラリ X&gt;.nso</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>次に、これらのファイルの名前を以下のように変更してください。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>変更前のファイル</th>
+      <th>変更後のファイル名</th>
+    </tr>
+    <tr>
+      <td>アプリケーションの nso ファイル</td>
+      <td>main (拡張子なし)</td>
+    </tr>
+    <tr>
+      <td>アプリケーションの npdm ファイル</td>
+      <td>main.npdm</td>
+    </tr>
+    <tr>
+      <td>nnrtld.nso</td>
+      <td>rtld (拡張子なし)</td>
+    </tr>
+    <tr>
+      <td>nnSdk.nso</td>
+      <td>sdk (拡張子なし)</td>
+    </tr>
+    <tr>
+      <td>追加の nso ファイル</td>
+      <td>
+        <p>subsdk* (拡張子なし)</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>追加の nso ファイルの名前は、リンク時のシンボル解決の優先順位が高いものから順に subsdk0, subsdk1, subsdk2, ..., subsdk9 という名前に変更してください。例えば、追加の nso ファイルが 3 つある時、リネーム後のコード領域ディレクトリは以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;コード領域ディレクトリ&gt;
+├ main
+├ main.npdm
+├ rtld
+├ sdk
+├ subsdk0
+├ subsdk1
+└ subsdk2</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_170694395_h3_2">データ領域ディレクトリの作成</h3>
+<p>データ領域ディレクトリに格納するファイルやディレクトリ構造には、基本的に制約はありません。</p>
+<p>ただし、RO ライブラリを利用した動的モジュールを使用する場合は、以下の制約があります。</p>
+<ul>
+  <li>
+    <p>データ領域ディレクトリの直下に .nrr という名前のディレクトリを作成し、その中に nrr ファイルを配置する必要があります。また、.nrr ディレクトリには nrr ファイル以外のデータを格納してはいけません。</p>
+  </li>
+  <li>
+    <p>nrr ファイルは改変を行ってはいけません。暗号化や圧縮などの処置も含みます。</p>
+    <div class="info_new">
+      <div class="info_new_left">参考：</div>
+      <div class="info_new_right">
+        <p>これらの制限は、<a href="../Pages/Page_310879077.html">DevMenu の<span class="toc-item-body">開発支援機能の設定</span></a>に存在する <span class="toc-item-body"><span class="toc-link">Ease Nro Restriction</span></span> で無効化することができます。</p>
+      </div>
+    </div>
+  </li>
+</ul>
+<h2 id="Anchor_170694395_h2_5">アプリケーションイメージの作成</h2>
+<p>アプリケーションイメージはいくつかの種類があります。詳細は <a href="../Pages/Page_107320222.html">こちらのページ</a> を参照してください。</p>
+<p>アプリケーションイメージは AuthoringTool を使用して作成します。</p>
+<h3 id="Anchor_170694395_h3_3">nsp ファイル作成</h3>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_170694395/178643527.png" class="embedded-image" />
+  </span>
+</p>
+<p>nsp ファイルは開発機環境にインストールが可能なアプリケーションのイメージファイルです。</p>
+<p>nsp ファイルを作成する際の AuthoringTool の使用方法は以下のようになります。<a href="../Pages/Page_107320233.html">AuthoringTool のリファレンス</a>も参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>AuthoringTool
+&nbsp;&nbsp;&nbsp;&nbsp;creatensp
+&nbsp;&nbsp;&nbsp;&nbsp;-o &lt;出力ファイル&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;--desc %NINTENDO_SDK_ROOT%\Resources\SpecFiles\Application.desc
+&nbsp;&nbsp;&nbsp;&nbsp;--meta &lt;nmeta ファイル&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;--type Application
+&nbsp;&nbsp;&nbsp;&nbsp;--program &lt;コード領域ディレクトリ&gt; [&lt;データ領域ディレクトリ&gt;] 
+&nbsp;&nbsp;&nbsp;&nbsp;[--nro &lt;nro ディレクトリ&gt;]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>--desc、--meta オプションで与えるファイルは、npdm ファイル作成時に使用した desc ファイル及び nmeta ファイルとなります。</p>
+<p>RO ライブラリを利用する場合は --nro オプションに nro ファイルが存在するディレクトリを指定して下さい。ここで指定するディレクトリの内部には、nrr ファイルの作成に使用したすべての nro ファイルが含まれている必要があります。ディレクトリ内部の構成に制約はありません。RO ライブラリの機能を必要としない場合、このオプションは省略可能です。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>この制限は、<a href="../Pages/Page_107328771.html">DevMenu</a> の<span class="toc-item-body">開発支援機能の設定</span>に存在する <span class="toc-item-body"><span class="toc-link">Ease Nro Restriction</span></span> で無効化することができます。</p>
+  </div>
+</div>
+<h3 id="Anchor_170694395_h3_4">nspd ディレクトリ作成</h3>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_170694395/178643525.png" class="embedded-image" />
+  </span>
+</p>
+<p>nspd ディレクトリは nsp ファイル内の論理構造をファイルシステム上のディレクトリとして配置した形式です。これは、VSI のプロジェクト設定である「アプリケーションプログラムフォーマット」として Raw を選択すると作成されるディレクトリと同じ形式です。</p>
+<p>動的モジュールを使用するアプリケーションは nspd ディレクトリ形式のアプリケーションイメージを使用することはできません。詳細は&nbsp;<a href="../Pages/Page_161307762.html"><span class="sv-ti-title-text">RO ライブラリ</span></a> を参照してください。</p>
+<p>nspd ディレクトリを作成する際の AuthoringTool の使用方法は以下のようになります。<a href="../Pages/Page_107320233.html">AuthoringTool のリファレンス</a>も参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre> AuthoringTool
+&nbsp;&nbsp;&nbsp;&nbsp;createnspd
+&nbsp;&nbsp;&nbsp;&nbsp;-o &lt;出力ディレクトリ&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;--meta &lt;nmeta ファイル&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;--type Application
+&nbsp;&nbsp;&nbsp;&nbsp;--program &lt;コード領域ディレクトリ&gt; [&lt;データ領域ディレクトリ&gt;] </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>nspd ディレクトリの名前は &lt;任意の名前&gt;.nspd という形式になっていなければなりません。</p>
+<p>--meta オプションで与えるファイルは、npdm ファイル作成時に使用した nmeta ファイルとなります。</p>
+<p>VSI や Target Manager から nspd ディレクトリを実行するためには、nspd_root ファイルを作成する必要があります。nspd ディレクトリと同じ階層に &lt;任意の名前&gt;.nspd_root という名前で空のファイルを作成してください。ただし &lt;任意の名前&gt; は nspd ディレクトリと同じ名前である必要があります。</p>
+<h1 id="Anchor_170694395_h1_2">次の手順</h1>
+<p>ビルド手順の説明はこれで終了です。作成したアプリケーションは次のような方法で実行することができます。</p>
+<ul>
+  <li>VSI を使用して <a href="../Pages/Page_126569850.html">ビルド済プログラムをデバッグする</a></li>
+  <li>
+    <a href="../Pages/Page_93359711.html">Target Manager</a> の「実行ファイルのロード」機能を使用する</li>
+  <li>
+    <a href="../Pages/Page_107320466.html">RunOnTarget</a> を使用してコマンドライン上からアプリケーションを実行する</li>
+</ul>
+<p>作成したアプリケーションを NX 開発機上にインストールするには DevMenu を使用する必要があります。詳細は&nbsp;<a href="../Pages/Page_107779320.html">アプリケーションの開発機へのインストール</a> を参照してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

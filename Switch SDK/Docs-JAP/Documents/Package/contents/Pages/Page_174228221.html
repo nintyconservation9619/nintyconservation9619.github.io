@@ -1,0 +1,682 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アクセス頻度確認</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アクセス頻度確認 -->
+<div class="pagetitle" id="PageId_174228221">アクセス頻度確認</div>
+<div class="text_separate">
+<h1 id="Anchor_174228221_h1_1">概要</h1>
+<p>記録メディアを保護するために、単位時間あたりの平均の読み書きの回数および書き込み容量を制限するガイドラインが規定されています。ガイドラインの制限に準拠するアクセスを行っているかどうかを確認する方法を説明します。</p>
+<h1 id="Anchor_174228221_h1_2">チェック対象のアクセス</h1>
+<p>
+  <span style="color: rgb(51,51,51);">記録メディアにはデータの読み込み保証回数に上限があり、記録メディアの同じ領域に対して過度な頻度でデータを読み込むと、記録メディアがデータを維持できなくなり、任天堂が想定している製品寿命を保てなくなってしまうことがあります。それを防ぐため、各記録メディアからデータを読み込む際の制限がガイドラインで規定されています。<br /> </span>読み込み操作は、以下の関数の実行が対象となります。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__fs__MountRom">nn::fs::MountRom</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__MountSaveData">nn::fs::MountSaveData</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__MountSaveDataReadOnly">nn::fs::MountSaveDataReadOnly</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__MountAddOnContent">nn::fs::MountAddOnContent</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__MountCacheStorage">nn::fs::MountCacheStorage</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__MountTemporaryStorage">nn::fs::MountTemporaryStorage</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__ReadFile">nn::fs::ReadFile</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__GetSaveDataSize">nn::fs::GetSaveDataSize</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__GetCacheStorageSize">nn::fs::GetCacheStorageSize</span>()</li>
+  <li>
+    <span class="ApiLink_nn__bcat__MountDeliveryCacheStorage">nn::bcat::MountDeliveryCacheStorage</span>()</li>
+  <li>
+    <span class="ApiLink_nn__bcat__EnumerateDeliveryCacheDirectory">nn::bcat::EnumerateDeliveryCacheDirectory</span>()</li>
+  <li>
+    <span class="ApiLink_nn__bcat__DeliveryCacheDirectory__Open">nn::bcat::DeliveryCacheDirectory::Open</span>()</li>
+  <li>
+    <span class="ApiLink_nn__bcat__DeliveryCacheDirectory__Read">nn::bcat::DeliveryCacheDirectory::Read</span>()</li>
+  <li>
+    <span class="ApiLink_nn__bcat__DeliveryCacheFile__Read">nn::bcat::DeliveryCacheFile::Read</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__Mount">nn::nfp::Mount</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__CreateApplicationArea">nn::nfp::CreateApplicationArea</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__Restore">nn::nfp::Restore</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__Flush">nn::nfp::Flush</span>()</li>
+  <li>
+    <span class="ApiLink_nn__pdm__QueryApplicationPlayStatistics">nn::pdm::QueryApplicationPlayStatistics</span>()</li>
+</ul>
+<p>
+  <span style="color: rgb(51,51,51);">同じマウント対象へのマウント・アンマウントを行うと、同じメタ情報の読み込みが発生するため、記録メディアの同じ領域に対する読み込み操作を行っていることになります。<br /><span class="ApiLink_nn__fs__ReadFile">nn::fs::ReadFile</span>() と <span class="ApiLink_nn__bcat__DeliveryCacheFile__Read">nn::bcat::DeliveryCacheFile::Read</span>() は、同じファイルの同じ offset が含まれる読み込みが該当します。同じファイルに対する読み込みでも offset と size で指定する領域が重ならない場合は同じ領域に対する読み込み操作にはなりません。<br /></span>
+  <span class="ApiLink_nn__fs__GetSaveDataSize">nn::fs::GetSaveDataSize</span>() は同じ&nbsp;<span class="ApiLink_nn__account__Uid">nn::account::Uid</span>&nbsp;に対する操作が該当します。<span class="ApiLink_nn__fs__GetCacheStorageSize">nn::fs::GetCacheStorageSize</span>() は、同じインデックスのキャッシュストレージに対する操作が該当します。<span style="color: rgb(51,51,51);"><span class="ApiLink_nn__bcat__DeliveryCacheDirectory__Open">nn::bcat::DeliveryCacheDirectory::Open</span>() と&nbsp;<span class="ApiLink_nn__bcat__DeliveryCacheDirectory__Read">nn::bcat::DeliveryCacheDirectory::Read</span>() は、同じディレクトリに対する操作が該当します。<br /></span><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__nfp__Mount">nn::nfp::Mount</span>()、<span class="ApiLink_nn__nfp__CreateApplicationArea">nn::nfp::CreateApplicationArea</span>()、<span class="ApiLink_nn__nfp__Restore">nn::nfp::Restore</span>()、<span class="ApiLink_nn__nfp__Flush">nn::nfp::Flush</span>()、<span class="ApiLink_nn__pdm__QueryApplicationPlayStatistics">nn::pdm::QueryApplicationPlayStatistics</span>() は、同じ管理情報の読み込みが発生するため、記録メディアの同じ領域に対する読み込み操作を行っていることになります。</span></p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Unityを使用している場合は、「Unity for Nintendo Switch 開発マニュアル」の「4.2. AssetBundle の利用」を参照してください。</p>
+  </div>
+</div>
+<p>
+  <span style="color: rgb(51,51,51);"> <br /> </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">書き込み可能な記録メディアに対して過度な頻度で書き込むと、メディアが疲弊してしまい、任天堂の想定する製品寿命を保てなくなってしまうことがあります。<span style="color: rgb(51,51,51);">それを防ぐため、各記録メディアへデータを書き込む際の制限がガイドラインで規定されています。<br /> </span> </span>書き込み操作は、以下の関数の実行が対象となります。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__fs__WriteFile">nn::fs::WriteFile</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__FlushFile">nn::fs::FlushFile</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__SetFileSize">nn::fs::SetFileSize</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__CreateFile">nn::fs::CreateFile</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__DeleteFile">nn::fs::DeleteFile</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__CreateDirectory">nn::fs::CreateDirectory</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__DeleteDirectory">nn::fs::DeleteDirectory</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__DeleteDirectoryRecursively">nn::fs::DeleteDirectoryRecursively</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__CleanDirectoryRecursively">nn::fs::CleanDirectoryRecursively</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__RenameFile">nn::fs::RenameFile</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__RenameDirectory">nn::fs::RenameDirectory</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__CommitSaveData">nn::fs::CommitSaveData</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__ExtendSaveData">nn::fs::ExtendSaveData</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__CreateCacheStorage">nn::fs::CreateCacheStorage</span>()</li>
+  <li>
+    <span class="ApiLink_nn__fs__DeleteCacheStorage">nn::fs::DeleteCacheStorage</span>()</li>
+  <li>
+    <span class="ApiLink_nn__album__SaveScreenshot">nn::album::SaveScreenshot</span>()</li>
+  <li>
+    <span class="ApiLink_nn__album__SaveAndShareScreenshot">nn::album::SaveAndShareScreenshot</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__Mount">nn::nfp::Mount</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__CreateApplicationArea">nn::nfp::CreateApplicationArea</span>()</li>
+  <li>
+    <span class="ApiLink_nn__nfp__Flush">nn::nfp::Flush</span>()</li>
+</ul>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span class="ApiLink_nn__fs__WriteFile">nn::fs::WriteFile</span>() で <span class="ApiLink_nn__fs__WriteOption__MakeValue">nn::fs::WriteOption::MakeValue</span>(<span class="ApiLink_nn__fs__WriteOptionFlag_Flush">nn::fs::WriteOptionFlag_Flush</span>) を指定した場合は、書き込み操作は2回とします。<br /></span>
+  <span class="ApiLink_nn__album__SaveScreenshot">nn::album::SaveScreenshot</span>()、<span class="ApiLink_nn__album__SaveAndShareScreenshot">nn::album::SaveAndShareScreenshot</span>() は書き込み操作 6 回、書き込みサイズ 500KiB と見なします。<br /><span class="ApiLink_nn__nfp__Mount">nn::nfp::Mount</span>()、<span class="ApiLink_nn__nfp__CreateApplicationArea">nn::nfp::CreateApplicationArea</span>()、<span class="ApiLink_nn__nfp__Flush">nn::nfp::Flush</span>() は書き込み操作 8 回、書き込みサイズ 604 byte と見なします。</p>
+<p>
+  <span style="color: rgb(51,51,51);">基本的に、アプリケーションにエラー Result が返るアクセスはチェック対象から除外します。ただし、<span class="ApiLink_nn__nfp">nn::nfp</span> の操作はエラー Result が返る場合も本体保存メモリーへのアクセスが発生するため、チェック対象とします。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span class="ApiLink_nn__album">nn::album</span> は NX Addon 3.2.0 から、<span class="ApiLink_nn__bcat">nn::bcat</span> は NX Addon 4.3.0 から、</span>
+  <span style="color: rgb(51,51,51);">
+    <span class="ApiLink_nn__nfp">nn::nfp</span> は NX Addon 3.6.0 と NX Addon 4.4.1 から、アクセスログ出力に対応しています。</span>
+</p>
+<h1 id="Anchor_174228221_h1_3">アクセスログの出力設定</h1>
+<h2 id="Anchor_174228221_h2_1">NintendoSDK Firmware for NX 2.0.0-3 以後でのアクセスログの出力設定</h2>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;の Debug メニュータブを選択し、FS Access Log Mode を Log もしくは SdCard もしくは Log+SdCard に変更します。</p>
+<p>これで<strong>以降に起動するアプリケーション</strong>のアクセスログがログもしくは SD カードに出力される状態になります。開発機を再起動すると設定は OFF に戻ります。</p>
+<p>設定を Log または Log+SdCard にした場合、Log はデバッグログ出力を利用しているため、アプリケーションのビルドタイプは Develop である必要があります。設定を&nbsp;SdCard または Log+SdCard にした場合、アプリケーションのビルドタイプに関わらず、SD カード出力は得られます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_174228221/193060475.png" width="712" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_174228221_h2_2">NintendoSDK Firmware for NX 2.0.0-3 より前でのアクセスログの出力設定</h2>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a> の Debug メニュータブを選択し、FS Access Log Mode を Enabled に変更します。</p>
+<p>これで以降に起動するアプリケーションのアクセスログが出力される状態になります。開発機を再起動すると設定は Disabled に戻ります。</p>
+<p>本機能はデバッグログ出力を利用しているため、<strong>アプリケーションのビルドタイプは Develop である必要があります。</strong>NX Addon 1.0.0 未満で&nbsp;Release ビルドされたアプリケーションのアクセスログを取得する場合は、NX Addon 1.0.0 (NintendoSDK Firmware for NX 2.0.0-3) 以後で開発機を初期化し、SdCard 設定をご利用ください。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_174228221/174243526.png" width="712" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_174228221_h2_3">
+  <span class="sv-ti-done"> <span class="sv-ti-title-text">DevMenuCommand でアクセスログの出力設定</span> </span>
+</h2>
+<p>NX Addon 1.1.0 からは、DevMenuCommand から設定を取得・変更できます。</p>
+<p>DevMenuCommand の使い方については、<a href="../Pages/Page_107328760.html">DevMenuCommand</a>を参照してください。</p>
+<h1 id="Anchor_174228221_h1_4">アクセスログの取得</h1>
+<p>アクセスログの解析では、突発的に高頻度なアクセスがあっても平均してチェックするようにしているため、10 分以上のアクセスログが必要です。</p>
+<p>fs アクセスをほとんど行わないアプリケーションは、アクセスログの取得を終える前に、<span style="color: rgb(51,51,51);">セーブやシーン切り替えなどの fs アクセスを伴う操作を含めて、10 分以上のアクセスログになるようにしてください。</span></p>
+<h2 id="Anchor_174228221_h2_4">Log 設定でのアクセスログの取得</h2>
+<p>ホスト PC 上で <a href="../Pages/Page_163415826.html">Log Viewer</a> を起動し、開発機からログを受信します。</p>
+<p>Menu から Save Log as plain text を選択し、ログをテキストファイルに出力するように設定します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_174228221/174243537.png" width="712" class="embedded-image" />
+  </span>
+</p>
+<p>この状態でアプリケーションを動作させれば、指定のファイルに次のようなアクセスログが出力されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>[PlayEventBuffer] Opened PlayEvent.dat.
+[PlayEventBuffer] Add 1 events.
+[PlayEventBuffer] Flush completed. Now Start = 0, Count = 32.
+[SaveDataCommitThread] Committed SaveData.
+[PlayEventBuffer] Opened PlayEvent.dat.
+[PlayEventBuffer] Add 2 events.
+[PlayEventBuffer] Flush completed. Now Start = 0, Count = 34.
+nn::arp::GetApplicationLaunchProperty returns 0x0000CC9D
+[SaveDataCommitThread] Committed SaveData.
+Mount Rom
+FS_ACCESS: { sdk_version: 0.16.3, spec: NX }
+FS_ACCESS: { start:   4830522, end:   4830553, result: 0x00000000, handle: 0x0000000000000000, function: &quot;MountRom&quot;, name: &quot;rom&quot; }
+FS_ACCESS: { start:   4830554, end:   4830554, result: 0x00000000, handle: 0x000000020073a030, function: &quot;OpenFile&quot;, path: &quot;rom:/test/testdata&quot; }
+Read    rom:/test/testdata
+FS_ACCESS: { start:   4830554, end:   4830554, result: 0x00000000, handle: 0x000000020073a030, function: &quot;ReadFile&quot;, offset: 0, size: 1024 }
+&nbsp;&nbsp;&nbsp;&nbsp;size: 16
+&nbsp;&nbsp;&nbsp;&nbsp;data: 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
+FS_ACCESS: { start:   4830555, end:   4830555, result: 0x00000000, handle: 0x000000020073a030, function: &quot;CloseFile&quot; }
+Unmount Rom
+
+FS_ACCESS: { start:   4830555, end:   4830558, result: 0x00000000, handle: 0x0000000000000000, function: &quot;Unmount&quot;, name: &quot;rom&quot; }
+[PlayEventBuffer] Opened PlayEvent.dat.
+[PlayEventBuffer] Add 1 events.
+[PlayEventBuffer] Flush completed. Now Start = 0, Count = 35.
+[SaveDataCommitThread] Committed SaveData.
+[PlayEventBuffer] Opened PlayEvent.dat.
+[PlayEventBuffer] Add 2 events.
+[PlayEventBuffer] Flush completed. Now Start = 0, Count = 37.
+[SaveDataCommitThread] Committed SaveData.
+</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_174228221_h2_5">SdCard 設定でのアクセスログの取得</h2>
+<p>NintendoSDK Firmware for NX 2.0.0-3&nbsp;から使用できます。</p>
+<p>FS Access Log Mode を SdCard または Log+SdCard に設定し、SDカードを開発機に挿入した状態で、アプリケーションを起動してください。</p>
+<p>アクセスログは、SD カードのルートディレクトリ直下に FsAccessLog.txt ファイルとして保存されます。アクセスログを SD カードに逐次書き出すとアプリケーションの挙動を遅くしてしまうため、fs 内部バッファがあふれるタイミングかシャットダウンまたはスリープのタイミングで SD カードにアクセスログに書き出します。<strong>必ずシャットダウンまたはスリープしてから SD カードを取り出してください。</strong>シャットダウンまたはスリープ前に開発機をリセットするとログは壊れます。アプリケーションを終了するだけではアクセスログはSDカードに出力されないため、ご注意ください。</p>
+<h1 id="Anchor_174228221_h1_5">アクセスログのフォーマット</h1>
+<p>以下のようなコードが実行されたとします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>void sample(char* buffer, size_t bufferSize)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::MountRom(&quot;item&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::FileHandle fileHandle;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::OpenFile(&amp;fileHandle, &quot;item:/data/0&quot;, nn::fs::OpenMode_Read);
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::ReadFile(fileHandle, 0, buffer, bufferSize);
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::CloseFile(fileHandle);
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>この場合、アクセスログは以下のように出力されます。</p>
+<ul>
+  <li>Log を選択している場合</li>
+</ul>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>FS_ACCESS: { sdk_version: 5.1.0, spec: NX }
+FS_ACCESS: { start:     10000, end:     10005, result: 0x00000000, handle: 0x0000000000000000, priority: Normal, function: &quot;MountRom&quot;, name: &quot;item&quot; }
+FS_ACCESS: { start:     10005, end:     10010, result: 0x00000000, handle: 0x00000000016cf520, priority: Normal, function: &quot;OpenFile&quot;, path: &quot;item:/data/0&quot; }
+FS_ACCESS: { start:     10010, end:     10015, result: 0x00000000, handle: 0x00000000016cf520, priority: Normal, function: &quot;ReadFile&quot;, offset: 0, size: 16384 }
+FS_ACCESS: { start:     10015, end:     10016, result: 0x00000000, handle: 0x00000000016cf520, priority: Normal, function: &quot;CloseFile&quot; }</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>SdCard を選択している場合</li>
+</ul>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>FS_ACCESS: { start_tag: true }
+(0x000000000000007E) FS_ACCESS: { sdk_version: 5.1.0, spec: NX }
+(0x000000000000007E) FS_ACCESS: { start:     10000, end:     10005, result: 0x00000000, handle: 0x0000000000000000, priority: Normal, function: &quot;MountRom&quot;, name: &quot;item&quot; }
+(0x000000000000007E) FS_ACCESS: { start:     10005, end:     10010, result: 0x00000000, handle: 0x00000000016cf520, priority: Normal, function: &quot;OpenFile&quot;, path: &quot;item:/data/0&quot; }
+(0x000000000000007E) FS_ACCESS: { start:     10010, end:     10015, result: 0x00000000, handle: 0x00000000016cf520, priority: Normal, function: &quot;ReadFile&quot;, offset: 0, size: 16384 }
+(0x000000000000007E) FS_ACCESS: { start:     10015, end:     10016, result: 0x00000000, handle: 0x00000000016cf520, priority: Normal, function: &quot;CloseFile&quot; }
+FS_ACCESS: { end_tag: true }</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>各項目の内容を以下に示します。</p>
+<table class="wrapped relative-table" style="width: 96.5361%;">
+  <colgroup>
+    <col style="width: 10.1236%;" />
+    <col style="width: 19.3643%;" />
+    <col style="width: 70.5121%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>内容</th>
+      <th>補足</th>
+    </tr>
+    <tr>
+      <td>start_tag</td>
+      <td>ログ出力開始タグ</td>
+      <td>SdCard で取得するアクセスログに付加されます。Log で取得するアクセスログには付加されません。</td>
+    </tr>
+    <tr>
+      <td>end_tag</td>
+      <td>ログ出力終了タグ</td>
+      <td>
+        <p>SdCard で取得するアクセスログに付加されます。Log で取得するアクセスログには付加されません。</p>
+        <p>ログ出力完了前に SD カードを抜くと、start_tag が有り end_tag が無い状態になります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ログ先頭の (0x%016llX)</td>
+      <td>アクセス元のプロセス ID</td>
+      <td>SdCard で取得するアクセスログに付加されます。Log で取得するアクセスログには付加されません。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>sdk_version</p>
+      </td>
+      <td>NintendoSDK バージョン</td>
+      <td>アクセス元のアプリケーションのビルドに使用した NintendoSDK バージョンを示します。</td>
+    </tr>
+    <tr>
+      <td>spec</td>
+      <td>環境</td>
+      <td>NX 固定です。</td>
+    </tr>
+    <tr>
+      <td>start</td>
+      <td>アクセスを開始した時刻（ms）</td>
+      <td>アクセスを開始した時刻をシステムチックを元にしたミリ秒数で示します。</td>
+    </tr>
+    <tr>
+      <td>end</td>
+      <td>アクセスを完了した時刻（ms）</td>
+      <td>
+        <p>アクセスを完了した時刻をシステムチックを元にしたミリ秒数で示します。</p>
+        <p>アプリケーションのスレッド構成によってはアクセス完了時の時刻取得が遅れる場合があるため、実際にアクセスにかかった時間より遅くなることがあります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>result</td>
+      <td>アクセスの結果</td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1_result.html">nn::Result</a> との対応は <a href="../../../Api/HtmlNX/_result_finder.html">Result 値検索</a> で検索してください。</td>
+    </tr>
+    <tr>
+      <td>handle</td>
+      <td>ハンドル</td>
+      <td>
+        <p>ハンドルの値を出力として得るアクセスの場合(<a href="../../../Api/HtmlNX/namespacenn_1_1fs.html#a0f2b5b30657b1ffaf1dec49bfb36462b">nn::fs::OpenFile</a>() など)はその出力値を、 ハンドルの値を入力して指定するアクセスの場合(<a href="../../../Api/HtmlNX/namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>() など)はその入力値を示します。</p>
+        <p>入出力にハンドルを用いないアクセスの場合(<a href="../../../Api/HtmlNX/namespacenn_1_1fs.html#a237c9e7eb22a5f56f6755947e49bb26a">nn::fs::MountRom</a>() など)は 0 を示します。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>priority</td>
+      <td>アクセス優先度</td>
+      <td>NX Addon 5.1.0 から出力されます。</td>
+    </tr>
+    <tr>
+      <td>function</td>
+      <td>関数名</td>
+      <td>名前空間やクラス名は含みません。</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>マウント名</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>path</td>
+      <td>パス</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>offset</td>
+      <td>オフセット</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>size</td>
+      <td>サイズ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>applicationid</td>
+      <td>アプリケーション ID</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>userid</td>
+      <td>セーブデータのユーザ ID</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>open_mode</td>
+      <td>オープン時のモード</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>write_option</td>
+      <td>書き込みオプション</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>new_path</td>
+      <td>リネーム先のパス</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>save_data_size</td>
+      <td>拡張後のセーブデータサイズ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>save_data_journal_size</td>
+      <td>拡張後のジャーナルサイズ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>index</td>
+      <td>対象追加コンテンツの追加コンテンツインデックス</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>class_name</td>
+      <td>クラス名</td>
+      <td>クラス名が DeliveryCacheFile または DeliveryCacheDirectory のときに表示されます。</td>
+    </tr>
+    <tr>
+      <td>image_data_size</td>
+      <td>スクリーンショットのサイズ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>width</td>
+      <td>スクリーンショットの幅</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>height</td>
+      <td>スクリーンショットの高さ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>image_orientation</td>
+      <td>スクリーンショットの向き</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>album_report_option</td>
+      <td>
+        <p>スクリーンショット通知オプション</p>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>name_space</td>
+      <td>名前空間</td>
+      <td>API が nfp のときに表示されます。</td>
+    </tr>
+    <tr>
+      <td>model_type</td>
+      <td>マウントするタグの製品タイプ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>nfp_mount_target</td>
+      <td>マウントするタグ内の領域</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>access_id</td>
+      <td>アプリケーション専用領域へのアクセスに使用する ID</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>data_size</td>
+      <td>アプリケーション専用領域の<span style="color: rgb(85,85,85);">初期化データサイズ</span></td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_174228221_h1_6">アクセスログの解析</h1>
+<p>保存したアクセスログを <a href="../Pages/Page_171997878.html">FsAccessLogChecker</a> で解析し、ガイドラインに準拠したアクセスを行っているかどうか確認します。アクセスログを取得した際に開発機を初期化したパッケージのバージョン以後に同梱されている FsAccessLogChecker を使用してください。</p>
+<p>結果は次のように表示されます。小数点に &quot;.&quot; が使われるか &quot;,&quot;が使われるかは PC 環境に依存します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>FsAccessLogChecker version 10.1
+FS_ACCESS: { sdk_version: 0.16.3, spec: NX }
+FS_ACCESS: { start:   4830522, end:   4830553, result: 0x00000000, handle: 0x0000000000000000, function: &quot;MountRom&quot;, name: &quot;rom&quot; }
+FS_ACCESS: { start:   4830554, end:   4830554, result: 0x00000000, handle: 0x000000020073a030, function: &quot;OpenFile&quot;, path: &quot;rom:/test/testdata&quot; }
+FS_ACCESS: { start:   4830554, end:   4830554, result: 0x00000000, handle: 0x000000020073a030, function: &quot;ReadFile&quot;, offset: 0, size: 1024 }
+FS_ACCESS: { start:   4830555, end:   4830555, result: 0x00000000, handle: 0x000000020073a030, function: &quot;CloseFile&quot; }
+FS_ACCESS: { start:   4830555, end:   4830558, result: 0x00000000, handle: 0x0000000000000000, function: &quot;Unmount&quot;, name: &quot;rom&quot; }
+---- FS Access Log Details (the above 10 minutes) ----
+Rom
+[PASS] WriteSize       : 0.0000 MB/min
+[PASS] WriteAccess     : 0.0000 times/min
+[PASS] Mount           : 0.0017 times/sec
+[PASS] SameAddressRead :
+&nbsp;&nbsp;&nbsp;&nbsp;none
+------------------------------------------------------
+------------- FS Access Log Check Result -------------
+Result: [FAIL]
+
+Details:
+[PASS] SdkVersion      : 0.16.3
+[PASS] Spec            : NX
+[FAIL] TotalTime       : 00:00 (expect: More than 10:00)
+[FAIL] WriteSize       : 0 fails
+[PASS] WriteAccessCount: 0 fails
+[PASS] MountCount      : 0 fails
+[PASS] SameAddressRead : 0 fails
+
+------------------------------------------------------</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ガイドラインに違反したアクセスを検出した場合や、アクセスログが10分未満の場合は、FAIL と出力されます。</p>
+<p>FS Access Log Check Result に PASS と出力されていれば問題ありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>------------- FS Access Log Check Result -------------
+Result: [PASS]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_174228221_h1_7">
+  <span style="color: rgb(117,117,117);">トラブルシューティング</span>
+</h1>
+<p>
+  <a href="../Pages/Page_104492354.html">トラブルシューティング (NX Addon)</a>&nbsp;を参照してください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__fs__MountRom', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a2e453fe1fbf8f818dc45bbd2897105cd' )
+SetUrl( 'ApiLink_nn__fs__MountSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#afdbda9f24e47b02bb74da4558bbd0760' )
+SetUrl( 'ApiLink_nn__fs__MountSaveDataReadOnly', '../../../Api/HtmlNX/namespacenn_1_1fs.html#adf5b846d93790ec79b2d6fee53e97db9' )
+SetUrl( 'ApiLink_nn__fs__MountAddOnContent', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ad92caf5815857651653369e760f85a66' )
+SetUrl( 'ApiLink_nn__fs__MountCacheStorage', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab217b088ff86a675d869cc9fb38390ac' )
+SetUrl( 'ApiLink_nn__fs__MountTemporaryStorage', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a8191828699cf3d29befe8dbd710db421' )
+SetUrl( 'ApiLink_nn__fs__ReadFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a433a913ce9dd7154b430118e99b4867b' )
+SetUrl( 'ApiLink_nn__fs__GetSaveDataSize', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a92a313238d8b1826e81fe12bad80f82f' )
+SetUrl( 'ApiLink_nn__fs__GetCacheStorageSize', '../../../Api/HtmlNX/namespacenn_1_1fs.html#af995ec08995ebe685afd6c13a648a692' )
+SetUrl( 'ApiLink_nn__bcat__MountDeliveryCacheStorage', '../../../Api/HtmlNX/namespacenn_1_1bcat.html#a85d0404aec6ba31824bd7c40f8e856cf' )
+SetUrl( 'ApiLink_nn__bcat__EnumerateDeliveryCacheDirectory', '../../../Api/HtmlNX/namespacenn_1_1bcat.html#a7556f2d7cc3a22873bc979a09bb7a75d' )
+SetUrl( 'ApiLink_nn__bcat__DeliveryCacheDirectory__Open', '../../../Api/HtmlNX/classnn_1_1bcat_1_1_delivery_cache_directory.html#a19e5389cf42d8c31299879f8904538ce' )
+SetUrl( 'ApiLink_nn__bcat__DeliveryCacheDirectory__Read', '../../../Api/HtmlNX/classnn_1_1bcat_1_1_delivery_cache_directory.html#a76e521ebfd0e99a1d86f96558e741d2e' )
+SetUrl( 'ApiLink_nn__bcat__DeliveryCacheFile__Read', '../../../Api/HtmlNX/classnn_1_1bcat_1_1_delivery_cache_file.html#a550058e63559eac9ccbeb3fa8b55d7d8' )
+SetUrl( 'ApiLink_nn__nfp__Mount', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#abdc7133c665e6a2414af658d4aed6b9a' )
+SetUrl( 'ApiLink_nn__nfp__CreateApplicationArea', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#adf02884c6bcd5dc0b8cc7d55309f2903' )
+SetUrl( 'ApiLink_nn__nfp__Restore', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#a7292375a9a80f936d505ddb20cb74d5e' )
+SetUrl( 'ApiLink_nn__nfp__Flush', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#ade408175b18f37cc322c863e0d3c2129' )
+SetUrl( 'ApiLink_nn__pdm__QueryApplicationPlayStatistics', '../../../Api/HtmlNX/namespacenn_1_1pdm.html#afd0f52c86f8721d23051cd5ad24dfc0c' )
+SetUrl( 'ApiLink_nn__account__Uid', '../../../Api/HtmlNX/structnn_1_1account_1_1_uid.html' )
+SetUrl( 'ApiLink_nn__fs__WriteFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab4351ff3a319e9a63093324a669492ab' )
+SetUrl( 'ApiLink_nn__fs__FlushFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a543a813b9e0c46a2d6ccb24d7c863a76' )
+SetUrl( 'ApiLink_nn__fs__SetFileSize', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab469b77c1d8c44eaedb9b6d658aba6c6' )
+SetUrl( 'ApiLink_nn__fs__CreateFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a3e89c4d57cc8379265894ff7f3e98b2c' )
+SetUrl( 'ApiLink_nn__fs__DeleteFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a812ac4964fb5564467c5475c1b9fb16b' )
+SetUrl( 'ApiLink_nn__fs__CreateDirectory', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ad09dbc3816b9e95562081f9411711c4a' )
+SetUrl( 'ApiLink_nn__fs__DeleteDirectory', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a40e072fc4b9bd6a36b6902b117ba85d0' )
+SetUrl( 'ApiLink_nn__fs__DeleteDirectoryRecursively', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ad6c41cd88ca1bd0cace5a443f4bc3efd' )
+SetUrl( 'ApiLink_nn__fs__CleanDirectoryRecursively', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ae52b7fdae71cfa75a6c45552c4195b87' )
+SetUrl( 'ApiLink_nn__fs__RenameFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#aaa1a2e4d197a78400b604debc9c7c4ea' )
+SetUrl( 'ApiLink_nn__fs__RenameDirectory', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a394c7c7cce23b0a368e83d115baafe17' )
+SetUrl( 'ApiLink_nn__fs__Commit', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab534529ae3c325863fe1eb34bd03c872' )
+SetUrl( 'ApiLink_nn__fs__CommitSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ac2f25cffd056f24d6facfda13f977fa6' )
+SetUrl( 'ApiLink_nn__fs__ExtendSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab83b2cf5e8413aa2833c8df5d2771bf9' )
+SetUrl( 'ApiLink_nn__fs__CreateCacheStorage', '../../../Api/HtmlNX/namespacenn_1_1fs.html#af3735c46a459dbf4ba3d6de862b611d4' )
+SetUrl( 'ApiLink_nn__fs__DeleteCacheStorage', '../../../Api/HtmlNX/namespacenn_1_1fs.html#adf2bd15a53fcc2a6c8895de9c264ab86' )
+SetUrl( 'ApiLink_nn__album__SaveScreenshot', '../../../Api/HtmlNX/namespacenn_1_1album.html#a8e66e67ac82e65cf6b671db39e7539ae' )
+SetUrl( 'ApiLink_nn__album__SaveAndShareScreenshot', '../../../Api/HtmlNX/namespacenn_1_1album.html#a26767d2ef6b1d9deebca0efff601976b' )
+SetUrl( 'ApiLink_nn__fs__WriteOption__MakeValue', '../../../Api/HtmlNX/structnn_1_1fs_1_1_write_option.html#ae7e600e7ade2fdde6fab0559dfb4bd1e' )
+SetUrl( 'ApiLink_nn__fs__WriteOptionFlag_Flush', '../../../Api/HtmlNX/namespacenn_1_1fs.html#afb4fdd50e0892400c07232f714caa14da2956e16dac576b2b7eff3142e18ac2c0' )
+SetUrl( 'ApiLink_nn__nfp', '../../../Api/HtmlNX/namespacenn_1_1nfp.html' )
+SetUrl( 'ApiLink_nn__album', '../../../Api/HtmlNX/namespacenn_1_1album.html' )
+SetUrl( 'ApiLink_nn__bcat', '../../../Api/HtmlNX/namespacenn_1_1bcat.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

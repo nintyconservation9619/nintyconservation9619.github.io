@@ -1,0 +1,540 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>キャプチャ機能について</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- キャプチャ機能について -->
+<div class="pagetitle" id="PageId_274170522">キャプチャ機能について</div>
+<div class="text_separate">
+<h1 id="Anchor_274170522_h1_1">はじめに</h1>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_274170522/274174588.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>レイアウトではキャプチャ機能を使用して描画済みの 3D シーンやレイアウトの一部のペインをテクスチャとして参照することができます。<br />本ドキュメントではこの機能を使用する方法について説明します。</p>
+<h1 id="Anchor_274170522_h1_2">キャプチャ機能とは</h1>
+<p>キャプチャ機能とはランタイムで描画した結果をレイアウトのテクスチャとして使用することができる機能です。<br />ランタイムで動的にテクスチャが作成されるため 3D シーンの描画結果を取り込んだり、複数のペインをまとめてキャプチャしてテクスチャ化したものにエフェクトをかけたりといったことが可能になります。<br />レイアウト外部で描画した結果をフレームバッファからキャプチャするものと、レイアウトデータの一部をテクスチャとして取り込む方法があり、それらを組み合わせることも可能です。</p>
+<h2 id="Anchor_274170522_h2_1">フレームバッファキャプチャ機能</h2>
+<p>レイアウトランタイムに外部から設定されたテクスチャをフレームバッファに見立ててキャプチャする機能です。<br />レイアウト以外の 3D シーンなどの描画が終わった後のテクスチャを渡してもらい、レイアウト内部で部分的にテクスチャとして取り込んで使用することができます。<br />一般的にレイアウトの描画以前に描画された内容をフレームバッファのテクスチャとして設定します。<br />LayoutEditor では「フレームバッファキャプチャ有効」設定やマテリアルのテクスチャとして「FramebufferCaptureTexture」を設定すると、それらのペインの下に位置するフレームバッファから一部分を切り取ったテクスチャとして参照することができます。</p>
+<h2 id="Anchor_274170522_h2_2">レイアウトキャプチャ機能</h2>
+<p>レイアウトデータ内の特定のペインをテクスチャとしてキャプチャする機能です。<br />LayoutEditor で「キャプチャペイン」の子ペインとして設定されたものがテクスチャとして描画されます。<br />描画する際は下地を上記のフレームバッファキャプチャ機能を使用するか、特定のクリアカラーを使用することが可能です。</p>
+<h1 id="Anchor_274170522_h1_3">実装方法</h1>
+<p>キャプチャ機能を使用するには専用の実装をいくつか追加する必要があります。<br />以下にその詳細を説明します。</p>
+<h2 id="Anchor_274170522_h2_3">全体の構成</h2>
+<p>キャプチャ機能を使用するためには以下の疑似コードに記載した 3 つの手順を追加する必要があります。</p>
+<ol>
+  <li>レンダーターゲットリソース管理のためのコールバック関数を登録</li>
+  <li>キャプチャペインで取り込むフレームバッファテクスチャの登録</li>
+  <li>毎フレームのキャプチャテクスチャの更新処理</li>
+</ol>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35<br />
+36<br />
+37<br />
+38<br />
+39</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 初期化処理
+</span><span class="nn">nn::ui2d::</span><span class="n">Initialize</span><span class="p">();</span>
+
+
+<span class="c1">// 1. レイアウトからレンダーターゲットテクスチャリソースを作成・破棄するためのコールバック関数を登録
+</span><span class="nn">nn::ui2d::Layout::</span><span class="n">SetRenderTargetTextureManagementCallback</span><span class="p">(</span><span class="n">CreateRenderTargetTexture</span><span class="p">,</span> <span class="n">DestroyRenderTargetTexture</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GfxFramework</span><span class="p">);</span>
+
+<span class="c1">// レイアウトの初期化
+</span><span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">BuildWithName</span><span class="p">();</span>
+<span class="c1">// グラフィクスリソースの初期化
+</span><span class="n">g_pGraphicsResource</span><span class="o">-&gt;</span><span class="n">Setup</span><span class="p">();</span>
+
+
+<span class="c1">// DrawInfo の初期化
+</span><span class="p">...</span>
+<span class="n">g_pDrawInfo</span><span class="o">-&gt;</span><span class="n">SetViewMtx</span><span class="p">(</span><span class="n">view</span><span class="p">);</span>
+
+
+<span class="c1">// 2. キャプチャペインでキャプチャされるテクスチャを設定する
+// フレームバッファキャプチャが有効になっているキャプチャペインは、子ペインの描画前にこのメソッドで設定されたテクスチャから特定範囲をキャプチャします。
+</span><span class="n">g_pDrawInfo</span><span class="o">-&gt;</span><span class="n">SetFramebufferTexture</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetColorBuffer</span><span class="p">(),</span> <span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDisplayWidth</span><span class="p">(),</span> <span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDisplayHeight</span><span class="p">());</span>
+
+
+<span class="c1">// 毎ループの処理
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 更新処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 描画処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">BeginFrame</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 3. キャプチャテクスチャの更新処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">DrawCaptureTexture</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDevice</span><span class="p">(),</span> <span class="o">*</span><span class="n">g_pDrawInfo</span><span class="p">,</span> <span class="o">*</span><span class="n">pCmdBuffer</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// レイアウト本体の描画処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">EndFrame</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_274170522_h2_4">レンダーターゲットテクスチャのリソース管理コールバック</h2>
+<p>キャプチャ機能に使用するレンダーターゲットテクスチャのリソースを作成・破棄するためのコールバックです。<br /><span class="ApiLink_nn__ui2d__Layout__SetRenderTargetTextureManagementCallback">nn::ui2d::Layout::SetRenderTargetTextureManagementCallback</span> でレイアウトインスタンスの初期化を行う前に設定します。</p>
+<p>コールバックを通してアプリケーション側では以下のデータを管理する必要があります。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__gfx__Texture">nn::gfx::Texture</span> インスタンスのメモリとその状態</li>
+  <li>
+    <span class="ApiLink_nn__gfx__TextureView">nn::gfx::TextureView</span>&nbsp;インスタンスのメモリとその状態</li>
+  <li>
+    <span class="ApiLink_nn__gfx__DescriptorSlot">nn::gfx::DescriptorSlot</span>&nbsp;インスタンスのメモリとその状態</li>
+</ul>
+<p>サンプルでは以下のように実装されており、初回フレームキャプチャテクスチャと動的なキャプチャテクスチャを別の領域で管理しています。</p>
+<h3 id="Anchor_274170522_h3_1">レンダーターゲットテクスチャ関連リソースの作成処理</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35<br />
+36<br />
+37<br />
+38<br />
+39<br />
+40<br />
+41<br />
+42<br />
+43<br />
+44<br />
+45<br />
+46<br />
+47<br />
+48<br />
+49<br />
+50<br />
+51<br />
+52<br />
+53</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//------------------------------------------------------------------------------
+</span><span class="nn">nn::ui2d::</span><span class="n">RenderTargetTextureLifetime</span> <span class="n">CreateRenderTargetTexture</span><span class="p">(</span><span class="nn">nn::gfx::</span><span class="n">Texture</span><span class="o">**</span> <span class="n">pTexture</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">TextureView</span><span class="o">**</span> <span class="n">pTextureView</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">**</span> <span class="n">pSlot</span><span class="p">,</span> <span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">TextureInfo</span><span class="o">&amp;</span> <span class="n">info</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">RenderTargetTextureLifetime</span> <span class="n">lifetimeHint</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nns::gfx::</span><span class="n">GraphicsFramework</span><span class="o">*</span> <span class="n">pFramework</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="nn">nns::gfx::</span><span class="n">GraphicsFramework</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pUserData</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">Device</span><span class="o">*</span>    <span class="n">pDevice</span> <span class="o">=</span> <span class="n">pFramework</span><span class="o">-&gt;</span><span class="n">GetDevice</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="nn">nn::gfx::Texture::</span><span class="n">CalculateMipDataSize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">,</span> <span class="n">info</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// テクスチャの初期化
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// RenderTargetTextureLifetime_Layout は初回フレームだけキャプチャするテクスチャに設定されており
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// レイアウトインスタンスの初期化時と終了時にキャプチャテクスチャリソースの初期化と終了が行われます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// RenderTargetTextureLifetime_OneFrame はその他のキャプチャテクスチャに設定されており、毎フレーム描画直前に終了処理と初期化処理が行われます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 本サンプルでは LifetimeHint 設定ごとにメモリを確保する領域を変えています。
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">*</span><span class="n">pTexture</span> <span class="o">=</span> <span class="n">AllocAndConstruct</span><span class="o">&lt;</span><span class="nn">nn::gfx::</span><span class="n">Texture</span><span class="o">&gt;</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">switch</span> <span class="p">(</span><span class="n">lifetimeHint</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::ui2d::</span><span class="nl">RenderTargetTextureLifetime_Layout</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="o">*</span><span class="n">pTexture</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">pFramework</span><span class="o">-&gt;</span><span class="n">GetMemoryPool</span><span class="p">(</span><span class="nn">nns::gfx::GraphicsFramework::</span><span class="n">MemoryPoolType_RenderTarget</span><span class="p">),</span> <span class="n">g_OffsetToRenderTargetTextureMemoryPoolStatic</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_OffsetToRenderTargetTextureMemoryPoolStatic</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT</span><span class="p">(</span><span class="n">g_OffsetToRenderTargetTextureMemoryPoolStatic</span> <span class="o">-</span> <span class="n">g_OffsetToRenderTargetTextureMemoryPoolHead</span> <span class="o">&lt;</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::ui2d::</span><span class="nl">RenderTargetTextureLifetime_OneFrame</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="o">*</span><span class="n">pTexture</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">pFramework</span><span class="o">-&gt;</span><span class="n">GetMemoryPool</span><span class="p">(</span><span class="nn">nns::gfx::GraphicsFramework::</span><span class="n">MemoryPoolType_RenderTarget</span><span class="p">),</span> <span class="n">g_OffsetToRenderTargetTextureMemoryPoolDynamic</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_OffsetToRenderTargetTextureMemoryPoolDynamic</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT</span><span class="p">(</span><span class="n">g_OffsetToRenderTargetTextureMemoryPoolDynamic</span> <span class="o">-</span> <span class="n">g_OffsetToRenderTargetTextureMemoryPoolHead</span> <span class="o">&lt;</span> <span class="mi">16</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">default</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// TextureView
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::TextureView::</span><span class="n">InfoType</span> <span class="n">textureViewInfo</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureViewInfo</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureViewInfo</span><span class="p">.</span><span class="n">SetImageDimension</span><span class="p">(</span><span class="nn">nn::gfx::</span><span class="n">ImageDimension_2d</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureViewInfo</span><span class="p">.</span><span class="n">EditSubresourceRange</span><span class="p">().</span><span class="n">EditArrayRange</span><span class="p">().</span><span class="n">SetArrayLength</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureViewInfo</span><span class="p">.</span><span class="n">EditSubresourceRange</span><span class="p">().</span><span class="n">EditArrayRange</span><span class="p">().</span><span class="n">SetBaseArrayIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureViewInfo</span><span class="p">.</span><span class="n">SetImageFormat</span><span class="p">(</span><span class="n">info</span><span class="p">.</span><span class="n">GetImageFormat</span><span class="p">());</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureViewInfo</span><span class="p">.</span><span class="n">SetTexturePtr</span><span class="p">(</span><span class="o">*</span><span class="n">pTexture</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">*</span><span class="n">pTextureView</span> <span class="o">=</span> <span class="n">AllocAndConstruct</span><span class="o">&lt;</span><span class="nn">nn::gfx::</span><span class="n">TextureView</span><span class="o">&gt;</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="o">*</span><span class="n">pTextureView</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Initialize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">,</span> <span class="n">textureViewInfo</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">*</span><span class="n">pSlot</span> <span class="o">=</span> <span class="n">AllocAndConstruct</span><span class="o">&lt;</span><span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">&gt;</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegisterSlotForTexture</span><span class="p">(</span><span class="o">*</span><span class="n">pSlot</span><span class="p">,</span> <span class="o">**</span><span class="n">pTextureView</span><span class="p">,</span> <span class="n">pFramework</span><span class="p">);</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">lifetimeHint</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />lifetimeHint は ui2d ライブラリ側からの使用方法のヒントとなっており、それぞれ推奨される寿命が渡されます。<br />コールバック側では返り値でどのように管理したいかランタイムへ通知します。</p>
+<ul>
+  <li>RenderTargetTextureLifetime_Layout<ul><li>レイアウトインスタンスの初期化、終了処理と同じタイミングで初期化・終了されます。</li><li>初回フレームキャプチャテクスチャなど静的なテクスチャに対するヒントとして渡されます。</li></ul></li>
+  <li>RenderTargetTextureLifetime_OneFrame<br /><ul><li>毎フレーム初期化・終了処理が実行され使い捨てにされます。</li><li>このヒントが渡されたときに&nbsp;RenderTargetTextureLifetime_Layout を返すと、以後フレームごとの初期化・終了処理は呼び出されず、レイアウトインスタンスの終了時に終了処理が呼び出されます。</li></ul></li>
+</ul>
+<h3 id="Anchor_274170522_h3_2">レンダーターゲットテクスチャ関連リソースの終了処理</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//------------------------------------------------------------------------------
+</span><span class="kt">void</span> <span class="nf">DestroyRenderTargetTexture</span><span class="p">(</span><span class="nn">nn::gfx::</span><span class="n">Texture</span><span class="o">*</span> <span class="n">pTexture</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">TextureView</span><span class="o">*</span> <span class="n">pTextureView</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">*</span> <span class="n">pSlot</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">RenderTargetTextureLifetime</span> <span class="n">lifetimeHint</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">lifetimeHint</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nns::gfx::</span><span class="n">GraphicsFramework</span><span class="o">*</span> <span class="n">pFramework</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="nn">nns::gfx::</span><span class="n">GraphicsFramework</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pUserData</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">Device</span><span class="o">*</span>    <span class="n">pDevice</span> <span class="o">=</span> <span class="n">pFramework</span><span class="o">-&gt;</span><span class="n">GetDevice</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">lifetimeHint</span> <span class="o">==</span> <span class="nn">nn::ui2d::</span><span class="n">RenderTargetTextureLifetime_OneFrame</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// OneFrame の場合、CaptureTexture::Draw 内で毎フレームテクスチャが作り直される。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 作成しなおす際に 1 フレーム前に作成したテクスチャ関連リソースを破棄するが、コマンドバッファをダブルバッファリングしていると
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// GPU が描画コマンドを実行する際に必要となるリソースを開放することになる。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// GPU が参照しなくなってから解放するため、一時的に開放待ち領域に登録しておき、GPU の描画完了後に実際に開放する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DelayReleaseSlot</span><span class="p">[</span><span class="n">g_DelayReleaseCount</span><span class="p">].</span><span class="n">pTexture</span> <span class="o">=</span> <span class="n">pTexture</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DelayReleaseSlot</span><span class="p">[</span><span class="n">g_DelayReleaseCount</span><span class="p">].</span><span class="n">pTextureView</span> <span class="o">=</span> <span class="n">pTextureView</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DelayReleaseSlot</span><span class="p">[</span><span class="n">g_DelayReleaseCount</span><span class="p">].</span><span class="n">pSlot</span> <span class="o">=</span> <span class="n">pSlot</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">++</span><span class="n">g_DelayReleaseCount</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_SDK_ASSERT</span><span class="p">(</span><span class="n">g_DelayReleaseCount</span> <span class="o">&lt;=</span> <span class="n">DelayReleaseSlotMax</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">UnregisterSlotForTexture</span><span class="p">(</span><span class="n">pSlot</span><span class="p">,</span> <span class="o">*</span><span class="n">pTextureView</span><span class="p">,</span> <span class="n">pUserData</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pTextureView</span><span class="o">-&gt;</span><span class="n">Finalize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pTexture</span><span class="o">-&gt;</span><span class="n">Finalize</span><span class="p">(</span><span class="n">pDevice</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">DestructAndFree</span><span class="p">(</span><span class="n">pSlot</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">DestructAndFree</span><span class="p">(</span><span class="n">pTextureView</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">DestructAndFree</span><span class="p">(</span><span class="n">pTexture</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>コマンドバッファをマルチバッファリングしている場合など、GPU リソースが複数フレームにわたって参照される可能性がある実装がされている場合、完全に参照されなくなってからリソースを破棄するようにしてください。</p>
+<h2 id="Anchor_274170522_h2_5">フレームバッファテクスチャ設定</h2>
+<p>レイアウトランタイムがキャプチャするフレームバッファテクスチャを設定します。<br /><span class="ApiLink_nn__ui2d__DrawInfo__SetFramebufferTexture">nn::ui2d::DrawInfo::SetFramebufferTexture</span> を呼び出すことで設定することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3</td>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// キャプチャペインでキャプチャされるテクスチャを設定する
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// フレームバッファキャプチャが有効になっているキャプチャペインは、子ペインの描画前にこのメソッドで設定されたテクスチャから特定範囲をキャプチャします。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pDrawInfo</span><span class="o">-&gt;</span><span class="n">SetFramebufferTexture</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetColorBuffer</span><span class="p">(),</span> <span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDisplayWidth</span><span class="p">(),</span> <span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDisplayHeight</span><span class="p">());</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_274170522_h2_6">キャプチャ機能描画処理の呼び出し</h2>
+<p>キャプチャ機能は <span class="ApiLink_nn__ui2d__Layout__Draw">nn::ui2d::Layout::Draw</span> の呼び出しでテクスチャとして参照されるため、<span class="ApiLink_nn__ui2d__Layout__Draw">nn::ui2d::Layout::Draw</span> の呼び出し前に描画を準備を完了させる必要があります。<br />この準備の為に <span class="ApiLink_nn__ui2d__Layout__DrawCaptureTexture">nn::ui2d::Layout::DrawCaptureTexture</span> を呼び出す必要があります。このメソッドではユーザーが設定したフレームバッファテクスチャから内容をコピーしたり、キャプチャペインの子ペインとなっているものの描画処理が行われます。このとき、初回フレームキャプチャ設定がされているものは内部でフラグを管理して初回だけテクスチャが更新されます。再度初回フレームキャプチャ設定のテクスチャを更新したい場合は <span class="ApiLink_nn__ui2d__Layout__ResetFirstFrameCaptureUpdatedFlag">nn::ui2d::Layout::ResetFirstFrameCaptureUpdatedFlag</span>() を呼び出してフラグをリセットしてください。</p>
+<p>以下のサンプルコードは毎フレーム DrawCaptureTexture を呼び出してテクスチャを更新しています。<br />また、 DrawCaptureTexture では以下のレンダーステートが変更されるため、呼び出し後にそれらの設定をリセットしています。</p>
+<ul>
+  <li>レンダーターゲット</li>
+  <li>ビューポートシザーステート</li>
+</ul>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31</td>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// キャプチャ機能の更新処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">DrawCaptureTexture</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDevice</span><span class="p">(),</span> <span class="o">*</span><span class="n">g_pDrawInfo</span><span class="p">,</span> <span class="o">*</span><span class="n">pCmdBuffer</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">ColorTargetView</span><span class="o">*</span> <span class="n">pTarget</span> <span class="o">=</span> <span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetColorTargetView</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">DepthStencilView</span><span class="o">*</span> <span class="n">pDepthStencilView</span> <span class="o">=</span> <span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDepthStencilView</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// バッファのクリア
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">ClearColor</span><span class="p">(</span><span class="n">pTarget</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">0.5f</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">ClearDepthStencil</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pDepthStencilView</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nn">nn::gfx::</span><span class="n">DepthStencilClearMode_DepthStencil</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// レンダーステートの設定
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">SetRenderTargets</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pTarget</span><span class="p">,</span> <span class="n">pDepthStencilView</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">SetViewportScissorState</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetViewportScissorState</span><span class="p">());</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">SetBlendState</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetBlendState</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nns::gfx::GraphicsFramework::</span><span class="n">BlendStateType_Alpha</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">SetDepthStencilState</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetDepthStencilState</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nns::gfx::GraphicsFramework::</span><span class="n">DepthStencilStateType_Disabled</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pCmdBuffer</span><span class="o">-&gt;</span><span class="n">SetRasterizerState</span><span class="p">(</span><span class="n">g_GfxFramework</span><span class="p">.</span><span class="n">GetRasterizerState</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nns::gfx::GraphicsFramework::</span><span class="n">RasterizerStateType_FillSolid_CullNone</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Draw
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="o">*</span><span class="n">g_pDrawInfo</span><span class="p">,</span> <span class="o">*</span><span class="n">pCmdBuffer</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">NN_STATIC_CONDITION</span><span class="p">(</span><span class="n">g_SampleMode</span> <span class="o">==</span> <span class="n">SampleMode_MultiArcResource</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">DrawMultiArcResourceLayout</span><span class="p">(</span><span class="n">pCmdBuffer</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_274170522_h1_4">フィルターシェーダーコールバック</h1>
+<p>キャプチャしたテクスチャに対してユーザーが任意の処理を適用可能にするためのコールバック関数です。</p>
+<h2 id="Anchor_274170522_h2_7">コールバック関数の設定</h2>
+<p>以下の疑似コードのように、<span class="ApiLink_nn__ui2d__DrawInfo__SetApplyCaptureTextureFilterCallback">nn::ui2d::DrawInfo::SetApplyCaptureTextureFilterCallback</span> でユーザーフィルターシェーダーを適用するためのコールバック関数を設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// キャプチャテクスチャのユーザーフィルターコールバックを設定します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// このコールバックでキャプチャのテクスチャに対してユーザーが任意のシェーダーを適用することができます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pDrawInfo</span><span class="o">-&gt;</span><span class="n">SetApplyCaptureTextureFilterCallback</span><span class="p">(</span><span class="n">ApplyUserFilterShaderCallback</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_274170522_h2_8">コールバック関数の仕様</h2>
+<p>以下にフィルターコールバックの実装の疑似コードです。</p>
+<p>srcTexture としてキャプチャされたテクスチャが渡されるため、ユーザーが任意の処理を適用して destTexture に最終的に参照されるテクスチャを書き込みます。<br />また、コールバック関数はすべてのキャプチャテクスチャについて呼び出されるため、ペインの名前で切り替えるなど、特定のペインのみ処理が有効化されるような対応が必要です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//------------------------------------------------------------------------------
+</span>
+<span class="kt">bool</span> <span class="nf">ApplyUserFilterShaderCallback</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">CommandBuffer</span><span class="o">&amp;</span> <span class="n">commandBuffer</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">ColorTargetView</span><span class="o">*</span> <span class="n">pColorTarget</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">&amp;</span> <span class="n">destTexture</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">&amp;</span> <span class="n">srcTexture</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">ViewportScissorState</span><span class="o">&amp;</span> <span class="n">viewportScissorState</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ui2d::</span><span class="n">Pane</span><span class="o">*</span> <span class="n">pPane</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// キャプチャテクスチャのコピー処理直前に呼び出されるコールバックです。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 本サンプルでは特定の名前のキャプチャペインの時だけアプリケーション側で用意したピクセルシェーダーを設定しています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">pPane</span><span class="o">-&gt;</span><span class="n">GetName</span><span class="p">(),</span> <span class="s">&quot;CaptureAndUserFilter&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">commandBuffer</span><span class="p">.</span><span class="n">SetRenderTargets</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pColorTarget</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">commandBuffer</span><span class="p">.</span><span class="n">SetViewportScissorState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">viewportScissorState</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">commandBuffer</span><span class="p">.</span><span class="n">SetConstantBuffer</span><span class="p">(</span><span class="n">g_UserFilterShaderConstantBufferSlot</span><span class="p">[</span><span class="n">UserFilterShaderType_VerticalGaussianBlur</span><span class="p">],</span> <span class="nn">nn::gfx::</span><span class="n">ShaderStage_Pixel</span><span class="p">,</span> <span class="n">gpuAddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">UserFilterShaderEffectParams</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pPrimitiveRenderer</span><span class="o">-&gt;</span><span class="n">SetUserPixelShader</span><span class="p">(</span><span class="n">g_pResShaderFile</span><span class="o">-&gt;</span><span class="n">GetShaderContainer</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">GetResShaderVariation</span><span class="p">(</span><span class="n">UserFilterShaderType_VerticalGaussianBlur</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetResShaderProgram</span><span class="p">(</span><span class="n">g_CodeType</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetShader</span><span class="p">());</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pPrimitiveRenderer</span><span class="o">-&gt;</span><span class="n">DrawScreenQuad</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">commandBuffer</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">*</span><span class="n">g_FilterTempPassTexture</span><span class="p">.</span><span class="n">gpuResources</span><span class="p">.</span><span class="n">pSlot</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pGraphicsResource</span><span class="o">-&gt;</span><span class="n">GetSamplerDescriptorSlot</span><span class="p">(</span><span class="nn">nn::ui2d::</span><span class="n">TexWrap_Clamp</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">TexWrap_Clamp</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">TexFilter_Linear</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">TexFilter_Linear</span><span class="p">));</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">commandBuffer</span><span class="p">.</span><span class="n">FlushMemory</span><span class="p">(</span><span class="nn">nn::gfx::</span><span class="n">GpuAccess_ColorBuffer</span> <span class="o">|</span> <span class="nn">nn::gfx::</span><span class="n">GpuAccess_Texture</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 戻り値として false を返すとキャプチャされたテクスチャがそのまま使用されます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__ui2d__Layout__SetRenderTargetTextureManagementCallback', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_layout.html#af16dbb6db810a30daf9306fa08000da1' )
+SetUrl( 'ApiLink_nn__gfx__Texture', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a1aaa1504dbd528662d53ba66faba4313' )
+SetUrl( 'ApiLink_nn__gfx__TextureView', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ac96ae14e7816fb1316ccc186a52eb9aa' )
+SetUrl( 'ApiLink_nn__gfx__DescriptorSlot', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_descriptor_slot.html' )
+SetUrl( 'ApiLink_nn__ui2d__DrawInfo__SetFramebufferTexture', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_draw_info.html#a93c30c96e5a3a11d036cd06fbbe0701e' )
+SetUrl( 'ApiLink_nn__ui2d__Layout__Draw', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_layout.html#a7e726dc95ad3a80997cb7085d0f67f63' )
+SetUrl( 'ApiLink_nn__ui2d__Layout__DrawCaptureTexture', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_layout.html#a6f08909cdd99b74e5aeafe104cdc26b1' )
+// ApiLink_nn__ui2d__Layout__ResetFirstFrameCaptureUpdatedFlag
+SetUrl( 'ApiLink_nn__ui2d__DrawInfo__SetApplyCaptureTextureFilterCallback', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_draw_info.html#aefbac4b34d5d3ae36fdd3b101f169e6a' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

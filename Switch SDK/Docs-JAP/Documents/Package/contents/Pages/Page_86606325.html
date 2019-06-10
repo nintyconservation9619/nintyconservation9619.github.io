@@ -1,0 +1,347 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>カスタムフィールド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- カスタムフィールド -->
+<div class="pagetitle" id="PageId_86606325">カスタムフィールド</div>
+<div class="text_separate">
+<h1 id="Anchor_86606325_h1_1">カスタムフィールド</h1>
+<p>カスタムフィールドを利用すると、フィールドと同じ処理タイミングでパーティクルの挙動を操作することができます。たとえば、以下の利用の仕方が可能です。</p>
+<ul>
+  <li>ゲーム内の風の影響をパーティクルに与える</li>
+  <li>独自のフィールドを実装する<br /><br /></li>
+</ul>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>カスタムアクションを利用しても同様のカスタマイズを行うことが可能ですが、その場合ＣＰＵエミッタに用途が限られます。</p>
+  </div>
+</div>
+<h2 id="Anchor_86606325_h2_1">カスタムフィールド概要</h2>
+<p>パーティクル処理内では、重力・空気抵抗などの基本的な挙動の計算が行われた後に、フィールドの計算処理が行われます。<br />カスタムフィールドは、「すべてのフィールドの計算が終了した後」に、コールバックとして独自処理を呼び出すことができます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>カスタムフィールドのコールバック呼び出しタイミングは、「カスタムアクション／カスタムシェーダのパーティクル計算コールバックが呼び出される前」です。<br />順番としては、以下の様な順序で計算が行われます。</p>
+    <ol>
+      <li>パーティクル挙動計算（重力・空気抵抗・通常フィールド）</li>
+      <li>カスタムフィールド</li>
+      <li>（エミッタプラグイン：パーティクル計算コールバック）</li>
+      <li>カスタムアクション：パーティクル計算コールバック</li>
+      <li>カスタムシェーダ：パーティクル計算コールバック</li>
+    </ol>
+  </div>
+</div>
+<h2 id="Anchor_86606325_h2_2">カスタムフィールド制限</h2>
+<p>カスタムフィールドは他のフィールドと同様、CPUエミッタもしくはGPU+SOエミッタ設定が強制されます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>エフェクトメーカ上でカスタムフィールドを付加すると、自動的にエミッタはGPU+SOエミッタに設定されます。<br />手動でCPUエミッタに設定を変更することも可能です。</p>
+  </div>
+</div>
+<p>また、カスタムフィールドは、アプリ内共通で一つしか（<span class="ApiLink_nn__vfx__System">nn::vfx::System</span>クラス内に一つしか）組み込めません。</p>
+<h2 id="Anchor_86606325_h2_3">コールバックについて</h2>
+<p>ランタイムのコールバックは、CPUコールバック、GPU+SOコールバックの二種類があります。これはパーティクル計算タイプによって自動的に選択されます。<br />ここではその設定方法について説明します。</p>
+<h3 id="Anchor_86606325_h3_1">CPUコールバック</h3>
+<h4 id="Anchor_86606325_h4_1">コールバックの実装</h4>
+<p>コールバックの実装例は下記のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//! @brief CPU版 カスタムフィールドコールバックの実装
+//! @param[in] pOutPos           現在のパーティクル位置へのポインタ。位置を更新する場合はこの変数を操作してください。
+//! @param[in] pOutVec           現在のパーティクル速度へのポインタ。速度を更新する場合はこの変数を操作してください。
+//! @param[in] pOutLife          パーティクル寿命へのポインタ。
+//! @param[in] pOutBirthLife     パーティクル生成時刻へのポインタ。
+//! @param[in] pEmitter          エミッタへのポインタ。
+//! @param[in] pParticleProperty パーティクルアトリビュートへのポインタ。
+//! @param[in] pCustomFieldData  カスタムフィールドデータのポインタ。UIで設定したパラメータはここから参照できます。
+//! @param[in] particleIndex     パーティクルのインデックス。 pParticleProperty からパーティクル情報にアクセスするのに使用します。
+//! @return                      ※bool値を返せますが、現状、呼び出し元では無視しています。
+</span><span class="kt">bool</span> <span class="nf">CustomFieldCallbackSample</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3fType</span><span class="o">*</span> <span class="n">pOutPos</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3fType</span><span class="o">*</span> <span class="n">pOutVec</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutLife</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutBirthTime</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::vfx::</span><span class="n">Emitter</span><span class="o">*</span> <span class="n">pEmitter</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::vfx::detail::</span><span class="n">ParticleProperty</span><span class="o">*</span> <span class="n">pParticleProperty</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::vfx::detail::</span><span class="n">ResFieldCustom</span><span class="o">*</span> <span class="n">pCustomFieldData</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">particleIndex</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h4 id="Anchor_86606325_h4_2">nn::vfx::System クラスへのコールバックの登録</h4>
+<p>上記で用意したコールバックを、専用のAPIを用いて System クラスに登録します。登録例は下記の通りです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ここでカスタムフィールドが実装されています
+</span><span class="kt">bool</span> <span class="nf">CustomFieldCallbackSample</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3fType</span><span class="o">*</span> <span class="n">pOutPos</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3fType</span><span class="o">*</span> <span class="n">pOutVec</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutLife</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutBirthTime</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::vfx::</span><span class="n">Emitter</span><span class="o">*</span> <span class="n">pEmitter</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::vfx::detail::</span><span class="n">ParticleProperty</span><span class="o">*</span> <span class="n">pParticleProperty</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::vfx::detail::</span><span class="n">ResFieldCustom</span><span class="o">*</span> <span class="n">pCustomFieldData</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">particleIndex</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span><span class="p">}</span>
+
+<span class="c1">// ...
+</span>
+<span class="c1">// システム初期化処理などのタイミングで、nw::eft2::System クラスにコールバックを登録します
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::vfx::System* system; が定義されている状態です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">system</span><span class="o">-&gt;</span><span class="n">SetCustomFieldCallback</span><span class="p">(</span> <span class="n">CustomFieldCallbackSample</span> <span class="p">);</span>    <span class="c1">// カスタムフィールドの登録
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_86606325_h3_2">GPU+SO（コンピュートシェーダ）コールバック</h3>
+<p>カスタムコンピュートシェーダ内にコールバックを用意すれば、自動的に呼び出されます。<br />（内部的には、定義が無い場合は空関数が呼び出されています）</p>
+<p>カスタムコンピュートシェーダの登録方法については、 <a href="../Pages/Page_83955512.html">カスタムシェーダ</a> をご覧ください。</p>
+<p>実装例は下記のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//---------------------------------------------------
+// GPU+SO版 カスタムフィールドコールバックの実装
+//---------------------------------------------------
+</span>
+<span class="cp">#define USE_USR_CUSTOM_FIELD        </span><span class="c1">// ※ユーザー指定のカスタムフィールド関数を宣言するために必須です
+</span><span class="kt">void</span> <span class="nf">AdjustmentStreamOutPosVec</span><span class="p">(</span> <span class="n">inout</span> <span class="n">vec3</span> <span class="n">outPos</span><span class="p">,</span> <span class="n">inout</span> <span class="n">vec3</span> <span class="n">outVec</span><span class="p">,</span> <span class="n">inout</span> <span class="kt">float</span> <span class="n">outParticleLife</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// パラメータ名定義
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// EffectMaker の UI で設定した浮動小数点数は、下記のUBO内構造体に入っていますので、適宜使いやすい名前を割り当ててご使用ください。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp">#define param0 ctm0.x
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp">#define param1 ctm0.y
+</span> &nbsp;&nbsp;&nbsp;<span class="cp">#define param2 ctm0.z
+</span>&nbsp;&nbsp;&nbsp; <span class="cp">#define param3 ctm0.w
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp">#define param4 ctm1.x
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp">#define param5 ctm1.y
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp">#define param6 ctm1.z
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp">#define param7 ctm1.w
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// outPos = ... // 位置を更新
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// outVec = ... // 速度を更新
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_86606325_h2_4">EffectMaker での設定</h2>
+<p>EffectMaker 上でカスタムフィールドを使用するには、エミッタを右クリックし、「カスタムフィールド」を選択してください。<br />コールバックが適切に実装されていれば、自動的に処理が行われるようになります。</p>
+<ul>
+  <li>ビットが16個</li>
+  <li>数値（浮動小数点数）が8個</li>
+</ul>
+<p>が現在使用できます。</p>
+<h3 id="Anchor_86606325_h3_3">ラベルの表示&nbsp;</h3>
+<p>&nbsp;プロジェクト設定ファイルで、各ビットと数値の入力項目のラベルを変更することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;EffectMakerProjectConfig&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;CustomFieldData&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;BitLabel&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Label&gt;</span>ビットラベル1<span class="nt">&lt;/Label&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Label&gt;</span>ビットラベル2<span class="nt">&lt;/Label&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/BitLabel&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;FloatLabel&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Label&gt;</span>数値ラベル1<span class="nt">&lt;/Label&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Label&gt;</span>数値ラベル2<span class="nt">&lt;/Label&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/FloatLabel&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/CustomFieldData&gt;</span>
+<span class="nt">&lt;/EffectMakerProjectConfig&gt;</span>
+</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>プロジェクト設定ファイル適用後のカスタムフィールドは、次の画像のようになります。</p>
+<p>&nbsp;<span class="embedded-file-wrapper "><img src="../Attachments/Attach_86606325/96633926.PNG" width="500" height="355" class="embedded-image" /></span></p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

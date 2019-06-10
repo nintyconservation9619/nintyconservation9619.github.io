@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>セーブデータ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- セーブデータ -->
+<div class="pagetitle" id="PageId_107320205">セーブデータ</div>
+<div class="text_separate">
+<div class="platform_nx">
+  <p>NX アプリケーションのセーブデータについては、<a href="../Pages/Page_227085130.html">セーブデータ</a> および <a href="../Pages/Page_107782148.html">セーブデータ (NX Addon)</a> も参照してください。</p>
+</div>
+<h1 id="Anchor_107320205_h1_1">機能概要</h1>
+<p>セーブデータ機能は、アプリケーションのセーブデータを永続化するための機能を提供します。</p>
+<p>セーブデータはアプリケーションがメタデータであらかじめ定める容量を持ち、アプリケーションはセーブデータ内に自由にファイルやディレクトリを作成し、データを読み書きすることが出来ます。&nbsp;</p>
+<p>セーブデータの変更内容は、アプリケーションが明示的にコミットを発行し成功するまで確定しません。コミットを発行する前にアプリケーション停止・デバイス電源断などが発生した場合、セーブデータの内容は前回のコミット成功時点まで安全に巻き戻されます。また、書き込み中・コミット中に電源断などが発生してもデータが壊れないことが保証されます。</p>
+<h1 id="Anchor_107320205_h1_2">セーブデータの種類とマウント</h1>
+<p>Windows アプリケーションで利用できるセーブデータの種類とマウント方法は次の通りです。</p>
+<ul>
+  <li>デバッグ用セーブデータ<ul><li>アプリケーション毎に 1 つ作成できるセーブデータです。<span class="ApiLink_nn__fs__MountSaveDataForDebug">nn::fs::MountSaveDataForDebug</span>() でマウントできます。詳しい使い方は<a class="external-link" href="../../../Api/HtmlNX/_page_sample_fs_save_data_for_debug.html" rel="nofollow">サンプル</a>を参照してください。<br />このセーブデータはデバッグ用途でのみ利用することができます。</li></ul></li>
+</ul>
+<h1 id="Anchor_107320205_h1_3">セーブデータの作成</h1>
+<p>Windows 環境ではセーブデータの初回マウント時に自動で作成されます。</p>
+<p>作成されるタイミングは今後変更される可能性があります。</p>
+<h1 id="Anchor_107320205_h1_4">セーブデータのファイル操作</h1>
+<p>マウント後のファイル操作については、他のファイルシステムと同様、 <span class="ApiLink_nn__fs">nn::fs</span> 名前空間の API を介して行うことが出来ます。</p>
+<h1 id="Anchor_107320205_h1_5">セーブデータのコミット</h1>
+<p>セーブデータへの変更内容を確定させるためには、<span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() によるコミットが必要です。</p>
+<p>
+  <span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>()&nbsp;を呼ばないままアンマウントしたり、プログラムが停止した場合、セーブデータは前回コミットが成功した時点の内容に巻き戻ります。<br /><span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>()&nbsp;の実行中にプログラムが停止した場合のセーブデータの内容は、「前回コミットが成功した時点の内容」か「全ての更新が反映された内容」のいずれかになり、破損したり中途半端な内容になることはありません。</p>
+<p>セーブデータをコミットする際は、セーブデータ内のファイルがすべてクローズされている必要があります。</p>
+<p>NintendoSDK 5.1.0 未満の SDK では <span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() の代わりに <span class="ApiLink_nn__fs__CommitSaveData">nn::fs::CommitSaveData</span>() を利用してください。</p>
+<h1 id="Anchor_107320205_h1_6">セーブデータの削除</h1>
+<p>後述するセーブデータの配置場所にあるディレクトリ (bis/usr/save, bis/system/save&nbsp;ともに) を直接削除してください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>今後、 正式な削除手段が提供される予定です。</p>
+  </div>
+</div>
+<h1 id="Anchor_107320205_h1_7">セーブデータの制限</h1>
+<h2 id="Anchor_107320205_h2_1">容量制限</h2>
+<p>セーブデータの容量はアプリケーションのメタデータであらかじめ指定され、内部に作成できるファイル・ディレクトリの総量には制限があります。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>現在 Windows 環境では、暫定の仕様としてセーブデータの容量が制限されていません。<br />今後、メタデータでのセーブデータ容量の指定が必要になるとともに、容量制限機能が追加される予定です。</p>
+  </div>
+</div>
+<h2 id="Anchor_107320205_h2_2">ファイル・ディレクトリの名前制限</h2>
+<p>セーブデータ内に配置できるファイル・ディレクトリの名前の長さは、NULL終端文字を含まず、64 バイトまでです。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>現在 Windows 環境では、暫定の仕様として 64 バイトより長いファイル名・ディレクトリ名が作成できますが、今後制限される予定です。</p>
+  </div>
+</div>
+<h1 id="Anchor_107320205_h1_8">
+  <span style="color: rgb(117,117,117);">セーブデータの配置場所</span>
+</h1>
+<p>Windows 環境では、デフォルトでは以下のようにアプリケーションの exe ファイルが存在するディレクトリ以下に配置されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>＜exe ファイルが存在するディレクトリのパス＞/bis/user/save/0000000000000001/0/</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>配置場所や内部のディレクトリ構成は今後変更される可能性があります。</p>
+  </div>
+</div>
+<h2 id="Anchor_107320205_h2_3">nn::fs::SetSaveDataRootPath() による配置場所の指定</h2>
+<p>セーブデータのマウントを実行する前に&nbsp;<span class="ApiLink_nn__fs__SetSaveDataRootPath">nn::fs::SetSaveDataRootPath</span>() を呼び出すことで、配置場所を指定することが可能です。この場合、以下のようなパスにセーブデータが配置されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>＜nn::fs::SetSaveDataRootPath() に指定したホスト PC 上のパス＞/0000000000000001/0/</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_107320205_h2_4">ツール・エディタ等からのアクセスについて</h2>
+<p>PC 上のツール・エディタ・ファイラ等で、 bis/usr/save&nbsp;ディレクトリ内のファイルを直接参照・編集することが可能ですが、いくつか注意点があります。</p>
+<ul>
+  <li>アプリケーションの実行は、ツール・エディタ等から save ディレクトリ以下のファイル・ディレクトリを開いていない状態で行う必要があります。</li>
+  <li>編集する場合は /.../0000000000000001/0/ ディレクトリ内のファイルを編集してください。<ul><li>/.../0000000000000001/1/ ディレクトリ内にも同じファイル群が存在しますが、こちらのファイルは自動で /.../0000000000000001/0/ の内容に同期されます。&nbsp;</li></ul></li>
+  <li>bis/usr/save&nbsp;ディレクトリをまるごと削除・移動・コピーすることでセーブデータの削除やバックアップが可能ですが、 bis/system/save&nbsp;ディレクトリにアプリケーションセーブデータの存在情報が保存されているため、 bis/usr/save&nbsp;ディレクトリのみを削除・移動・コピーした場合は整合性がとれなくなります。 bis/usr/save&nbsp;ディレクトリを削除・移動・コピーする際は bis/system/save ディレクトリもあわせて操作してください。<br /><br /></li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__fs__MountSaveDataForDebug', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a767e38eb403bd2ebb4374c5214dc0e95' )
+SetUrl( 'ApiLink_nn__fs', '../../../Api/HtmlNX/namespacenn_1_1fs.html' )
+SetUrl( 'ApiLink_nn__fs__Commit', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab534529ae3c325863fe1eb34bd03c872' )
+SetUrl( 'ApiLink_nn__fs__CommitSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ac2f25cffd056f24d6facfda13f977fa6' )
+SetUrl( 'ApiLink_nn__fs__SetSaveDataRootPath', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a90c27aaf70aec66968715663cd8c5415' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

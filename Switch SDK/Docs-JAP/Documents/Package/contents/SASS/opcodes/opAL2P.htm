@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>AL2P</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    AL2P : Attribute Logical to physical (translate)<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Attribute Logical to physical (translate)" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Graphics Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "AL2P", subsection => 5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>AL2P</b>{.io}{.SZ}</code>   <code>{Puniform}, Rd , Ra, immS11</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "AL2P" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>AL2P</b>{.io}{.SZ}</code>   <code>{Puniform}, Rd ,     immU10</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "AL2P" } -->
+
+ .io:     {.I*, .O)                  
+          Load from the input ISBE (.I) or output ISBE (.O)
+ .sz:     { <b>.32*, .64, .96, .128</b> } 
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+This instruction will convert the logical attribute  to physical attribute number, 
+taking into account the  bmap table.  If the logical attribute does not exist for the shader, then that status is also provided in the result structure. In that case, <b>ALD/AST</b> instructions, which use the result of AL2P instructions, will produce default values. Since default values depend on logical address it is passed on via result structure as well.</p>
+
+<p>
+AL2P sets Puniform to be true if all the participating threads are using the same attribute number.  IPA.IDX accepts Puniform, and can perf-optimize the case where all threads are using the same index.
+</p>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>AL2P.I.96</b> R0,     16;                
+<b>AL2P.O</b>    R0, R1, -8;      
+
+using AL2P to do indexed ALD:
+<b>AL2P</b>.I.64       R0,  R1, 12;
+<b>ALD</b>.I.PHYS.64   R2,  a[R0] ;
+
+using AL2P to do indexed AST:
+<b>AL2P</b>.O.128      R0,  R1, -32;
+<b>AST</b>.PHYS.128    R2,  a[R0] ;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

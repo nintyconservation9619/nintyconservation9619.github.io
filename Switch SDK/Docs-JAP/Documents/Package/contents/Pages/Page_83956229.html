@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>オーバービュー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- オーバービュー -->
+<div class="pagetitle" id="PageId_83956229">オーバービュー</div>
+<div class="text_separate">
+<h1 id="Anchor_83956229_h1_1">エフェクトランタイムオーバービュー</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956229_h2_1">GPUエミッタ</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956229_h2_2">カスタムシェーダ</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956229_h2_3">カスタムアクション</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956229_h2_4">エミッタ拡張パラメータ</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956229_h2_5">ビューアランタイム</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83956229_h1_2">ランタイムの構成</h1>
+<p>エフェクトランタイムは、以下のようなライブラリ構成になっています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956229/235834069.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <span class="ApiLink_nn__gfx">nn::gfx</span> ライブラリを利用して描画コマンドを発行し、MAYAなどのモデラーで作成した任意の形状を利用したパーティクル描画を行う場合、任意形状のバイナリ化やランタイム上でのバイナリの取り回しに <span class="ApiLink_nn__g3d">nn::g3d</span> ランタイムを利用しています。</p>
+<h1 id="Anchor_83956229_h1_3">アプリへの組み込み</h1>
+<p>エフェクトランタイムは、直観的なコーディングでアプリへの組み込みが行えるように設計されています。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラスを生成</li>
+  <li>
+    <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> オブジェクトに EffectMaker で生成した エフェクトバイナリ を登録</li>
+  <li>
+    <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> オブジェクト経由で エミッタセット オブジェクトを生成</li>
+  <li>
+    <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 計算 / 描画処理 メソッドをコールし、生成した エミッタセット の 計算/描画処理 を行う</li>
+</ol>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955666.html">ランタイム組み込みチュートリアル</a>
+        </span>
+      </th>
+      <td>アプリにエフェクトランタイムを組み込んで再生するまでのチュートリアルです。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_83956229_h1_4">エミッタセットについて</h1>
+<p>エミッタセットは複数のエミッタまとめたもので、アーティストが EffectMaker を利用して作成し、生成されたエミッタセット中間ファイルをバイナリ化し、ランタイム上で読み込んで利用します。１つのエフェクトバイナリに複数のエミッタセットを含めることも可能です。</p>
+<p>アプリプログラマはランタイム上で読み込んだエフェクトバイナリに含まれるエミッタセットから指定したエミッタセットインスタンスを生成し、そのインスタンスに対して描画位置やカラーなどを操作します。エミッタセットは、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラスCreateEmitterSetID メソッドから生成できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エフェクトバイナリを設定します。
+</span><span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">EntryResource</span><span class="p">(</span> <span class="n">vfxHeap</span><span class="p">,</span> <span class="n">vfxBinary</span><span class="p">,</span> <span class="n">resourceId</span> <span class="p">);</span>
+
+<span class="c1">// エミッタセットを生成します。
+</span><span class="nn">nn::vfx::</span><span class="n">Handle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">CreateEmitterSetID</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">createPos</span><span class="p">,</span> <span class="n">emitterSetId</span><span class="p">,</span> <span class="n">resourceId</span><span class="p">,</span> <span class="n">groupId</span> <span class="p">);</span>
+
+<span class="c1">// 色を指定する
+</span><span class="n">handle</span><span class="p">.</span><span class="n">GetEmitterSet</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">SetColor</span><span class="p">(</span> <span class="n">color</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>エミッタセット生成処理は、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 内部で管理されている エミッタセットオブジェクト をアプリ側に貸し出す実装になってます。エミッタセット生成時に空きエミッタセットの検索に失敗した場合は、生成失敗になります。エフェクトランタイム内部で管理するエミッタセットの数は、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 生成時に指定できます。</p>
+<h1 id="Anchor_83956229_h1_5">特徴的な機能</h1>
+<p>特徴的な機能を紹介します。各機能の詳細は、機能説明を参照ください。</p>
+<h2 id="Anchor_83956229_h2_1">GPUエミッタ</h2>
+<p>&nbsp;頂点シェーダ や コンピュートシェーダ 上でパーティクルの挙動計算を行うことで大量のパーティクルを 低CPUコスト で運用できます。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955580.html">NintendoWare エフェクトのエミッタ</a>
+        </span>
+      </th>
+      <td>GPUエミッタに関するドキュメントへのリンクです。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956229_h2_2">カスタムシェーダ</h2>
+<p>標準のシェーダをカスタマイズすることで、アプリ固有のエフェクトへのライティング表現などを実装できます。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955512.html">カスタムシェーダ</a>
+        </span>
+      </th>
+      <td>カスタムシェーダのマニュアルです。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955731.html">カスタムシェーダの例</a>
+      </th>
+      <td>カスタムシェーダのチュートリアルです。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956229_h2_3">カスタムアクション</h2>
+<p>エミッタの挙動やパーティクルの挙動や描画をカスタマイズできます。<br />たとえば、パーティクルを描画すべき位置にアプリ側で3Dモデルを描画するといったカスタマイズが可能です。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955583.html">カスタムアクション</a>
+        </span>
+      </th>
+      <td>カスタムアクションのマニュアルです。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956229_h2_4">エミッタ拡張パラメータ</h2>
+<p>各エミッタにアプリ独自のパラメータを持たせることができます。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_106362252.html">エミッタ拡張パラメータ</a>
+        </span>
+      </th>
+      <td>エミッタ拡張パラメータのマニュアルです。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956229_h2_5">ビューアランタイム</h2>
+<p>開発中アプリケーションにビューアランタイムを実装することで、以下の操作が可能になります。</p>
+<ul>
+  <li>EffectMaker で開いたエフェクトデータをアプリ内で 再生・描画</li>
+  <li>EffectMaker からアプリに実装されたエフェクトデータを調整</li>
+</ul>
+<p>EffectViewer を利用しての作業と異なり、ゲーム上で最終的な見た目に近い状態でエフェクトの編集を行うことができます。<br />ビューアランタイムを利用するには、アプリ側で EffectViewer ランタイムの組み込みが必要になります。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_124007414.html">ビューアランタイムを組み込む</a>
+        </span>
+      </th>
+      <td>ビューアランタイム組み込みドキュメントです。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx', '../../../Api/HtmlNX/namespacenn_1_1gfx.html' )
+SetUrl( 'ApiLink_nn__g3d', '../../../Api/HtmlNX/namespacenn_1_1g3d.html' )
+SetUrl( 'ApiLink_nn__vfx__System', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

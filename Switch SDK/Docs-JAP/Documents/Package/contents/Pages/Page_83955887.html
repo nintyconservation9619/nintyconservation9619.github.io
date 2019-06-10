@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>時間管理</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 時間管理 -->
+<div class="pagetitle" id="PageId_83955887">時間管理</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955887_h1_1">時間管理機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955887_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955887_h2_2">時間管理機能の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955887_h2_3">時間管理機能の具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955887_h2_4">時間管理機能の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955887_h2_5">時間管理機能使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955887_h3_1">時間の精度について</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955887_h1_1">時間管理機能</h1>
+<h2 id="Anchor_83955887_h2_1">機能概要</h2>
+<p style="color: rgb(51,51,51);">時間管理機能では、<span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);">OS-API ライブラリ内で時間を扱う機能を提供します。時間を扱う表現には、システムチック と 自然時間 の２つがあります。<br /></span></span></p>
+<p>システムチックはシステム依存の時間表現のひとつです。単調増加型の 64bit 整数値であり、 <a href="../Pages/Page_284301623.html">nn::os::Tick クラス</a> で表現されます。システムチックの進む速さはターゲット環境に依存していますが、その周波数（１秒間に進むカウント数）を取得する機能が提供されています。</p>
+<p>自然時間は、OS-API におけるタイムアウト値の指定等で使用される時間表現です。<a href="../../../Api/HtmlNX/classnn_1_1_time_span.html">nn::TimeSpan</a> クラスで扱われ、１カウントは１ナノ秒を示します。システムチックから自然時間表現へ変換するための機能も提供されます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>システムチックは、本体がスリープしている間もカウンタが進み続けるため、プログラムの実稼働時間を計測する用途には使用できませんのでご注意下さい。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_83955887_h2_2">時間管理機能の使用方法</h2>
+<p>システムチックは、単調増加型の 64bit 整数値であり、現在のカウント値は以下のようにして取得することが出来ます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">Tick</span>  <span class="n">tick</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">GetSystemTick</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>システムチックの進む速さはターゲット環境毎に異なりますが、周波数カウントを取得して算術演算することで、適当な時間単位に変換することが出来ます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="kt">int64_t</span>  <span class="n">tick</span>    <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">GetSystemTick</span><span class="p">().</span><span class="n">GetInt64Value</span><span class="p">();</span>
+<span class="kt">int64_t</span>  <span class="n">freq</span>    <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">GetSystemTickFrequency</span><span class="p">();</span>
+<span class="kt">int64_t</span>  <span class="n">seconds</span> <span class="o">=</span> <span class="n">tick</span> <span class="o">/</span> <span class="n">freq</span><span class="p">;</span>                            <span class="c1">// システムチックを秒数に変換 
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>また、システムチックを自然時間表現である <a href="../../../Api/HtmlNX/classnn_1_1_time_span.html">TimeSpan</a> 型に変換することも出来ます。<a href="../../../Api/HtmlNX/classnn_1_1_time_span.html">TimeSpan</a> 型はナノ秒単位の 64bit 整数値です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">Tick</span>  <span class="n">tick</span>    <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">GetSystemTick</span><span class="p">();</span>
+<span class="nn">nn::</span><span class="n">TimeSpan</span>  <span class="n">nanoSec</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">ConvertToTimeSpan</span><span class="p">(</span> <span class="n">tick</span> <span class="p">);</span> <span class="c1">// システムチックをナノ秒に変換
+</span><span class="nn">nn::</span><span class="n">TimeSpan</span>  <span class="n">nanoSec</span> <span class="o">=</span> <span class="n">tick</span><span class="p">.</span><span class="n">ToTimeSpan</span><span class="p">();</span>                 <span class="c1">// メンバ関数を使ってもよい
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <span class="ApiLink_nn__os__Tick__">nn::os::Tick::</span>
+      <a href="../../../Api/HtmlNX/classnn_1_1os_1_1_tick.html#a28422dafe62345d29aed04efb322e08e">GetInt64Value()</a> で取得した int64_t 型のシステムチック即値を、<span style="color: rgb(255,0,0);"><strong>float や int32_t などの他の小サイズな型へ変換して等値比較や大小比較を行わないで下さい</strong></span>。int64_t よりも小さな型や低精度の型に変換すると、元となるシステムチック値の情報が欠落し、正しい比較演算等が行われなくなります。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_83955887_h2_3">時間管理機能の具体的な使用例</h2>
+<p>具体的な使用例は、<a href="../../../Api/HtmlNX/_page_sample_os_tick_and_time_span.html">時間管理機能サンプル&nbsp;</a>&nbsp;を参照して下さい。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_83955887_h2_4">時間管理機能の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a79e29821bfb2b0c3a5c222488e90cc89">nn::os::GetSystemTick</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa64f2523f9e13afef5de6197898afa27">nn::os::GetSystemTickFrequency</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a53032bee4cfe0f01916e8149c393adad">nn::os::ConvertToTimeSpan</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8c9b3542885a746dca530490408f78c1">nn::os::ConvertToTick</a>
+  </li>
+</ul>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_83955887_h2_5">時間管理機能使用上の注意事項</h2>
+<h3 id="Anchor_83955887_h3_1">時間の精度について</h3>
+<p>システムチックを自然時間の単位（<a href="../../../Api/HtmlNX/classnn_1_1_time_span.html">TimeSpan</a>）に変換する時は、必ず <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa64f2523f9e13afef5de6197898afa27">GetSystemTickFrequency()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a53032bee4cfe0f01916e8149c393adad">ConvertToTimeSpan()</a> などの関数を使用して下さい。</p>
+<p>ただし、これらの機能を使って自然時間の単位に変換したとしても、RTC などが提供する実時間ほどの精度は期待できません。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__Tick__', '../../../Api/HtmlNX/classnn_1_1os_1_1_tick.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

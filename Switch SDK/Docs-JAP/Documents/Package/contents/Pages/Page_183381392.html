@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ネットワークの構築</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ネットワークの構築 -->
+<div class="pagetitle" id="PageId_183381392">ネットワークの構築</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_183381392_h1_1">ネットワークの構築</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_183381392_h2_1">アクセスポイントの開始</a>
+      </li>
+      <li>
+        <a href="#Anchor_183381392_h2_2">ネットワークの構築</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_183381392_h3_1">ネットワーク設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_183381392_h3_2">セキュリティ設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_183381392_h3_3">ユーザ設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_183381392_h3_4">ネットワークの構築</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_183381392_h2_3">ネットワークの破棄</a>
+      </li>
+      <li>
+        <a href="#Anchor_183381392_h2_4">アクセスポイントの終了</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_183381392_h1_1">ネットワークの構築</h1>
+<h2 id="Anchor_183381392_h2_1">アクセスポイントの開始</h2>
+<p>ローカル通信に参加する端末はアクセスポイントとステーションのいずれかの役割を選択しなければなりません。ネットワークを構築する端末はアクセスポイントとして動作する必要があるため、LDN ライブラリを初期化した後、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abd2dc6aa5708bb991b291fbe2342dd0b">nn::ldn::OpenAccessPoint()</a> を使用してアクセスポイントとしての役割を選択したことを表明してください。</p>
+<p>この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a8b39f6b0ef4c69b3cb8475bde8ed8385">nn::ldn::State_Initialized</a>&nbsp;から <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a69df6cc798c1d401cf383785f5a57df9">nn::ldn::State_AccessPoint</a> に遷移します。</p>
+<h2 id="Anchor_183381392_h2_2">ネットワークの構築</h2>
+<h3 id="Anchor_183381392_h3_1">ネットワーク設定</h3>
+<p>アクセスポイントが構築するネットワークに関する詳細は <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_config.html">nn::ldn::NetworkConfig</a> 構造体に設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/**
+&nbsp;* @brief         アクセスポイントが構築するローカル・ネットワークに関する設定情報です。
+&nbsp;*/</span>
+<span class="k">struct</span> <span class="n">NetworkConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ローカル・ネットワークの用途を表明する識別子です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IntentId</span>            <span class="n">intentId</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! 無線チャンネルです。 @ref AutoChannel を指定すると自動的に選択します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span>             <span class="n">channel</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ネットワークに接続できるノードの最大数です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int8_t</span>              <span class="n">nodeCountMax</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">_reserved1</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ローカル通信バージョンです。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span>             <span class="n">localCommunicationVersion</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">_reserved2</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>intentId にはネットワークの用途を表明する&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_intent_id.html">nn::ldn::IntentId</a> を設定します。詳細については<a href="../Pages/Page_183381273.html">ネットワーク識別子</a>を参照してください。</p>
+<p>channel は無線チャンネルです。LDN ライブラリで使用できる無線チャンネルは 2.4GHz 帯の 1, 6, 11 と 5GHz 帯の 36, 40, 44, 48 です。ここで指定した無線チャンネルによって自動的に周波数帯域が決まります。特に無線チャンネルを指定する必要が無い場合は <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aab9761c065620e355fbd0eb71c1aeced">nn::ldn::AutoChannel</a> を与えることで、2.4 GHz 帯の 1, 6, 11 の 3 つの無線チャンネルの中から最適な無線チャンネルをシステムが選択します。無線チャンネルの指定は開発機でのみ有効で、製品機ではここでの指定が無視されて常にシステムが無線チャンネルを決定します。</p>
+<p>nodeCountMax はネットワークに接続できる端末の最大数です。この値にはアクセスポイント自身も含んでおり、1 以上、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6cfb7390d698143d5d62820a74f2a8b5">nn::ldn::NodeCountMax</a> 以下の値を設定することができます。</p>
+<p>localCommunicationVersion はローカル通信バージョンです。アプリケーションへのパッチの適用などで通信の仕様が変わる場合にローカル通信バージョンをインクリメントしておくことで、通信の互換性がないことを表明できます。ローカル通信バージョンには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa9e76a2f0084fc520d740e8168e1ece6">nn::ldn::LocalCommunicationVersionMin</a> 以上、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a988e78f592641f761889614e9a8a1667">nn::ldn::LocalCommunicationVersionMax</a> 以下の値を設定してください。</p>
+<h3 id="Anchor_183381392_h3_2">セキュリティ設定</h3>
+<p>通信の暗号化に関する設定は <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_security_config.html">nn::ldn::SecurityConfig</a> 構造体に設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/**
+&nbsp;* @brief         アクセスポイントが構築するローカル・ネットワークのセキュリティ情報です。
+&nbsp;*/</span>
+<span class="k">struct</span> <span class="n">SecurityConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ローカル通信のセキュリティ・モードです。 @ref SecurityMode のいずれかを指定します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit16</span>               <span class="n">securityMode</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! アクセスポイントへの接続に必要なパスフレーズのバイト長です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint16_t</span>            <span class="n">passphraseSize</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! アクセスポイントへの接続に必要なパスフレーズです。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">passphrase</span><span class="p">[</span><span class="n">PassphraseSizeMax</span><span class="p">];</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>securityMode は暗号化の設定です。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749eae6158b43aebfcb6a7831d7503615f63c">nn::ldn::SecurityMode_Product</a> を指定すると全ての通信がシステムによって暗号化されます。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749ea747faffa2a737d3e70fcb623d7722e1c">nn::ldn::SecurityMode_Debug</a> を指定すると通信の暗号化が解除されるため、パケットをキャプチャして解析したい場合に使用してください。製品機ではここでの指定によらず通信が必ず暗号化されます。</p>
+<p>passphraseSize は後述する passphrase のバイトサイズです。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a26f3f636c0e7a33d0891f24c7d9f4630">nn::ldn::PassphraseSizeMin</a> 以上、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#ae86035508c158189079d47e242d1ee6e">nn::ldn::PassphraseSizeMax</a> 以下でなければなりません。</p>
+<p>passphrase は暗号鍵の生成に使用するパスフレーズです。パスフレーズは文字列である必要は無く、任意のバイナリデータを使用できます。十分に長く、予想しにくいパスフレーズを使用してください。なお、製品機と開発機ではパスフレーズが同じでも異なる暗号鍵が生成されます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>LDN ライブラリの暗号化は絶対的な安全を保障するものではありません。機密性の高い情報はローカル通信で送受信しないことを推奨します。</p>
+  </div>
+</div>
+<h3 id="Anchor_183381392_h3_3">ユーザ設定</h3>
+<p>ユーザ情報は <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_user_config.html">nn::ldn::UserConfig</a> 構造体に設定します。ここで設定したユーザ情報は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a>&nbsp;や&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3d7236430d0f89d87e6b64827ed8fb0c">nn::ldn::GetNetworkInfo()</a>&nbsp;の結果として他の端末から取得することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/**
+&nbsp;* @brief         ネットワークに参加するユーザの設定情報です。
+&nbsp;*/</span>
+<span class="k">struct</span> <span class="n">UserConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ユーザ名です。UTF-8 で指定してください。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span>                <span class="n">userName</span><span class="p">[</span><span class="n">UserNameBytesMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  予約領域です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">_reserved</span><span class="p">[</span><span class="mi">15</span><span class="p">];</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>userName には UTF-8 のユーザ名を指定してください。ユーザ名のサイズは <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a1adb8ab92a9544d368755777cc8777d3">nn::ldn::UserNameBytesMax</a> バイト以下、文字数は <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3cb11784180b694e0278ad021e150bb7">nn::ldn::UserNameLengthMax</a> 文字以下でなければなりません。この制約はアカウントのニックネームと統一されているため、アカウントのニックネームをローカル通信のユーザ名として使用することができますが、アカウントのニックネーム以外のユーザ名を使用してはならない制限はなく、任意のユーザ名を使用できます。</p>
+<h3 id="Anchor_183381392_h3_4">ネットワークの構築</h3>
+<p>ネットワークの構築には <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aedf31f08dc77928ff2943dd1042153f5">nn::ldn::CreateNetwork()</a> を使用します。引数には前述の <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_config.html">nn::ldn::NetworkConfig</a>,&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_security_config.html">nn::ldn::SecurityConfig</a>,&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_user_config.html">nn::ldn::UserConfig</a>&nbsp;を指定します。この API はネットワークの構築が完了するまで 500 ミリ秒程度処理を返しません。無線チャンネルに <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aab9761c065620e355fbd0eb71c1aeced">nn::ldn::AutoChannel</a>&nbsp;を指定していない場合には周囲の通信状況を確認する必要が無いため、若干早く処理が完了します。この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a69df6cc798c1d401cf383785f5a57df9">nn::ldn::State_AccessPoint</a>&nbsp;から <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f">nn::ldn::State_AccessPointCreated</a> に遷移します。</p>
+<p>以下に <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aedf31f08dc77928ff2943dd1042153f5">nn::ldn::CreateNetwork()</a>&nbsp;の使用例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ldn::</span><span class="n">NetworkConfig</span> <span class="n">network</span><span class="p">;</span>
+<span class="n">network</span><span class="p">.</span><span class="n">intentId</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">MakeIntentId</span><span class="p">(</span><span class="n">localCommunicationId</span><span class="p">,</span> <span class="n">sceneId</span><span class="p">);</span>
+<span class="n">network</span><span class="p">.</span><span class="n">channel</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">AutoChannel</span><span class="p">;</span>
+<span class="n">network</span><span class="p">.</span><span class="n">nodeCountMax</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">NodeCountMax</span><span class="p">;</span>
+<span class="n">network</span><span class="p">.</span><span class="n">localCommunicationVersion</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+ 
+<span class="nn">nn::ldn::</span><span class="n">SecurityConfig</span> <span class="n">security</span><span class="p">;</span>
+<span class="n">security</span><span class="p">.</span><span class="n">securityMode</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">SecurityMode_Product</span><span class="p">;</span>
+<span class="n">security</span><span class="p">.</span><span class="n">passphraseSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">passphrase</span><span class="p">);</span>
+<span class="nn">std::</span><span class="n">memcpy</span><span class="p">(</span><span class="n">security</span><span class="p">.</span><span class="n">passphrase</span><span class="p">,</span> <span class="n">passphrase</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">passphrase</span><span class="p">));</span>
+ 
+<span class="nn">nn::ldn::</span><span class="n">UserConfig</span> <span class="n">user</span><span class="p">;</span>
+<span class="nn">std::</span><span class="n">strncpy</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">userName</span><span class="p">,</span> <span class="n">userName</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">UserNameBytesMax</span><span class="p">);</span>
+ 
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">CreateNetwork</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">security</span><span class="p">,</span> <span class="n">user</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultNodeCountLimitation::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aedf31f08dc77928ff2943dd1042153f5">nn::ldn::CreateNetwork()</a>&nbsp;のエラーハンドリングについては<a href="../Pages/Page_202548476.html">エラーハンドリング</a>を参照してください。</p>
+<h2 id="Anchor_183381392_h2_3">ネットワークの破棄</h2>
+<p>ネットワークの破棄には <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a595a376742ed5d2968d24ee4e6158721">nn::ldn::DestroyNetwork()</a> を使用します。その時点で接続されているステーションは全て自動的に切断されます。</p>
+<p>この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f">nn::ldn::State_AccessPointCreated</a>&nbsp;から&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a69df6cc798c1d401cf383785f5a57df9">nn::ldn::State_AccessPoint</a>&nbsp;に遷移します。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>ネットワーク構築直後、ネットワーク破棄直後には一時的に無線コントローラとの通信が不安定になる可能性があります。必要以上にネットワークの構築と破棄を繰り返す実装は避けてください。</p>
+  </div>
+</div>
+<h2 id="Anchor_183381392_h2_4">アクセスポイントの終了</h2>
+<p>アクセスポイントとしての役割を終えるには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aac06c6603a0860866e6c9f5466e387af">nn::ldn::CloseAccessPoint()</a> を使用します。ネットワークを構築した状態であればネットワークの破棄も自動的に処理されます。</p>
+<p>この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a8b39f6b0ef4c69b3cb8475bde8ed8385">nn::ldn::State_Initialized</a>&nbsp;に遷移し、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abd2dc6aa5708bb991b291fbe2342dd0b">nn::ldn::OpenAccessPoint()</a>&nbsp;や <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#ad296900d9a6018c664dc29de81bfcbae">nn::ldn::OpenStation()</a> を使用できる状態になります。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>自動スリープ一時無効化機能（要許可）</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 自動スリープ一時無効化機能（要許可） -->
+<div class="pagetitle" id="PageId_292494778">自動スリープ一時無効化機能（要許可）</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_292494778_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_292494778_h1_2">想定用途</a>
+    </li>
+    <li>
+      <a href="#Anchor_292494778_h1_3">実装上の注意</a>
+    </li>
+    <li>
+      <a href="#Anchor_292494778_h1_4">製品での使用許可の申請方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_292494778_h1_5">実装例</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_292494778_h2_1">例 1: アプリのシーン内で自動スリープを一時無効化する UI を提供する</a>
+      </li>
+      <li>
+        <a href="#Anchor_292494778_h2_2">例 2: アプリのシーン内で自動スリープ一時無効化への同意ダイアログを表示する</a>
+      </li>
+      <li>
+        <a href="#Anchor_292494778_h2_3">例 3: アプリのオプション画面で特定シーン内で自動スリープを一時無効化する設定を提供する</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_292494778_h1_6">ガイドライン項目</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_292494778_h1_1">概要</h1>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#aa8d7caeaf62f2833c9795d42613eea02">nn::oe::BeginAutoSleepDisabledSection()</a> ～ <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#a27c0216977d28375878821613332bb6d">nn::oe::EndAutoSleepDisabledSection()</a> を使用すると、呼び出したアプリケーション上で、自動スリープを一時的に抑制することができます。</p>
+<p>
+  <strong>本機能は、使用時に特別な注意が必要なため、製品での使用を許可制としています。</strong>
+</p>
+<p>
+  <strong>また使用する場合は追加で対応の必要なガイドライン項目があります。</strong>
+</p>
+<p>このページでは機能の想定用途、使用時の注意点、製品での使用許可の申請方法について説明します。</p>
+<h1 id="Anchor_292494778_h1_2">想定用途</h1>
+<p>本機能は、ユーザが本体を操作しないまま長時間（1時間を超えて）本体が動作しつづけることを期待する可能性がある場面（例：音楽再生モード）において、ユーザの意志において自動スリープだけを一時的に抑制できるように用意したものです。それ以外の使用方法は想定していません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本機能は画面焼け軽減の動作設定には影響しません。したがって、本機能を使用して自動スリープを抑制していても、無操作時にはユーザの設定に従って画面が暗くなることがあります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>オフラインWebアプレットで動画を再生している間など、メディアコンテンツの再生中は本機能の想定する場面には含みません。</p>
+    <p>メディアコンテンツ再生中に自動スリープの発動を遅延させる制御は別途システムが行っています。また、ユーザがこのときの自動スリープを無効化する手段として、本体設定の「コンテンツ再生中は自動スリープしない」の項目を提供しています。</p>
+    <p>そのため本機能を使用する必要はありません。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_292494778_h1_3">実装上の注意</h1>
+<p>本機能は、</p>
+<ol>
+  <li>
+    <strong>ユーザが希望した場合</strong>においてのみ</li>
+  <li>
+    <strong>補助的な機能</strong>として</li>
+  <li>
+    <strong>一時的</strong>に</li>
+</ol>
+<p>使用されるように注意して実装されなくてはなりません。すなわち、以下の要件をすべて満たさなくてはなりません。</p>
+<ol>
+  <li>ユーザの明示的な同意や選択操作を経ることなく自動スリープの一時無効化を行わない</li>
+  <li>自動スリープの無効化の推奨や、当該機能への積極的な誘導をしない<br /><ul><li>自動スリープの一時無効化に関するユーザへの案内の内容やその表示タイミングが、自動スリープの一時無効化を積極的に促している印象を与えないよう配慮した中立的な表現になっている必要があります。</li></ul></li>
+  <li>自動スリープの一時無効化を必須とする仕様が存在しない</li>
+  <li>自動スリープを無効化した後も、ユーザに無効化を解除する方法を提供する</li>
+</ol>
+<p>具体的な実装方法の例については、後述の「実装例」を参照してください。</p>
+<h1 id="Anchor_292494778_h1_4">製品での使用許可の申請方法</h1>
+<!--Remove-->
+<p>本機能を製品で使用する場合は事前に使用許可の申請が必要です。使用したい場合は担当窓口にお問い合わせください。</p>
+<p>申請時には、使用方法が前節で説明した要件に沿っていることを確認できるよう、以下の情報を明記してください。</p>
+<ol>
+  <li>アプリケーション中で <span class="ApiLink_nn__oe__BeginAutoSleepDisabledSection">nn::oe::BeginAutoSleepDisabledSection</span>() を使用する場面</li>
+  <li>1. で申告した場面（複数あればそのそれぞれ）について、以下の確認項目への回答<br /><ol><li>自動スリープを一時無効化する手段をユーザーに提供したい理由</li><li>自動スリープを一時無効化する直前にユーザーからの同意を得るようになっているか、またはユーザが自発的に選択した場合にのみ自動スリープを一時無効化するようになっているか<ul><li>「はい」の場合、同意を得る手段やユーザが自動スリープを選択する方法（同意を取るタイミングやユーザに表示する内容など）に関する簡単な説明も付記してください。</li></ul></li><li>自動スリープを一時無効化しなくてもその場面をプレイできるようになっているか</li><li>自動スリープを一時無効化した後も、一時無効化の状態を切り替える方法をユーザーに提供しているか<br /><ul><li>「はい」の場合、切り替え方法の簡単な説明も付記してください。また、シーケンス中で切り替え方法を案内している場合はその箇所も付記してください。</li></ul></li></ol></li>
+</ol>
+<h1 id="Anchor_292494778_h1_5">実装例</h1>
+<p>問題ない実装方法の例を以下に示します。特段の事情がなければ、この例に沿った実装をすることを推奨します。</p>
+<p>独自の実装方法を取った場合、使用許可申請の受理に時間がかかる可能性があります。</p>
+<h2 id="Anchor_292494778_h2_1">例 1: アプリのシーン内で自動スリープを一時無効化する UI を提供する</h2>
+<ul>
+  <li>アプリケーション中の特定のシーンの画面内に、自動スリープの無効化状態を切り替えるトグル UI を用意し、デフォルト値を「（自動スリープを）<strong>無効化しない</strong>」とする</li>
+  <li>ユーザがこの設定を「（自動スリープを）<strong>無効化する</strong>」に切りかえた場合に <span class="ApiLink_nn__oe__BeginAutoSleepDisabledSection">nn::oe::BeginAutoSleepDisabledSection</span>() を呼び出す</li>
+  <li>ユーザがこの設定を「無効化しない」に戻すか、または当該シーンから出る際に <span class="ApiLink_nn__oe__EndAutoSleepDisabledSection">nn::oe::EndAutoSleepDisabledSection</span>() を呼び出して一時無効化を解除する</li>
+</ul>
+<h2 id="Anchor_292494778_h2_2">例 2: アプリのシーン内で自動スリープ一時無効化への同意ダイアログを表示する</h2>
+<ul>
+  <li>アプリケーション中の特定のシーン（たとえば、サウンドテストモード）に入る際に、「自動スリープを一時的に無効化することができます」のような文面の同意ダイアログを提示する<ul><li>ユーザが「無効化する」を選んだら、 <span class="ApiLink_nn__oe__BeginAutoSleepDisabledSection">nn::oe::BeginAutoSleepDisabledSection</span>() を呼び出して自動スリープ一時無効化を開始して当該シーンに入る<ul><li>また、その際に「自動スリープを一時的に無効化しました。○○画面によっていつでも無効化をやめることができます」と無効化の解除方法をユーザに案内する</li></ul></li><li>ユーザが「無効化しない」を選んだら、自動スリープ一時無効化機能を使用せずに当該シーンに入る</li><li>中立的な文面にしたり、「無効化する」「無効化しない」の選択肢の形状を揃えたりして、「自動スリープの無効化を奨めている」と受け取られないような UI にする</li><li>このユーザの選択は、自動スリープを一時無効化するかどうか以外の当該シーンの仕様には影響しない</li></ul></li>
+  <li>当該シーンに入った後も、自動スリープ一時無効化の切り替えができる UI を用意する</li>
+  <li>当該シーンから出る際、自動スリープを一時無効化していた場合は <span class="ApiLink_nn__oe__EndAutoSleepDisabledSection">nn::oe::EndAutoSleepDisabledSection</span>() を呼び出して無効化を解除する</li>
+</ul>
+<h2 id="Anchor_292494778_h2_3">例 3: アプリのオプション画面で特定シーン内で自動スリープを一時無効化する設定を提供する</h2>
+<ul>
+  <li>アプリケーション中の特定のシーンに関するオプション画面で、「○○シーン中の自動スリープの無効化」という項目を用意し、デフォルト値を「（自動スリープを）<strong>無効化しない</strong>」とする</li>
+  <li>当該シーンに入る際、ユーザがこのオプションを「（自動スリープを）<strong>無効化する</strong>」設定に切りかえていた場合は <span class="ApiLink_nn__oe__BeginAutoSleepDisabledSection">nn::oe::BeginAutoSleepDisabledSection</span>() を呼び出す</li>
+  <li>当該シーンに入った後も、当該オプションの切り替えができる UI を用意する</li>
+  <li>当該シーンから出る際、自動スリープを無効化していた場合は <span class="ApiLink_nn__oe__EndAutoSleepDisabledSection">nn::oe::EndAutoSleepDisabledSection</span>() を呼び出して無効化を解除する</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>アプリケーションは、自動スリープを無効化する期間がユーザが無効化を意図した対象のシーン内に限定することを保証しなければなりませんが、HOME メニューなどアプリ外の画面に遷移した場合について実装上特段注意する必要はありません。</p>
+    <p>本機能は呼び出したアプリケーションにフォーカスがある間だけ有効であるためです。</p>
+    <p>たとえばアプリケーションが自動スリープを無効化した状態で HOME メニューに遷移した場合、HOME メニュー表示中は自動スリープ一時無効化は解除されています。その後アプリケーションに戻ってきたときに再び自動スリープが無効化されます。</p>
+  </div>
+</div>
+<h1 id="Anchor_292494778_h1_6">ガイドライン項目</h1>
+<p>本機能が、上述の注意点を遵守した使用方法になっていることを定めるガイドライン項目を用意しています。</p>
+<p>ガイドライン項目の詳細については、「Nintendo Switch ガイドライン」の以下の項目を参照してください。</p>
+<p>
+  <br />
+</p>
+<!--Remove-->
+<ul>
+  <li>使用許可申請時に申告した場面や使い方以外での自動スリープ一時無効化機能の使用禁止</li>
+</ul>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe__BeginAutoSleepDisabledSection', '../../../Api/HtmlNX/namespacenn_1_1oe.html#aa8d7caeaf62f2833c9795d42613eea02' )
+SetUrl( 'ApiLink_nn__oe__EndAutoSleepDisabledSection', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a27c0216977d28375878821613332bb6d' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

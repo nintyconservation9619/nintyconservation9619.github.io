@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VMAD</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VMAD : Integer Byte/Short Multiply Add<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Byte/Short Multiply Add" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Video Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VMAD", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VMAD</b>{.safmt32.sbfmt32}{.PO}{.scale}{.SAT}</code>       <code>Rd{.CC}, {-}Ra{.partselA}, {-}Rb{.partselB}, {-}Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VMAD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VMAD</b>{.safmt32.sbfmt8_16}{.PO}{.scale}{.SAT}</code>     <code>Rd{.CC}, {-}Ra{.partselA}, {-}Rb{.partselB}, {-}Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VMAD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VMAD</b>{.safmt8_16.sbfmt32}{.PO}{.scale}{.SAT}</code>     <code>Rd{.CC}, {-}Ra{.partselA}, {-}Rb{.partselB}, {-}Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VMAD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VMAD</b>{.safmt8_16.sbfmt8_16}{.PO}{.scale}{.SAT}</code>   <code>Rd{.CC}, {-}Ra{.partselA}, {-}Rb{.partselB}, {-}Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code></code>         <code></code>         <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VMAD" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>VMAD</b>{.safmt32.ifmt}{.PO}{.scale}{.SAT}</code>          <code>Rd{.CC}, {-}Ra{.partselA}, {-}#imm16,        {-}Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VMAD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VMAD</b>{.safmt8_16.ifmt}{.PO}{.scale}{.SAT}</code>        <code>Rd{.CC}, {-}Ra{.partselA}, {-}#imm16,        {-}Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code></code>         <code></code>         <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VMAD" } -->
+
+ .safmt32:     { <b>.U32, .S32*</b> } 
+ .safmt8_16:   { <b>.U16, .S16, .U8, .S8</b> } 
+ .sbfmt32:     { <b>.U32, .S32*</b> } 
+ .sbfmt8_16:   { <b>.U16, .S16, .U8, .S8</b> } 
+ .ifmt:        { <b>.U16, .S16*</b>  }
+
+
+              Source formats; if either safmt or sbfmt is 32-bits (which is the default), then VMAD is a decoupled op.
+              If both safmt and either sbfmt or ifmt are both 8 or 16 bits, then VMAD is a coupled op.
+
+ .PO:         Plus one (used in computing averages)
+
+ .scale:     { <b>.PASS*, .SHR_7, .SHR_15</b> }
+             normalization shift count after the multiply/accumulate stage:
+             .PASS  :  shr = tmp
+             .SHR_7 :  shr = tmp &gt;&gt; 7  // sign extended if final result is signed,
+                                          zero-extended otherwise
+             .SHR_15:  shr = tmp &gt;&gt; 15 // sign extended if final result is signed,
+                                          zero-extended otherwise
+
+ .partselA:  if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b> } 
+             if (.U16|.S16) { <b>.H0*, .H1</b> }
+
+ .partselB:  if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b> } 
+             if (.U16|.S16) { <b>.H0*, .H1</b> }
+
+</pre>
+
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Multiply and add sources into destination.</p>
+<p>
+The set of datapaths VMAD can be dispatched to depend on widths of Ra/Rb operands. 
+</p>
+<p>
+
+<h4>Basic math operation:</h4>
+<p>
+Depending on the sign of the Ra and Rb/#imm16 operand, and the negates for
+Ra/Rb/Rc/#imm16, the following combinations of operands are supported for VMAD:
+</p>
+
+<p>
+(Here the input operands Ra/Rb/#imm16 are extended to full 32 bits, even if
+they were specified as U16/S16 or U8/S8.)</p>
+<pre>
+    tmp =  (Ra  * Rb ) + Rc:
+    tmp =  (Ra  *#imm) + Rc:
+
+    tmp =  (U32 * U32) + U32   // intermediate unsigned; final unsigned
+    tmp = -(U32 * U32) + S32   // intermediate   signed; final   signed
+    tmp =  (U32 * U32) - U32   // intermediate unsigned; final   signed
+    tmp =  (U32 * S32) + S32   // intermediate   signed; final   signed
+    tmp = -(U32 * S32) + S32   // intermediate   signed; final   signed
+    tmp =  (U32 * S32) - S32   // intermediate   signed; final   signed
+    tmp =  (S32 * U32) + S32   // intermediate   signed; final   signed
+    tmp = -(S32 * U32) + S32   // intermediate   signed; final   signed
+    tmp =  (S32 * U32) - S32   // intermediate   signed; final   signed
+    tmp =  (S32 * S32) + S32   // intermediate   signed; final   signed
+    tmp = -(S32 * S32) + S32   // intermediate   signed; final   signed
+    tmp =  (S32 * S32) - S32   // intermediate   signed; final   signed
+</pre>
+<p>
+Note: Sass allows optional negates on both Ra and Rb/#imm16 source
+operands, however this is implemented by negating the result of the product
+(only if one but not both sources are negated.
+Since Ra and Rb/#imm16 are not actually negated, VMAD will not detect an
+overflow in the case where negating the source operand would have 
+caused overflow.</p>
+<p>
+The negate on Ra,Rb/#imm16,Rc and the .PO option is encoded in the 2 bit 
+psign field as follows:</p>
+<table summary="VMAD Operation Modes">
+<tr><th>psign</th><th>Operation           </th><th>Mapping                                  </th><th>Comments  </th></tr>
+<tr><td>0</td>    <td><pre> (A*B)+C </pre></td><td><pre> <b>(A*B)</b> +  <b>C</b> + 0 </pre></td><td>          </td></tr>
+<tr><td>1</td>    <td><pre> (A*B)-C </pre></td><td><pre> <b>(A*B)</b> + ~<b>C</b> + 1 </pre></td><td>          </td></tr>
+<tr><td>2</td>    <td><pre>-(A*B)+C </pre></td><td><pre>~<b>(A*B)</b> +  <b>C</b> + 1 </pre></td><td>          </td></tr>
+<tr><td>3</td>    <td><pre>   .PO   </pre></td><td><pre> <b>(A*B)</b> +  <b>C</b> + 1 </pre></td><td> Plus One </td></tr>
+</table>
+
+<p>
+Note: A negate of both Ra and Rb/#imm16 will have no effect.<br>
+Note: It is illegal to negate both Rc and the result of the product.<br>
+Note: It is illegal to negate any source operand in .PO mode.<br>
+</p>
+<p>
+The tmp variable will contain enough bits to represent all possible values 
+after the multiply/accumulation. No overflow of the tmp variable will occur.</p>
+
+<h4>Sign:</h4>
+<p>
+The intermediate sign of the product A*B will be unsigned if:</p>
+<ul><li>Both Ra and Rb/#imm16 are unsigned</li>
+    <li>and neither Ra nor Rb/#imm16 are negated.</li>
+</ul>
+<p>
+Else the intermediate sign will be signed.</p>
+<p>
+The sign of Rc is the same as the intermediate sign of the multiply.<br>
+If Rc is signed it needs to be properly sign extended to 64 bits before
+addition/subtraction to/from the product.</p>
+<p>
+The final sign will be unsigned if:</p>
+<ul><li>The intermediate sign is unsigned </li>
+    <li>and Rc is not negated ( +Rc ),</li>
+</ul>
+<p>
+Else the final sign will be signed.</p>
+
+<h4>Optional Shift Right:</h4>
+<p>
+There is a normalization shift after the multiply/accumulate stage:</p>
+<pre>
+  2'b00 = .PASS  :  shr = tmp
+  2'b01 = .SHR_7 :  shr = tmp &gt;&gt; 7  // sign extended if final result is signed,
+                                       zero-extended otherwise
+  2'b10 = .SHR_15:  shr = tmp &gt;&gt; 15 // sign extended if final result is signed,
+                                       zero-extended otherwise
+  2'b11 = illegal
+</pre>
+<p>
+The shr variable will contain enough bits to represent all possible values
+after the normalization shift. No overflow of the shr variable will occur.</p>
+
+<h4>Saturation:</h4>
+<p>
+There is an optional saturate of the shifted output:</p>
+<ul><li>If the final sign is unsigned the clamping range will be U32,</li>
+    <li>else the clamping range will be S32.</li>
+</ul>
+
+<p>
+The input to the saturation is the result from the normalization shift: </p>
+<pre>
+  result[31:0] = .SAT ? CLAMP(shr, RANGE_MAX, RANGE_MIN) : shr[31:0]
+</pre>
+
+<h4>Second stage operation:</h4>
+<p>
+There is no second stage operation (unlike the other V* instructions that do byte/short 
+extraction.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>VMAD</b>.S16.U16.SAT         R0, R1, R2, R3;
+<b>VMAD</b>.U16.U8.SHR_15.SAT   R0, R1, R2, R3;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

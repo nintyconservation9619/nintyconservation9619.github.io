@@ -1,0 +1,613 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>HID Shell</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- HID Shell -->
+<div class="pagetitle" id="PageId_107339506">HID Shell</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_107339506_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_107339506_h1_2">使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_107339506_h2_1">ロギング</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339506_h2_2">プレイバック</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339506_h2_3">オートパイロット</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_107339506_h1_3">開発機の指定</a>
+    </li>
+    <li>
+      <a href="#Anchor_107339506_h1_4">デバイス</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_107339506_h2_4">DebugPad</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339506_h2_5">HOME ボタン</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339506_h2_6">撮影ボタン</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339506_h2_7">TouchScreen</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339506_h2_8">Xpad</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_107339506_h1_1">はじめに</h1>
+<p>HID Shell は、 HID ライブラリから扱うことのできるデバイスについて、 PC 上から下記の操作を可能にします。</p>
+<ul style="list-style-type: square;">
+  <li>ロギング</li>
+  <li>プレイバック</li>
+  <li>オートパイロット</li>
+</ul>
+<h1 id="Anchor_107339506_h1_2">使用方法</h1>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>開発機上で実行中のアプリケーションに対して使用する場合は、 事前に <a href="../Pages/Page_107320681.html">Input Director</a> を起動しておく必要があります。</p>
+  </div>
+</div>
+<h2 id="Anchor_107339506_h2_1">ロギング</h2>
+<p>下記のコマンドにより、入力イベントのライブログを取得できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe get-event</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ライブログは下記のようなフォーマットで出力されます。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre># 書式は下記の通りです。
+# [&lt;ダンプを開始してからの経過時間(秒)&gt;] &lt;デバイス種別&gt; &lt;デバイス識別子&gt; &lt;イベント種別&gt; [&lt;イベント引数&gt;...]
+#
+# '#' 以降はコメントとして解釈されます。また空行は読み飛ばされます。
+ 
+[      0.908] Xpad            Basic0          ButtonDown A
+[      1.278] Xpad            Basic0          StickMove L P00032 M01926
+[      1.282] Xpad            Basic0          StickMove L P01385 M01926
+[      2.914] Xpad            Basic0          ButtonUp A</pre>
+  </div>
+</div>
+<p>下記のように、対象とするデバイス種別を制限することが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe get-event Xpad</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>更に特定のポートに接続されたデバイスだけを対象に取ることも可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe get-event Xpad Basic0</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_107339506_h2_2">プレイバック</h2>
+<p>下記のコマンドにより、記録したライブログを再生することが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe send-event --file &lt;ライブログのパス&gt;
+
+# file-repeat オプションを指定することでライブログの繰り返し再生が可能です (NintendoSDK 5.3.0 以降)
+Tools/CommandLineTools/Hid/HidShell.exe send-event --file &lt;ライブログのパス&gt; --file-repeat &lt;繰り返し回数&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>使用例を下記に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe get-event &gt; event.log
+Tools/CommandLineTools/Hid/HidShell.exe send-event --file event.log</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_107339506_h2_3">オートパイロット</h2>
+<p>下記のコマンドによりイベント発行を行うことで、何らかの処理と同期したオートパイロットを実現することが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe send-event &lt;デバイス種別&gt; &lt;デバイス識別子&gt; &lt;イベント種別&gt; [&lt;イベント引数&gt;...]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>引数には、ライブログの出力をそのまま利用することができます。 ただし、タイムスタンプは除きます。</p>
+<p>また、 NintendoSDK 5.3.0&nbsp;以降であれば、文字列&quot;--&quot;で区切ることで、複数のコマンドを一括で指定することができます。</p>
+<p>指定されたコマンドは先頭から順番に評価されます。この時、wait コマンドを使用することで、イベント発行の間隔を制御することも可能です。</p>
+<p>以下は、 DebugPad の A ボタンと B ボタンを同時に押した後、1000 ミリ秒経過後に同時に離す操作の例です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe \
+send-event DebugPad 0 ButtonDown A -- send-event DebugPad 0 ButtonDown B -- \
+wait 1000 -- \
+send-event DebugPad 0 ButtonUp   A -- send-event DebugPad 0 ButtonUp   B</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_107339506_h1_3">
+  <span style="color: rgb(117,117,117);">開発機の指定</span>
+</h1>
+<p>何れのコマンドに対しても下記のように target オプションを使用して開発機を明示することが可能です。開発機名には <a href="../Pages/Page_93359711.html">Target Manager</a> が使用している値を用います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe get-event --target &lt;開発機名&gt; Xpad
+Tools/CommandLineTools/Hid/HidShell.exe send-event --target &lt;開発機名&gt; --file event.log</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>開発機を明示する場合は、timeout オプションを使用して開発機との通信の確立を待機することも可能です。以下は 30 秒まで待機する場合の例です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/CommandLineTools/Hid/HidShell.exe get-event --target &lt;開発機名&gt; --timeout 30</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_107339506_h1_4">デバイス</h1>
+<h2 id="Anchor_107339506_h2_4">DebugPad</h2>
+<p>
+  <a href="../Pages/Page_83955511.html">DebugPad</a> として扱われるデバイスについて操作します。</p>
+<h3 id="Anchor_107339506_h3_1">デバイス種別</h3>
+<p>デバイス種別を表す文字列は DebugPad です。</p>
+<h3 id="Anchor_107339506_h3_2">デバイス識別子</h3>
+<p>下記のデバイス識別子が利用可能です。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th style="text-align: center;">デバイス識別子</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>DebugPad</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339506_h3_3">イベント種別</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th style="text-align: center;">イベント種別</th>
+      <th style="text-align: center;">説明</th>
+      <th style="text-align: center;">第 1 引数</th>
+      <th style="text-align: center;">第 2 引数</th>
+      <th style="text-align: center;">第 3 引数</th>
+    </tr>
+    <tr>
+      <td>Connected</td>
+      <td>デバイス接続時に発行されます。</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>Disconnected</td>
+      <td>デバイス切断時に発行されます。</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>ButtonDown</td>
+      <td>&nbsp;ボタン押下時に発行されます。</td>
+      <td>
+        <p>ボタン識別子です。下記の何れかの値を取ります。</p>
+        <p>A, B, X, Y, StickL, StickR, L, R, ZL, ZR, Start, Select, Left, Up, Right, Down</p>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>ButtonUp</td>
+      <td>&nbsp;ボタン開放時に発行されます。</td>
+      <td>
+        <p>ボタン識別子です。下記の何れかの値を取ります。</p>
+        <p>A, B, X, Y, StickL, StickR, L, R, ZL, ZR, Start, Select, Left, Up, Right, Down</p>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>StickMove</td>
+      <td>スティック座標変化時に発行されます。</td>
+      <td>
+        <p>スティック識別子です。下記の何れかの値を取ります。</p>
+        <p>L, R</p>
+      </td>
+      <td>
+        <p>x 座標の座標値です。下記のようにエンコードされます。</p>
+        <p>
+          <code>123 &rarr; P00123</code>
+        </p>
+        <p>
+          <code>-45 &rarr; M00045</code>
+        </p>
+      </td>
+      <td>
+        <p>y 座標の座標値です。下記のようにエンコードされます。</p>
+        <p>
+          <code>123 &rarr; P00123</code>
+        </p>
+        <p>
+          <code>-45 &rarr; M00045</code>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_107339506_h2_5">HOME ボタン</h2>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>HOME ボタンは現在ロギングに対応していません。</p>
+  </div>
+</div>
+<p>HOME ボタンを操作します。</p>
+<h3 id="Anchor_107339506_h3_4">デバイス種別</h3>
+<p>デバイス種別を表す文字列は&nbsp;HomeButton です。</p>
+<h3 id="Anchor_107339506_h3_5">デバイス識別子</h3>
+<p>下記のデバイス識別子が利用可能です。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">デバイス識別子</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>HOME ボタン</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339506_h3_6">イベント種別</h3>
+<p>
+  <span style="color: rgb(51,51,51);">下記のイベント種別が利用可能です。</span>
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">イベント種別</th>
+      <th style="text-align: center;">説明</th>
+      <th style="text-align: center;">第 1 引数</th>
+    </tr>
+    <tr>
+      <td>ButtonDown</td>
+      <td>ボタン押下時に発行されます。</td>
+      <td>
+        <p style="text-align: center;">-</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ButtonUp</td>
+      <td>ボタン開放時に発行されます。</td>
+      <td>
+        <p style="text-align: center;">-</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_107339506_h2_6">撮影ボタン</h2>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>撮影ボタンは現在ロギングに対応していません。</p>
+  </div>
+</div>
+<p>撮影ボタンを操作します。</p>
+<h3 id="Anchor_107339506_h3_7">デバイス種別</h3>
+<p>デバイス種別を表す文字列は CaptureButton です。</p>
+<h3 id="Anchor_107339506_h3_8">デバイス識別子</h3>
+<p>下記のデバイス識別子が利用可能です。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">デバイス識別子</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>撮影ボタン</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339506_h3_9">イベント種別</h3>
+<p>
+  <span style="color: rgb(51,51,51);">下記のイベント種別が利用可能です。</span>
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">イベント種別</th>
+      <th style="text-align: center;">説明</th>
+      <th style="text-align: center;">第 1 引数</th>
+    </tr>
+    <tr>
+      <td>ButtonDown</td>
+      <td>ボタン押下時に発行されます。</td>
+      <td>
+        <p style="text-align: center;">-</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ButtonUp</td>
+      <td>ボタン開放時に発行されます。</td>
+      <td>
+        <p style="text-align: center;">-</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_107339506_h2_7">TouchScreen</h2>
+<p>
+  <a href="../Pages/Page_89128938.html">TouchScreen</a> として扱われるデバイスについて操作します。</p>
+<h3 id="Anchor_107339506_h3_10">デバイス種別</h3>
+<p>デバイス種別を表す文字列は TouchScreen です。</p>
+<h3 id="Anchor_107339506_h3_11">デバイス識別子</h3>
+<p>下記のデバイス識別子が利用可能です。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">デバイス識別子</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>内蔵タッチスクリーン</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339506_h3_12">イベント種別</h3>
+<p>下記のイベント種別が利用可能です。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">イベント種別</th>
+      <th style="text-align: center;">説明</th>
+      <th style="text-align: center;">第 1 引数</th>
+      <th style="text-align: center;">第 2 引数</th>
+      <th style="text-align: center;">第 3 引数</th>
+    </tr>
+    <tr>
+      <td>TouchBegan</td>
+      <td>タッチの開始時に発行されます。</td>
+      <td>
+        <p>タッチの識別子です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+      <td>
+        <p>x 座標の座標値です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+      <td>
+        <p>y 座標の座標値です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>TouchMoved</td>
+      <td>タッチの移動時に発行されます。</td>
+      <td>
+        <p>タッチの識別子です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+      <td>
+        <p>x 座標の座標値です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+      <td>
+        <p>y 座標の座標値です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>TouchEnded</td>
+      <td>タッチの終了時に発行されます。</td>
+      <td>
+        <p>タッチの識別子です。</p>
+        <p>0 以上の整数値となります。</p>
+      </td>
+      <td>
+        <p style="text-align: center;">-</p>
+      </td>
+      <td>
+        <p style="text-align: center;">-</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_107339506_h2_8">Xpad</h2>
+<p>
+  <a href="../Pages/Page_89980932.html">Xpad</a> として扱われるデバイスについて操作します。</p>
+<h3 id="Anchor_107339506_h3_13">デバイス種別</h3>
+<p>デバイス種別を表す文字列は Xpad です。</p>
+<h3 id="Anchor_107339506_h3_14">デバイス識別子</h3>
+<p>下記のデバイス識別子が利用可能です。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">デバイス識別子</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>Basic0</td>
+      <td>BasicXpad （プレイヤー番号 0）</td>
+    </tr>
+    <tr>
+      <td>Basic1</td>
+      <td>BasicXpad （プレイヤー番号 1）</td>
+    </tr>
+    <tr>
+      <td>Basic2</td>
+      <td>BasicXpad （プレイヤー番号 2）</td>
+    </tr>
+    <tr>
+      <td>Basic3</td>
+      <td>BasicXpad （プレイヤー番号 3）</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339506_h3_15">イベント種別</h3>
+<p>下記のイベント種別が利用可能です。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">イベント種別</th>
+      <th style="text-align: center;">説明</th>
+      <th style="text-align: center;">第 1 引数</th>
+      <th style="text-align: center;">第 2 引数</th>
+      <th style="text-align: center;">第 3 引数</th>
+    </tr>
+    <tr>
+      <td>ButtonDown</td>
+      <td>&nbsp;ボタン押下時に発行されます。</td>
+      <td>
+        <p>ボタン識別子です。下記の何れかの値を取ります。</p>
+        <p>A, B, X, Y, StickL, StickR, L, R, ZL, ZR, Start, Select, Left, Up, Right, Down</p>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>ButtonUp</td>
+      <td>&nbsp;ボタン開放時に発行されます。</td>
+      <td>
+        <p>ボタン識別子です。下記の何れかの値を取ります。</p>
+        <p>A, B, X, Y, StickL, StickR, L, R, ZL, ZR, Start, Select, Left, Up, Right, Down</p>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>PowerState</td>
+      <td>電力供給の状態変化時に発行されます。</td>
+      <td>
+        <p>電力供給の状態です。下記の何れかの値を取ります。</p>
+        <p>Disconnected, OnBattery</p>
+      </td>
+      <td style="text-align: center;">-</td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>StickMove</td>
+      <td>スティック座標変化時に発行されます。</td>
+      <td>
+        <p>スティック識別子です。下記の何れかの値を取ります。</p>
+        <p>L, R</p>
+      </td>
+      <td>
+        <p>x 座標の座標値です。下記のようにエンコードされます。</p>
+        <p>
+          <code>123 &rarr; P00123</code>
+        </p>
+        <p>
+          <code>-45 &rarr; M00045</code>
+        </p>
+      </td>
+      <td>
+        <p>y 座標の座標値です。下記のようにエンコードされます。</p>
+        <p>
+          <code>123 &rarr; P00123</code>
+        </p>
+        <p>
+          <code>-45 &rarr; M00045</code>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

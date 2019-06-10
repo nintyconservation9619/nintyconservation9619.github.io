@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>HTCS ライブラリ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- HTCS ライブラリ -->
+<div class="pagetitle" id="PageId_83956008">HTCS ライブラリ</div>
+<div class="text_separate">
+<h1 id="Anchor_83956008_h1_1">概要</h1>
+<p>HTCS とは&nbsp;Host-Target-Communication Socket の略で、<a href="../Pages/Page_95685000.html">HTC</a> 上に用意されたソケットインタフェースです。</p>
+<p>Berkeley socket のストリーム socket （SOCK_STREAM） と同じインターフェースを持ちます。</p>
+<p>ただし、以下の点で異なります:</p>
+<ul>
+  <li>名前空間が <span class="ApiLink_nn__htcs">nn::htcs</span> である</li>
+  <li>定数の名前に、 HTCS_ が前置されている</li>
+  <li>専用のソケットアドレス構造体 SockAddrHtcs を使用する<ul><li>アドレスファミリは HTCS_AF_HTCS</li><li>アドレスは 端末名文字列 + ポート名文字列で指定される<br /><ul><li>sockaddr_in の IPアドレス + ポート番号に対応する</li></ul></li></ul></li>
+  <li>OOB データをサポートしない</li>
+  <li>シグナルをサポートしない</li>
+  <li>詳細なエラー値の返却は、GetLastError 関数を通じて行う</li>
+</ul>
+<p>サポートするインターフェースは、以下のものです:</p>
+<ul>
+  <li>socket</li>
+  <li>bind</li>
+  <li>listen</li>
+  <li>accept</li>
+  <li>connect</li>
+  <li>send</li>
+  <li>recv</li>
+  <li>close</li>
+  <li>fcntl<ul><li>ノンブロッキングモードの設定、取得のみ</li></ul></li>
+  <li>GetLastError</li>
+</ul>
+<h2 id="Anchor_83956008_h2_1">API リファレンス</h2>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1htcs.html">nn::htcs ライブラリの関数リファレンス</a>&nbsp;を参照してください。</p>
+<h2 id="Anchor_83956008_h2_2">HTCS ライブラリの提供形態</h2>
+<p>以下のページを参照してください。</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_95685382.html">ライブラリの提供形態と利用方法</a>
+  </li>
+</ul>
+<h2 id="Anchor_83956008_h2_3">HTCS ライブラリの制限</h2>
+<p>本機能は開発環境でのみ使用可能です。製品環境では利用できません。</p>
+<p>また、HTCS ライブラリは標準ではビルドタイプ Release でビルドするとコンパイルエラーになります。<br />ビルドタイプ Release で利用したい場合は <span class="ApiLink_NN_ENABLE_HTC">NN_ENABLE_HTC</span> を定義してください。</p>
+<p>なお、Sample で HTC、HTCS ライブラリを使用しているものには、ソリューション構成 Release のプロパティシートで <span class="ApiLink_NN_ENABLE_HTC">NN_ENABLE_HTC</span> を定義していますので、注意してください。</p>
+<h1 id="Anchor_83956008_h1_2">用語</h1>
+<h2 id="Anchor_83956008_h2_4">端末名</h2>
+<p>ヌル終端を含む32文字までの ASCII 文字です。<br /> <br />ターゲットの場合、機材ごとに一意に定められる名称です。<br />デフォルトでは製造時に決められたシリアル番号になっていますが、設定ツールを使用することでユーザが任意に設定することも可能です。</p>
+<p>ホスト PC の場合、登録時にユーザが指定した名前が使用されます。</p>
+<h2 id="Anchor_83956008_h2_5">HTCS ポート名</h2>
+<p>HTCS において、接続すべきポートを定めるための識別子です。<br />ヌル終端を含む32文字までの ASCII 文字です。</p>
+<h1 id="Anchor_83956008_h1_3">接続シーケンス</h1>
+<h2 id="Anchor_83956008_h2_6">はじめに</h2>
+<p>ターゲット側は基本的に BerkeleySocket と同じように htcs API を使用することで接続が確立されます。<br />相違点は以下です。</p>
+<ul>
+  <li>アドレスファミリが HTCS_AF_HTCS である</li>
+  <li>ターゲット側を識別するアドレス形式が独自のものである</li>
+</ul>
+<p>ホスト側も基本的にソケットで接続を行いますが、ソケットインタフェースで HTCS インタフェースに接続する必要があるため、これらの変換作業を行う必要があります。<br />この変換作業では、接続したいターゲット名と HTCS ポート名から、対応する TCP&nbsp;ポート番号を割り出すことになります。<br />接続先 TCP ポート番号の取得方法は <a href="#Anchor_83956008_PortMapping">ポートマッピング</a>&nbsp;の項を参照してください。</p>
+<p>HTCS を使用してホストとターゲットで接続を確立するためには、あらかじめ TargetManager.exe を起動しておく必要があります。</p>
+<!--Remove-->
+<div class="platform_nx">
+  <p>Target Manager に関する詳細は&nbsp;<a href="../Pages/Page_93359711.html">こちら</a>&nbsp;をご確認ください。</p>
+</div>
+<p>詳しい手順については、以下を参照してください。<br />実際のコーディング例は、NintendoSDK\Samples\Sources\Applications\Htcs を参照してください。</p>
+<h2 id="Anchor_83956008_h2_7">Target Manager 未接続時の挙動の修正について</h2>
+<h3 id="Anchor_83956008_h3_1">NX Addon 1.0.0 より前</h3>
+<p>Target Manager と接続されていない場合、Socket, Close, Connect, Bind, Listen, Accept, Recv, Send, Shutdown, Fcntl は接続が確立されるまで失敗します。</p>
+<h3 id="Anchor_83956008_h3_2">NX Addon 1.0.0 以降</h3>
+<p>bsdsocket と挙動がそろい、Socket, Close, Bind, Listen, Fcntl, Accept がホスト-ターゲット間の接続が確立されていない場合も、動作するようになります。</p>
+<p>但し、一度接続が確立した後に切断が行われた場合、それまでに使用しているソケットは使用できなくなりますので、その場合は再度ソケットの作成から行ってください。</p>
+<p>また、この変更に伴い、これまで <span class="ApiLink_nn__htcs__Initialize">nn::htcs::Initialize</span> で指定されたアロケータからメモリ確保を行っていませんでしたが、確保を行うようになっています。</p>
+<h2 id="Anchor_83956008_h2_8">ターゲットのスリープ時の挙動の修正について</h2>
+<h3 id="Anchor_83956008_h3_3">NX Addon 3.0.0 より前</h3>
+<p>スリープに入った時点ですべての htcs の接続が切断されます。</p>
+<h3 id="Anchor_83956008_h3_4">NX Addon 3.0.0 以降</h3>
+<p>スリープ前に接続されていた htcs の接続は維持され、スリープから復帰した後に通信が再開されます。</p>
+<h2 id="Anchor_83956008_h2_9">ターゲット側アプリがサーバーとなる場合</h2>
+<h3 id="Anchor_83956008_h3_5">ターゲット側の実装</h3>
+<ol>
+  <li>Socket 関数を呼び、ソケット記述子を作成します</li>
+  <li>Bind 関数を呼び、先ほど作成したソケット記述子にアドレスを割り当てます<br /><ul><li>アドレスには SockAddrHtcs&nbsp;を指定してください</li></ul></li>
+  <li>Listen 関数を呼び、接続受付を開始します<ol><li>これを受け、Target Manager が対応する TCP ポートをホスト上に開きます</li><li>同時に、PortMap に新規 PortMapItem が登録され、そのメンバは以下のようになります<ul><li>HtcsPeerName, HtcsPortName&nbsp;は 2 で指定した SockAddrHtcs&nbsp;のメンバとなります</li><li>IPAddress,&nbsp;TcpPortNumber は 3.a で作成された TCP ポートの値となります</li></ul></li></ol></li>
+  <li>Accept 関数を呼びます <br /><ul><li>出力アドレスには、常に空のポート名が出力されます</li></ul></li>
+</ol>
+<h3 id="Anchor_83956008_h3_6">ホスト側の実装</h3>
+<ol>
+  <li>Target Manager からポートマッピングの一覧を取得します<br />取得方法は&nbsp;<a href="#Anchor_83956008_PortMapping">ポートマッピング</a>&nbsp;の項を参照してください</li>
+  <li>目的のターゲット名とポート名に紐付けられた IP アドレスとポート番号に対して、ソケットプロトコルで Connect します</li>
+</ol>
+<h2 id="Anchor_83956008_h2_10">ターゲット側アプリがクライアントとなる場合</h2>
+<h3 id="Anchor_83956008_h3_7">ターゲット側の実装</h3>
+<ol>
+  <li>Socket 関数を呼び、ソケット記述子を作成します</li>
+  <li>Connect 関数を呼びます</li>
+  <li>これを受けて Target Manager は、ホスト側アプリがポート名解決によって登録した情報に基づき、対応する TCP ポートとの接続を確立します</li>
+</ol>
+<h3 id="Anchor_83956008_h3_8">ホスト側の実装</h3>
+<ol>
+  <li>ソケットプロトコルで適切な操作の下、 listen するポートを開きます</li>
+  <li>Target Manager に対してポートマッピングを登録します<br />取得方法は&nbsp;<a href="#Anchor_83956008_PortMapping">ポートマッピング</a>&nbsp;の項を参照してください&nbsp;</li>
+  <li>accept します</li>
+</ol>
+<h1 id="Anchor_83956008_h1_4">送受信について</h1>
+<p>接続確立後はサーバー、クライアントの差はありません。<br />ターゲット側は htcs::Send, htcs::Recv を使用して、ホスト側はソケットの send, recv を使用して送受信を行ってください。</p>
+<h1 id="Anchor_83956008_h1_5">切断について</h1>
+<h2 id="Anchor_83956008_h2_11">Close</h2>
+<p>Close() を呼ぶことでそのソケットを終了することができます。クローズされたソケットはこれ以降送受信することはできません。</p>
+<p>片方のソケットに対して Close() を呼ぶと、もう一方の Recv() は読み込みサイズ 0 で受信が成功します。</p>
+<p>Recv() の返り値が 0 だった場合は相手との接続は切断されているため、ソケットをクローズしてください。</p>
+<h2 id="Anchor_83956008_h2_12">Shutdown&nbsp;</h2>
+<p>Shutdown() ではソケットのクローズは行わずに、送信、受信、またその両方をこれ以降行わないことを宣言します。<br />HTCS_SHUT_WR&nbsp; を指定した場合、相手側の Recv() は読み込みサイズ 0 で受信が成功します。<br />受 信は可能であるため、相手側の Close() や Shutdown(), あるいはあらかじめ取り決めておいた終了フラグの送信を受信した時点で、Shutdown() を呼んだソケットに対しても&nbsp;Close() を呼んで、正式にこのソケットを終了させてください。</p>
+<h1 id="Anchor_83956008_h1_6">
+  <a name="Anchor_83956008_PortMapping"></a>ポートマッピング</h1>
+<p>ホスト上アプリは、Target Manager 上の特定ポートに接続することにより、ターゲット上アプリが開いた HTC ポートの取得と、ホスト上アプリが開いた TCP ポートの登録を行います。<br />この特定のポートをコントロールポートと呼びます。<br />本項では取得と登録の際に使用されるテキストプロトコルについて説明します。</p>
+<p>コントロールポートはデフォルトでは TCP 8003 番に開かれ、ホスト上アプリの接続を待ち受けます。<br /> ホスト上アプリはこのコントロールポートに接続し、以下で述べるテキストプロトコルでポートの取得と登録を行ってください。<br />コントロールポートで使用する TCP ポートを変更する方法については、<a href="../Pages/Page_93359711.html#Anchor_93359711_%E9%96%8B%E7%99%BA%E6%A9%9F%E3%81%AE%E5%88%B6%E5%BE%A1%EF%BC%8FTargetManager~NXAddon~-HTCS">Target Manager</a>&nbsp;を参照してください。</p>
+<p>なお、以下の例では全て見やすさのために改行を入れてありますが、実際には1行で送信されます。&nbsp;<br />また、文字コードは BOM なし&nbsp;UTF-8 です。&nbsp;</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK/Samples/Sources/Applications/Htcs/Htcsdll にポートマッピングを行う DLL のサンプルがあります。<br />このサンプルの内容については <a href="../Pages/Page_83955799.html">Htcs.dllについて</a> を参照してください。&nbsp;</p>
+  </div>
+</div>
+<h2 id="Anchor_83956008_h2_13">Target Manager からの受信</h2>
+<p>HTC ポートと TCP ポートのマッピングリストは、初回に接続した際と、マッピングが増減した際に、以下のような XML 形式で1行で受信されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nt">&lt;HtcsInfo&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;TargetList&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Target&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;PeerType&gt;</span>HTCS<span class="nt">&lt;/PeerType&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPeerName&gt;</span>TargetName1<span class="nt">&lt;/HtcsPeerName&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/Target&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Target&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 中略 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/Target&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/TargetList&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;PortMap&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;PortMapItem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPeerName&gt;</span>TargetName1<span class="nt">&lt;/HtcsPeerName&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPortName&gt;</span>PortName1<span class="nt">&lt;/HtcsPortName&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;IPAddress&gt;</span>127.0.0.1<span class="nt">&lt;/IPAddress&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;TcpPortNumber&gt;</span>50867<span class="nt">&lt;/TcpPortNumber&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/PortMapItem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;PortMapItem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 中略 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/PortMapItem&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/PortMap&gt;</span>
+<span class="nt">&lt;/HtcsInfo&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956008_h3_9">各パラメータについて</h3>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <p>パラメータ名</p>
+      </th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <p>PeerType</p>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <!--Remove-->
+          <div class="platform_nx">
+            <p>ターゲットのスペックとプラットフォームに応じた値が指定されています。</p>
+            <p>取りうる値は以下の通りです。</p>
+            <p>
+              <br />
+            </p>
+            <table class="wrapped">
+              <tbody>
+                <tr>
+                  <th>プラットフォーム＼スペック</th>
+                  <th>Generic</th>
+                  <th>NX</th>
+                </tr>
+                <tr>
+                  <td>x86, x64</td>
+                  <td>Generic_Windows</td>
+                  <td>NX-Windows</td>
+                </tr>
+                <tr>
+                  <td>NX</td>
+                  <td class="highlight-grey">
+                    <br />
+                  </td>
+                  <td>NX-NX</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>HtcsPeerName</p>
+      </td>
+      <td>
+        <p>ターゲット HW ごとに固有の値が指定されています。</p>
+        <p>同一のターゲット HW に対しては、TargetList.Target の値と、PortMap.PortMapItem の値は等しくなります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>HtcsPortName</p>
+      </td>
+      <td>ターゲット側で htcs ポートを開く際に指定した値が指定されています。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>IPAddress</p>
+      </td>
+      <td>HtcsPeerName, HtcsPortName で表されるポートに接続する際に指定すべき IP アドレスです。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>TcpPortNumber</p>
+      </td>
+      <td>HtcsPeerName, HtcsPortName で表されるポートに接続する際に指定すべき TCP ポート番号です。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_83956008_h2_14">Target Manager への送信</h2>
+<h3 id="Anchor_83956008_h3_10">新規ポートマッピングの登録</h3>
+<p>新規ポートマッピングの登録を行う際は、以下のXMLを1行で送信します。</p>
+<p>コントロールポートへの接続が切られた場合、このコントロールポートを通じて行われた登録はすべて削除されます。<br />従って、サーバーポートを立てて Listen している間は、コントロールポートとの接続を維持しておく必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nt">&lt;RegisterPortMapCommand&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;PortMapItem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPeerName&gt;</span>MyPcName<span class="nt">&lt;/HtcsPeerName&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPortName&gt;</span>MyHostServiceName<span class="nt">&lt;/HtcsPortName&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;IPAddress&gt;</span>127.0.0.1<span class="nt">&lt;/IPAddress&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;TcpPortNumber&gt;</span>51174<span class="nt">&lt;/TcpPortNumber&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/PortMapItem&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;RequestName&gt;</span>MyRequest1<span class="nt">&lt;/RequestName&gt;</span>
+<span class="nt">&lt;/RegisterPortMapCommand&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>RequestName パラメタは省略可能です。</p>
+<p>Target Manager から返ってくる Ack の際に同じ値が返ってくるので、登録要求の識別子として使用することが可能です。&nbsp;</p>
+<p>登録を受け付けた Target Manager からは以下の応答が返ります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nt">&lt;CommandResult&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;RequestName&gt;</span>MyRequest1<span class="nt">&lt;/RequestName&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Value&gt;</span>0<span class="nt">&lt;/Value&gt;</span>
+<span class="nt">&lt;/CommandResult&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />RequestName&nbsp; は登録の際に指定した値と同じ値が入っています。</p>
+<div>
+  <p>Value は登録の結果が入ります。成功した場合、値は0となります。</p>
+  <h3 id="Anchor_83956008_h3_11">ポートマッピングの登録解除</h3>
+  <p>コントロールポートを閉じることで、このポートから登録要求が出された登録は自動的に解除されます。</p>
+  <p>個々のポートマッピングの登録解除を行う際は、以下のXMLを1行で送信します。</p>
+  <p>
+    <br />
+  </p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="nt">&lt;UnregisterPortMapCommand&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPeerName&gt;&lt;/HtcsPeerName&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;HtcsPortName&gt;</span>MyHostServiceName<span class="nt">&lt;/HtcsPortName&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;RequestName&gt;</span>MyRequest2<span class="nt">&lt;/RequestName&gt;</span>
+<span class="nt">&lt;/UnregisterPortMapCommand&gt;</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>RequestName パラメタは省略可能です。</p>
+</div>
+<div>
+  <p>Target Manager から返ってくる Ack の際に同じ値が返ってくるので、<br />登録削除要求の識別子として使用することが可能です。&nbsp;</p>
+  <p>登録を受け付けた Target Manager からは以下の応答が返ります。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="nt">&lt;CommandResult&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;RequestName&gt;</span>MyRequest2<span class="nt">&lt;/RequestName&gt;</span>
+&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Value&gt;</span>0<span class="nt">&lt;/Value&gt;</span>
+<span class="nt">&lt;/CommandResult&gt;</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>RequestName &nbsp; は登録解除の際に指定した値と同じ値が入っています。<br /> Value は登録解除の結果が入ります。成功した場合、値は0となります。</p>
+  <h2 id="Anchor_83956008_h2_15">ポートマップの固定</h2>
+  <p>Target Manager の 「ツール - HTCS ポート・マッピング」から開くことができる設定ファイルを編集することで、特定の HtcsPortName に対するポートマップを固定しておくことができます。<br />設定ファイルには以下のように書いておくことで、PeerName で指定したターゲット側が開いたポート名が、PortName1 の場合にポート番号が 10000 に、ポート名が PortName2 の場合にはポート番号が 12345 に固定されます。</p>
+  <div style="border-width: 1px;" class="preformatted panel">
+    <div class="preformattedContent panelContent">
+      <pre># HtcsPeerName, HtcsPortName, TcpPortNumber
+PeerName, PortName1, 10000
+PeerName, PortName2, 12345</pre>
+    </div>
+  </div>
+  <p>PeerName は TargetManager の HTCS エントリーのピア名から調べることが可能です。通常はシリアルナンバーがピア名となります。<br />PeerName に空文字を指定した場合、PortName が一致する最初に見つかったターゲットに対して、ポート番号を固定します。&nbsp;</p>
+  <p>実際の例は以下のようになります。<br />以下の例では、シリアルナンバー XAWF0111100001 と XAWF0111100002&nbsp;のターゲットの Log と Application のポートがそれぞれ固定されます。<br />シリアルナンバーが上記二つでないターゲットが Log や Application といった Htcs ポートを開いた場合、10002 や 12347 が使用されます。</p>
+  <div style="border-width: 1px;" class="preformatted panel">
+    <div class="preformattedContent panelContent">
+      <pre># HtcsPeerName, HtcsPortName, TcpPortNumber
+XAWF0111100001, Log,          10000
+XAWF0111100001, Application,  12345
+XAWF0111100002, Log,          10001
+XAWF0111100002, Application,  12346
+              , Log,          10002
+              , Application,  12347</pre>
+    </div>
+  </div>
+  <h1 id="Anchor_83956008_h1_7">切断エミュレーション</h1>
+  <p>Target Manager と接続されていない状態でのアプリケーションの動作を検証するための機能として切断エミュレーション機能があります。<br />この機能が有効になっている場合、Target Manager と接続中であっても htc, htcs の各 API は常に切断中と同様のエラーを返すようになります。</p>
+  <p>切断エミュレーションの利用方法については <a href="../Pages/Page_310879077.html">DevMenu - 開発支援機能の設定</a> の「HTC Disconnection Emulation Mode」を参照してください。</p>
+  <h1 id="Anchor_83956008_h1_8">保証される機材数</h1>
+  <p>同時に操作可能な htcs のポートや機材の数に、仕様上の上限はありません。<br />ただし、動作検証が行われている台数は14台までとなるため、それを超えた台数を同時に操作する場合などに、不具合がある可能性があります。</p>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__htcs', '../../../Api/HtmlNX/namespacenn_1_1htcs.html' )
+// ApiLink_NN_ENABLE_HTC
+SetUrl( 'ApiLink_nn__htcs__Initialize', '../../../Api/HtmlNX/namespacenn_1_1htcs.html#a2bb276f62d472dd432e66f617b7e2127' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

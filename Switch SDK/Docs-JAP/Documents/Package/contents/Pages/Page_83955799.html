@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Htcs.dllについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Htcs.dllについて -->
+<div class="pagetitle" id="PageId_83955799">Htcs.dllについて</div>
+<div class="text_separate">
+<h1 id="Anchor_83955799_h1_1">概要</h1>
+<p>ホスト側アプリが、ターゲット側アプリが開いた HTCS のポートに接続するためには、対応する TCP ソケットのポート番号を取得する必要があります。<br />ポート番号の取得には Target Manager が開いたポートから送られてくるテキストプロトコルを解釈する必要があります。<br />NintendoSDK/Samples/Sources/Applications/Htcs/Htcsdll はこれらの解釈を行う DLL のサンプルです。</p>
+<p>本ページでは Htcs.Dll のサンプルについて解説します。<br />実際の使用例については NintendoSDK/Samples/Sources/Applications/Htcs/HtcsHostApp&nbsp;を参照してください。</p>
+<h2 id="Anchor_83955799_h2_1">HtcsCommunicator</h2>
+<p>Target Manager&nbsp;との通信を引き受けるクラスです。</p>
+<p>このクラスを経由して、ポートマッピングのリストの取得やポートの登録を行います。</p>
+<h2 id="Anchor_83955799_h2_2">Target</h2>
+<p>ターゲット機材と、その機材の情報のペアです。</p>
+<h3 id="Anchor_83955799_h3_1">HtcsPeerName</h3>
+<p>ターゲット名です。</p>
+<h3 id="Anchor_83955799_h3_2">PeerType</h3>
+<p>HtcsPeerName で表されるターゲットの種別を表す文字列です。<br />プラットフォーム名が指定されます。&nbsp;</p>
+<h2 id="Anchor_83955799_h2_3">PortMapItem</h2>
+<p>HTCS ポート名と、対応する TCP ポート情報のペアです。</p>
+<h3 id="Anchor_83955799_h3_3">IPEndPoint</h3>
+<p>HTCS ポートに紐付けられている TCP ポートです。</p>
+<h3 id="Anchor_83955799_h3_4">HtcsPortDescriptor&nbsp;</h3>
+<p>HTCS ポートの情報を表します。</p>
+<h3 id="Anchor_83955799_h3_5">HtcsPeerName</h3>
+<p>この HTCS ポートを開いているターゲットのターゲット名です。</p>
+<h3 id="Anchor_83955799_h3_6">&nbsp;HtcsPortName</h3>
+<p>HTCS ポート名です。</p>
+<h2 id="Anchor_83955799_h2_4">PortMap</h2>
+<p>PortMapItem のリストです。</p>
+<h1 id="Anchor_83955799_h1_2">使用手順</h1>
+<h2 id="Anchor_83955799_h2_5">HtcsCommunicator の立ち上げ</h2>
+<ol>
+  <li>HostAppLib.HtcsCommunicator のインスタンスを作成します。</li>
+  <li>HtcsCommunicator.Start() を呼び、Target Manager との接続を試みます。<ol><li>失敗した場合は false が返るので、再度 Start() を呼んで接続を確立してください。</li></ol></li>
+</ol>
+<h2 id="Anchor_83955799_h2_6">Target Manager&nbsp;に登録されているポートの取得</h2>
+<p>ホスト側アプリがクライアントとなる場合には、Target Manager から開かれているポートのリストを取得する必要があります。</p>
+<p>HtcsCommunicator.PortMapUpdated&nbsp;に、ポートマッピング更新時に呼ばれるコールバック関数を登録してください。<br />Target Manager&nbsp;に新規のポートが登録された場合や、登録されていたポートが削除された場合、これらの関数が呼ばれます。</p>
+<p>コールバック関数では、引数として現在の PortMap が渡されます。<br />PortMap 内から接続したい HTCS ポート名を持っている PortMapItem を探し、IPEndPoint の情報を元に接続してください。</p>
+<h2 id="Anchor_83955799_h2_7">Target Manager へのポート登録</h2>
+<p>ホスト側アプリがサーバーとなる場合には、Target Manager に対してアプリが開いた TCP ポートと、それに付ける HTCS ポート名の対応付けを登録する必要があります。</p>
+<ol>
+  <li>サーバーとなるソケットを作成します。</li>
+  <li>PortMapItem のインスタンスを作成します。<ol><li>IPEndoPoint には 1 で開いたソケットのアドレスを指定してください。</li><li>HtcsPortDescriptor.HtcsPeerName には&nbsp;HtcsPeerName.Any を、HtcsPortName には HTCS ポート名を指定してください。</li></ol></li>
+  <li>HtcsCommunicator.RegisterPort() を、2 で作成した PortMapItem を引数として呼んでください。<ol><li>Target Manager&nbsp;での登録が完了するまで、この関数はブロックされます。</li><li>成功の場合返り値は 0 です</li></ol></li>
+</ol>
+<h2 id="Anchor_83955799_h2_8">Target Manager&nbsp;に登録したポートの登録削除</h2>
+<p>登録したポートの削除を行う場合は、以下の手順を行ってください。</p>
+<ol>
+  <li>HtcsCommunicator.UnregisterPort() を、登録した際に使用した&nbsp;HtcsPortDescriptor を引数として呼んでください。<br /><ol><li>Target Manager&nbsp;での削除が完了するまで、この関数はブロックされます。</li><li>成功の場合返り値は 0 です。</li></ol></li>
+</ol>
+<h2 id="Anchor_83955799_h2_9">HtcsCommunicator の終了</h2>
+<p>HtcsCommunicator.Stop() を呼んでください。</p>
+<p>この HtcsCommunicator を通じて登録されていたポートは、全て登録の削除が行われます。 <br /></p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

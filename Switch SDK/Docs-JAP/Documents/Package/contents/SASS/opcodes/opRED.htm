@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>RED</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    RED : Reduction Operation on generic Memory <br>
+    <!-- SUMMARY_TABLE_INFO { description => "Reduction Operation on generic Memory " } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "RED", subsection => 7 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>RED</b>{.E}.op{.sz}</code>   <code>[Ra + ImmS20], Rb</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   <code>// Reduction Operation</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "RED" } -->
+
+  .E:     Extended address (64 bits, requires two registers)
+  .op:    { <b>ADD, MIN, MAX, INC, DEC, AND, OR, XOR</b> }          Operation
+  .sz:    {"{ <b>.U32*, .S32, .U64, S64, .F32.FTZ.RN, .F16x2.FTZ.RN </b>}" }
+            <b>.32 is also accepted and aliases to .U32</b>
+
+
+            <b>.64 is also accepted and aliases to .U64</b>
+          --------------------------------------------------------------------------------------------------<b>
+                                  Reduction Operations
+          .op    .sz                                                    Description,  M is [Ra + ImmS20]    </b>
+          --------------------------------------------------------------------------------------------------
+          .ADD   .U32 .S32 .U64  .F32.FTZ.RN  .F16x2.RN  .F64.RN        M = M + Rb;
+          .MIN   .U32 .S32 .U64 .S64   .F16x2.RN                        M = min(M, Rb);
+          .MAX   .U32 .S32 .U64 .S64   .F16x2.RN                        M = max(M, Rb);
+          .INC   .U32                                                   M = (M &gt;= Rb)? 0 : (M + 1);
+          .DEC   .U32                                                   M = (M == 0 || M &gt; Rb)? Rb : M - 1;
+          .AND   .U32 .S32 .U64                                         M = M &amp; Rb;
+          .OR    .U32 .S32 .U64                                         M = M | Rb;
+          .XOR   .U32 .S32 .U64                                         M = M ^ Rb;
+          --------------------------------------------------------------------------------------------------
+
+
+</pre>
+</div>
+
+
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+        
+<p>
+<b>RED</b>.op performs reduction operation <b>.op</b> with register Rb on global memory at a generic thread address.  
+The generic byte address is computed as the 32-bit addition of register Ra plus the signed immediate offset ImmS20, which is then zero-extended to 40-bits.  If the .E extension is specified, the generic byte address is computed as the sum of the 64-bit value (R[a],R[a+1]) plus the sign-extended immediate offset ImmS20.</p>
+<p>
+RED combines register Rb with global memory location [Ra + ImmS20] atomically, without intervening accesses 
+to that memory location by other threads: </p>
+<pre>
+    atomic {                    // Atomic operation on global memory location [Ra + ImmS20]
+        .sz M = mem[Ra + ImmS20];       // Read global memory location
+            M = .op(M, Rb);             // Form reduction value
+            mem[Ra + ImmS20] = M;       // Write memory location
+    }
+</pre>
+
+<p>
+The generic thread address space accesses global memory, unless it falls in the Local or Shared address window.
+A <b>RED</b> instruction must address global memory, otherwise it is an invalid address space error.</p>
+<p>
+When used in a pixel shader, RED has helper pixels and killed pixels automatically predicated off by the 
+HW to prevent unwanted writes to global memory.  If the pixel's raster coverage is 0 or it has previosuly 
+been killed using the <a href="opKIL.htm">KIL</a> operation, the threads will not participate in any RED operations.</p>
+<p>
+Memory addresses must be naturally aligned, on a byte address that is a multiple of the access size.
+Misaligned addresses cause an error and do not access memory.
+An address outside an allocated memory region is ignored, does not access memory, and
+causes an error.</p>
+<p>
+<b>RED</b> interprets memory data in little-endian byte order: the effective address specifies 
+the least-signficant data bits.  </p>
+<p>
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+<b>RED</b> does not cache data in the L1 cache; it first discards any matching (global) L1 cache lines, which
+could otherwise be stale due to operations of multiple SMs.
+</p>
+<p>
+To load a <b>RED</b> result (from either the current thread or elsewhere), use <a href="opLD.htm"><b>LD.CG</b></a> to bypass any
+stale global lines introduced by other <a href="opLD.htm"><b>LD</b></a> instructions.
+</p>
+
+<!-- ############################### -->
+<!-- # Execution Behavior          # -->
+<!-- ############################### -->
+<h3>Execution Behavior:</h3>
+
+<p>
+The atomic reduction operations are implemented close to the memory subsystem to ensure
+the atomicity across all executing threads and to limit the duration an atomic lock is
+"held" on the memory location.  Any data required for the RED operations that
+is cached in L1 is evicted. </p>
+<p>
+RED instructions are pipelined and decoupled from thread execution, like ST instructions.
+The issuing thread continues execution. 
+A thread may have several RED operations pending, depending on resources.  Any subsequent memory
+operations (LD*, ST*, ATOM, or RED instructions) to the same address are kept in
+order and do not perform their operation until the current RED is complete.</p>
+<p>
+The order of memory instructions (LD*, ST*, ATOM, RED) issued by a thread to the same address is preserved.  
+The order of memory instructions issued by a thread to different addresses may be reordered.
+The order of memory instructions issued by different threads to the same address may be reordered.  
+Use <a href="opMEMBAR.htm"><b>MEMBAR.GL</b></a> to explicitly order Global memory instructions within a thread, 
+and use <a href="opBAR.htm"><b>BAR.SYNC</b></a> to order memory accesses across concurrent threads of a CTA.</p>
+<p>
+Within a warp of 32 parallel threads, RED instructions coalesce global accesses to different addresses in the 
+same 128B cache line into one access, serialize accesses to the same conflicting address, and serialize accesses to each 
+different cache line.  The order of serialization of conflicting RED addresses depends on the implementation.
+Vector 64-bit accesses coalesce 16 parallel threads at a time, and 128-bit accesses coalesce 8 threads at a time. 
+Global addresses coalesce to a single access when the threads of a warp address different locations within one cache line; 
+two accesses for two cache lines, etc.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>RED.E.MIN.U32</b>  [R0 - 400], R5;
+<b>RED.ADD.U32</b>    [R0 + 0x1234], R1;  // Note that .S32/.U32 are the same for IADD operations
+<b>RED.MIN.S32</b>    [0xFFFF0000], R1;   // Absolute unsigned address
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Webアプレット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Webアプレット -->
+<div class="pagetitle" id="PageId_231477355">Webアプレット</div>
+<div class="text_separate">
+<p>Webアプレットは、指定されたインターネット上の URL にあるWebページを、Webブラウザーを用いて表示するライブラリアプレットです。</p>
+<h1 id="Anchor_231477355_h1_1">アクセス可能なURLの指定</h1>
+<p>Webアプレットが開くことが出来る URL は、ROM に付帯情報として含まれるアクセス可能な条件を満たした URL に限定されます。</p>
+<p>ファイル名が accessible-urls.txt であるテキストファイル(文字コード：UTF-8 BOM無し, 改行コード：LF)を作成し、nmeta ファイルから指定してください。nmeta ファイルの編集については&nbsp;<a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a>&nbsp;を参照してください。</p>
+<p>テキストファイルは改行区切りの正規表現で構成されます。ファイルの「いずれか」の行の正規表現が「部分一致」する URL はアクセス可能と判定されます。</p>
+<p>また、アクセス可能な URL の一部を除外したい場合、行頭に &quot;---- &quot; を記述した後に正規表現を記述します。この行の正規表現が「部分一致」する URL は、別の行でアクセス可能と判定されている URL であってもアクセス不可能と判定されて除外されます。</p>
+<p>URL に含まれるハッシュ記号(#)で始まるURLフラグメントは、除去されてから判定されます。<br /> 以下は、任天堂のWebサイトのうち、amiibo 以外のページを閲覧可能とする場合の例です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>^https://([0-9A-Za-z\-]+\.)*nintendo\.com(/|$)
+^https://([0-9A-Za-z\-]+\.)*nintendo\.co\.jp(/|$)
+---- ^https://([0-9A-Za-z\-]+\.)*nintendo\.com/amiibo(/|$)
+---- ^https://([0-9A-Za-z\-]+\.)*nintendo\.co\.jp/amiibo(/|$)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Webアプレットが開こうとする URL がアクセス可能と判定されなかった場合、Webアプレットはエラーページを表示します。正規表現のエンジンとして標準 C++ ライブラリの正規表現ライブラリを利用しています。正規表現の解釈にはこのライブラリのデフォルトのルールが適用されます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>製品環境では Web アプレットによる http ページの表示を禁止し、今後は https ページの表示利用のみに制限します。</p>
+    <p>マスターROM に含まれるアクセス可能な URL の各行は &quot;^https://&quot; もしくは &quot;---- &quot; で始まるように記述してください。<br />NintendoSDK NX Addon 5.2.0以降（3系の場合は3.8以降、4系の場合は4.6以降) AuthoringTool に --error-unpublishable オプションを設定している場合、アクセス可能な URL に http で始まる URL へのアクセスが許可されているとエラーになります。</p>
+    <p>また、アクセス可能な URL は、可能な限り最小限の URL を許可するように設定してください。特に不要なドメインに対してはアクセスを許可しないように設定してください。<br />不要な URL へのアクセスが許可される指定があった場合、提出されたアプリケーションのマスターROMが受理されない場合があります。</p>
+  </div>
+</div>
+<p>使用例は、<a href="../../../Api/HtmlNX/_page_sample_web_simple.html">WebSimple のサンプル</a>を参照してください。</p>
+<h2 id="Anchor_231477355_h2_1">アクセス可能なURLの正規表現の注意点</h2>
+<p>アクセス可能なURLの正規表現の記述を誤ると、指定した URL を開けなかったり、意図しない URL を許可してしまう場合があります。記述の際には、以下のようなことに注意してください。</p>
+<p>ホスト名などに使われる &quot;.&quot; をエスケープし忘れないように注意してください。エスケープし忘れると任意の一文字を表すメタ文字となってしまいます。エスケープし忘れた例を下記に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>^https://([0-9A-Za-z\-]+.)*nintendo.com(/|$)
+^https://([0-9A-Za-z\-]+.)*nintendo.co.jp(/|$)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&quot;(/|$)&quot; も付け忘れないように注意してください。&quot;(/|$)&quot; を付け忘れると、別のドメインのホストと一致してしまう場合があります。例えば下記のように記述してしまうと、&quot;<a href="http://nintendo.comic.com">http://nintendo.comic.com</a>&quot; のようなホストにも一致してしまいます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>^https://([0-9A-Za-z\-]+\.)*nintendo\.com</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Webコンテンツの開発中は、製品版とは異なるホストを使って開発を行いたい場合があります。開発中は全ての URL とマッチさせておきたい場合、下記のように記述することができます。この記述が製品版に含まれないように注意してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>^https?://</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>WebアプレットでWebページを開いた時、アクセス可能なURLと判定されたかどうかを示す、下記のようなログが出力されます。URL が意図した通りに判定されているかどうかを確認したい場合は、ログを参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>[Filter] 'https://www.nintendo.co.jp' is accessible.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The url matches '^https://([0-9A-Za-z\-]+\.)*nintendo\.co\.jp(/|$)' on accessible-urls.txt
+
+[Filter] 'https://www.nintendo.co.jp' is 'NOT' accessible.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The url does not match any regular expressions on accessible-urls.txt</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_231477355_h1_2">ヘッダファイルのインクルード</h1>
+<p>libnn_web.a をプロジェクトにリンクしてください。また、プログラム中に下記のコードを記述してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/web/web_Api.h&gt; 
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_231477355_h1_3">Webアプレットの起動</h1>
+<p>Webアプレットは対応した API を呼び出すことで利用できます。Webアプレットを起動する API は、アプレットが終了するまで処理をブロックします。<span class="ApiLink_nn__web__ShowWebPageArg">nn::web::ShowWebPageArg</span> のコンストラクタの引数を通じて開きたいWebページのURLを指定してください。</p>
+<p>以下にWebアプレットで URL &quot;<a href="https://www.nintendo.com/">https://www.nintendo.com/</a>&quot; を開くコードのサンプルを示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::web::</span><span class="n">ShowWebPageArg</span> <span class="n">showWebPageArg</span><span class="p">(</span><span class="s">&quot;https://www.nintendo.com/&quot;</span><span class="p">);</span>
+<span class="nn">nn::web::</span><span class="n">WebPageReturnValue</span> <span class="n">webPageReturnValue</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::web::</span><span class="n">ShowWebPage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">webPageReturnValue</span><span class="p">,</span> <span class="n">showWebPageArg</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_231477355_h2_2">起動時のオプション指定</h2>
+<p>Webアプレット起動時には <span class="ApiLink_nn__web__ShowWebPageArg">nn::web::ShowWebPageArg</span> のメンバー関数を通じて様々な起動オプションを与えることができます。詳しくは API リファレンスをご覧ください。</p>
+<h2 id="Anchor_231477355_h2_3">終了時の状況取得</h2>
+<p>
+  <span class="ApiLink_nn__web__ShowWebPage">nn::web::ShowWebPage</span> の第一引数に与えた <span class="ApiLink_nn__web__WebPageReturnValue">nn::web::WebPageReturnValue</span> のインスタンスのメンバーを通じてWebアプレットの終了時の状況を取得することができます。詳しくは API リファレンスをご覧ください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>最後に開いていたWebページのURLを返す&nbsp;<span class="ApiLink_nn__web__WebPageReturnValue__GetLastUrl">nn::web::WebPageReturnValue::GetLastUrl</span>() は、終了理由を返す&nbsp;<span class="ApiLink_nn__web__WebPageReturnValue__GetWebExitReason">nn::web::WebPageReturnValue::GetWebExitReason</span>() の値が&nbsp;WebExitReason_CallbackUrlReached の場合のみ、有効な値を返すことに注意してください。</p>
+  </div>
+</div>
+<p>
+  <a name="Anchor_231477355_callbackurl"></a>
+</p>
+<h1 id="Anchor_231477355_h1_4">コールバックURL</h1>
+<p>コールバックURLという機能を使って、Webページでユーザーが操作した結果をアプリケーションへ返すことができます。<br />Webアプレットは、<span class="ApiLink_nn__web__ShowWebPageArg__SetCallbackUrl">nn::web::ShowWebPageArg::SetCallbackUrl</span>() で指定した文字列（コールバックURL）に「前方一致」する URL へ到達すると、終了してアプリケーションへ戻ります。<br />また、それに加えて、その URL へ到達する直前の URL を制限することもできます。<span class="ApiLink_nn__web__ShowWebPageArg__SetCallbackableUrl">nn::web::ShowWebPageArg::SetCallbackableUrl</span>() で指定した文字列（コールバック可能URL）に前方一致する URL から、コールバックURLに前方一致する URL へ遷移した場合のみ、Webアプレットは終了します。コールバック可能URLを指定しなかった場合、どの URL から到達してもWebアプレットは終了します。<br />コールバックURLに前方一致する URL へ到達してアプリケーションへ戻った場合、アプリケーションはその URL を取得して、最後にユーザーが操作した結果を得ることができます。</p>
+<p>以下は&nbsp;<a href="https://www.nintendo.com/">https://www.nintendo.com/</a>&nbsp;を表示し、ユーザーが&nbsp;<a href="https://www.nintendo.com/">https://www.nintendo.com/</a>&nbsp;内のページから amiibo のいずれかのページへのリンクを踏んだ時に、Web アプレットを終了させ、そのページの URL を呼び出し元アプリケーションで取得する場合のサンプルです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::web::</span><span class="n">ShowWebPageArg</span> <span class="n">showWebPageArg</span><span class="p">(</span><span class="s">&quot;https://www.nintendo.com/&quot;</span><span class="p">);</span>
+<span class="n">showWebPageArg</span><span class="p">.</span><span class="n">SetCallbackableUrl</span><span class="p">(</span><span class="s">&quot;https://www.nintendo.com/&quot;</span><span class="p">);</span>
+<span class="n">showWebPageArg</span><span class="p">.</span><span class="n">SetCallbackUrl</span><span class="p">(</span><span class="s">&quot;https://www.nintendo.com/amiibo/&quot;</span><span class="p">);</span>
+<span class="nn">nn::web::</span><span class="n">WebPageReturnValue</span> <span class="n">webPageReturnValue</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::web::</span><span class="n">ShowWebPage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">webPageReturnValue</span><span class="p">,</span> <span class="n">showWebPageArg</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">webPageReturnValue</span><span class="p">.</span><span class="n">GetWebExitReason</span><span class="p">()</span> <span class="o">==</span> <span class="nn">nn::web::</span><span class="n">WebExitReason_CallbackUrlReached</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">webPageReturnValue</span><span class="p">.</span><span class="n">GetLastUrl</span><span class="p">());</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>使用例は、<a href="../../../Api/HtmlNX/_page_sample_web_simple.html">WebSimple のサンプル</a>を参照してください。</p>
+<h2 id="Anchor_231477355_h2_4">コールバックURLを OAuth 2.0 認証に応用する</h2>
+<p>Webサービスの API 提供の状況に大きく依存するので、詳細説明はこちらでは差し控えますが、OAuth 2.0 の redirect_uri の指し示す先をWebアプレットのコールバックURLとして指定することで、OAuth 2.0 の認証をWebアプレットを通じて行うことができます。</p>
+<p>
+  <a name="Anchor_231477355_accept_language"></a>
+</p>
+<h1 id="Anchor_231477355_h1_5">Accept-Language</h1>
+<p>Webアプレットは Accept-Language HTTPヘッダとして、以下の言語に対応した言語コードを優先度付きで組み合わせて送ります。</p>
+<ol>
+  <li>表示言語（最優先）</li>
+  <li>システムUI言語（q=0.8）</li>
+  <li>en（q=0.5）</li>
+</ol>
+<p>ここでは、システム言語のうち「TraditionalChinese」、「SimplifiedChinese」、「Korean」を「AmericanEnglish」に置き換えたものをシステムUI言語とします。<br />表示言語とシステム言語は、「本体機能ガイド」の「付録 &gt; 表示言語の仕組み」を参照してください。<br />表示言語とシステムUI言語が同じ場合、システムUI言語の部分が省略されます。<br />言語コードは、<a href="../Pages/Page_100911958.html">言語設定</a> を参照してください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>NintendoSDK Firmware for NX 4.0.0-5.0 より前のWebアプレットでは、以下の言語に対応した言語コードを送っています。</p>
+    <ol>
+      <li>システム言語（最優先）</li>
+      <li>en（q=0.5）</li>
+    </ol>
+  </div>
+</div>
+<h1 id="Anchor_231477355_h1_6">セーブデータ</h1>
+<p>Webアプレットの起動時に <span class="ApiLink_nn__web__ShowWebPageArg__SetUid">nn::web::ShowWebPageArg::SetUid</span>() を使ってユーザーアカウント ID を指定すると、ユーザーアカウント毎に作成されたセーブデータに、以下の情報が保存されます。</p>
+<ul>
+  <li>訪問済みリンク</li>
+  <li>cookie</li>
+  <li>localStorage</li>
+  <li>ユーザーがフォームに入力して保存することを許可した ID とパスワード</li>
+</ul>
+<p>Webアプレットは複数のアプリケーションから使われますが、セーブデータは共通です。</p>
+<h1 id="Anchor_231477355_h1_7">URL表記をドメインのみに省略する</h1>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>本機能は、表示される全てのWebページのホストがアプリケーション開発者の管理下にある場合に限って、利用するようにしてください。</p>
+  </div>
+</div>
+<p>Webアプレットで + ボタンまたは - ボタンを押すと、表示しているWebページの URL などの情報がダイアログに表示されます。また、何らかの理由でWebページを表示できなかった場合、その理由や URL などの情報がエラーページに表示されます。<span class="ApiLink_nn__web__ShowWebPageArg__SetDisplayUrlKind">nn::web::ShowWebPageArg::SetDisplayUrlKind</span>() を使って、このような画面に表示される URL の表記形式をドメインのみに省略することができます。</p>
+<p>
+  <a name="Anchor_231477355_allow_ssl_hosts"></a>
+</p>
+<h1 id="Anchor_231477355_h1_8">SSL証明書エラーを無視して接続を許可する</h1>
+<p>
+  <span style="color: rgb(51,51,51);">Webアプレットが読み込んでいるルートCA証明書の CA に認証を受けていない証明書や、自己署名証明書を使ったWebサーバーとSSL/TLS通信で接続しようとすると、エラーが発生して接続できません。また、ユーザーが、そのようなWebサーバーとの接続を一時的に許可する機能もありません。</span>
+  <br />
+  <span style="color: rgb(51,51,51);">Webコンテンツの開発中は、そのようなWebサーバーと接続したい場合があります。設定マネージャを使って、接続を許可したいWebサーバーのホストを開発機に登録しておくと接続できます。ホストを登録する手順については、<a href="../Pages/Page_253381544.html#Anchor_253381544_h3_2">SSL証明書エラーを無視して接続を許可するホストを指定する</a>を参照してください。</span>
+</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>
+      <span style="color: rgb(51,51,51);">最終的な製品版を検証する際には、登録したホストを削除して検証するように注意してください。</span>
+    </p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__web__ShowWebPageArg', '../../../Api/HtmlNX/classnn_1_1web_1_1_show_web_page_arg.html' )
+SetUrl( 'ApiLink_nn__web__ShowWebPage', '../../../Api/HtmlNX/namespacenn_1_1web.html#aad085fed71d0e80a9b15abb60201bdcf' )
+SetUrl( 'ApiLink_nn__web__WebPageReturnValue', '../../../Api/HtmlNX/classnn_1_1web_1_1_web_page_return_value.html' )
+SetUrl( 'ApiLink_nn__web__WebPageReturnValue__GetLastUrl', '../../../Api/HtmlNX/classnn_1_1web_1_1_web_page_return_value.html#a260759f64aead90cbd56410a6c1f6079' )
+SetUrl( 'ApiLink_nn__web__WebPageReturnValue__GetWebExitReason', '../../../Api/HtmlNX/classnn_1_1web_1_1_web_page_return_value.html#a9a2de80217153bfa7c6ff663b2286e78' )
+SetUrl( 'ApiLink_nn__web__ShowWebPageArg__SetCallbackUrl', '../../../Api/HtmlNX/classnn_1_1web_1_1_show_web_page_arg.html#a3f430caecbeed131235011685e69a368' )
+SetUrl( 'ApiLink_nn__web__ShowWebPageArg__SetCallbackableUrl', '../../../Api/HtmlNX/classnn_1_1web_1_1_show_web_page_arg.html#ab6dedca1c309fe7e3357ff5beca4e086' )
+SetUrl( 'ApiLink_nn__web__ShowWebPageArg__SetUid', '../../../Api/HtmlNX/classnn_1_1web_1_1_show_web_page_arg.html#a21f6b14b22223183d36fce6662151bcb' )
+SetUrl( 'ApiLink_nn__web__ShowWebPageArg__SetDisplayUrlKind', '../../../Api/HtmlNX/classnn_1_1web_1_1_show_web_page_arg.html#afa4c8db6ea9c739f513926fc15f5b91c' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

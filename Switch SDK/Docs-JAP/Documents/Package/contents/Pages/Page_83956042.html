@@ -1,0 +1,527 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>3Dサウンド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 3Dサウンド -->
+<div class="pagetitle" id="PageId_83956042">3Dサウンド</div>
+<div class="text_separate">
+<h1 id="Anchor_83956042_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956042_h2_1">3D サウンド</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956042_h2_2">3D サウンドプログラム</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956042_h2_3">ドップラー効果</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956042_h2_4">マルチリスナー</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956042_h2_5">3D サウンドのカスタマイズ</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_83956042_h2_1">3D サウンド</h2>
+<p>ここでは、3D&nbsp;空間座標に従って、サウンドのボリュームやパンを変化させる「3D&nbsp;サウンド」の使い方について説明します。</p>
+<p>3D サウンドの構成</p>
+<p>3D&nbsp;サウンドは次の３つのクラスで構成されています。</p>
+<ul>
+  <li>3D&nbsp;サウンドマネージャー&nbsp;(<span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span>)</li>
+  <li>3D&nbsp;サウンドアクター&nbsp;(<span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>)</li>
+  <li>3D&nbsp;サウンドリスナー&nbsp;(<span class="ApiLink_nn__atk__Sound3DListener">nn::atk::Sound3DListener</span>)</li>
+</ul>
+<h3 id="Anchor_83956042_h3_1">3D&nbsp;サウンドマネージャー&nbsp;(nn::atk::Sound3DManager)</h3>
+<p>3D&nbsp;サウンドマネージャーは、3D&nbsp;サウンドパラメータの計算や、管理を行います。基本的に、インスタンスを&nbsp;1&nbsp;つだけ生成して使用します。</p>
+<h3 id="Anchor_83956042_h3_2">3D&nbsp;サウンドアクター&nbsp;(nn::atk::Sound3DActor）</h3>
+<p>3D&nbsp;サウンドアクターは、1&nbsp;つの音源を表現します。3D&nbsp;空間座標の設定、および音源が再生するサウンドの管理を行います。</p>
+<p>3D&nbsp;サウンドで再生する場合は、サウンドアーカイブプレイヤー&nbsp;(<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>)&nbsp;で再生する代わりに、3D&nbsp;サウンドアクターを使って、サウンドを再生します。</p>
+<p>Sound3DActor&nbsp;クラスは、SoundActor&nbsp;クラスを継承しています。</p>
+<h3 id="Anchor_83956042_h3_3">3D&nbsp;サウンドリスナー&nbsp;(nn::atk::Sound3DListener)</h3>
+<p>3D&nbsp;サウンドリスナーは、マイクや人間の耳といったものを表現します。リスナーの位置や向きを設定するために、リスナー行列という変換行列を使います。</p>
+<h2 id="Anchor_83956042_h2_2">3D サウンドプログラム</h2>
+<p>ソースコードの内容を見ながら、サウンドプログラムを説明します。</p>
+<p>ソースコードは \Samples\Sources\Applications\AtkSound3D ディレクトリにある AtkSound3D.cpp&nbsp;ファイルです。</p>
+<h3 id="Anchor_83956042_h3_4">インスタンスの作成</h3>
+<p>先に説明した&nbsp;3&nbsp;つのクラスのインスタンスを作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::</span><span class="n">Sound3DManager</span>     <span class="n">g_Sound3DManager</span><span class="p">;</span>
+<span class="nn">nn::atk::</span><span class="n">Sound3DActor</span>       <span class="n">g_Sound3DActor</span><span class="p">;</span>
+<span class="nn">nn::atk::</span><span class="n">Sound3DListener</span>    <span class="n">g_Sound3DListener</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span>&nbsp;と&nbsp;<span class="ApiLink_nn__atk__Sound3DListener">nn::atk::Sound3DListener</span>&nbsp;は、通常&nbsp;1&nbsp;つだけインスタンスを作成しますが、<span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;は音源の数だけ作成します。</p>
+<h3 id="Anchor_83956042_h3_5">3D&nbsp;サウンドマネージャーの初期化</h3>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span>&nbsp;は、次のように初期化します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Sound3DManager の初期化
+</span><span class="nn">std::</span><span class="kt">size_t</span> <span class="n">memSizeForSound3DManager</span> <span class="o">=</span> <span class="n">g_Sound3DManager</span><span class="p">.</span><span class="n">GetRequiredMemSize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SoundArchive</span> <span class="p">);</span>
+
+<span class="n">g_pMemoryForSound3DManager</span> <span class="o">=</span> <span class="nn">nns::atk::</span><span class="n">Allocate</span><span class="p">(</span> <span class="n">memSizeForSound3DManager</span> <span class="p">);</span>
+<span class="n">g_Sound3DManager</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SoundArchive</span><span class="p">,</span> <span class="n">g_pMemoryForSound3DManager</span><span class="p">,</span> <span class="n">memSizeForSound3DManager</span> <span class="p">);</span>
+<span class="n">g_Sound3DManager</span><span class="p">.</span><span class="n">SetMaxPriorityReduction</span><span class="p">(</span> <span class="mi">32</span> <span class="p">);</span>
+<span class="n">g_Sound3DManager</span><span class="p">.</span><span class="n">SetSonicVelocity</span><span class="p">(</span> <span class="mf">340.0f</span> <span class="o">/</span> <span class="mf">60.0f</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager__SetSonicVelocity">nn::atk::Sound3DManager::SetSonicVelocity</span>&nbsp;関数については、後述する「<a href="#Anchor_83956042_DOPPLER_EFFECTS">3Dサウンド - ドップラー効果</a>」を参照してください。</p>
+<h4 id="Anchor_83956042_h4_1">初期化</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager__Initialize">nn::atk::Sound3DManager::Initialize</span>&nbsp;関数で、3D&nbsp;サウンドマネージャーの初期化を行います。</p>
+<p>引数には、使用するサウンドアーカイブのポインタと、初期化に必要なメモリー領域を渡します。必要なメモリー領域のサイズは、<span class="ApiLink_nn__atk__Sound3DManager__GetRequiredMemSize">nn::atk::Sound3DManager::GetRequiredMemSize</span>&nbsp;関数で取得することができます。</p>
+<h4 id="Anchor_83956042_h4_2">プライオリティ最大減少量</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager__SetMaxPriorityReduction">nn::atk::Sound3DManager::SetMaxPriorityReduction</span>&nbsp;関数で、プライオリティ最大減少量を設定します。</p>
+<p>3D&nbsp;サウンドで再生したサウンドのプレイヤープライオリティは、通常ボリュームが下がるにしたがって減少します。</p>
+<p>プライオリティ最大減少量は、音量が 0 まで下がったときのプレイヤープライオリティの減少量を表します。</p>
+<p>図&nbsp;5&nbsp;プレイヤープライオリティ値の減少</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956042/83080913.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_83956042_h3_6">リスナーの初期化</h3>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DListener">nn::atk::Sound3DListener</span>&nbsp;&nbsp;は、次のように初期化します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Sound3DListener の初期化
+</span><span class="n">g_Sound3DListener</span><span class="p">.</span><span class="n">SetMatrix</span><span class="p">(</span> <span class="n">listenerMtx</span> <span class="p">);</span>
+
+<span class="n">g_Sound3DListener</span><span class="p">.</span><span class="n">SetVelocity</span><span class="p">(</span> <span class="n">zeroVelocity</span> <span class="p">);</span>
+<span class="n">g_Sound3DListener</span><span class="p">.</span><span class="n">SetMaxVolumeDistance</span><span class="p">(</span> <span class="mf">5.0f</span> <span class="p">);</span>
+<span class="n">g_Sound3DListener</span><span class="p">.</span><span class="n">SetUnitDistance</span><span class="p">(</span> <span class="mf">5.0f</span> <span class="p">);</span>
+<span class="n">g_Sound3DListener</span><span class="p">.</span><span class="n">SetInteriorSize</span><span class="p">(</span> <span class="mf">5.0f</span> <span class="p">);</span>
+<span class="n">g_Sound3DManager</span><span class="p">.</span><span class="n">AddListener</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Sound3DListener</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83956042_h4_3">リスナーの登録</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager__AddListener">nn::atk::Sound3DManager::AddListener</span>&nbsp;関数で、リスナーを&nbsp;3D&nbsp;サウンドマネージャーへ登録します。</p>
+<p>1&nbsp;つの&nbsp;3D&nbsp;サウンドマネージャーに複数のリスナーを登録することもできます。詳しくは、「<a href="#Anchor_83956042_MULTI_LISTENER">3Dサウンド - マルチリスナー</a>」を参照してください。</p>
+<h4 id="Anchor_83956042_h4_4">リスナー行列</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DListener__SetMatrix">nn::atk::Sound3DListener::SetMatrix</span>&nbsp;関数で、リスナー行列を設定します。</p>
+<!--Remove-->
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span> <span class="nf">CalcListenerMatrix</span><span class="p">(</span> <span class="nn">nn::util::</span><span class="n">Matrix4x3fType</span><span class="o">*</span> <span class="n">mtx</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// リスナーの位置
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3f</span> <span class="n">pos</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">VectorSet</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0f</span> <span class="p">);</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// リスナーの Up 方向のベクトル
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3f</span> <span class="n">upVec</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">VectorSet</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">upVec</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="mf">0.0f</span> <span class="p">);</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// リスナーの方向ベクトル
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3f</span> <span class="n">direction</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">directionSin</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">directionCos</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">SinCosEst</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">directionSin</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">directionCos</span><span class="p">,</span> <span class="mf">0.0f</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">VectorSet</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">direction</span><span class="p">,</span> <span class="o">-</span><span class="n">directionSin</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="o">-</span><span class="n">directionCos</span> <span class="p">);</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// リスナー行列生成
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">Vector3f</span> <span class="n">target</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">VectorAdd</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">target</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">direction</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">MatrixLookAtRightHanded</span><span class="p">(</span> <span class="n">mtx</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">upVec</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83956042_h4_5">最大音量範囲</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DListener__SetMaxVolumeDistance">nn::atk::Sound3DListener::SetMaxVolumeDistance</span>&nbsp;関数で、最大音量範囲を設定します。<br />最大音量範囲とは、位置が変わっても、音量が最大のまま変化しない範囲の事で、リスナーの位置からの距離で指定します。</p>
+<p>図&nbsp;6&nbsp;最大音量範囲</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956042/83080914.png" class="embedded-image" />
+  </span>
+</p>
+<p>最大音量範囲を設定しておくことで、リスナー近辺でアクターの位置が変わったとき、音量が急激に変化することを避けることができます。</p>
+<h4 id="Anchor_83956042_h4_6">減衰単位距離</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DListener__SetUnitDistance">nn::atk::Sound3DListener::SetUnitDistance</span>&nbsp;関数で、減衰単位距離を設定します。</p>
+<p>減衰単位距離とは、音量が半分になる距離を表します。この距離には、最大音量範囲は含まれていませんので、実際には、リスナーから&nbsp;(最大音量範囲)&nbsp;＋&nbsp;(減衰単位距離)&nbsp;の距離を離れたところで、音量が半分になります。</p>
+<p>なお、デフォルトでは減衰単位距離で音量が半分になりますが、減衰単位距離での音量減衰率は、サウンドデータ側にてそれぞれのサウンドごとに変更することができます。</p>
+<p>図&nbsp;7&nbsp;減衰単位距離</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956042/83080915.png" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_83956042_h4_7">インテリアサイズ</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DListener__SetInteriorSize">nn::atk::Sound3DListener::SetInteriorSize</span>&nbsp;関数で、インテリアサイズを設定します。</p>
+<p>インテリアサイズとは、パン及びサラウンドパンが変化するエリアの大きさで、 リスナーからの距離&nbsp;(半径)&nbsp;で設定します。<br />インテリアサイズを大きくすると、パン変化が緩やかになります。 逆にインテリアサイズを小さくすると、パン変化が急になります。</p>
+<p>※リスナーからの距離が離れると音量は減衰していきますが、減衰量は最大音量範囲&nbsp;(前述)&nbsp;の設定に依存します。</p>
+<h4 id="Anchor_83956042_h4_8">アクターの初期化</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;は、次のように初期化します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Sound3DActor の初期化
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Sound3DActor</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SoundArchivePlayer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Sound3DManager</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::util::</span><span class="n">VectorSet</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ActorPos</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">0.0f</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Sound3DActor</span><span class="p">.</span><span class="n">SetPosition</span><span class="p">(</span> <span class="n">g_ActorPos</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Sound3DActor</span><span class="p">.</span><span class="n">SetVelocity</span><span class="p">(</span> <span class="n">zeroVelocity</span> <span class="p">);</span>
+
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DActor__Initialize">nn::atk::Sound3DActor::Initialize</span>&nbsp;関数の引数として、サウンドアーカイブプレイヤー&nbsp;(<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>)&nbsp;と&nbsp;3D&nbsp;サウンドマネージャー&nbsp;(<span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span>)&nbsp;への参照を渡します。<br /><span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;を使ってサウンドを再生すると、結果的に、ここで渡した&nbsp;<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>&nbsp;を使って再生されます。</p>
+<p>また、再生されたサウンドは、ここで渡した&nbsp;<span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span>&nbsp;で、3D&nbsp;サウンドパラメータの計算が行われます。</p>
+<h4 id="Anchor_83956042_h4_9">アクター座標</h4>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DActor__SetPosition">nn::atk::Sound3DActor::SetPosition</span>&nbsp;関数で、アクター座標を設定します。</p>
+<h3 id="Anchor_83956042_h3_7">3D&nbsp;サウンドの再生</h3>
+<p>3D&nbsp;サウンドで再生するためには、<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>&nbsp;の代わりに、<span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;を使って再生します。</p>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;にも、<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>&nbsp;と同様のサウンド再生関数が用意されています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_Sound3DActor</span><span class="p">.</span><span class="n">StartSound</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SoundHandle</span><span class="p">,</span> <span class="n">soundId</span> <span class="p">).</span><span class="n">IsSuccess</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また、Sound3DActor&nbsp;は&nbsp;SoundActor&nbsp;を継承していますので、「<a href="../Pages/Page_83956039.html#Anchor_83956039_SND_ID_DynamicChange">サウンドアクター - サウンド ID の動的変更</a>」と同じ方法を使って、たとえばキャラクターの地面の種類別に足音サウンド&nbsp;ID&nbsp;を変化させて再生することができます。</p>
+<h3 id="Anchor_83956042_h3_8">アクター座標の更新</h3>
+<p>アクター座標を更新することで、再生中のサウンドの&nbsp;3D&nbsp;パラメータも更新されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_Sound3DActor</span><span class="p">.</span><span class="n">SetPosition</span><span class="p">(</span> <span class="n">g_ActorPos</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>アクター座標と同じように、リスナー行列も更新することができます。</p>
+<h3 id="Anchor_83956042_h3_9">アクターとサウンドの寿命</h3>
+<p>アクターが消滅したときなど、<span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;のインスタンスが破棄されても、そのアクターで再生されたサウンドは再生を続けます。</p>
+<p>また、位置情報もサウンド側で記憶していますので、リスナー行列が更新されても、アクターが消えた位置で鳴るように、3D サウンドパラメータは正しく計算されます。</p>
+<p>したがって、<span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;のインスタンスの寿命にプログラマーが注意を払う必要はありません。</p>
+<p>例えば、位置情報を継続して更新しないのであれば、サウンドを再生した後すぐに、<span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>&nbsp;のインスタンスを破棄することも可能です。</p>
+<h2 id="Anchor_83956042_h2_3">
+  <a name="Anchor_83956042_DOPPLER_EFFECTS"></a>ドップラー効果</h2>
+<p>音を出す物体および聞く人の速度に応じて、聞こえる音の高さが変化する「ドップラー効果」の表現方法について説明します。</p>
+<p>図&nbsp;8&nbsp;ドップラー効果</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956042/83080910.png" class="embedded-image" />
+  </span>
+</p>
+<p>サンプルデモ「AtkSound3D」で、ドップラー効果の確認もできますので、あわせて参考にしてください。<br /></p>
+<h3 id="Anchor_83956042_h3_10">ドップラー効果のパラメータ</h3>
+<p>ドップラー効果をかけるためには、以下の&nbsp;2&nbsp;つのパラメータを設定する必要があります。</p>
+<ul>
+  <li>音速</li>
+  <li>ドップラーファクター</li>
+</ul>
+<h4 id="Anchor_83956042_h4_10">音速</h4>
+<p>ドップラー効果の計算のため、音速を指定する必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_Sound3DManager</span><span class="p">.</span><span class="n">SetSonicVelocity</span><span class="p">(</span> <span class="mf">340.0f</span> <span class="o">/</span> <span class="mi">60</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>デフォルト値は&nbsp;0.0f&nbsp;で、この時、ドップラー効果はかかりません。</p>
+<p>値の単位は、1&nbsp;フレーム当たりの音の速さです。</p>
+<p>音速は約&nbsp;340m / 秒ですので、仮に、Sound3DActor::SetPosition&nbsp;関数で設定する座標の&nbsp;1.0f が&nbsp;1m&nbsp;だとした場合、60fps&nbsp;で座標が更新され、SoundArchivePlayer::Update&nbsp;が呼び出されるとすると、340.0f / 60&nbsp;が設定すべき値になります。</p>
+<h4 id="Anchor_83956042_h4_11">ドップラーファクター</h4>
+<p>ドップラーファクターは、ドップラー効果の効き具合を調整するパラメータです。</p>
+<p>ドップラーファクターは、サウンドデータ側で、サウンド毎のパラメータとして設定されます。<br />この値のデフォルト値は&nbsp;0&nbsp;ですが、この値を&nbsp;255&nbsp;までの範囲で大きくすることにより、ドップラー効果を効かせることができるようになります。なお、標準的な値は、32&nbsp;です。</p>
+<p>SoundMaker&nbsp;上の「ドップラーファクター」のカラムで設定することができます。</p>
+<h3 id="Anchor_83956042_h3_11">音程の変化</h3>
+<p>以上&nbsp;2&nbsp;つのパラメータを設定すると、ドップラー効果が自動的にかかります。</p>
+<p>具体的には、Sound3DActor::SetPosition&nbsp;関数および、Sound3DListener::SetMatrix&nbsp;関数内で、前回呼び出し時との差分から速度を計算し、ドップラー効果に反映させていますので、アプリケーション側で速度を設定する必要はありません。</p>
+<p>図&nbsp;9&nbsp;速度を自動計算</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956042/83080911.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_83956042_h3_12">明示的な速度指定</h3>
+<p>前述の通り、速度は自動的に計算されますが、アプリケーション側で速度を明示的に設定する必要がある場合があります。</p>
+<p>例えば、カメラ位置が別の場所に飛んだ場合、飛んだ距離の差分で速度が計算されてしまうため、極めて高速に移動したように処理され、急激な音程変化が発生します。この場合、Sound3DListener::SetMatrix&nbsp;関数の後に、Sound3DListener::SetVelocity&nbsp;関数で明示的に速度を指定する必要があります。</p>
+<p>その他、Sound3DActor&nbsp;を生成した時点で速度を持っている場合など、明示的に速度を指定する必要があります。</p>
+<h3 id="Anchor_83956042_h3_13">音程の変化量の式</h3>
+<p>音程の変化量は、次の式から求められます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956109/83080130.gif" class="embedded-image" />
+  </span>
+</p>
+<p class="a5" style="margin-left: 60.0px;">pitch :&nbsp;音程の変化量（倍率）</p>
+<p class="a5" style="margin-left: 60.0px;">Vs :&nbsp;音速</p>
+<p class="a5" style="margin-left: 60.0px;">Vl :&nbsp;リスナーの速度</p>
+<p class="a5" style="margin-left: 60.0px;">Va :&nbsp;アクターの速度</p>
+<p class="a5" style="margin-left: 60.0px;">F :&nbsp;ドップラーファクター &divide; 32</p>
+<h2 id="Anchor_83956042_h2_4">
+  <a name="Anchor_83956042_MULTI_LISTENER"></a>マルチリスナー</h2>
+<p>1&nbsp;つの&nbsp;3D&nbsp;サウンドマネージャーに複数のリスナーを登録することができます。</p>
+<p>リスナーが&nbsp;1&nbsp;つの場合と、複数の場合とでは、動作仕様が異なりますので、両者を区別するために、リスナーが&nbsp;1&nbsp;つの場合を「シングルリスナー」、複数の場合を「マルチリスナー」と呼びます。</p>
+<p>マルチリスナーは、ゲーム画面を複数に分割して表示する場合などに使います。画面分割時には、カメラが複数存在することになりますので、リスナーも複数登録する必要がでてきます。</p>
+<h3 id="Anchor_83956042_h3_14">シングルリスナーとの違い</h3>
+<p>マルチリスナーは、シングルリスナーと以下の点が異なります。</p>
+<ul>
+  <li>音量は、各リスナー毎に計算した結果の最大値を取ります。</li>
+  <li>プレイヤープライオリティは、各リスナー毎に計算した結果のうち、最も優先度が高い値を取ります。</li>
+  <li>パンおよびサラウンドパンは、変化しません。</li>
+  <li>ドップラー効果はかかりません。</li>
+</ul>
+<h2 id="Anchor_83956042_h2_5">3D サウンドのカスタマイズ</h2>
+<p>これまで、3D&nbsp;サウンドの標準的な動作を説明しましたが、これらの多くは自由にカスタマイズすることができます。</p>
+<p>例えば、距離による音量減衰カーブは、対数または線形のどちらかですが、カスタマイズにより自由な曲線にすることができます。</p>
+<h3 id="Anchor_83956042_h3_15">3D サウンドエンジン&nbsp;(Sound3DEngine)</h3>
+<p>3D サウンドの計算処理は、3D サウンドエンジンで行っています。3D サウンドエンジンは、3D サウンドマネージャーに 1 つ割り当てられます。</p>
+<p>3D サウンドエンジンには、デフォルトの 3D サウンド計算処理が実装されていますが、これをカスタマイズすることで、独自の 3D サウンド計算処理を行うことができます。</p>
+<h3 id="Anchor_83956042_h3_16">3D サウンドエンジンの作成</h3>
+<p>独自の 3D サウンドエンジンを作成するためには、Sound3DEngine&nbsp;クラスを継承したクラスを作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">class</span> <span class="nc">MySound3DEngine</span> <span class="o">:</span> <span class="k">public</span> <span class="nn">nn::atk::</span><span class="n">Sound3DEngine</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="a2">作成した&nbsp;MySound3DEngine&nbsp;クラスのインスタンスを、Sound3DManager&nbsp;に登録します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">MySound3DEngine</span> <span class="n">g_MySound3DEngine</span><span class="p">;</span>
+
+
+<span class="n">g_Sound3DManger</span><span class="p">.</span><span class="n">SetEngine</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MySound3DEngine</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956042_h3_17">3D サウンド計算処理の実装</h3>
+<p>3D サウンド計算処理を実装するため、Sound3DEngine::UpdateAmbientParam&nbsp;関数をオーバーライドします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">class</span> <span class="nc">MySound3DEngine</span> <span class="o">:</span> <span class="k">public</span> <span class="nn">nn::atk::</span><span class="n">Sound3DEngine</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">virtual</span> <span class="kt">void</span> <span class="n">UpdateAmbientParam</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::atk::</span><span class="n">SoundAmbientParam</span><span class="o">*</span> <span class="n">pOutValue</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::atk::</span><span class="n">Sound3DManager</span><span class="o">*</span> <span class="n">manager</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::atk::</span><span class="n">Sound3DParam</span><span class="o">*</span> <span class="n">actorParam</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint32_t</span> <span class="n">soundId</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint32_t</span> <span class="n">updateFlag</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この関数は、3D サウンドパラメータを更新するために、定期的に呼び出されます。</p>
+<p>この関数が呼び出されたら、必要に応じて、一番最後の引数の&nbsp;SoundAmbientParam&nbsp;構造体の内容を更新します。</p>
+<p>以下、各引数について説明します。</p>
+<h4 id="Anchor_83956042_h4_12">Sound3DManager</h4>
+<p>Sound3DManager&nbsp;から、登録されたリスナーのリストが取得できます。このリスナーの情報を元に、3D サウンドの計算を行います。</p>
+<h4 id="Anchor_83956042_h4_13">Sound3DParam</h4>
+<p>Sound3DParam&nbsp;構造体には、Sound3DActor&nbsp;の座標や、サウンド毎に設定された 3D&nbsp;サウンド関連のパラメータが格納されています。3D&nbsp;サウンドの計算の際、これらのパラメータを反映させる必要があります。</p>
+<h4 id="Anchor_83956042_h4_14">サウンド&nbsp;ID</h4>
+<p>サウンド&nbsp;ID&nbsp;は、3D&nbsp;サウンドの計算に、ヒントとして使うことができます。必要なければ、無視してかまいません。</p>
+<h4 id="Anchor_83956042_h4_15">更新フラグ</h4>
+<p>更新すべきパラメータを表すビットフラグです。ビットが有効なパラメータのみを更新します。</p>
+<h4 id="Anchor_83956042_h4_16">SoundAmbientParam</h4>
+<p>SoundAmbientParam クラスには、以下のようなメンバが含まれています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">class</span> <span class="nc">SoundAmbientParam</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">m_Volume</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">m_Pitch</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">m_Lpf</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">m_BiquadFilterValue</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">m_BiquadFilterType</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">m_Priority</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint32_t</span> <span class="n">m_UserData</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>先の&nbsp;4&nbsp;つの引数からの情報に基づいて、この構造体のメンバを更新します。</p>
+<h3 id="Anchor_83956042_h3_18">Sound3DCalculator</h3>
+<p>3D&nbsp;サウンドの計算は複雑なため、より簡単にカスタマイズできるように、Sound3DCalculator&nbsp;というユーティリティクラスを用意しています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">class</span> <span class="nc">Sound3DCalculator</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">static</span> <span class="kt">void</span> <span class="n">CalculateVolumeAndPriority</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutVolume</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span><span class="o">*</span> <span class="n">pOutPriority</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DManager</span><span class="o">&amp;</span> <span class="n">manager</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DListener</span><span class="o">&amp;</span> <span class="n">listener</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DParam</span><span class="o">&amp;</span> <span class="n">actorParam</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span>  <span class="n">actorDistance</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">static</span> <span class="kt">void</span> <span class="nf">CalculatePan</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutPan</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutSPan</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DManager</span><span class="o">&amp;</span> <span class="n">manager</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DListener</span><span class="o">&amp;</span> <span class="n">listener</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DParam</span><span class="o">&amp;</span> <span class="n">actorParam</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">CalcPanParam</span><span class="o">&amp;</span> <span class="n">calcPanParam</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">)</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">static</span> <span class="kt">void</span> <span class="nf">CalculatePitch</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span><span class="o">*</span> <span class="n">pOutValue</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DManager</span><span class="o">&amp;</span> <span class="n">manager</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DListener</span><span class="o">&amp;</span> <span class="n">listener</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="n">Sound3DParam</span><span class="o">&amp;</span> <span class="n">actorParam</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">)</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Sound3DCalculator&nbsp;クラスを使えば、UpdateAmbientParam&nbsp;関数の引数を、ほぼそのまま使って、3D サウンドパラメータの計算を行うことができます。</p>
+<p>また、Sound3DCalculator&nbsp;クラスの実装コードを参考にすることで、より細かいカスタマイズも、簡単に行えるようになります。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__Sound3DManager', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html' )
+SetUrl( 'ApiLink_nn__atk__Sound3DActor', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_actor.html' )
+SetUrl( 'ApiLink_nn__atk__Sound3DListener', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_listener.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html' )
+SetUrl( 'ApiLink_nn__atk__Sound3DManager__SetSonicVelocity', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html#a7449552339d15c87b9074f4a06d0bf8a' )
+SetUrl( 'ApiLink_nn__atk__Sound3DManager__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html#aba7437e7d1ef1dbc9ecbf24b4ffee824' )
+SetUrl( 'ApiLink_nn__atk__Sound3DManager__GetRequiredMemSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html#a70738cda83fa20591f5b33b407dd4955' )
+SetUrl( 'ApiLink_nn__atk__Sound3DManager__SetMaxPriorityReduction', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html#a1bcb7c53ca7a7841e5ba79c0732c413d' )
+SetUrl( 'ApiLink_nn__atk__Sound3DManager__AddListener', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html#a30bea64423549fb5d752d08e8259b73c' )
+SetUrl( 'ApiLink_nn__atk__Sound3DListener__SetMatrix', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_listener.html#a105dbf0766630796216b7b40e14ab8bf' )
+SetUrl( 'ApiLink_nn__atk__Sound3DListener__SetMaxVolumeDistance', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_listener.html#a48c6bd9bee30fb40d073905f28703034' )
+SetUrl( 'ApiLink_nn__atk__Sound3DListener__SetUnitDistance', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_listener.html#ae45ef219537203902e4a7ba7a34e39c2' )
+SetUrl( 'ApiLink_nn__atk__Sound3DListener__SetInteriorSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_listener.html#af4dfe6f1fef292b755362cc3857aad35' )
+SetUrl( 'ApiLink_nn__atk__Sound3DActor__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_actor.html#a578b980c31cbee85a9ed83e17c685fc1' )
+SetUrl( 'ApiLink_nn__atk__Sound3DActor__SetPosition', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_actor.html#a2aac639be4f9e4cb9318a98a806e2127' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

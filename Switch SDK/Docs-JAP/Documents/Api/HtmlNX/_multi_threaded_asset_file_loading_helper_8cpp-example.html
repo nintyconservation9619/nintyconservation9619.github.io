@@ -1,0 +1,843 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: MultiThreadedAssetFileLoadingHelper.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">MultiThreadedAssetFileLoadingHelper.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_multi_threaded_asset_file_loading_helper_8cpp.html" title="This file defines a helper class to load asset files in parallel on multiple threads. ">MultiThreadedAssetFileLoadingHelper.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdio&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstring&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nvn_8h.html">nvn/nvn.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nvn___func_ptr_inline_8h.html">nvn/nvn_FuncPtrInline.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_multi_threaded_asset_file_loading_helper_8h.html">nvntutorial/MultiThreadedAssetFileLoadingHelper.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_output_file_headers_8h.html">nvntutorial/OutputFileHeaders.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_tutorial_util_8h.html">nvntutorial/TutorialUtil.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_texture_i_d_manager_8h.html">nvntutorial/TextureIDManager.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_memory_pool_8h.html">nvntutorial/MemoryPool.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper Constructor</span></div>
+<div class="line"><span class="comment"> * -----------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Default constructor that sets up initial values for members. Takes</span></div>
+<div class="line"><span class="comment"> * an AssetLoaderArg that contains relevent nvn data and the file name.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">MultiThreadedAssetFileLoadingHelper::MultiThreadedAssetFileLoadingHelper(AssetLoaderArg* pArg) : m_pDataHolder(NULL),</div>
+<div class="line">                                                                                                 m_pArg(pArg),</div>
+<div class="line">                                                                                                 m_pFileHead(NULL),</div>
+<div class="line">                                                                                                 m_FileSize(0)</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper Destructor</span></div>
+<div class="line"><span class="comment"> * ----------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Destructor</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">MultiThreadedAssetFileLoadingHelper::~MultiThreadedAssetFileLoadingHelper()</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::LoadAssetFile</span></div>
+<div class="line"><span class="comment"> * --------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Loads the binary asset file, checks for each section of</span></div>
+<div class="line"><span class="comment"> * the file, and interprets the data for the sections that</span></div>
+<div class="line"><span class="comment"> * exist.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> MultiThreadedAssetFileLoadingHelper::LoadAssetFile()</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Reads in the binary file and grabs a pointer to its head. */</span></div>
+<div class="line">    <a name="_a0"></a><a class="code" href="structnn_1_1fs_1_1_file_handle.html">nn::fs::FileHandle</a> fileHandle;</div>
+<div class="line"></div>
+<div class="line">    std::string rom(<span class="stringliteral">&quot;rom:/&quot;</span>);</div>
+<div class="line">    std::string fileName(m_pArg-&gt;GetConfigFileName());</div>
+<div class="line">    <a name="_a1"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> res = <a name="a2"></a><a class="code" href="namespacenn_1_1fs.html#a0f2b5b30657b1ffaf1dec49bfb36462b">nn::fs::OpenFile</a>(&amp;fileHandle, (rom + fileName).c_str(), <a name="a3"></a><a class="code" href="namespacenn_1_1fs.html#a4c97b79cce78a95c2333dbc9053b9393afde4472d2b455879cad02aade386ac0d">nn::fs::OpenMode_Read</a>);</div>
+<div class="line">    <a name="a4"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(res.IsSuccess());</div>
+<div class="line"></div>
+<div class="line">    res = <a name="a5"></a><a class="code" href="namespacenn_1_1fs.html#aba29e01d386e809349d60eccdb15ff21">nn::fs::GetFileSize</a>(&amp;m_FileSize, fileHandle);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(res.IsSuccess());</div>
+<div class="line"></div>
+<div class="line">    m_pFileHead = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(AlignedAllocate(static_cast&lt;size_t&gt;(m_FileSize + 1), 8));</div>
+<div class="line">    memset(m_pFileHead, 0, static_cast&lt;size_t&gt;(m_FileSize + 1));</div>
+<div class="line">    <span class="keywordtype">size_t</span> out;</div>
+<div class="line">    res = <a name="a6"></a><a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(&amp;out, fileHandle, 0, m_pFileHead, static_cast&lt;size_t&gt;(m_FileSize));</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(res.IsSuccess());</div>
+<div class="line"></div>
+<div class="line">    OutputFileHeader* pFileHeader = <span class="keyword">reinterpret_cast&lt;</span>OutputFileHeader*<span class="keyword">&gt;</span>(m_pFileHead);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pFileHeader != NULL, <span class="stringliteral">&quot;Failed to read file header&quot;</span>)</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Creates a default buffer builder. */</span></div>
+<div class="line">    <a name="a7"></a><a class="code" href="group__nvn__c__functions.html#ga7f1e5a40cc9b049892a527b95ac9b9fc">nvnBufferBuilderSetDevice</a>(&amp;m_BufferBuilder, m_pArg-&gt;GetDevice());</div>
+<div class="line">    <a name="a8"></a><a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Creates a default texture builder. */</span></div>
+<div class="line">    <a name="a9"></a><a class="code" href="group__nvn__c__functions.html#ga3125b10128cdf01e0c489ebf9644cc36">nvnTextureBuilderSetDevice</a>(&amp;m_TextureBuilder, m_pArg-&gt;GetDevice());</div>
+<div class="line">    <a name="a10"></a><a class="code" href="group__nvn__c__functions.html#ga6287f82327692478ee9040e4fe73dd36">nvnTextureBuilderSetDefaults</a>(&amp;m_TextureBuilder);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Creates a default sampler builder. */</span></div>
+<div class="line">    <a name="a11"></a><a class="code" href="group__nvn__c__functions.html#ga7504233cce44b1f5a7223f322b76a84d">nvnSamplerBuilderSetDevice</a>(&amp;m_SamplerBuilder, m_pArg-&gt;GetDevice());</div>
+<div class="line">    <a name="a12"></a><a class="code" href="group__nvn__c__functions.html#ga889b306858059648c66e88a226391acc">nvnSamplerBuilderSetDefaults</a>(&amp;m_SamplerBuilder);</div>
+<div class="line"></div>
+<div class="line">    m_pDataHolder = new AssetFileDataHolder();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check for the shader section of the file and interpret the data. */</span></div>
+<div class="line">    if (pFileHeader-&gt;m_ShaderBlockOffset &gt; 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">char</span>* pShaderBlockHead = m_pFileHead + pFileHeader-&gt;m_ShaderBlockOffset;</div>
+<div class="line">        LoadShaders(pShaderBlockHead);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check for the texture section of the file and interpret the data. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (pFileHeader-&gt;m_TextureBlockOffset &gt; 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">char</span>* pTextureBlockHead = m_pFileHead + pFileHeader-&gt;m_TextureBlockOffset;</div>
+<div class="line">        LoadTextures(pTextureBlockHead);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check for the model section of the file and interpret the data. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (pFileHeader-&gt;m_ModelBlockOffset &gt; 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">char</span>* pModelBlockHead = m_pFileHead + pFileHeader-&gt;m_ModelBlockOffset;</div>
+<div class="line">        LoadModels(pModelBlockHead);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;LockMemoryPoolMutex();</div>
+<div class="line">    <a name="a13"></a><a class="code" href="namespacenn_1_1fs.html#ac8bd9e828751bd4f953acfa765278f84">nn::fs::CloseFile</a>(fileHandle);</div>
+<div class="line">    m_pArg-&gt;UnlockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">    AlignedDeallocate(m_pFileHead);</div>
+<div class="line">    m_pFileHead = NULL;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::LoadShaders</span></div>
+<div class="line"><span class="comment"> * ------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Runs through the shaders listed by the loaded file and</span></div>
+<div class="line"><span class="comment"> * creates a shader program for each.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> MultiThreadedAssetFileLoadingHelper::LoadShaders(<span class="keyword">const</span> <span class="keywordtype">char</span>* pShaderBlockHead)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pShaderBlockHead != NULL, <span class="stringliteral">&quot;Shader block header pointer NULL&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grabs the number of shaders and their offsets. */</span></div>
+<div class="line">    <span class="keyword">const</span> ShaderBlockHeader* pShaderBlockHeader = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>ShaderBlockHeader*<span class="keyword">&gt;</span>(pShaderBlockHead);</div>
+<div class="line">    uint32_t numPrograms = pShaderBlockHeader-&gt;m_NumShaderPrograms;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> uint64_t* pShaderProgramHeaderOffsets = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint64_t*<span class="keyword">&gt;</span>((pShaderBlockHead + <span class="keyword">sizeof</span>(uint32_t) * 2));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Creates a program for each shader. */</span></div>
+<div class="line">    <span class="keywordflow">for</span>(uint32_t i = 0; i &lt; numPrograms; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        NVNProgramData* pProgramData = CreateShaderProgram(m_pFileHead + pShaderProgramHeaderOffsets[i]);</div>
+<div class="line">        m_pDataHolder-&gt;AddProgramData(pProgramData);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::CreateShaderProgram</span></div>
+<div class="line"><span class="comment"> * --------------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Saves the shader metadata in an NVNProgramData object</span></div>
+<div class="line"><span class="comment"> * and creates an NVNprogram object from the compiled</span></div>
+<div class="line"><span class="comment"> * shader binary.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">NVNProgramData* MultiThreadedAssetFileLoadingHelper::CreateShaderProgram(<span class="keyword">const</span> <span class="keywordtype">char</span>* pShaderProgramHead)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pShaderProgramHead != NULL, <span class="stringliteral">&quot;Shader program header pointer NULL&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grabs the metadata and the list of offsets to individual shader stages. */</span></div>
+<div class="line">    <span class="keyword">const</span> ShaderProgramHeader* pShaderProgramHeader = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>ShaderProgramHeader*<span class="keyword">&gt;</span>(pShaderProgramHead);</div>
+<div class="line"></div>
+<div class="line">    uint32_t        numShaderStages = pShaderProgramHeader-&gt;m_NumShaderStages;</div>
+<div class="line">    <span class="keyword">const</span> uint64_t* pShaderStageOffsets = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint64_t*<span class="keyword">&gt;</span>(pShaderProgramHead + <span class="keyword">sizeof</span>(uint32_t) * 2);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>*     pProgramName = pShaderProgramHead + <span class="keyword">sizeof</span>(uint32_t) * 2 + <span class="keyword">sizeof</span>(uint64_t) * numShaderStages;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pShaderProgramHeader == NULL ||</div>
+<div class="line">        pShaderProgramHeader-&gt;m_ProgramNameLength == 0 ||</div>
+<div class="line">        pProgramName == NULL ||</div>
+<div class="line">        numShaderStages == 0 ||</div>
+<div class="line">        pShaderStageOffsets == NULL )</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to read ShaderProgramHeader&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    NVNProgramData* pProgramData = <span class="keyword">new</span> NVNProgramData;</div>
+<div class="line">    pProgramData-&gt;Initialize();</div>
+<div class="line">    pProgramData-&gt;SetName(pProgramName, pShaderProgramHeader-&gt;m_ProgramNameLength);</div>
+<div class="line">    pProgramData-&gt;m_ShaderType = ShaderTypes::GetShaderTypeEnum(std::string(pProgramData-&gt;m_pProgramName));</div>
+<div class="line"></div>
+<div class="line">    std::vector&lt;ShaderStageHeader&gt; shaderStageHeaders;</div>
+<div class="line">    shaderStageHeaders.resize(numShaderStages, ShaderStageHeader());</div>
+<div class="line"></div>
+<div class="line">    std::vector&lt;size_t&gt; alignmentOffsets;</div>
+<div class="line">    alignmentOffsets.resize(numShaderStages, 0);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Grab the stage metadata and pointers to the control and data section</span></div>
+<div class="line"><span class="comment">         * of the compiled shader.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> shaderDataBufferMemoryPoolSize = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> bufferAlignment = 0;</div>
+<div class="line">    <a name="a14"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pArg-&gt;GetDevice(), <a name="a15"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ac5b90148e47e9a26cd38b367123ff374">NVN_DEVICE_INFO_UNIFORM_BUFFER_ALIGNMENT</a>, &amp;bufferAlignment);</div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; numShaderStages; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        ShaderStageHeader* pShaderStageHeader = <span class="keyword">reinterpret_cast&lt;</span>ShaderStageHeader*<span class="keyword">&gt;</span>(m_pFileHead + pShaderStageOffsets[i]);</div>
+<div class="line"></div>
+<div class="line">        shaderStageHeaders[i].m_ShaderStage         = pShaderStageHeader-&gt;m_ShaderStage;</div>
+<div class="line">        shaderStageHeaders[i].m_ShaderDataSize      = pShaderStageHeader-&gt;m_ShaderDataSize;</div>
+<div class="line">        shaderStageHeaders[i].m_ShaderControlSize   = pShaderStageHeader-&gt;m_ShaderControlSize;</div>
+<div class="line">        shaderStageHeaders[i].m_ShaderControlOffset = pShaderStageHeader-&gt;m_ShaderControlOffset;</div>
+<div class="line">        shaderStageHeaders[i].m_pShaderData         = m_pFileHead + pShaderStageOffsets[i] + 4 * <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        shaderStageHeaders[i].m_pShaderControl      = m_pFileHead + shaderStageHeaders[i].m_ShaderControlOffset;</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Store offsets for filling the memory pool and initializing buffers. */</span></div>
+<div class="line">        alignmentOffsets[i] = shaderDataBufferMemoryPoolSize;</div>
+<div class="line">        shaderDataBufferMemoryPoolSize += shaderStageHeaders[i].m_ShaderDataSize;</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Make sure the size is at the correct alignment. */</span></div>
+<div class="line">        shaderDataBufferMemoryPoolSize = Align(shaderDataBufferMemoryPoolSize, bufferAlignment);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Shader code is not allowed to be in the last 1024 bytes of a memory pool,</span></div>
+<div class="line"><span class="comment">         * additional padding is added to ensure that does not happen.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    shaderDataBufferMemoryPoolSize += 1024;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Copy the shader data into a contiguous block of memory to wrap a pool around. */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> memoryPoolAlignedSize;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (shaderDataBufferMemoryPoolSize &lt; g_MinimumPoolSize)</div>
+<div class="line">    {</div>
+<div class="line">        memoryPoolAlignedSize = g_MinimumPoolSize;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        memoryPoolAlignedSize = Align(shaderDataBufferMemoryPoolSize, <a name="a16"></a><a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;LockMemoryPoolMutex();</div>
+<div class="line">    <span class="keywordtype">char</span>* pShaderDataArray = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(AlignedAllocate(memoryPoolAlignedSize, <a name="a17"></a><a class="code" href="group__nvn__c__defines.html#gace820e752b400cf7aa36e9684a7f45cb">NVN_MEMORY_POOL_STORAGE_ALIGNMENT</a>));</div>
+<div class="line">    m_pArg-&gt;UnlockMemoryPoolMutex();</div>
+<div class="line">    memset(pShaderDataArray, 0, memoryPoolAlignedSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; shaderStageHeaders.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        memcpy(pShaderDataArray + alignmentOffsets[i], shaderStageHeaders[i].m_pShaderData, shaderStageHeaders[i].m_ShaderDataSize);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;LockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create new memory pool around the shader data. */</span></div>
+<div class="line">    pProgramData-&gt;m_ShaderMemoryPool.Init(pShaderDataArray,</div>
+<div class="line">                                          memoryPoolAlignedSize,</div>
+<div class="line">                                          <a name="a18"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654ae90d91fe770d2eb3e1476c404c003369">NVN_MEMORY_POOL_FLAGS_CPU_NO_ACCESS_BIT</a> | <a name="a19"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a> | <a name="a20"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654ae206e58ed83cb0e9936783c9f4764fe6">NVN_MEMORY_POOL_FLAGS_SHADER_CODE_BIT</a>,</div>
+<div class="line">                                          m_pArg-&gt;GetDevice());</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;UnlockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">    std::vector&lt;NVNshaderData&gt; nvnShaderData;</div>
+<div class="line">    nvnShaderData.resize(numShaderStages, <a name="_a21"></a><a class="code" href="struct_n_v_nshader_data.html">NVNshaderData</a>());</div>
+<div class="line">    pProgramData-&gt;m_ShaderBuffers.resize(numShaderStages, NULL);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Create NVNbuffer objects out of the memory pool for each shader stage.</span></div>
+<div class="line"><span class="comment">         * The NVNbufferAddress&#39;s for these buffers are placed in a list with the</span></div>
+<div class="line"><span class="comment">         * pointers to the corresponding shader control sections.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; shaderStageHeaders.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        pProgramData-&gt;m_ShaderStages |= ConvertNVNStageToBitField(static_cast&lt;NVNshaderStage&gt;(shaderStageHeaders[i].m_ShaderStage));</div>
+<div class="line">        pProgramData-&gt;m_ShaderBuffers[i] = <span class="keyword">new</span> <a name="_a22"></a><a class="code" href="struct_n_v_nbuffer.html">NVNbuffer</a>;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line">        <a name="a23"></a><a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;m_BufferBuilder, pProgramData-&gt;m_ShaderMemoryPool.GetMemoryPool(), alignmentOffsets[i], shaderStageHeaders[i].m_ShaderDataSize);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (!<a name="a24"></a><a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(pProgramData-&gt;m_ShaderBuffers[i], &amp;m_BufferBuilder))</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize shader buffer storage&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        nvnShaderData[i].control    = shaderStageHeaders[i].m_pShaderControl;</div>
+<div class="line">        nvnShaderData[i].data       = <a name="a25"></a><a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(pProgramData-&gt;m_ShaderBuffers[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the shader program and provide it with the compiled shader data. */</span></div>
+<div class="line">    <a name="a26"></a><a class="code" href="group__nvn__c__functions.html#ga94b5dc5a5043495db9e6c3bc41ed6098">nvnProgramInitialize</a>(&amp;pProgramData-&gt;m_Program, m_pArg-&gt;GetDevice());</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a name="a27"></a><a class="code" href="group__nvn__c__functions.html#gad6a517c8312bcaea2bafddfdf59f426a">nvnProgramSetShaders</a>(&amp;pProgramData-&gt;m_Program, numShaderStages, &amp;nvnShaderData[0]))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to set pre-compiled headers&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> pProgramData;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::LoadTextures</span></div>
+<div class="line"><span class="comment"> * -------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Grabs the texture block header of the asset file and loads</span></div>
+<div class="line"><span class="comment"> * the texture data at the specified offsets.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> MultiThreadedAssetFileLoadingHelper::LoadTextures(<span class="keyword">const</span> <span class="keywordtype">char</span>* pTextureBlockHead)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pTextureBlockHead != NULL, <span class="stringliteral">&quot;Texture block header pointer NULL&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> TextureBlockHeader* pTextureBlockHeader = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>TextureBlockHeader*<span class="keyword">&gt;</span>(pTextureBlockHead);</div>
+<div class="line">    <span class="keyword">const</span> uint64_t* pTextureOffsets = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint64_t*<span class="keyword">&gt;</span>(pTextureBlockHead + <span class="keyword">sizeof</span>(uint32_t) * 2);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; pTextureBlockHeader-&gt;m_NumTextures; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        NVNTextureData* pTextureData = LoadTextureData(m_pFileHead + pTextureOffsets[i]);</div>
+<div class="line">        m_pDataHolder-&gt;AddTextureData(pTextureData);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::LoadTextureData</span></div>
+<div class="line"><span class="comment"> * ----------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Loads the packaged texture data and metadata from the texture header.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">NVNTextureData* MultiThreadedAssetFileLoadingHelper::LoadTextureData(<span class="keyword">const</span> <span class="keywordtype">char</span>* pTextureDataHead)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pTextureDataHead != NULL, <span class="stringliteral">&quot;Texture data pointer NULL&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    NVNTextureData* pNvnTextureData = <span class="keyword">new</span> NVNTextureData;</div>
+<div class="line">    pNvnTextureData-&gt;Initialize();</div>
+<div class="line"></div>
+<div class="line">    uint32_t currentDataEntryOffset = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* Grab the texture&#39;s metadata. */</span></div>
+<div class="line">    pNvnTextureData-&gt;m_TextureDataSize  = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint64_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_GpuVersion       = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span><span class="keywordtype">int</span>*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);               currentDataEntryOffset += <span class="keyword">sizeof</span>(int);</div>
+<div class="line">    pNvnTextureData-&gt;m_Alignment        = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_Width            = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_Height           = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_Depth            = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_NvnTextureTarget = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span><a class="code" href="group__nvn__c__enum.html#ga7f247010f53480c7dd1f3b2ad638c431">NVNtextureTarget</a>*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);  currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_NvnFormat        = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span><a class="code" href="group__nvn__c__enum.html#ga99463f5b9af6151e604b01dfdd5fecab">NVNformat</a>*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);         currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    pNvnTextureData-&gt;m_MipLevels        = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint32_t textureNameLength          = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint32_t textureDataOffset          = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);          currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>* pTextureName            = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(pTextureDataHead + currentDataEntryOffset);               currentDataEntryOffset += <span class="keyword">sizeof</span>(char) * textureNameLength;</div>
+<div class="line">    <span class="keywordtype">void</span>* pTextureData                  = (m_pFileHead + textureDataOffset);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(!textureNameLength ||</div>
+<div class="line">       pTextureName == NULL ||</div>
+<div class="line">       !pNvnTextureData-&gt;m_Width ||</div>
+<div class="line">       !pNvnTextureData-&gt;m_Height ||</div>
+<div class="line">       !pNvnTextureData-&gt;m_Depth ||</div>
+<div class="line">       pNvnTextureData-&gt;m_NvnTextureTarget &gt; <a name="a28"></a><a class="code" href="group__nvn__c__enum.html#gga7f247010f53480c7dd1f3b2ad638c431ad76c4748580ea6bff4859bc20c034cb9">NVN_TEXTURE_TARGET_BUFFER</a> ||</div>
+<div class="line">       !pNvnTextureData-&gt;m_NvnFormat ||</div>
+<div class="line">       !pNvnTextureData-&gt;m_MipLevels ||</div>
+<div class="line">       pTextureData == NULL)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to read texture data&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    pNvnTextureData-&gt;SetName(pTextureName, textureNameLength);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6287f82327692478ee9040e4fe73dd36">nvnTextureBuilderSetDefaults</a>(&amp;m_TextureBuilder);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga889b306858059648c66e88a226391acc">nvnSamplerBuilderSetDefaults</a>(&amp;m_SamplerBuilder);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set up the texture builder based on the loaded metadata. */</span></div>
+<div class="line">    <a name="a29"></a><a class="code" href="group__nvn__c__functions.html#gaa7e80e3d31c6cffc51d255cbe86694b3">nvnTextureBuilderSetTarget</a>(&amp;m_TextureBuilder, pNvnTextureData-&gt;m_NvnTextureTarget);</div>
+<div class="line">    <a name="a30"></a><a class="code" href="group__nvn__c__functions.html#gad83f59e208a24b5843543e1d0c7aec8a">nvnTextureBuilderSetFormat</a>(&amp;m_TextureBuilder, pNvnTextureData-&gt;m_NvnFormat);</div>
+<div class="line">    <a name="a31"></a><a class="code" href="group__nvn__c__functions.html#ga1eb945f455f851adf9b738be38cfb0bc">nvnTextureBuilderSetSize2D</a>(&amp;m_TextureBuilder, pNvnTextureData-&gt;m_Width, pNvnTextureData-&gt;m_Height);</div>
+<div class="line">    <a name="a32"></a><a class="code" href="group__nvn__c__functions.html#gad86f04179d66882fe758554678311e42">nvnTextureBuilderSetDepth</a>(&amp;m_TextureBuilder, pNvnTextureData-&gt;m_Depth);</div>
+<div class="line">    <a name="a33"></a><a class="code" href="group__nvn__c__functions.html#ga7b84b7b97960b702cd6e8438e0bc303b">nvnTextureBuilderSetLevels</a>(&amp;m_TextureBuilder, pNvnTextureData-&gt;m_MipLevels);</div>
+<div class="line">    uint32_t size = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(<a name="a34"></a><a class="code" href="group__nvn__c__functions.html#ga1ba9cfd0600643dbb909eaa9c36abe26">nvnTextureBuilderGetStorageSize</a>(&amp;m_TextureBuilder));</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(size == pNvnTextureData-&gt;m_TextureDataSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pArg-&gt;GetUseMipmaps())</div>
+<div class="line">    {</div>
+<div class="line">            <span class="comment">/*</span></div>
+<div class="line"><span class="comment">             * Sets option in sampler for mip map filtering</span></div>
+<div class="line"><span class="comment">             * These options cause a hard cutoff between mip</span></div>
+<div class="line"><span class="comment">             * levels, use of linear filters would allow</span></div>
+<div class="line"><span class="comment">             * for interpolation between levels.</span></div>
+<div class="line"><span class="comment">             */</span></div>
+<div class="line">        <a name="a35"></a><a class="code" href="group__nvn__c__functions.html#ga0f634bd122e2b47cbebfeb16cda8352f">nvnSamplerBuilderSetMinMagFilter</a>(&amp;m_SamplerBuilder, <a name="a36"></a><a class="code" href="group__nvn__c__enum.html#gga41610125d2ee1e59db15c26f9a1288c5a4a2b405e1e881eb20e002f296f185d60">NVNminFilter::NVN_MIN_FILTER_NEAREST_MIPMAP_NEAREST</a>, <a name="a37"></a><a class="code" href="group__nvn__c__enum.html#gga7f4e9b2ce71bbd9c4c2de6b3cfc293dca91aa39a6fa66f3ffb18c706ecd51a517">NVNmagFilter::NVN_MAG_FILTER_NEAREST</a>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span> <span class="keywordflow">if</span>(m_pArg-&gt;GetUseCubemap())</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> ((pNvnTextureData-&gt;m_Width != pNvnTextureData-&gt;m_Height))</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Texture&#39;s dimensions are not equal, cubemap&#39;s sides are not square&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">size_t</span> memoryPoolSize;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pNvnTextureData-&gt;m_TextureDataSize &lt; g_MinimumPoolSize)</div>
+<div class="line">    {</div>
+<div class="line">        memoryPoolSize = g_MinimumPoolSize;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        memoryPoolSize = Align(static_cast&lt;uint32_t&gt;(pNvnTextureData-&gt;m_TextureDataSize), <a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;LockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span>* memoryPoolData = AlignedAllocate(memoryPoolSize, <a class="code" href="group__nvn__c__defines.html#gace820e752b400cf7aa36e9684a7f45cb">NVN_MEMORY_POOL_STORAGE_ALIGNMENT</a>);</div>
+<div class="line"></div>
+<div class="line">    memcpy(memoryPoolData, pTextureData, static_cast&lt;uint32_t&gt;(pNvnTextureData-&gt;m_TextureDataSize));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">        * On Windows, the packaged texture data cannot be used by the GPU as</span></div>
+<div class="line"><span class="comment">        * it will not be compatible with the format used by the device. To</span></div>
+<div class="line"><span class="comment">        * remedy this, it can be provided to the texture builder through the</span></div>
+<div class="line"><span class="comment">        * SetPackagedTextureData function. The windows driver will decode the</span></div>
+<div class="line"><span class="comment">        * texture data and re-encode it to the proper format. On the device, the</span></div>
+<div class="line"><span class="comment">        * function is a no-op; the pointer is ignored and its contents unmodified.</span></div>
+<div class="line"><span class="comment">        */</span></div>
+<div class="line">    <a name="a38"></a><a class="code" href="group__nvn__c__functions.html#ga6ccd08d4bafb09088fb0c39aea731354">nvnTextureBuilderSetPackagedTextureData</a>(&amp;m_TextureBuilder, pTextureData);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Wrap a memory pool around the texture data. */</span></div>
+<div class="line">    pNvnTextureData-&gt;m_TextureMemoryPool.Init(memoryPoolData,</div>
+<div class="line">                                              memoryPoolSize,</div>
+<div class="line">                                              <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654ae90d91fe770d2eb3e1476c404c003369">NVN_MEMORY_POOL_FLAGS_CPU_NO_ACCESS_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">                                              m_pArg-&gt;GetDevice());</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set the storage for the texture. */</span></div>
+<div class="line">    <a name="a39"></a><a class="code" href="group__nvn__c__functions.html#gaf6530c01a016b836ad82434f6a793cd8">nvnTextureBuilderSetStorage</a>(&amp;m_TextureBuilder, pNvnTextureData-&gt;m_TextureMemoryPool.GetMemoryPool(), 0);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the texture with the builder&#39;s settings. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (<a name="a40"></a><a class="code" href="group__nvn__c__functions.html#gad8c5cbaa3292721f1de9d521a66aac3e">nvnTextureInitialize</a>(&amp;pNvnTextureData-&gt;m_Texture, &amp;m_TextureBuilder) == <a name="a41"></a><a class="code" href="group__nvn__c__defines.html#gad12fb86930f09043843be6b39c78bb1b">NVN_FALSE</a>)</div>
+<div class="line">    {</div>
+<div class="line">        pNvnTextureData-&gt;Finalize();</div>
+<div class="line">        <span class="keyword">delete</span> pNvnTextureData;</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize texture&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> NULL;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pNvnTextureData-&gt;m_TextureInitialized = <span class="keyword">true</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;UnlockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the sampler. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (<a name="a42"></a><a class="code" href="group__nvn__c__functions.html#ga5f3728966dc1ce72231c88bd3bca94ad">nvnSamplerInitialize</a>(&amp;pNvnTextureData-&gt;m_Sampler, &amp;m_SamplerBuilder) == <a class="code" href="group__nvn__c__defines.html#gad12fb86930f09043843be6b39c78bb1b">NVN_FALSE</a>)</div>
+<div class="line">    {</div>
+<div class="line">        pNvnTextureData-&gt;Finalize();</div>
+<div class="line">        <span class="keyword">delete</span> pNvnTextureData;</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize sampler&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> NULL;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pNvnTextureData-&gt;m_SamplerInitialized = <span class="keyword">true</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Register the texture/sampler and hold on to their IDs. */</span></div>
+<div class="line">    pNvnTextureData-&gt;m_TextureID = m_pArg-&gt;GetTextureIDManager()-&gt;RegisterTexture(&amp;pNvnTextureData-&gt;m_Texture);</div>
+<div class="line">    pNvnTextureData-&gt;m_SamplerID = m_pArg-&gt;GetTextureIDManager()-&gt;RegisterSampler(&amp;pNvnTextureData-&gt;m_Sampler);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab the combined texture handle. */</span></div>
+<div class="line">    pNvnTextureData-&gt;m_TextureHandle = <a name="a43"></a><a class="code" href="group__nvn__c__functions.html#ga0ca6fe7fc102170723f5eccb14a25046">nvnDeviceGetTextureHandle</a>(m_pArg-&gt;GetDevice(), pNvnTextureData-&gt;m_TextureID, pNvnTextureData-&gt;m_SamplerID);</div>
+<div class="line">    <span class="keywordflow">if</span> (!pNvnTextureData-&gt;m_TextureHandle)</div>
+<div class="line">    {</div>
+<div class="line">        pNvnTextureData-&gt;Finalize();</div>
+<div class="line">        <span class="keyword">delete</span> pNvnTextureData;</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to get handle to texture&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span> NULL;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">return</span> pNvnTextureData;</div>
+<div class="line">}<span class="comment">//NOLINT(impl/function_size)</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::LoadModels</span></div>
+<div class="line"><span class="comment"> * -----------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Grabs the model block header and loads the model data</span></div>
+<div class="line"><span class="comment"> * at the specified offsets.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> MultiThreadedAssetFileLoadingHelper::LoadModels(<span class="keyword">const</span> <span class="keywordtype">char</span>* pModelBlockHead)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pModelBlockHead != NULL, <span class="stringliteral">&quot;Model block header pointer NULL&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    uint32_t pNumModels = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pModelBlockHead);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> uint64_t* pModelOffsets = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint64_t*<span class="keyword">&gt;</span>(pModelBlockHead + <span class="keyword">sizeof</span>(uint32_t) * 2);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; pNumModels; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        NVNModelData* pModelData = LoadModelData(m_pFileHead + pModelOffsets[i]);</div>
+<div class="line">        m_pDataHolder-&gt;AddModelData(pModelData);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::LoadModelData</span></div>
+<div class="line"><span class="comment"> * --------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Loads in the model vertex attributes and index buffer as well</span></div>
+<div class="line"><span class="comment"> * as some data describing the model.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">NVNModelData* MultiThreadedAssetFileLoadingHelper::LoadModelData(<span class="keyword">const</span> <span class="keywordtype">char</span>* pModelHead)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pModelHead != NULL, <span class="stringliteral">&quot;Model data pointer NULL&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* Grab the model&#39;s metadata. */</span></div>
+<div class="line">    uint32_t            currentDataEntryOffset = 0;</div>
+<div class="line">    uint32_t            numPrimitives           = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pModelHead + currentDataEntryOffset);              currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    <a class="code" href="group__nvn__c__enum.html#gab22437710b6816a67a1263d0087ded72">NVNdrawPrimitive</a>    nvnDrawPrimitiveType    = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span><a class="code" href="group__nvn__c__enum.html#gab22437710b6816a67a1263d0087ded72">NVNdrawPrimitive</a>*<span class="keyword">&gt;</span>(pModelHead + currentDataEntryOffset);      currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint32_t            numVertexAttributes     = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pModelHead + currentDataEntryOffset);              currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint32_t            modelNameLength         = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pModelHead + currentDataEntryOffset);              currentDataEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint64_t            indexBufferOffset       = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint64_t*<span class="keyword">&gt;</span>(pModelHead + currentDataEntryOffset);              currentDataEntryOffset += <span class="keyword">sizeof</span>(uint64_t);</div>
+<div class="line">    <span class="keyword">const</span> uint64_t*     pVertexAttributeOffsets = <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint64_t*<span class="keyword">&gt;</span>(pModelHead + currentDataEntryOffset);               currentDataEntryOffset += <span class="keyword">sizeof</span>(uint64_t) * numVertexAttributes;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>*         pModelName              = pModelHead + currentDataEntryOffset;                                                  currentDataEntryOffset += <span class="keyword">sizeof</span>(char) * modelNameLength;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(modelNameLength == 0 ||</div>
+<div class="line">       pModelName == NULL ||</div>
+<div class="line">       !numPrimitives ||</div>
+<div class="line">       nvnDrawPrimitiveType &gt; <a name="a44"></a><a class="code" href="group__nvn__c__enum.html#ggab22437710b6816a67a1263d0087ded72a7c5c040a874eb7f85eb65e4b2f979b98">NVN_DRAW_PRIMITIVE_PATCHES</a> ||</div>
+<div class="line">       !numVertexAttributes ||</div>
+<div class="line">       pVertexAttributeOffsets == NULL ||</div>
+<div class="line">       !indexBufferOffset)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to read model data&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    NVNModelData* pModelData = <span class="keyword">new</span> NVNModelData;</div>
+<div class="line">    pModelData-&gt;Initialize();</div>
+<div class="line">    pModelData-&gt;SetName(pModelName, modelNameLength);</div>
+<div class="line"></div>
+<div class="line">    Model* pModel = &amp;pModelData-&gt;m_Model;</div>
+<div class="line">    pModel-&gt;m_NumVertexAttributes = numVertexAttributes;</div>
+<div class="line">    pModel-&gt;m_NumPrimitives = numPrimitives;</div>
+<div class="line">    pModel-&gt;m_NvnDrawPrimitiveType = nvnDrawPrimitiveType;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab the data for the individual vertex attributes. */</span></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; numVertexAttributes; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        VertexAttributeHeader header;</div>
+<div class="line">        <span class="keywordtype">char</span>* pAttributeHeader = m_pFileHead + pVertexAttributeOffsets[i];</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pAttributeHeader);</div>
+<div class="line"></div>
+<div class="line">        uint32_t currVertexEntryOffset = 0;</div>
+<div class="line"></div>
+<div class="line">        header.m_AttributeStride        = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pAttributeHeader + currVertexEntryOffset);     currVertexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        header.m_NvnFormat              = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pAttributeHeader + currVertexEntryOffset);     currVertexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        header.m_AttributeDataSize      = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pAttributeHeader + currVertexEntryOffset);     currVertexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        header.m_AttributeNameLength    = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pAttributeHeader + currVertexEntryOffset);     currVertexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        header.m_AttributeDataOffset    = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pAttributeHeader + currVertexEntryOffset);     currVertexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        header.m_MagicPadding           = *<span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>uint32_t*<span class="keyword">&gt;</span>(pAttributeHeader + currVertexEntryOffset);     currVertexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">        header.m_pAttributeName         = pAttributeHeader + currVertexEntryOffset;                                         currVertexEntryOffset += <span class="keyword">sizeof</span>(char) * header.m_AttributeNameLength;</div>
+<div class="line">        header.m_AttributeData          = m_pFileHead + header.m_AttributeDataOffset;</div>
+<div class="line"></div>
+<div class="line">        pModelData-&gt;AddVertexAttribute(header);</div>
+<div class="line">        pModelData-&gt;m_VertexBufferSize += header.m_AttributeDataSize;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab the index buffer data. */</span></div>
+<div class="line">    <span class="keywordtype">char</span>* pIndexBufferHead = m_pFileHead + indexBufferOffset;</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pIndexBufferHead);</div>
+<div class="line"></div>
+<div class="line">    uint32_t currIndexEntryOffset = 0;</div>
+<div class="line"></div>
+<div class="line">    uint32_t indexBufferSize    = *<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(pIndexBufferHead + currIndexEntryOffset);     currIndexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint32_t numIndices         = *<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(pIndexBufferHead + currIndexEntryOffset);     currIndexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    uint32_t indexType          = *<span class="keyword">reinterpret_cast&lt;</span>uint32_t*<span class="keyword">&gt;</span>(pIndexBufferHead + currIndexEntryOffset);     currIndexEntryOffset += <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">    currIndexEntryOffset        += <span class="keyword">sizeof</span>(uint32_t); <span class="comment">/* Account for padding in struct */</span></div>
+<div class="line">    <span class="keywordtype">void</span>*    pIndexData         = (pIndexBufferHead + currIndexEntryOffset);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(!indexBufferSize     ||</div>
+<div class="line">       !numIndices          ||</div>
+<div class="line">       pIndexData == NULL)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to read index buffer data&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Align the index buffer according to its type. */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> memoryPoolSize = pModelData-&gt;m_VertexBufferSize;</div>
+<div class="line">    uint32_t indexBufferAlignment = 0;</div>
+<div class="line">    <span class="keywordflow">switch</span>((<a class="code" href="group__nvn__c__enum.html#gaaf90e0c2dbdc1e42db8192f0c0cb1522">NVNindexType</a>)indexType)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a45"></a><a class="code" href="group__nvn__c__enum.html#ggaaf90e0c2dbdc1e42db8192f0c0cb1522a9d49b4695541469d3ecbadeac29c98b8">NVN_INDEX_TYPE_UNSIGNED_BYTE</a>:</div>
+<div class="line">            indexBufferAlignment = <span class="keyword">sizeof</span>(uint8_t);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a46"></a><a class="code" href="group__nvn__c__enum.html#ggaaf90e0c2dbdc1e42db8192f0c0cb1522a01b3069396b6d9c7ca2f6c7579627e32">NVN_INDEX_TYPE_UNSIGNED_SHORT</a>:</div>
+<div class="line">            indexBufferAlignment = <span class="keyword">sizeof</span>(uint16_t);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a47"></a><a class="code" href="group__nvn__c__enum.html#ggaaf90e0c2dbdc1e42db8192f0c0cb1522aedbe4967c83f6b7f1b800e51bc7f3ab6">NVN_INDEX_TYPE_UNSIGNED_INT</a>:</div>
+<div class="line">            indexBufferAlignment = <span class="keyword">sizeof</span>(uint32_t);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <a name="a48"></a><a class="code" href="nn___macro_8h.html#abfe6f7c5f80ef52b7c0616042aba59b9">NN_UNEXPECTED_DEFAULT</a>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get the aligned pool size. */</span></div>
+<div class="line">    memoryPoolSize = Align(memoryPoolSize, indexBufferAlignment);</div>
+<div class="line">    <span class="keywordtype">size_t</span> indexBufferAlignedLocation = memoryPoolSize;</div>
+<div class="line">    memoryPoolSize += indexBufferSize;</div>
+<div class="line"></div>
+<div class="line">    pModel-&gt;m_IndexData.m_IndexType     = indexType;</div>
+<div class="line">    pModel-&gt;m_IndexData.m_DataSize      = indexBufferSize;</div>
+<div class="line">    pModel-&gt;m_IndexData.m_Stride        = indexBufferAlignment;</div>
+<div class="line">    pModel-&gt;m_IndexData.m_pData         = <span class="keyword">new</span> <span class="keywordtype">char</span>[indexBufferSize];</div>
+<div class="line"></div>
+<div class="line">    memcpy(pModel-&gt;m_IndexData.m_pData, pIndexData, indexBufferSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (memoryPoolSize &lt; g_MinimumPoolSize)</div>
+<div class="line">    {</div>
+<div class="line">        memoryPoolSize = g_MinimumPoolSize;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        memoryPoolSize = Align(memoryPoolSize, <a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;LockMemoryPoolMutex();</div>
+<div class="line">    <span class="keywordtype">char</span>* pModelDataBuffer = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(AlignedAllocate(memoryPoolSize, <a class="code" href="group__nvn__c__defines.html#gace820e752b400cf7aa36e9684a7f45cb">NVN_MEMORY_POOL_STORAGE_ALIGNMENT</a>));</div>
+<div class="line">    m_pArg-&gt;UnlockMemoryPoolMutex();</div>
+<div class="line">    memset(pModelDataBuffer, 0, memoryPoolSize);</div>
+<div class="line"></div>
+<div class="line">    uint32_t currentBufferOffset = 0;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Copy in the vertex data. */</span></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; pModel-&gt;m_VertexAttributes.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        memcpy(pModelDataBuffer + currentBufferOffset, pModel-&gt;m_VertexAttributes[i].m_pData, pModel-&gt;m_VertexAttributes[i].m_DataSize);</div>
+<div class="line">        pModelData-&gt;m_VertexAttributeBufferOffsets.push_back(currentBufferOffset);</div>
+<div class="line">        currentBufferOffset += pModel-&gt;m_VertexAttributes[i].m_DataSize;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Copy the index data. */</span></div>
+<div class="line">    memcpy(pModelDataBuffer + indexBufferAlignedLocation, pIndexData, indexBufferSize);</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">    m_pArg-&gt;LockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create a memory pool around the model data. */</span></div>
+<div class="line">    pModelData-&gt;m_BufferMemoryPool.Init(pModelDataBuffer,</div>
+<div class="line">                                        memoryPoolSize,</div>
+<div class="line">                                        <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654ae90d91fe770d2eb3e1476c404c003369">NVN_MEMORY_POOL_FLAGS_CPU_NO_ACCESS_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">                                        m_pArg-&gt;GetDevice());</div>
+<div class="line">    m_pArg-&gt;UnlockMemoryPoolMutex();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the vertex buffer from the memory pool at the correct offset. */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;m_BufferBuilder, pModelData-&gt;m_BufferMemoryPool.GetMemoryPool(), 0, pModelData-&gt;m_VertexBufferSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(&amp;pModelData-&gt;m_VertexBuffer, &amp;m_BufferBuilder))</div>
+<div class="line">    {</div>
+<div class="line">        pModelData-&gt;Finalize();</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize vertex buffer storage&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the index buffer from the memory pool at the correct offset. */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;m_BufferBuilder, pModelData-&gt;m_BufferMemoryPool.GetMemoryPool(), indexBufferAlignedLocation, indexBufferSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(&amp;pModelData-&gt;m_IndexBuffer, &amp;m_BufferBuilder))</div>
+<div class="line">    {</div>
+<div class="line">        pModelData-&gt;Finalize();</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize index buffer storage&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> pModelData;</div>
+<div class="line">}<span class="comment">//NOLINT(impl/function_size)</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * MultiThreadedAssetFileLoadingHelper::GetAssetFileDataHolder</span></div>
+<div class="line"><span class="comment"> * -----------------------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Gets the data holder associated with this loader.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">AssetFileDataHolder* MultiThreadedAssetFileLoadingHelper::GetAssetFileDataHolder()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_pDataHolder;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg Constructor</span></div>
+<div class="line"><span class="comment"> * --------------------------</span></div>
+<div class="line"><span class="comment"> * Constructor for the AssetLoaderArg class. Contains</span></div>
+<div class="line"><span class="comment"> * initilization data for the multi threaded loading</span></div>
+<div class="line"><span class="comment"> * helper class.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">AssetLoaderArg::AssetLoaderArg(<a name="_a49"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice,</div>
+<div class="line">                               <span class="keyword">const</span> <span class="keywordtype">char</span>* pConfigFileName,</div>
+<div class="line">                               <a name="_a50"></a><a class="code" href="structnn_1_1os_1_1_mutex_type.html">nn::os::MutexType</a>* pMemoryPoolMutex,</div>
+<div class="line">                               TextureIDManager* pTextureIDManager,</div>
+<div class="line">                               <span class="keywordtype">bool</span> useMipmaps,</div>
+<div class="line">                               <span class="keywordtype">bool</span> useCubemap)</div>
+<div class="line">                               :</div>
+<div class="line">                               m_pDevice(pDevice),</div>
+<div class="line">                               m_pMemoryPoolMutex(pMemoryPoolMutex),</div>
+<div class="line">                               m_pConfigFileName(pConfigFileName),</div>
+<div class="line">                               m_useMipmap(useMipmaps),</div>
+<div class="line">                               m_useCubeMap(useCubemap),</div>
+<div class="line">                               m_pTextureIDManager(pTextureIDManager)</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::GetDevice</span></div>
+<div class="line"><span class="comment"> * -------------------------</span></div>
+<div class="line"><span class="comment"> * Get a pointer to the nvn device.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* AssetLoaderArg::GetDevice()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_pDevice;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::GetTextureIDManager</span></div>
+<div class="line"><span class="comment"> * -----------------------------------</span></div>
+<div class="line"><span class="comment"> * Get a pointer to the texture id manager.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">TextureIDManager* AssetLoaderArg::GetTextureIDManager()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_pTextureIDManager;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::GetConfigFileName</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Get the asset&#39;s file name.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* AssetLoaderArg::GetConfigFileName()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_pConfigFileName;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::GetUseMipmaps</span></div>
+<div class="line"><span class="comment"> * -----------------------------</span></div>
+<div class="line"><span class="comment"> * Get whether to use mipmaps.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">bool</span> AssetLoaderArg::GetUseMipmaps()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_useMipmap;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::GetUseCubemap</span></div>
+<div class="line"><span class="comment"> * -----------------------------</span></div>
+<div class="line"><span class="comment"> * Get whether to use a cube map.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">bool</span> AssetLoaderArg::GetUseCubemap()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_useCubeMap;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::LockMemoryPoolMutex</span></div>
+<div class="line"><span class="comment"> * -----------------------------------</span></div>
+<div class="line"><span class="comment"> * Lock the memory pool mutex.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> AssetLoaderArg::LockMemoryPoolMutex()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a51"></a><a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(m_pMemoryPoolMutex);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * AssetLoaderArg::UnlockMemoryPoolMutex</span></div>
+<div class="line"><span class="comment"> * -------------------------------------</span></div>
+<div class="line"><span class="comment"> * Unlock the memory pool mutex.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> AssetLoaderArg::UnlockMemoryPoolMutex()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a52"></a><a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(m_pMemoryPoolMutex);</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

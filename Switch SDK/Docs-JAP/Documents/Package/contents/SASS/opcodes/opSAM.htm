@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SAM</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SAM : Set Active Mask<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Set Active Mask" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SAM", subsection => 13 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code></code>   <code><b>SAM</b></code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT2}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SAM" } -->
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Set active thread mask. Used for TXD emulation and any other special application
+that requires fully-populated quads.</p>
+<p>
+Pushes the current active mask onto the CRS stack, and then sets all
+individual threads in each <strong>quad</strong> to <em>active</em>.  This allows the registers from all threads in a quad
+to be shared via <b>SHFL</b>and participate in subsequent texture operations. </p>
+<p>
+The pushed active mask is restored via <b>RAM</b>.  See the <a href="opRAM.htm">RAM</a> description for details.</p>
+<p>
+<strong>NOTE:</strong>  <b>SAM</b> must be used with caution.  No control flow instructions, <em >except for BRA.U </em> (See BUG 841150),
+are allowed between a <b>SAM</b> instruction and the subsequent <b>RAM</b> instruction.
+Due to the way this instruction manipulates the current <em>active mask</em>, great care
+must be taken not to corrupt registers in threads that happen to be disabled at the time
+of the <b>SAM</b> instruction, e.g. divergent threads that will resume execution after
+a subsequent sync-up, and thus have live values in their registers. SAM/RAM should only
+be used by system code.  The code should be protected by IDE.DI and IDE.EN because any
+traps that occur between the SAM RAM section could corrupt the program state for the 
+promoted threads.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+     <b>SAM</b>;
+     <b>NOP</b>;
+     <b>RAM</b>;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

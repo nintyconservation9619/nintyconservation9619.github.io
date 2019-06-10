@@ -1,0 +1,468 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>画像転送モード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 画像転送モード -->
+<div class="pagetitle" id="PageId_112902380">画像転送モード</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_112902380_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_112902380_h1_2">画像転送モード</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902380_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902380_h2_2">設定項目</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_112902380_h3_1">拡張設定</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_112902380_h2_3">出力フォーマット</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_112902380_h1_3">画像転送モードの使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902380_h2_4">画像転送モードのサンプル</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_112902380_h1_4">画像サイズと転送時間の関係</a>
+    </li>
+    <li>
+      <a href="#Anchor_112902380_h1_5">画像トリミング機能</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_112902380_h1_1">はじめに</h1>
+<p>画像転送モードは、 モーションIRカメラで撮影した画像を低フレームレートで出力するモードです。</p>
+<h1 id="Anchor_112902380_h1_2">画像転送モード</h1>
+<h2 id="Anchor_112902380_h2_1">概要</h2>
+<p>モーションIRカメラは最大 QVGA サイズ(320x240 px) の画像を扱いますが、通信帯域の制限によってリアルタイムで画像取得することができません。<br />したがって、本モードはリアルタイム性が必要ない用途やデバッグ用途などで使用することを想定しています。</p>
+<p>なお、出力される画像の座標系については、「<a href="../Pages/Page_112902609.html#Anchor_112902609_IR センサーのデータ座標系">モーションIRカメラのデータ座標系</a>」を参照してください。</p>
+<h2 id="Anchor_112902380_h2_2">設定項目</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+      <th>定義域</th>
+    </tr>
+    <tr>
+      <td>format</td>
+      <td>転送する画像フォーマットを指定します。 決められたサイズの中から選択します。<br />サイズの小さい画像を設定した場合は、QVGAの生画像に対して、<br />binning処理( 周辺画素値を平均する)による圧縮を行った画像が出力されます。</td>
+      <td>QVGA</td>
+      <td>QVGA, QQVGA, QQQVGA</td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの設定値は <span class="ApiLink_nn__irsensor__ImageTransferProcessorConfig">nn::irsensor::ImageTransferProcessorConfig</span> 構造体のメンバとして持っています。 IRカメラの設定については、 <a href="../Pages/Page_112902609.html">共通機能</a> の項目をご覧ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">ImageTransferProcessorConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraConfig</span> <span class="n">irCameraConfig</span><span class="p">;</span>       <span class="c1">//!&lt; IRカメラの設定です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">ImageTransferProcessorFormat</span> <span class="n">format</span><span class="p">;</span> <span class="c1">//!&lt; 画像フォーマットです。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>こちらを、 <span class="ApiLink_nn__irsensor__RunImageTransferProcessor">nn::irsensor::RunImageTransferProcessor</span> 関数に渡すことで、指定した設定で画像転送モードを起動することができます。</p>
+<h3 id="Anchor_112902380_h3_1">拡張設定</h3>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NXAddon 4.1.0 以降の SDK では画像転送モードに拡張設定用の構造体と関数を追加しました。</p>
+  </div>
+</div>
+<p>既存の設定に加えて、画像トリミング機能、外部光フィルタ機能が使用可能となります。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+      <th>定義域</th>
+    </tr>
+    <tr>
+      <td>origFormat</td>
+      <td>取得する元画像フォーマットを指定します。 決められたサイズの中から選択します。<br />サイズの小さい画像を設定した場合は、QVGA(320x240) の生画像に対して、<br />binning処理( 周辺画素値を平均する)による圧縮を行った画像が取得されます。</td>
+      <td>320x240</td>
+      <td>320x240, 160x120, 80x60, 40x30, 20x15</td>
+    </tr>
+    <tr>
+      <td>trimmingFormat</td>
+      <td>
+        <p>取得された元画像をトリミングする画像フォーマットを指定します。 決められたサイズの中から選択します。<br />必ず origFormat のフォーマットサイズ以下の値を指定してください。</p>
+        <p>元画像を指定サイズで切り取った画像が出力されます。</p>
+      </td>
+      <td>320x240</td>
+      <td>320x240, 160x120, 80x60, 40x30, 20x15</td>
+    </tr>
+    <tr>
+      <td>trimmingStartX</td>
+      <td>トリミングを開始する元画像上でのX座標です。</td>
+      <td>0</td>
+      <td>0 以上、 (origFormat の幅 - trimmingFormat の幅) 以下</td>
+    </tr>
+    <tr>
+      <td>trimmingStartY</td>
+      <td>トリミングを開始する元画像上でのY座標です。</td>
+      <td>0</td>
+      <td>0 以上、 (origFormat の幅 - trimmingFormat の幅) 以下</td>
+    </tr>
+    <tr>
+      <td>isExternalLightFilterEnabled</td>
+      <td>
+        <p>外部光フィルタ機能の有効無効を設定します。</p>
+        <p>あえて外部光を検出対象としたい場合は、フィルタ機能を無効に設定してください。</p>
+        <p>詳細については、<a href="../Pages/Page_112902609.html#Anchor_112902609_モーションIRカメラの外部光フィルタ機能">共通機能</a> の「モーションIRカメラの外部光フィルタ機能」の項目を参照してください。</p>
+      </td>
+      <td>true</td>
+      <td>true/false</td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの設定値は <span class="ApiLink_nn__irsensor__ImageTransferProcessorExConfig">nn::irsensor::ImageTransferProcessorExConfig</span> 構造体のメンバとして持っています。 IRカメラの設定については、 <a href="../Pages/Page_112902609.html">共通機能</a> の項目をご覧ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">ImageTransferProcessorExConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraConfig</span> <span class="n">irCameraConfig</span><span class="p">;</span>               <span class="c1">//!&lt; IRカメラの設定です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">ImageTransferProcessorFormat</span> <span class="n">origFormat</span><span class="p">;</span>     <span class="c1">//!&lt; 切り取り元画像フォーマットです。出力画像フォーマットサイズ以上の領域を設定します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">ImageTransferProcessorFormat</span> <span class="n">trimmingFormat</span><span class="p">;</span> <span class="c1">//!&lt; 切り取った出力画像フォーマットです。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span> <span class="n">trimmingStartX</span><span class="p">;</span>                      <span class="c1">//!&lt; 切り取り元画像上での、切り取り開始点の X 座標です。ピクセル単位です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span> <span class="n">trimmingStartY</span><span class="p">;</span>                      <span class="c1">//!&lt; 切り取り元画像上での、切り取り開始点の Y 座標です。ピクセル単位です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">isExternalLightFilterEnabled</span><span class="p">;</span>           <span class="c1">//!&lt; 外部光フィルタ機能が有効かどうか。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>こちらを、 <span class="ApiLink_nn__irsensor__RunImageTransferProcessor">nn::irsensor::RunImageTransferProcessor</span> 関数に渡すことで、指定した拡張設定で画像転送モードを起動することができます。</p>
+<h2 id="Anchor_112902380_h2_3">出力フォーマット</h2>
+<p>画像転送モードの出力は以下のようなフォーマットです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>pOutState</td>
+      <td>画像出力用バッファです。 <br />指定したサイズの最新の画像が出力されます。</td>
+      <td>指定サイズの画像データ</td>
+    </tr>
+    <tr>
+      <td>samplingNumber</td>
+      <td>処理結果を受け取る度に増加する値です。</td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>ambientNoiseLevel</td>
+      <td>
+        <p>環境ノイズの状態です。</p>
+        <p>環境ノイズ(外部光)が多い場合はこの変数を見て、</p>
+        <p>例えばユーザへプレイ環境を変えるように案内する、</p>
+        <p>といったような通知をすることができます。</p>
+        <p>詳細については、<a href="../Pages/Page_112902609.html#Anchor_112902609_モーションIRカメラの外部光フィルタ機能">共通機能</a> の</p>
+        <p>「モーションIRカメラの外部光フィルタ機能」の項目を参照してください。</p>
+      </td>
+      <td>
+        <p>IrCameraAmbientNoiseLevel_Low/</p>
+        <p>IrCameraAmbientNoiseLevel_Middle/</p>
+        <p>IrCameraAmbientNoiseLevel_High /</p>
+        <p>IrCameraAmbientNoiseLevel_Unknown</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>基本的には、設定項目の format で設定したサイズの画像データと、その画像の状態データを出力します。<br />画像出力用バッファを除く、状態データは、 <span class="ApiLink_nn__irsensor__ImageTransferProcessorState">nn::irsensor::ImageTransferProcessorState</span> 構造体のメンバとして持っています。</p>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">ImageTransferProcessorState</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int64_t</span> <span class="n">samplingNumber</span><span class="p">;</span>                      <span class="c1">//!&lt; イメージ転送プロセッサから処理結果を得る度に増加する値です（0 以上）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel</span> <span class="n">ambientNoiseLevel</span><span class="p">;</span> <span class="c1">//!&lt; 検出した環境ノイズの状態です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PADDING4</span><span class="p">;</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの出力値は、<span class="ApiLink_nn__irsensor__GetImageTransferProcessorState">nn::irsensor::GetImageTransferProcessorState</span> 関数に画像データ保存用のバッファ、状態出力用のバッファを渡して呼び出すことで取得することができます。</p>
+<h1 id="Anchor_112902380_h1_3">画像転送モードの使用方法</h1>
+<p>画像転送モードは以下のような流れで使用します。</p>
+<ol>
+  <li>
+    <p>
+      <span class="ApiLink_nn__hid__NpadIdType">nn::hid::NpadIdType</span> を元に、<span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を取得し、モーションIRカメラを初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/irsensor.h&gt;
+</span>
+<span class="nn">nn::irsensor::</span><span class="n">IrCameraHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">GetIrCameraHandle</span><span class="p">(</span><span class="n">npadIdType</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>画像転送モードの初期設定を生成します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">ImageTransferProcessorConfig</span> <span class="n">config</span><span class="p">;</span>
+<span class="c1">// デフォルト設定値を取得 (個別に設定したいあ場合はユーザが直接設定しても構いません)
+</span><span class="nn">nn::irsensor::</span><span class="n">GetImageTransferProcessorDefaultConfig</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>転送する画像サイズに合わせて、画像転送の際に内部で使用するワークバッファを準備します。 <br />QVGA サイズの場合、ワークバッファについては、 <span class="ApiLink_nn__irsensor__ImageTransferProcessorQvgaWorkBufferSize">nn::irsensor::ImageTransferProcessorQvgaWorkBufferSize</span> の大きさで、<br /><span class="ApiLink_nn__os__MemoryPageSize">nn::os::MemoryPageSize</span> で 4kB アラインメントされたバッファを設定するようにします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// ここでは、ApplicationHeap から QVGA サイズのワークバッファを取得する例を示す。
+// application用の heap は適切なサイズで初期化されている状態とする。
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">workBuffer</span> <span class="o">=</span> <span class="n">applicationHeap</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="nn">nn::irsensor::</span><span class="n">ImageTransferProcessorQvgaWorkBufferSize</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MemoryPageSize</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>取得した <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> と設定値、ワークバッファ、またそのサイズを引数に指定して、&nbsp; <span class="ApiLink_nn__irsensor__RunImageTransferProcessor">nn::irsensor::RunImageTransferProcessor</span> 関数を呼び、キャプチャを開始します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">RunImageTransferProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">workBuffer</span><span class="p">,</span> <span class="nn">nn::irsensor::</span><span class="n">ImageTransferProcessorQvgaWorkBufferSize</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>状態出力用の <span class="ApiLink_nn__irsensor__ImageTransferProcessorState">nn::irsensor::ImageTransferProcessorState</span> のバッファと、転送する画像サイズに合わせた出力用のバッファを準備し、 <span class="ApiLink_nn__irsensor__GetImageTransferProcessorState">nn::irsensor::GetImageTransferProcessorState</span> 関数を呼びます。 <br />QVGA サイズの場合、出力用バッファには、<span class="ApiLink_nn__irsensor__ImageTransferProcessorQvgaImageSize">nn::irsensor::ImageTransferProcessorQvgaImageSize</span> の大きさを確保する必要があります。<br />こちら、呼び出した時点の最新の処理結果を取得しますが、QVGA サイズの場合、コントローラの BT 転送の都合上最速でも約 4s 間隔での更新になるため、<br />これを踏まえた適切な間隔を設定し、ポーリング方式で使用することを推奨します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">ImageTransferProcessorState</span> <span class="n">state</span><span class="p">;</span>
+<span class="c1">// ここでは、ApplicationHeap から QVGA サイズの出力用バッファを取得する例を示す。
+// application 用の heap は適切なサイズで初期化されている状態とする。
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">imageBuffer</span> <span class="o">=</span> <span class="n">applicationHeap</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="nn">nn::irsensor::</span><span class="n">ImageTransferProcessorQvgaImageSize</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MemoryPageSize</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">GetImageTransferProcessorState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="n">imageBuffer</span><span class="p">,</span> <span class="nn">nn::irsensor::</span><span class="n">ImageTransferProcessorQvgaImageSize</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>停止したい <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、 <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を呼び、画像転送モードを停止します。 <br />この処理が終わると、　<span class="ApiLink_nn__irsensor__RunImageTransferProcessor">nn::irsensor::RunImageTransferProcessor</span> で指定したワークバッファが解放されます。<br />その後、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を呼び、 モーションIRカメラを終了します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">StopImageProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Finalize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="Anchor_112902380_h2_4">画像転送モードのサンプル</h2>
+    <p>画像転送モードの挙動を確認したい場合は、 Samples\Sources\Applications\IrSensorViewer に配置されているサンプルを参照してください。</p>
+  </li>
+</ol>
+<h1 id="Anchor_112902380_h1_4">画像サイズと転送時間の関係</h1>
+<p>前述のように、コントローラの BT 転送の都合上、ゲームフレームに同期するようなリアルタイムな転送をすることはできませんが、<br />転送する画像サイズの大きさを変えることで、それに比例する形で転送時間を速くすることができます。<br />以下に、パケットロスがない理想的な環境においての転送時間の目安を示します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>40x30, 20x15 サイズの設定は、NXAddon 4.1.0 以降の SDK で設定可能となります。</p>
+  </div>
+</div>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>画像サイズ</th>
+      <th>転送時間 (理想)</th>
+    </tr>
+    <tr>
+      <td>QVGA(320x240)</td>
+      <td>約 4 s</td>
+    </tr>
+    <tr>
+      <td>QQVGA(160x120)</td>
+      <td>約 1 s</td>
+    </tr>
+    <tr>
+      <td>QQQVGA(80x60)</td>
+      <td>約 250 ms</td>
+    </tr>
+    <tr>
+      <td>40x30</td>
+      <td>約 60 ms</td>
+    </tr>
+    <tr>
+      <td>20x15</td>
+      <td>約 15 ms</td>
+    </tr>
+  </tbody>
+</table>
+<p>一方、無線環境などによって、パケットロスが発生するような状態では、それに伴い転送時間も遅くなりますので、ご注意ください。</p>
+<h1 id="Anchor_112902380_h1_5">画像トリミング機能</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>画像トリミング機能は、NXAddon 4.1.0 以降の SDK で使用可能となります。</p>
+  </div>
+</div>
+<p>カメラ画角の一部分だけを切り抜いて使用したい場合、切り取り元サイズ、出力サイズと切り取り開始座標を指定することで、システム側で切り取り処理をすることができます。</p>
+<p>160x120 サイズの元画像から、 80x60 サイズの画像を、 (60x30) 地点から切り取る場合、以下のようなイメージとなります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902380/249520354.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <br />
+</p>
+<p>切り取りに指定できるサイズ設定は限定されますが、アプリ側で切り取り処理を行う場合に比べて、高速に切り取り画像を取得できます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__irsensor__ImageTransferProcessorConfig', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_image_transfer_processor_config.html' )
+SetUrl( 'ApiLink_nn__irsensor__RunImageTransferProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a36475abbe9c4d0f67093bcb652f2f27b' )
+SetUrl( 'ApiLink_nn__irsensor__ImageTransferProcessorExConfig', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_image_transfer_processor_ex_config.html' )
+SetUrl( 'ApiLink_nn__irsensor__ImageTransferProcessorState', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_image_transfer_processor_state.html' )
+SetUrl( 'ApiLink_nn__irsensor__GetImageTransferProcessorState', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#aa8e5d943258b76d2e90837bd319fa023' )
+SetUrl( 'ApiLink_nn__hid__NpadIdType', '../../../Api/HtmlNX/namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraHandle', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_handle.html' )
+// ApiLink_nn__irsensor__ImageTransferProcessorQvgaWorkBufferSize
+SetUrl( 'ApiLink_nn__os__MemoryPageSize', '../../../Api/HtmlNX/namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236' )
+// ApiLink_nn__irsensor__ImageTransferProcessorQvgaImageSize
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3052171f2c63aafc0e4a164366ae22d7' )
+SetUrl( 'ApiLink_nn__irsensor__Finalize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6265f5c6e6d6fc0e67fc6882a8945284' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

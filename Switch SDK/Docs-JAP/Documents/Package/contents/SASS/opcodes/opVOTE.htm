@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VOTE</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VOTE : Vote Across SIMD Thread Group<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Vote Across SIMD Thread Group" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VOTE", subsection => 14 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VOTE</b>.op</code>       <code>{Rd,} Pu,{!}Pp</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   <code>// vote</code>                       </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VOTE" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>VOTE</b>.VTG.R</code>    <code>#ImmU28</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   <code>// CSM reset</code>                  </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VOTE" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VOTE</b>.VTG.A</code>    <code>#ImmU28</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   <code>// CSM accumulate</code>             </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VOTE" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VOTE</b>.VTG.RA</code>   <code>#ImmU28</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   <code>// CSM reset and accumulate</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VOTE" } -->
+
+ .op:      { <b>.ALL, .ANY, .EQ</b> } 
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+The VOTE instruction performs a reduce-and-broadcast of a predicate over all
+active threads in a warp (not across multiple warps, e.g. a CTA).</p>
+<p>
+The result of the vote operation is shared across all active threads in 
+the warp.</p>
+<p>
+Three voting operations (.op) are supported:</p>
+<pre>
+  .ALL:       
+          The source predicate, {!}Pp, must be (TRUE for all active threads) to yield TRUE, else FALSE.
+             - complementing the source predicate yields NONE.
+  .ANY:
+          The source predicate, {!}Pp, must be (TRUE for at least one active thread) to yield TRUE, else FALSE. 
+            - complementing the source predicate yields NOT_ALL.
+  .EQ: 
+          The source predicate, {!}Pp, must be equal across all active threads, either all TRUE or all 
+          FALSE to yield TRUE, else FALSE.
+            - complementing the source predicate yields an identical result.
+</pre>
+
+<p>
+If Rd is specified, the destination register is written with a 32-bit result (subsequently 
+referred to as the <em>ballot</em>), which contains the values of the source predicates produced 
+by each thread of the warp.  Bit <em>i</em> of the ballot is equal to ({!}Pp &amp; {!}Pg) of thread <em>i</em> in 
+the warp.  A thread that is inactive (e.g., due to divergence) contributes a 0 for its entry in the ballot.
+An unspecified Rd is assembled as RZ.</p>
+
+<p>
+<b>VOTE</b>.VTG is used to generate clip status for VTG shaders. In this mode, up to 7 predicates
+are serially collapsed into the warp's clip state machine (CSM), with state considered as a qualification
+specified in the immediate.  </p>
+
+</div>
+
+
+<h3>Additional Notes</h3>
+
+<h4>VOTE notes:</h4>
+<p>
+The predicate result produced by VOTE.{ANY,ALL,EQ} produces its result excluding inactive and 
+non-predicated threads, i.e., if some threads are inactive or predicated off, VOTE.ALL can be true even 
+if the ballot is non-zero and VOTE.EQ can be true if the ballot result is not all ones or zeros.  For more
+information, please see the pseudo-code below.</p>
+
+<h4><a name="VOTE_VTG_additionalInfo"></a>VOTE.VTG Notes:</h4>
+<p>
+Each predicate has a 4b index associated with it, making up the #ImmU28 field. This specifies
+whether each predicate is to be allowed to VOTE.</p>
+<pre>
+   P6[27:24] - 4b index
+   P5[23:20] - 4b index
+   P4[19:16] - 4b index
+   P3[15:12] - 4b index
+   P2[11:08] - 4b index
+   P1[07:04] - 4b index
+   P0[03:00] - 4b index
+</pre>
+
+<p>
+The 4b index mapping is as follows:</p>
+<pre>
+   0000: Predicate is disabled for VOTE
+   0001: If (State.cull.xy), predicate is enabled for VOTE
+   0010: If (State.cull.znear),  predicate is enabled for VOTE
+   0011: If (State.cull.zfar),  predicate is enabled for VOTE
+   0100: If (State.cull.w),  predicate is enabled for VOTE
+   0101: illegal (Predicate is disabled for VOTE)
+   0110: illegal (Predicate is disabled for VOTE)
+   0111: If (State.ucp0), predicate is enabled for VOTE
+   1000: If (State.ucp1), predicate is enabled for VOTE
+   1001: If (State.ucp2), predicate is enabled for VOTE
+   1010: If (State.ucp3), predicate is enabled for VOTE
+   1011: If (State.ucp4), predicate is enabled for VOTE
+   1100: If (State.ucp5), predicate is enabled for VOTE
+   1101: If (State.ucp6), predicate is enabled for VOTE
+   1110: If (State.ucp7), predicate is enabled for VOTE
+   1111: Predicate is enabled for VOTE
+</pre>
+
+<h4>Geometric Clip/Cull:</h4>
+
+<pre>
+  Clip: slice primitive by clip plane, keep portion of primitive inside clip plane
+  Cull: keep or discard entire primitive based on intersection of plane
+    ----------------------------------------------------
+      Geometric Status        Clip            Cull
+    ----------------------------------------------------
+      TRIVIAL_REJECT         discard        discard
+      TRIVIAL_ACCEPT          keep            keep
+      MIXED              clip primitive       keep 
+    ----------------------------------------------------
+  The SM is capable of generating clip/cull status based on vertex/plane calculations. As such, there
+  really is no distinction between clip and cull in the SM. The PE however, does distinguish.
+  
+  Clip/Cull mode table:
+    ------------------------------------------------------------------
+       GeometryClip
+       Class Method      State.cull.xy   State.cull.z   State.cull.w
+    ------------------------------------------------------------------
+    WZERO_CLIP (non nv50)   yes              yes            yes        // clip to w=0, cull according to State
+    PASSTHRU                no               no             no         // no clip    , cull according to State
+    FRUSTUM_XY_CLIP         yes              no             yes        // clip to xy,  cull according to State
+    FRUSTUM_XYZ_CLIP        yes              yes            yes        // clip to xyz, cull according to State
+    WZERO_CLIP_NO_Z_CULL    yes              no             yes        // clip to w=0, cull according to State
+    FRUSTUM_Z_CLIP          yes              yes            yes        // clip to z,   cull according to State
+    ------------------------------------------------------------------
+</pre>
+
+<p>
+If VTG.R or VTG.RA is specified, the CSM is first reset to UNINIT status.</p>
+<p>
+If VTG.A or VTG.RA is specified:</p>
+<pre>
+  For each of the <b>VOTE</b> enabled predicates (from P0-P6) specified, the following is done:
+   (1) Each active thread of the warp contributes its version of the predicate
+   (2) A 2b status is generated:
+          INSIDE:  All active threads have source predicate FALSE.
+          OUTSIDE: All active threads have source predicate TRUE.
+          MIXED:   If neither of the above.
+   (3) The 2b status updates the CSM. 
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+     <b>VOTE.ALL</b>    P2,!P4;
+     <b>VOTE.EQ</b>     P2,P4;
+@!P2 <b>VOTE.ANY</b>    P2,P4;
+     <b>VOTE.VTG.A</b>  0x0003ffff;        // first 6 predicates VOTE
+     <b>VOTE.ANY</b>    R1, P1, !P3;       // Store the ballot in R1, P1 true if ballot is non-zero
+     <b>VOTE.ANY</b>    R1, PT, !P3;       // Store the ballot in R1, discard the VOTE.ANY result
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

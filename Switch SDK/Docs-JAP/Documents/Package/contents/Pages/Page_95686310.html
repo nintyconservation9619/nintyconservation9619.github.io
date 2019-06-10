@@ -1,0 +1,1105 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NX 環境向け NintendoWare グラフィックスガイド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NX 環境向け NintendoWare グラフィックスガイド -->
+<div class="pagetitle" id="PageId_95686310">NX 環境向け NintendoWare グラフィックスガイド</div>
+<div class="text_separate">
+<p>NX 向けにアプリケーションを開発される方向けの情報を記載します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_95686310_h1_1">動作環境</a>
+    </li>
+    <li>
+      <a href="#Anchor_95686310_h1_2">プログラマ向け</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_95686310_h2_1">メモリープールへのバイナリー配置について</a>
+      </li>
+      <li>
+        <a href="#Anchor_95686310_h2_2">リソース初期化の方法の違いによる初期化時間の違い</a>
+      </li>
+      <li>
+        <a href="#Anchor_95686310_h2_3">シェーダーのスクラッチメモリー</a>
+      </li>
+      <li>
+        <a href="#Anchor_95686310_h2_4">バイナリーコンバーター</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_95686310_h1_3">3D プラグインツール</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_95686310_h2_5">Maya プラグイン、3dsMax プラグイン</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_95686310_h1_4">3D コマンドラインツール</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_95686310_h2_6">中間ファイルオプティマイザー</a>
+      </li>
+      <li>
+        <a href="#Anchor_95686310_h2_7">3D シェーダーコンバーター</a>
+      </li>
+      <li>
+        <a href="#Anchor_95686310_h2_8">3D テクスチャーコンバーター</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_95686310_h1_5">Ui2d を利用する際の注意点</a>
+    </li>
+    <li>
+      <a href="#Anchor_95686310_h1_6">Font を利用する際の注意点</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_95686310_h2_9">NX 本体内蔵フォントを font ライブラリで使用する方法</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_95686310_h1_7">Vfx を利用する際の注意点</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_95686310_h1_1">動作環境</h1>
+<p>NX環境向け NintendoWare グラフィックスモジュール では、Windows OpenGL ランタイムに追加される形で以下２つのランタイムが追加されます。</p>
+<ul>
+  <li>NX 実機 ランタイム</li>
+  <li>Windows NVN ランタイム</li>
+</ul>
+<p>どちらのランタイムも NVN API を利用してグラフィックス描画を行います。<br />NVN ランタイムは、NX向けグラフィックスAPI で、NX 実機、 Windows ２つのプラットフォームで動作します。</p>
+<h3 id="Anchor_95686310_h3_1">Windows 環境における低レベルグラフィックス API の選択</h3>
+<p>現在、Windows 環境では 低レベルグラフィックス API として OpenGL または&nbsp;NVN API を使って動作させることができます。OpenGL については NintendoSDK 動作環境 で要求されるビデオカードとドライババージョンを満たしている限り、多くの環境で動作させることができる一方、NVN API については 対応する GPU 上でのみ動作させることができます。低レベルグラフィックス API の選択方法については&nbsp;<a href="../Pages/Page_83956178.html">低レベルグラフィックス API の選択</a> を参照してください。デフォルトでは、NX 向けビルドのときに NVN、特定の環境向けでないビルドのときに OpenGL が選択されます。<br />大半の機能は、gfx ライブラリが抽象化するため、低レベル API が NVN でも OpenGL でも同じコードで利用することができます。&nbsp;<br />Windows 環境で NVN API を使うことの1つの利点として、NVN API は OpenGL に比べてハードウェアに対してより抽象度が低く設計されており、より高速に動作するという点があります。一例として、同一マテリアルオブジェクトを 2048個 描画するシーンでは、OpenGL と比較して CPU 処理比で 約10 倍高速に動作します。<br />もう1つの利点は、低レベル API に NX 実機と同じ NVN を利用することで、より実機に近い動作モデルによる挙動を Windows上でエミュレーションできるということです。これにより、NX実機で動かした際に初めて起こる問題を減らすことが可能です。<br />また、最適化や NX 固有の表現や制御のために、NintendoWare や gfx ライブラリの NX 専用機能や NVN API を直接呼び出す際にも、同じコードを PC 上でもそのまま使うことが可能です。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th colspan="2">
+        <p>同一マテリアルオブジェクトを 2048個 描画した際の CPU処理コスト</p>
+        <p>( CPU : Intel(R) Xeon(R) CPU-E5-1620 v3 @ 3.5Ghz )</p>
+      </th>
+    </tr>
+    <tr>
+      <td>OpenGL</td>
+      <td>0.9 msec</td>
+    </tr>
+    <tr>
+      <td>NVN API</td>
+      <td>0.08 msec</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_97640247.html">動作環境</a>
+      </th>
+      <td>
+        <p>Windows OpenGL ランタイムを動作させるための動作環境説明があります。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_87937845.html">NVN ライブラリ</a>
+      </th>
+      <td>
+        <p>NVN APIドキュメントへのリンクです。</p>
+        <p>Windows上で NVN API を動作させるために必要なビデオカード、ドライバの情報があります。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_95686310_h1_2">プログラマ向け</h1>
+<p>NX アプリケーションを開発される場合のプログラマ向け補足情報です。<a href="../Pages/Page_95684546.html"> <br />NX 環境向け GFX ガイド</a> こちらにもNX向け情報が記載されていますので、あわせて参照してください。</p>
+<h2 id="Anchor_95686310_h2_1">メモリープールへのバイナリー配置について</h2>
+<p>NX版は、テクスチャーや頂点データ、シェーダーバイナリー は、同じメモリープールに配置することが可能です。</p>
+<h2 id="Anchor_95686310_h2_2">リソース初期化の方法の違いによる初期化時間の違い</h2>
+<p>g3d ではリソースの初期化方法として初期化時に内部でメモリープールを作成する方法と外部からメモリープールを渡してもらう方法を提供しています。初期化方法に対応した <span class="ApiLink_nn__g3d__ResFile__Setup">nn::g3d::ResFile::Setup</span>() および <span class="ApiLink_nn__g3d__ResShaderArchive__Setup">nn::g3d::ResShaderArchive::Setup</span>() を呼び出すことによって、初期化方法を選択可能です。外部からメモリープールを渡してもらい、初期化する方法が高速です。以下に初期化時間の参考値を示します。</p>
+<p>対象 bfres ファイル ( リソースファイル ) : bg_WhiteTown.bfres <br />G3dDemo の Townデモ の街並みのモデル。サイズは約 13.5 MB</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>初期化方法</th>
+      <th>初期化時間</th>
+    </tr>
+    <tr>
+      <td>内部でメモリープール作成</td>
+      <td>約 2000 usec</td>
+    </tr>
+    <tr>
+      <td>外部からメモリープール渡し</td>
+      <td>約 140 usec</td>
+    </tr>
+  </tbody>
+</table>
+<p>対象 bfsha ファイル ( シェーダーアーカイブファイル ) : demo.bfsha<br />G3dDemo のシェーダーアーカイブ。内部にシェーディングモデルを 3 つ持ちます。<br />バリエーション数は各シェーディングモデルごとに以下のようになっています。<br />basic&nbsp; : 1536<br />legacy : 1536<br />env&nbsp;&nbsp;&nbsp; : 1</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>初期化方法</th>
+      <th>初期化時間</th>
+    </tr>
+    <tr>
+      <td>内部でメモリープール作成</td>
+      <td>約 2000 usec</td>
+    </tr>
+    <tr>
+      <td>外部からメモリープール渡し</td>
+      <td>約 650 usec</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_95686310_h2_3">シェーダーのスクラッチメモリー</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>モジュール</th>
+      <th>
+        <br />
+      </th>
+    </tr>
+    <tr>
+      <td>G3d</td>
+      <td>ユーザー側で記述するシェーダーコードに依存します。</td>
+    </tr>
+    <tr>
+      <td>Ui2d / Font</td>
+      <td>シェーダースクラッチメモリーを必要としません。</td>
+    </tr>
+    <tr>
+      <td>Vfx</td>
+      <td>標準のシェーダーに関してはシェーダースクラッチメモリーを必要としませんが、<br />カスタムシェーダーを利用してユーザー側で記述されるシェーダーによっては必要になるケースが発生します。<br /><span class="ApiLink_nn__vfx__Resource__GetResShaderFile">nn::vfx::Resource::GetResShaderFile</span> にて取得できる <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> からシェーダースクラッチメモリーを必要としているか確認できます。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_95686310_h2_4">バイナリーコンバーター</h2>
+<p>NX 向けにバイナリーを出力する際に指定するコマンドラインオプションについて説明します。<br />3D / Ui2d / Font / Vfx それぞれで指定するコンバーターオプションは、各コンバーターが呼び出すツールのコンバーターオプションに準拠します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th rowspan="2">
+        <br />
+      </th>
+      <td class="highlight-grey" colspan="2" style="text-align: center;">
+        <strong>ShaderConverter </strong>
+      </td>
+      <td class="highlight-grey" style="text-align: center;">
+        <strong>3dTextureConverter </strong>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">--api-type</th>
+      <th style="text-align: center;">--code-type</th>
+      <th style="text-align: center;">--tile-mode</th>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; NX64</th>
+      <td style="text-align: center;">
+        <strong>Nvn</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>Binary</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>NX</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; x64</th>
+      <td style="text-align: center;">
+        <strong>Nvn</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>Binary_Ir</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>NX</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版 NX32</th>
+      <td style="text-align: center;">
+        <strong>Nvn</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>Binary</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>NX</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版 Win32</th>
+      <td style="text-align: center;">
+        <strong>Nvn</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>Binary_Ir</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>NX</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>Windows版 x64</th>
+      <td style="text-align: center;">
+        <strong>Gl</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>Binary_Source</strong> or <strong>Source</strong></td>
+      <td style="text-align: center;">
+        <strong>linear</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>Windows版 Win32</th>
+      <td style="text-align: center;">
+        <strong>Gl</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>Binary_Source</strong> or <strong>Source</strong></td>
+      <td style="text-align: center;">
+        <strong>linear</strong>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各コンバーターで設定が必要となるコンバーターオプションが異なります。<br />EffectMaker内部では、ShaderConverter と 3dTextureConverter&nbsp;それぞれを呼び出す為、それぞれに渡すコンバーターオプションを指定します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th style="text-align: center;">--api-type</th>
+      <th style="text-align: center;">--code-type</th>
+      <th style="text-align: center;">--tile-mode</th>
+    </tr>
+    <tr>
+      <th>3dShaderConverter</th>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+      <td style="text-align: center;">指定しない</td>
+    </tr>
+    <tr>
+      <th>LayoutConverter</th>
+      <td style="text-align: center;">指定しない</td>
+      <td style="text-align: center;">指定しない</td>
+      <td style="text-align: center;">指定しない</td>
+    </tr>
+    <tr>
+      <th>LayoutArchiver</th>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>FontConverterConsole</th>
+      <td style="text-align: center;">指定しない</td>
+      <td style="text-align: center;">指定しない</td>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+    </tr>
+    <tr>
+      <th>EffectMaker</th>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+      <td style="text-align: center;">
+        <strong>指定する</strong>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <ul>
+      <li>NX版 向けバイナリーコンバート時に指定する --code-type にて、<strong>Binary_Ir</strong> を指定することで、NX 実機 と NX Windows どちらでも動作するシェーダーバイナリーの生成が可能ですが、全体のバイナリーサイズが Ir 分 増加します。</li>
+      <li>Windows版 向けバイナリーコンバート時に指定する --code-type にて、<strong>Binary_Source</strong> を指定することでリソース読み込み時のシェーダーコンパイル時間の短縮が可能ですが、バイナリー生成を行うPC環境の ビデオカードやグラフィックスドライバへの依存が発生します。</li>
+      <li>3dShaderConverter については --api-type Gl を指定する時のみ実行環境のビット数に合った exe を使用して下さい。シェーダープログラムロード時のワーニング発生を抑止できます。</li>
+    </ul>
+  </div>
+</div>
+<h3 id="Anchor_95686310_h3_2">旧来の -p を利用して指定する場合</h3>
+<p>NintendoSDK 0.10.0 以前の、LayoutConverter、LayoutArchiver、FontConverterConsole、EffectMaker では、コンバーターオプション -p がサポートされていましたが、将来的に廃止が予定されていますので、「Gfx コンバーター形式」への乗り換えをお願いいたします。NintendoSDK 0.11.0 では -p を利用したバイナリーコンバートは問題なく動作します。</p>
+<h4 id="Anchor_95686310_h4_1">LayoutConverter</h4>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th style="text-align: center;">-p</th>
+      <th>呼び出すコンバーターオプション</th>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; NX64</th>
+      <td rowspan="4" style="text-align: center;">
+        <br />NX</td>
+      <td rowspan="4">
+        <p>
+          <br />
+        </p>
+        <p>--api-type<strong> Nvn </strong>--code-type<strong> Binary_Ir</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; x64</th>
+    </tr>
+    <tr>
+      <th>NX版 NX32</th>
+    </tr>
+    <tr>
+      <th>NX版 Win32</th>
+    </tr>
+    <tr>
+      <th>Windows版 x64</th>
+      <td rowspan="2" style="text-align: center;">Win(Win32)</td>
+      <td rowspan="2">api-type&nbsp;<strong>Gl</strong> --code-type <strong>Source</strong></td>
+    </tr>
+    <tr>
+      <th>
+        <p>Windows版 Win32</p>
+      </th>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_95686310_h4_2">LayoutArchiver、FontConverterConsole</h4>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th style="text-align: center;">-p</th>
+      <th>呼び出すコンバーターオプション</th>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; NX64</th>
+      <td rowspan="4" style="text-align: center;">
+        <br />NX</td>
+      <td rowspan="4">
+        <p>
+          <br />
+        </p>
+        <p>--tile-mode<strong> NX</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; x64</th>
+    </tr>
+    <tr>
+      <th>NX版 NX32</th>
+    </tr>
+    <tr>
+      <th>NX版 Win32</th>
+    </tr>
+    <tr>
+      <th>Windows版 x64</th>
+      <td rowspan="2" style="text-align: center;">Win(Win32)</td>
+      <td rowspan="2">
+        <p>
+          <br />
+        </p>
+        <p>--tile-mode<strong> Linar</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>Windows版 Win32</p>
+      </th>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>FontConverterConsole は --tile-mode ではなく、-tile-mode です。（ハイフンがひとつ）</p>
+  </div>
+</div>
+<h4 id="Anchor_95686310_h4_3">EffectMaker</h4>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th style="text-align: center;">-p</th>
+      <th>呼び出すコンバーターオプション</th>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; NX64</th>
+      <td rowspan="2" style="text-align: center;">
+        <br />NX</td>
+      <td rowspan="2">
+        <p>
+          <br />
+        </p>
+        <p>--api-type <strong>Nvn</strong> --code-type <strong>Binary_Ir</strong> --tile-mode <strong>NX</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版&nbsp; x64</th>
+    </tr>
+    <tr>
+      <th>NX版 NX32</th>
+      <td rowspan="2" style="text-align: center;">
+        <br />NX32</td>
+      <td rowspan="2">
+        <p>
+          <br />
+        </p>
+        <p>--api-type <strong>Nvn</strong> --code-type <strong>Binary_Ir</strong> --tile-mode <strong>NX</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>NX版 Win32</th>
+    </tr>
+    <tr>
+      <th>Windows版 x64</th>
+      <td style="text-align: center;">Win ( Windows もOK )</td>
+      <td rowspan="2">
+        <p>
+          <br />
+        </p>
+        <p>--api-type&nbsp;<strong>Gl</strong> --code-type&nbsp;<strong>Binary_Source</strong> --tile-mode <strong>linear</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>Windows版 Win32</p>
+      </th>
+      <td style="text-align: center;">Win32 ( Windows32 もOK )</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_95686310_h1_3">3D プラグインツール</h1>
+<h2 id="Anchor_95686310_h2_5">Maya プラグイン、3dsMax プラグイン</h2>
+<p>NX 向けのプリミティブ最適化をするには、コンフィグファイルのキーワード&nbsp;optimize_primitive に&nbsp;forsyth を指定してください。</p>
+<h1 id="Anchor_95686310_h1_4">3D コマンドラインツール</h1>
+<h2 id="Anchor_95686310_h2_6">中間ファイルオプティマイザー</h2>
+<p>NX向けにプリミティブ最適化のサブオプションに以下が追加されています。Maxwell ベストプラクティス 2.8.1 Optimize your index-buffer で紹介されているアルゴリズムになります。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>コマンドラインオプション</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>--mode Forsyth</td>
+      <td>
+        <p>NX向けプリミティブ最適化を行います。</p>
+        <p>(例 : --optimize-primitive --optimize-primitive-options &quot;--mode Forsyth&quot;</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_95686310_h2_7">3D シェーダーコンバーター</h2>
+<h3 id="Anchor_95686310_h3_3">使用可能なオプション一覧</h3>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>コマンドラインオプション</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>--decompose-binary</td>
+      <td>
+        <p>シェーダーバイナリーを解析しバイナリーサイズの最適化を行います。</p>
+        <p>サイズが著しく小さくなる事もありますが逆に増えてしまう事もあります。<br />詳細は<span style="color: rgb(0,51,102);"><a href="../Pages/Page_95684546.html">GFXライブラリ／NX 環境向け GFX ガイド</a></span>をご覧ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(51,51,51);">--glslc-option-flags</span>
+      </td>
+      <td>
+        <p>nvn の低レベルコンパイラ glslc へのオプションフラグを指定できます。</p>
+        <p>サブオプションに GLSLCoptionFlags のメンバを指定します。</p>
+        <p>詳細は <a href="../Pages/Page_95684546.html">GFXライブラリ／NX 環境向け GFX ガイド</a> をご覧ください。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_95686310_h3_4">ダンプ出力情報</h3>
+<p>nvn 向けにシェーダーをコンパイルしている際は、<span style="color: rgb(51,51,51);">--dump-shader-source</span> オプションを指定すると、以下の情報が指定したディレクトリに出力されます。ただし出力されるファイル名のインデックス番号は、ランタイムで&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html#a479ac33b23065e8ef76cd359c122f871">nn::g3d::ResShadingModel::GetShaderProgram(index)</a>&nbsp;で ShaderProgram を取得する際に使用するインデックスとは異なることに注意してください。</p>
+<table class="relative-table wrapped" style="width: 94.5145%;">
+  <colgroup>
+    <col style="width: 25.6098%;" />
+    <col style="width: 32.5203%;" />
+    <col style="width: 23.2288%;" />
+    <col style="width: 18.6411%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <p>ダンプ内容</p>
+      </th>
+      <th>ファイル名</th>
+      <th>
+        <span style="color: rgb(51,51,51);">ダンプ内容</span>
+      </th>
+      <th>個数</th>
+    </tr>
+    <tr>
+      <th>コンパイル情報</th>
+      <td>&lt;シェーディングモデル名&gt;_&lt;インデックス番号&gt;_&lt;シェーダーステージ名&gt;.txt</td>
+      <td>
+        <ul>
+          <li>コンパイルした最終的なソースコード</li>
+          <li>コンパイル結果のアセンブリ</li>
+          <li>glslc に渡されたオプションフラグ</li>
+          <li>スクラッチメモリー使用量などのシェーダー情報</li>
+          <li>GLSLCperfStatsData 構造体情報</li>
+        </ul>
+      </td>
+      <td>
+        <p>バリエーション数 &times; シェーダーステージ数</p>
+      </td>
+    </tr>
+    <tr>
+      <th>統計情報</th>
+      <td>&lt;シェーディングモデル名&gt;_&lt;インデックス番号&gt;_&lt;シェーダーステージ名&gt;.xml</td>
+      <td>GLSLCperfStatsData 構造体情報</td>
+      <td>バリエーション数 &times; シェーダーステージ数</td>
+    </tr>
+    <tr>
+      <th>シェーダーバリエーションファイル</th>
+      <td>&lt;シェーディングモデル名&gt;_&lt;インデックス番号&gt;_key.fsva</td>
+      <td>シェーダーバリエーションファイル</td>
+      <td>バリエーション数</td>
+    </tr>
+    <tr>
+      <th>シェーダーオプション情報と対応するシェーダーキーのマスク情報</th>
+      <td>&lt;シェーディングモデル名&gt;_key.csv</td>
+      <td>
+        <ul>
+          <li>シェーダーオプション一覧<br /><ul><li>branch, type, default, choice 情報</li></ul></li>
+          <li>シェーダーオプションに対応するシェーダーキー情報<ul><li>マスク, 長さ, 位置 等の情報</li></ul></li>
+        </ul>
+      </td>
+      <td>シェーディングモデル数</td>
+    </tr>
+    <tr>
+      <th>ダンプインデックス番号とシェーダーキーの対応表</th>
+      <td>&lt;シェーディングモデル名&gt;_shader_key.csv</td>
+      <td>ダンプインデックス番号に対応したシェーダーキー一覧</td>
+      <td>シェーディングモデル数</td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_95686310_h4_4">統計情報 (&lt;シェーディングモデル名&gt;_&lt;インデックス番号&gt;_&lt;シェーダーステージ名&gt;.xml)</h4>
+<p>
+  <span style="color: rgb(51,51,51);">xml ファイルは &lt;shader_debug_dump_information&gt; をルート要素とし、子要素には構造体を示す &lt;構造体名&gt; が配置されます。<br /><span style="color: rgb(51,51,51);">&lt;構造体名&gt; の子要素には &lt;構造体のメンバ変数名&gt; が配置され、その内容にはメンバ変数に対応する値が格納されます。</span></span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">以下に出力される xml ファイル例を記載します。</span>
+  </span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;shader_debug_dump_information&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;GLSLCperfStatsData&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;latency&gt;</span>1413<span class="nt">&lt;/latency&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;spillMem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;numLmemSpillBytes&gt;</span>0<span class="nt">&lt;/numLmemSpillBytes&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;numLmemRefillBytes&gt;</span>0<span class="nt">&lt;/numLmemRefillBytes&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;numSmemSpillBytes&gt;</span>0<span class="nt">&lt;/numSmemSpillBytes&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;numSmemRefillBytes&gt;</span>0<span class="nt">&lt;/numSmemRefillBytes&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;size&gt;</span>0<span class="nt">&lt;/size&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/spillMem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;nonSpillLMem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;loadBytes&gt;</span>0<span class="nt">&lt;/loadBytes&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;storeBytes&gt;</span>0<span class="nt">&lt;/storeBytes&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;size&gt;</span>0<span class="nt">&lt;/size&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/nonSpillLMem&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;occupancy&gt;</span>1.000000<span class="nt">&lt;/occupancy&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;numDivergentBranches&gt;</span>0<span class="nt">&lt;/numDivergentBranches&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;attributeMemUsage&gt;</span>80<span class="nt">&lt;/attributeMemUsage&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;programSize&gt;</span>1856<span class="nt">&lt;/programSize&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;requiresGlobalLoadUniformEmulation&gt;</span>false<span class="nt">&lt;/requiresGlobalLoadUniformEmulation&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;throughputLimiter&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;issue&gt;</span>0.025157<span class="nt">&lt;/issue&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;fp&gt;</span>0.032787<span class="nt">&lt;/fp&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;half&gt;</span>0.000000<span class="nt">&lt;/half&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;trancedental&gt;</span>0.111111<span class="nt">&lt;/trancedental&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ipa&gt;</span>0.050000<span class="nt">&lt;/ipa&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;shared&gt;</span>0.000000<span class="nt">&lt;/shared&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;controlFlow&gt;</span>0.222222<span class="nt">&lt;/controlFlow&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;texLoadStore&gt;</span>0.062500<span class="nt">&lt;/texLoadStore&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;reg&gt;</span>0.090587<span class="nt">&lt;/reg&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;warp&gt;</span>0.090587<span class="nt">&lt;/warp&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/throughputLimiter&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;loopData&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;partiallyUnrolled&gt;</span>0<span class="nt">&lt;/partiallyUnrolled&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;nonUnrolled&gt;</span>0<span class="nt">&lt;/nonUnrolled&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/loopData&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/GLSLCperfStatsData&gt;</span>
+<span class="nt">&lt;/shader_debug_dump_information&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_95686310_h4_5">シェーダーバリエーションファイル</h4>
+<p>対応するシェーダーバリエーションのオプション変数値が書かれたシェーダーバリエーションファイルです。オプション変数値を確認することが可能です。また、3dShaderConverter で bfsha を作成する際に、dump 出力されたシェーダーバリエーションファイルを入力することによって、そのバリエーションだけが含まれたシェーダーバイナリーを生成することが可能です。</p>
+<h4 id="Anchor_95686310_h4_6">シェーダーオプション情報と対応するシェーダーキーのマスク情報 (&lt;シェーディングモデル名&gt;_key.csv)</h4>
+<p>以下に出力例を示します。</p>
+<table class="wrapped">
+  <colgroup>
+    <col style="width: 54.0pt;" /> <col /><col /><col /><col /><col /><col /><col /><col /></colgroup>
+  <tbody>
+    <tr>
+      <th>id</th>
+      <th>branch</th>
+      <th>type</th>
+      <th>key_block</th>
+      <th>key_pos</th>
+      <th>key_width</th>
+      <th>key_mask</th>
+      <th>default</th>
+      <th>choice</th>
+    </tr>
+    <tr>
+      <th>enable_vertex_color</th>
+      <td>TRUE</td>
+      <td>static</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>_80000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1</td>
+    </tr>
+    <tr>
+      <th>enable_albedo</th>
+      <td>TRUE</td>
+      <td>static</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>_40000000_&nbsp;</td>
+      <td>1</td>
+      <td>0,1</td>
+    </tr>
+    <tr>
+      <th>enable_bake_texture</th>
+      <td>TRUE</td>
+      <td>static</td>
+      <td>0</td>
+      <td>2</td>
+      <td>1</td>
+      <td>_20000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1</td>
+    </tr>
+    <tr>
+      <th>enable_normal_map</th>
+      <td>TRUE</td>
+      <td>static</td>
+      <td>0</td>
+      <td>3</td>
+      <td>1</td>
+      <td>_10000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1</td>
+    </tr>
+    <tr>
+      <th>enable_specular_mask</th>
+      <td>TRUE</td>
+      <td>static</td>
+      <td>0</td>
+      <td>4</td>
+      <td>1</td>
+      <td>_08000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1</td>
+    </tr>
+    <tr>
+      <th>skinning</th>
+      <td>TRUE</td>
+      <td>dynamic</td>
+      <td>1</td>
+      <td>0</td>
+      <td>3</td>
+      <td>_E0000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1,2,3,4,5</td>
+    </tr>
+    <tr>
+      <th>water_world</th>
+      <td>FALSE</td>
+      <td>dynamic</td>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+      <td>_10000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1</td>
+    </tr>
+    <tr>
+      <th>ice_world</th>
+      <td>FALSE</td>
+      <td>dynamic</td>
+      <td>1</td>
+      <td>4</td>
+      <td>1</td>
+      <td>_08000000_&nbsp;</td>
+      <td>0</td>
+      <td>0,1</td>
+    </tr>
+  </tbody>
+</table>
+<p>それぞれのシェーダーオプションの branch, type, default, choice の情報が確認できます。また、シェーダーオプションに対応するシェーダーキーのマスク、長さ、位置等の情報が確認できます。このシェーダーオプションとシェーダーキーの対応情報を利用することで、任意のシェーダーオプション値からシェーダーキーを計算することが可能です。シェーダーキーについては、<a href="../Pages/Page_286721565.html">シェーダーバリエーション／シェーダーキー</a>を確認して下さい。</p>
+<p>key_block は シェーダーキーを 32bit 毎に分割した場合の上位ブロックからの位置を示します。key_pos はシェーダーキーの該当ブロックの上位ビットからの位置、key_width はビットの長さを示します。任意のシェーダーキーに対して key_mask を AND 適用することで、対応するシェーダーオプションの choice の値を取得することが可能です。逆に choice の値を元に key_mask を使うことで、シェーダーキーを作成することも可能です。&nbsp;</p>
+<h4 id="Anchor_95686310_h4_7">ダンプインデックス番号とシェーダーキーの対応表 (&lt;シェーディングモデル名&gt;_shader_key.csv)</h4>
+<p>以下に出力例を示します。</p>
+<table class="wrapped">
+  <colgroup>
+    <col style="width: 72.0px;" /> <col style="width: 97.0px;" /><col style="width: 64.0px;" /></colgroup>
+  <tbody>
+    <tr>
+      <th>number</th>
+      <th colspan="2">key</th>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td colspan="2">5c140000_80000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td colspan="2">5c140000_80800000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td colspan="2">5c140000_81000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td colspan="2">5c140000_81800000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td colspan="2">5c140000_84000000</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td colspan="2">5c140000_84800000</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td colspan="2">5c140000_85000000</td>
+    </tr>
+  </tbody>
+</table>
+<p>ダンプ出力されたファイルのインデックス番号(コンパイル情報,&nbsp;統計情報,&nbsp;シェーダーバリエーションファイル) に対応するシェーダーキーの一覧が確認できます。ただし、ランタイムで <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html#a479ac33b23065e8ef76cd359c122f871">nn::g3d::ResShadingModel::GetShaderProgram(index)</a> で取得する際、引数に指定するインデックスとは異なりますので注意してください。</p>
+<h2 id="Anchor_95686310_h2_8">3D テクスチャーコンバーター</h2>
+<ul>
+  <li>NX 向けのテクスチャーバイナリーファイル （.bntx) を出力する際は --tile-mode オプションで NX を指定してください（<strong>--tile-mode=NX</strong>）。<br />テクスチャー中間ファイル&nbsp;(.ftxb、.ftxa)&nbsp;を出力する際は --tile-mode オプションは不要です。<br />テクスチャー中間ファイルはプラットフォームに依存しません。</li>
+  <li>他の注意点は <a href="../Pages/Page_95684546.html#Anchor_95684546_h2_10">GFX のテクスチャーコンバーター</a>と同様です。</li>
+</ul>
+<h1 id="Anchor_95686310_h1_5">Ui2d を利用する際の注意点</h1>
+<h3 id="Anchor_95686310_h3_5">シェーダーバイナリーのビルドとランタイムライブラリのリビルド</h3>
+<p>組み込みシェーダーのバイナリーをユーザーの手元で生成した上でランタイムライブラリのビルドを行う必要があります。</p>
+<ul>
+  <li>Sources/Libraries/font/libnn_font/libnn_font_rebuild-spec.NX.vcxproj</li>
+  <li>Sources/Libraries/ui2d/libnn_ui2d/libnn_ui2d_rebuild-spec.NX.vcxproj</li>
+</ul>
+<p>をビルドすることでシェーダーバイナリーの生成とランタイムライブラリのビルドが行われます。&nbsp;</p>
+<p>また、シェーダーバイナリーを生成したのち、</p>
+<p>Programs/Iris/Resources/Ui2dShaders/nx</p>
+<p>のディレクトリを</p>
+<p>Tools/Graphics/LayoutTools/shaders/nx</p>
+<p>に手動で上書きコピーしてください。</p>
+<p>NX 向けのシェーダーバイナリーを生成する場合、Tools/Graphics/ShaderConvertScripts/*.bat は使用できません。</p>
+<h3 id="Anchor_95686310_h3_6">LayoutEditor</h3>
+<p>特別な設定は必要ありません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NX 環境が正しくインストールされている場合、タイトルバーに [NX] と表示されます。</p>
+  </div>
+</div>
+<h1 id="Anchor_95686310_h1_6">Font を利用する際の注意点</h1>
+<h3 id="Anchor_95686310_h3_7">テクスチャーキャッシュの最大テクスチャーサイズ</h3>
+<p>NX におけるテクスチャーの最大サイズは実行環境に依存します。 下記の NVN の関数によって実行時に取得してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nvnDeviceGetInteger(pNvnDevice, NVN_DEVICE_INFO_MAX_TEXTURE_SIZE, &amp;size);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_95686310_h3_8">nn::font::TextureCache::UpdateTextureCache のスタック消費量</h3>
+<p>
+  <span class="ApiLink_nn__font__TextureCache__UpdateTextureCache">nn::font::TextureCache::UpdateTextureCache</span> のスタック消費量を、NX 実機を使って下記のコードのように実測した結果を以下にまとめます。</p>
+<p>その結果、最大スタック消費量の目安は、Debug ビルドで 20KB、Release ビルドで 15KB とお考えいただけます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>static nn::os::FiberType* Fiber(void* param)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;NN_UNUSED(param);
+
+&nbsp;&nbsp;&nbsp;&nbsp;// CPU 側のメモリーへグリフのレンダリングを行います。
+&nbsp;&nbsp;&nbsp;&nbsp;g_TextureCache.UpdateTextureCache();
+
+&nbsp;&nbsp;&nbsp;&nbsp;return NULL;
+}
+
+nn::os::FiberType fiberType;
+const size_t stackSize = 64 * 1024 * 1024;
+NN_ALIGNAS(nn::os::ThreadStackAlignment) static uint8_t stack[stackSize];
+memset(stack, 0xcd, stackSize);
+nn::os::InitializeFiber(&amp;fiberType, Fiber, NULL, stack, stackSize, nn::os::FiberFlag_NoStackGuard);
+nn::os::SwitchToFiber(&amp;fiberType);
+nn::os::FinalizeFiber(&amp;fiberType);
+for (int i = 0; i &lt; static_cast&lt;int&gt;(stackSize); i++)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;if (stack[i] != 0xcd)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;%d byte of stack memory was used.\n&quot;, static_cast&lt;int&gt;(stackSize) - i);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>NX 内蔵フォント 6 種を組み合わせ、文字コード 0x0000～0xFFFF の全文字をプロットした場合のスタック消費量。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>フォントサイズ</th>
+      <th>消費量(Debug)</th>
+      <th>消費量(Release)</th>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>18712</td>
+      <td>12976</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>18480</td>
+      <td>13356</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>19456</td>
+      <td>14268</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>19796</td>
+      <td>14268</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>19456</td>
+      <td>14268</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>19456</td>
+      <td>14268</td>
+    </tr>
+  </tbody>
+</table>
+<p>ASCII の範囲の文字コード 0x0000～0x007F のみをプロットした場合の消費量。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>フォントサイズ</th>
+      <th>消費量(Debug)</th>
+      <th>消費量(Release)</th>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>10816</td>
+      <td>6832</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>9816</td>
+      <td>6076</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>6348</td>
+      <td>2840</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td>6348</td>
+      <td>2840</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td>6348</td>
+      <td>2840</td>
+    </tr>
+    <tr>
+      <td>200</td>
+      <td>6348</td>
+      <td>2840</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_95686310_h2_9">NX 本体内蔵フォントを font ライブラリで使用する方法</h2>
+<p>NX 本体内蔵フォントを font ライブラリで使用する方法については、「<a href="../Pages/Page_281460330.html">NX 本体内蔵フォントを font ライブラリで使用する方法</a>」のページをご覧ください。</p>
+<h1 id="Anchor_95686310_h1_7">Vfx を利用する際の注意点</h1>
+<h3 id="Anchor_95686310_h3_9">EffectMakerを利用してアセットを作成する際の注意点</h3>
+<p>EffectMaker を利用してNX向けデータを 作成・編集、EffectViewerを利用して編集されたデータをプレビューする方法には以下の設定で行う必要があります。</p>
+<ul>
+  <li>EffectMaker 上でプラットフォーム <strong>NX</strong> を選択する。<br /> <br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_95686310/94711441.png" class="embedded-image" /></span></li>
+</ul>
+<ul>
+  <li>NX 向けEffectViewer を利用する。<br /><br />Tools/Graphics/EffectViewer/NXOnWin32/EffectViewerGfx.exe<br />EffectMaker 上 ビューア起動アイコンからビューアを起動することで、設定されているプラットフォームに則したビューアが起動します。</li>
+</ul>
+<p>
+  <br />
+</p>
+<!--Remove-->
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__g3d__ResFile__Setup', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_file.html#a66b4566639893b62a0dbb91af0fd687a' )
+SetUrl( 'ApiLink_nn__g3d__ResShaderArchive__Setup', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html#a0bd2ecf27e62dd885eb25a1c57e29c9d' )
+SetUrl( 'ApiLink_nn__vfx__Resource__GetResShaderFile', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_resource.html#ad593c402edb381e498f21cd69c819294' )
+SetUrl( 'ApiLink_nn__gfx__ResShaderFile', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_file.html' )
+SetUrl( 'ApiLink_nn__font__TextureCache__UpdateTextureCache', '../../../Api/HtmlNX/classnn_1_1font_1_1_texture_cache.html#a38485f200ad82b11f7fd710ec7aa27b5' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

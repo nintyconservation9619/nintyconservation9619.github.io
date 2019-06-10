@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>タイマーイベント</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- タイマーイベント -->
+<div class="pagetitle" id="PageId_83955551">タイマーイベント</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955551_h1_1">タイマーイベント機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955551_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955551_h2_2">タイマーイベントの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955551_h2_3">タイマーイベントの関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955551_h2_4">タイマーイベント使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955551_h3_1">タイマーイベントを多重待ちする時の注意点</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955551_h3_2">自動クリアモードについて</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955551_h3_3">手動クリアモードについて</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955551_h1_1">タイマーイベント機能</h1>
+<h2 id="Anchor_83955551_h2_1">機能概要</h2>
+<p>タイマーイベントは、1bit （二値）のシグナル状態／非シグナル状態によって<a href="../Pages/Page_83955697.html">スレッド</a>間で同期を行なうための機能です。通常の <a href="../Pages/Page_83955697.html">イベント</a> 機能に加え、指定した時間だけ遅延してシグナル化させることの出来るタイマー機能を備えています。ただし、タイムアウト付きの待機機能はありません。</p>
+<p>タイマーイベントの初期状態は、非シグナル状態です。また、タイマーイベントを待機しているスレッドが起床された場合に、タイマーイベントを自動的に非シグナル状態にクリアするかどうかを選択することが可能です。詳細は <a href="../Pages/Page_83955790.html">イベント</a> 機能と同等のため、そちらを参照して下さい。</p>
+<p>タイマーによる遅延シグナル化機能には、ワンショットタイプ と 周期タイプ の２種類があります。 <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b3ec8d6c3a7f4410dc6f9c4dec0f88d">StartOneShotTimerEvent()</a> では時間を指定する引数 first を１つだけ指定し、API を発行した時刻から first 時間経過後に１回だけシグナル化される機能です。一方、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac869e53e9d805c3a5781d6493fad6ccd">StartPeriodicTimerEvent()</a> では時間を指定する引数 first と interval の２つを指定し、API を発行した時刻から first 時間経過後に一度シグナル化され、その後は interval 時間経過ごとに周期的にシグナル化される機能です。</p>
+<p>タイマー動作を停止させたい場合は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6aa23680b72e19fd5cb974ef44325695">StopTimerEvent()</a> を発行します。また、タイマー動作中に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad526c59d6481d5fcf0e130d71c7f1252">SignalTimerEvent()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">ClearTimerEvent()</a> を発行することも出来ます。この時、タイマー動作とシグナルのセット／クリア動作は完全に独立しているため、相互に影響を与えることはありません。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955551_h2_2">タイマーイベントの使用方法</h2>
+<p>タイマーイベントを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_timer_event_type.html">nn::os::TimerEventType</a> 構造体オブジェクトを用意します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">TimerEventType</span>    <span class="n">g_TimerEvent</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>タイマーイベントを使用する前に予め初期化します。第２引数にはタイマーイベントのクリアモードを指定します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeTimerEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_TimerEvent</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">EventClearMode_ManualClear</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、タイマーイベントのタイマー動作を開始します。<br />下記の例では、API 発行後 100msec 経過後に１回目のシグナル化が行なわれ、その後は 20msec 経過毎に周期的にシグナル化されます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">StartPeriodicTimerEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_TimerEvent</span><span class="p">,</span> <span class="nn">nn::TimeSpan::</span><span class="n">FromMilliSeconds</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="nn">nn::TimeSpan::</span><span class="n">FromMilliSeconds</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、タイマーイベントを待機します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">WaitTimerEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_TimerEvent</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、タイマーイベントを非シグナル状態にクリアします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">ClearTimerEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_TimerEvent</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>タイマー動作が不要になったら停止します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">StopTimerEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_TimerEvent</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>タイマーイベントを使用し終わったら破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeTimerEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_TimerEvent</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955551_h2_3">タイマーイベントの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9fdcd9b26aa9e78c2c17f6b9c02c0314">nn::os::InitializeTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1752ba511e60ce027c4af0f6d5e3ebe9">nn::os::FinalizeTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b3ec8d6c3a7f4410dc6f9c4dec0f88d">nn::os::StartOneShotTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac869e53e9d805c3a5781d6493fad6ccd">nn::os::StartPeriodicTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6aa23680b72e19fd5cb974ef44325695">nn::os::StopTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3bdecafeed401cb6b8accdb15178ad66">nn::os::WaitTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa431fe82cc23064bbad8cacf102756fd">nn::os::TryWaitTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad526c59d6481d5fcf0e130d71c7f1252">nn::os::SignalTimerEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">nn::os::ClearTimerEvent</a>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955551_h2_4">タイマーイベント使用上の注意事項</h2>
+<h3 id="Anchor_83955551_h3_1">タイマーイベントを多重待ちする時の注意点</h3>
+<p>タイマーイベントを多重待ち（<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd" rel="nofollow">WaitAny</a>）対象の１つとして待機し、そのイベントのシグナル化によって待ちが解除された場合、たとえ自動クリアモード（<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452" rel="nofollow">EventClearMode_AutoClear</a>）であっても自動的にクリアはされません。</p>
+<p>多重待ち機能はシグナル化されたオブジェクトの状態を変化させません。そのため、シグナル化された MultiWaitHolderType を取得した後に、必ず <span class="external-link"> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa431fe82cc23064bbad8cacf102756fd">TryWaitTimerEvent()</a> </span> などを使って対象タイマーイベントに対する待機処理を行なって下さい。これにより、対象イベントの自動クリアが行なわれます。その間に、対象イベントが既に他のスレッドによって <span class="external-link">&nbsp;</span> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa431fe82cc23064bbad8cacf102756fd"> <span class="external-link">TryWaitTimerEvent()</span> </a> 等が行なわれている可能性がある場合には、その返値を確認して再度多重待ちを行なうなどの対応が必要になります。</p>
+<h3 id="Anchor_83955551_h3_2">自動クリアモードについて</h3>
+<p>通常、自動クリアモード（<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452">nn::os::EventClearMode_AutoClear</a>）使用時はその同期制御に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">nn::os::ClearTimerEvent()</a> を必要以上に使用しないように注意して下さい。</p>
+<p>自動クリアモード時に、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad526c59d6481d5fcf0e130d71c7f1252">nn::os::SignalTimerEvent()</a> によって一旦スレッドが起床された際、そのスレッドに CPU の実行権が移る前に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">nn::os::ClearTimerEvent()</a> が発行されると、対象イベントは非シグナル状態になっているため、前述のスレッドが動作可能になった時には再度シグナル待ちに入ってしまいます。自動クリアモードでは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3bdecafeed401cb6b8accdb15178ad66">nn::os::WaitTimerEvent()</a> などでスレッドが起床する際に自動的にイベントがクリアされますので、通常は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">nn::os::ClearTimerEvent()</a> を発行する必要はありません。</p>
+<h3 id="Anchor_83955551_h3_3">手動クリアモードについて</h3>
+<p>手動クリアモード（<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452">EventClearMode_ManualClear</a>）において、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">nn::os::ClearTimerEvent()</a> の使用には注意が必要です。</p>
+<p>具体的には、他スレッドで <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3bdecafeed401cb6b8accdb15178ad66">nn::os::WaitTimerEvent()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad526c59d6481d5fcf0e130d71c7f1252">nn::os::SignalTimerEvent()</a> が発行されるタイミングで <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2612c1c11f55172e23bf13d0b8a4e5b2">nn::os::ClearTimerEvent()</a> をほぼ同時に発行するような状況があってはなりません。そのような状況ではスレッドの動作順序が不確定であるため、タイマーイベントの待機／セット／クリアといった順番も保障されません。</p>
+<p>このような状況が発生しうる場合は、タイマーイベント機能の使い方含めて設計の見直しを行なって下さい。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>GPU パフォーマンス計測</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- GPU パフォーマンス計測 -->
+<div class="pagetitle" id="PageId_115057836">GPU パフォーマンス計測</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_115057836_h1_1">GPU のパフォーマンス計測概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_115057836_h1_2">GPU パフォーマンス計測機能の使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_115057836_h2_1">GPU 計測のタイミング</a>
+      </li>
+      <li>
+        <a href="#Anchor_115057836_h2_2">コアを取得する関数</a>
+      </li>
+      <li>
+        <a href="#Anchor_115057836_h2_3">計測結果の扱い</a>
+      </li>
+      <li>
+        <a href="#Anchor_115057836_h2_4">入れ子計測</a>
+      </li>
+      <li>
+        <a href="#Anchor_115057836_h2_5">アタッチ</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_115057836_h1_1">GPU のパフォーマンス計測概要</h1>
+<p>GPU のパフォーマンス計測は、コマンドバッファに積まれたコマンドの GPU 処理時間を計測する機能です。<br />内部で GPU タイムスタンプの差分を集計しパフォーマンス情報を簡易的に出力します。 &nbsp;<br />コマンドバッファにコマンドを追加できる状態で、測りたいコマンド区間を&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#ac14e89c8bbaffef96995baa76dc62d18">BeginMeasure()</a> と <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a4aa66c799bc7fcf7a14c18838529e658">EndMeasure()</a>&nbsp;で囲むことで GPU の処理時間が計測できます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#ac14e89c8bbaffef96995baa76dc62d18">BeginMeasure()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a4aa66c799bc7fcf7a14c18838529e658">EndMeasure()</a>&nbsp;ではコマンドバッファに GPU タイムスタンプを要求するコマンドを追加します。<br />CPU 側でコマンドを追加した時点のタイムスタンプではなく、コマンドが実行された時点のタイムスタンプが記録されることに注意して下さい。&nbsp;</p>
+<p>GPU のパフォーマンス計測を行うためには&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html">nn::perf::GpuMeter</a>&nbsp;クラスを使用します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html">GpuMeter</a> は CPU コア番号を内部で取得して計測を行うため、1 つのオブジェクトでマルチスレッドで並列に発行された GPU コマンドの計測を行うことができます。<br /><a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">CpuMeter</a> のように並列処理分のオブジェクトを作成して別々に計測する必要はありません。</p>
+    <p>ただし、計測中 (<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#ac14e89c8bbaffef96995baa76dc62d18">BeginMeasure()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a4aa66c799bc7fcf7a14c18838529e658">EndMeasure()</a> の間) に動作コアが自動で移動するスレッド上では正常に計測することができません。<br /><a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html">GpuMeter</a> を使用する際は <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#ac14e89c8bbaffef96995baa76dc62d18">BeginMeasure()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a4aa66c799bc7fcf7a14c18838529e658">EndMeasure()</a> の間は必ずスレッドの動作が特定の CPU コアに固定されている状態で行うようにしてください。</p>
+  </div>
+</div>
+<h1 id="Anchor_115057836_h1_2">GPU パフォーマンス計測機能の使用方法</h1>
+<p>基本的な使用の流れは&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">CpuMeter</a>&nbsp;と似ていますが、GPU タイムスタンプを書き込むコマンドの発行や GPU バッファの読み取りのために <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html">nn::gfx</a> オブジェクトが必要になります。</p>
+<ol>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_info.html">nn::perf::LoadMeterInfo</a>&nbsp;クラスの初期化を行います。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/perf.h&gt;
+</span>
+<span class="nn">nn::perf::</span><span class="n">LoadMeterInfo</span> <span class="n">info</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">SetSectionCountMax</span><span class="p">(</span> <span class="mi">64</span> <span class="p">);</span>　　　　<span class="c1">// 計測する区間の最大数
+</span><span class="n">info</span><span class="p">.</span><span class="n">SetBufferCount</span><span class="p">(</span> <span class="mi">2</span> <span class="p">);</span>　　　　　　　 <span class="c1">// フレーム毎の計測結果を保存するバッファ数（最低ダブルバッファが必要）
+</span><span class="n">info</span><span class="p">.</span><span class="n">SetCoreCount</span><span class="p">(</span> <span class="mi">3</span> <span class="p">);</span>　　　　　　　　<span class="c1">// アプリケーションが動作するコアの最大数を指定（この場合、動作するコア番号は 0, 1, 2 ）
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html">nn::perf::GpuMeter</a>&nbsp;内で使用するメモリを確保します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// GpuMeter で使用するバッファのサイズとアラインメントを取得
+</span><span class="kt">size_t</span> <span class="n">memorySize</span> <span class="o">=</span> <span class="nn">GpuMeter::</span><span class="n">CalculateBufferSize</span><span class="p">(</span> <span class="n">info</span> <span class="p">);</span>
+<span class="kt">size_t</span> <span class="n">memoryAlignment</span> <span class="o">=</span> <span class="nn">GpuMeter::</span><span class="n">GetBufferAlignment</span><span class="p">();</span>
+&nbsp;
+<span class="kt">void</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="n">AllocateMemory</span><span class="p">(</span> <span class="n">memorySize</span><span class="p">,</span> <span class="n">memoryAlignment</span> <span class="p">);</span>　　　<span class="c1">// アプリ側のアロケータ等でメモリを確保
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html">nn::perf::GpuMeter</a>&nbsp;クラスの初期化を行います。<br />2 で確保したメモリ以外に、タイムスタンプ値を書き込む GPU バッファを確保するメモリプールが必要です。ここで設定するメモリプールの属性は CPU_CACHED を推奨します。&nbsp;</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// GpuMeter で使用するメモリプールのサイズとアラインメントを取得
+</span><span class="kt">size_t</span> <span class="n">memoryPoolSize</span> <span class="o">=</span> <span class="nn">GpuMeter::</span><span class="n">CalculateQueryBufferSize</span><span class="p">(</span> <span class="n">pDevice</span><span class="p">,</span> <span class="n">info</span> <span class="p">);</span>
+<span class="kt">size_t</span> <span class="n">memoryPoolAlignment</span> <span class="o">=</span> <span class="nn">GpuMeter::</span><span class="n">GetQueryBufferAlignment</span><span class="p">(</span> <span class="n">pDevice</span><span class="p">,</span> <span class="n">info</span> <span class="p">);</span>
+ 
+<span class="n">memoryPoolOffset</span> <span class="o">=</span> <span class="nn">nn::util::</span><span class="n">align_up</span><span class="p">(</span> <span class="n">memoryPoolOffset</span><span class="p">,</span> <span class="n">memoryPoolAlignment</span> <span class="p">);</span>
+<span class="nn">nn::perf::</span><span class="n">GpuMeter</span> <span class="n">meter</span><span class="p">;</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">info</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memory</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memorySize</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">memoryPool</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memoryPoolOffset</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memoryPoolSize</span>  <span class="p">);</span>
+<span class="n">memoryPoolOffset</span> <span class="o">+=</span> <span class="n">memoryPoolSize</span> <span class="p">;</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>計測したいコマンド群を&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#ac14e89c8bbaffef96995baa76dc62d18">BeginMeasure()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a4aa66c799bc7fcf7a14c18838529e658">EndMeasure()</a>&nbsp;で囲みます。コマンドバッファへのコマンド追加が可能な状態でのみ使用できます。&nbsp;<br />最後の計測終了の関数を呼んだ後にキャッシュをフラッシュします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">commandBuffer</span><span class="p">.</span><span class="n">Begin</span><span class="p">();</span>                                     　<span class="c1">// コマンド追加開始
+</span><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span> <span class="p">);</span>           <span class="c1">// 計測開始
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//計測するコマンド
+</span><span class="p">}</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span> <span class="p">);</span>             <span class="c1">// 計測終了
+</span><span class="n">FlushMemory</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">GpuAccess_QueryBuffer</span> <span class="p">);</span>  <span class="c1">// キャッシュをフラッシュ
+</span><span class="n">commandBuffer</span><span class="p">.</span><span class="n">End</span><span class="p">();</span>　                                       <span class="c1">// コマンド追加完了
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>毎フレームの終了時に計測結果を保存するバッファを <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a6ebf8d6a2d0a83f0af2d1c0f0a1cc4e4">Next()</a> で切り替えます。この切り替えを行わないと正常に計測ができないため注意してください。<br />また、ここでは GPU バッファに記録されたタイムスタンプ値を集計するため「バッファ数 - 2」フレーム前に作成したコマンドの実行が完了している必要があります。<br />なお、ここで集計されたタイムスタンプ値は、ナノ秒単位に変換された後 Tick 値に変換されて&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1perf_1_1_load_meter_base_1_1_section.html">nn::perf::LoadMeterBase::Section</a>&nbsp;構造体に格納されます。&nbsp;</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// 毎フレームのレンダリング
+</span><span class="k">for</span><span class="p">(</span> <span class="kt">int</span> <span class="n">frame</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">frame</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="o">++</span><span class="n">frame</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 毎フレームの処理内容
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span> 
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>計測結果をコンソール出力します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>出力結果例です。「　[ メーター名 ] 　計測区間の合計所要時間 ( <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a38bc114bbde7be2db1c62fe185ae7efe">SetFrameRate()</a><span style="color: rgb(51,51,51);">&nbsp;で設定したフレームレートに対する割合</span>&nbsp;)　」のフォーマットで出力されます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="p">[</span> <span class="n">MyGPUMeter</span> <span class="p">]</span>      <span class="mf">0.557</span> <span class="n">ms</span> <span class="p">(</span><span class="mf">3.343069</span><span class="o">%</span><span class="p">)</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>GpuMeter の終了処理を行います。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">meter</span><span class="p">.</span><span class="n">Finalize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">device</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>確保したメモリはアプリ側で開放します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">FreeMemory</span><span class="p">(</span> <span class="n">memory</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_115057836_h2_1">GPU 計測のタイミング</h2>
+<p>GPU の計測で使用する&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#ac14e89c8bbaffef96995baa76dc62d18">BeginMeasure()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a4aa66c799bc7fcf7a14c18838529e658">EndMeasure()</a>&nbsp;は、コマンドバッファにタイムスタンプを要求するコマンドを追加します。<br />そのため、実際にタイムスタンプの値が記録されるタイミングはコマンドが実行された時になることに注意してください。</p>
+<p>コンソール出力や <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#aab42a9f8cf7638a2fc0828b1c4d45b16">GetLastResult()</a>, <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#ad45fb8738c4e68a231b00ecdde1432e6">GetLastTotalSpan()</a>&nbsp;等の計測結果を取得する関数で得られる値は、最新の&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#a6ebf8d6a2d0a83f0af2d1c0f0a1cc4e4">Next()</a> で集計された計測結果になります。<br />Next() で集計される結果は「バッファ数 - 2」フレーム前に作成したコマンドの計測結果です。<br />計測が行われるのはコマンドが実行されたタイミングになるため、コマンドを作成するフレームと実行するフレームが異なる場合はバッファ数の指定に注意が必要です。</p>
+<p>例えば、1 つ前のフレームで作成した GPU コマンドを現フレームで実行するフレームワークの場合、バッファ数は 3 つ以上必要になります。<br />なお、バッファ数は <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_info.html#aab91da1a45f893d9a661d3def9438a7b">nn::perf::LoadMeterInfo::SetBufferCount()</a> で設定可能です (初期値はダブルバッファの 2 )。</p>
+<p>以下は、1 つ前のフレームで作成した GPU コマンドを現フレームで実行するフレームワークで、バッファ数を 3 に指定した場合の挙動です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//--------- 0 フレーム目 ------------//
+</span><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="s">&quot;A&quot;</span><span class="p">);</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">);</span>
+ 
+<span class="c1">// A の処理が開始されていないので集計しない。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>
+<span class="c1">// 初期値を出力。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span>
+ 
+<span class="c1">//--------- 1 フレーム目 ------------//
+</span><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="s">&quot;B&quot;</span><span class="p">);</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">);</span>
+ 
+<span class="c1">// &quot;A&quot; の計測を集計。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>
+<span class="c1">// &quot;A&quot; の結果を出力。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span>
+ 
+<span class="c1">//--------- 2 フレーム目 ------------//
+</span><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="s">&quot;C&quot;</span><span class="p">);</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">);</span>
+&nbsp;
+<span class="c1">// &quot;B&quot; の計測を集計。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>
+<span class="c1">// &quot;B&quot; の結果を出力。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_115057836_h2_2">コアを取得する関数</h2>
+<p>GpuMeter では計測開始と終了時に、現在のスレッドが動作している CPU コア番号を内部で取得します。</p>
+<p>ただし、デフォルトでは負荷が高い&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a4b94c321b41c4fb4d0a4e87473297c48">nn::os::GetCurrentCoreNumber()</a> を使用しているおり、入れ子で多数の区間を計測するような場合には計測結果の誤差が大きく出てしまいます。</p>
+<p>より正確に計測したい場合は、各スレッドが動作するコア番号を返す関数を <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html#af83adf2bc44dcc3f290e146fd9d40201">SetGetCoreNumberFunction()</a> で設定することを推奨します。</p>
+<h2 id="Anchor_115057836_h2_3">計測結果の扱い</h2>
+<p>区間毎の計測結果は&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1perf_1_1_load_meter_base_1_1_section.html">nn::perf::LoadMeterBase::Section</a>&nbsp;構造体で扱います。詳しくは&nbsp;<a href="../Pages/Page_113805876.html">CPU パフォーマンス計測 - 計測結果の扱い</a><a /><a /><a /><a />&nbsp;を参照してください</p>
+<h2 id="Anchor_115057836_h2_4">入れ子計測</h2>
+<p>入れ子で計測することも可能です。詳しくは <a href="../Pages/Page_113805876.html">CPU パフォーマンス計測 - 入れ子計測</a><a /><a /><a /> を参照してください。</p>
+<h2 id="Anchor_115057836_h2_5">アタッチ</h2>
+<p>AttachLoadMeter() を使用することでパフォーマンス計測オブジェクトをアタッチすることができます。詳しくは <a href="../Pages/Page_113805876.html">CPU パフォーマンス計測 - アタッチ</a> を参照して下さい。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

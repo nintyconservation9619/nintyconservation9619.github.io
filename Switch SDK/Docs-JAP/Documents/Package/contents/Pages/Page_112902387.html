@@ -1,0 +1,455 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ハンドアナリシスモード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ハンドアナリシスモード -->
+<div class="pagetitle" id="PageId_112902387">ハンドアナリシスモード</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_112902387_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_112902387_h1_2">ハンドアナリシスモード</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902387_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902387_h2_2">設定項目</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902387_h2_3">ハンドアナリシスモードのカメラパラメーター制御</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902387_h2_4">ハンドアナリシスモードのデータ座標系</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902387_h2_5">出力フォーマット</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_112902387_h1_3">ハンドアナリシスモードの使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902387_h2_6">ハンドアナリシスモードのサンプル</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_112902387_h1_1">はじめに</h1>
+<p>IRSENSOR ライブラリの機能の一つに、ハンドアナリシスモードがあります。</p>
+<p>ハンドアナリシスモードでは、 Joy-Con の右手コントローラー下部分に搭載された モーションIRカメラによって撮影された生映像を基に、<strong> Joy-Con 内部で</strong>外観形状や輪郭、面積といった（主に手を対象とする）情報を計算します。</p>
+<p>それらの情報は圧縮された後、無線で本体に転送され、ユーザーはその情報を利用することが出来ます。</p>
+<p>計算はすべて、モーションIRカメラの<strong>生映像</strong>に対して行われて、またデータに対して<strong>独自の圧縮技術</strong>を用いているため、ユーザーは精度の高い情報を利用することが出来ます。&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902387/113967744.jpg" height="150" class="embedded-image" />
+  </span>
+</p>
+<p>上図はデータがどのように生成され、処理されていくかの流れを説明するブロックになります。</p>
+<p>開発者は上のような背景の大半を意識することなく、最終データだけを扱う事が出来ます。</p>
+<p>Joy-Con 上での CPU 処理は任天堂内部で開発された物で、このような機能を追加したいといった相談を受けることは出来ます。</p>
+<h1 id="Anchor_112902387_h1_2">ハンドアナリシスモード</h1>
+<h2 id="Anchor_112902387_h2_1">概要</h2>
+<p>ハンドアナリシスモードでは、<strong>シルエットモード</strong>と<strong>シルエットオンリーモード</strong>と<strong>イメージモード</strong>の三つの機能をサポートしています。</p>
+<p>シルエットモードは画像の状態によって 30fps か 60fps。シルエットオンリーモードとイメージモードは 60fps で動作し、ユーザーはその周期で新しいデータを取得することが出来ます。</p>
+<p>残念なことに「Joy-Con の CPU 性能」と「無線帯域」という二つの制限から、それらのモードを同時に使用することは出来ません。ですが、我々はシルエットモードとイメージモードが<strong>毎フレーム入れ替わる</strong>、シルエットイメージモードという特殊なモードをサポートしています。このモードはそれぞれのモードの情報が半分のフレームレートで更新されることになります。</p>
+<p>続いてハンドアナリシスモードにてどのような情報が取得できるかを説明します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902387/241556571.jpg" height="250" class="embedded-image" />
+  </span>　<span class="embedded-file-wrapper "><img src="../Attachments/Attach_112902387/241556572.jpg" height="250" class="embedded-image" /></span></p>
+<ol>
+  <li>
+    <p>シルエットモード<br /><span style="color: rgb(51,51,51);">シルエットモードでは、モーションIRカメラで撮影した手の外観形状や輪郭、面積など、手に関する情報を出力します。</span></p>
+    <p>&nbsp;</p>
+  </li>
+  <li>
+    <p>
+      <span style="color: rgb(51,51,51);">シルエットオンリモード<br /><span style="color: rgb(51,51,51);">シルエットオンリーモードでは、モーションIRカメラで撮影した物体の輪郭情報のみを出力します。主に手以外の物体に使用することが出来ます。</span></span>
+    </p>
+    <p>
+      <span style="color: rgb(51,51,51);">
+        <br />
+      </span>
+    </p>
+  </li>
+  <li>
+    <p>高速のイメージモード(圧縮された 40x30 サイズの画像をリアルタイムに取得)<br /><span style="color: rgb(51,51,51);">イメージモードでは、モーションIRカメラで撮影した画像データ（圧縮された 40x30 サイズ）を 60fps で転送します。</span><br /><span style="color: rgb(51,51,51);">ユーザーの手位置を誘導したり、開発者のプレビューといったデバッグ用途にも使用することが出来ます。</span></p>
+  </li>
+</ol>
+<h2 id="Anchor_112902387_h2_2">設定項目</h2>
+<p>ハンドアナリシスモードには、以下の設定項目があり、使用するモードを変更することができます。</p>
+<p>シルエットモードとイメージモード、もしくはそれらを交互に送るシルエットイメージモードが存在します。<br /><br /></p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+      <th>定義域</th>
+    </tr>
+    <tr>
+      <td>mode</td>
+      <td>
+        <p>使用するモード</p>
+      </td>
+      <td>
+        <p>無し</p>
+      </td>
+      <td>
+        <p>1)シルエットモード</p>
+        <p>2)イメージモード</p>
+        <p>3)それらを交互に送るシルエットイメージモード</p>
+        <p>4)シルエットオンリーモード</p>
+        <p>&nbsp;の四つからどれかを選びます</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(51,51,51);">これらの設定値は</span>
+  <span class="external-link" style="color: rgb(51,51,51);">&nbsp;<span class="ApiLink_nn__irsensor__HandAnalysisConfig">nn::irsensor::HandAnalysisConfig</span></span>
+  <span style="color: rgb(51,51,51);">&nbsp;構造体のメンバとして持っています。&nbsp;</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">HandAnalysisConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">HandAnalysisMode</span> <span class="n">mode</span><span class="p">;</span> <span class="c1">//!&lt; setting of hand analysis mode.
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_112902387_h2_3">ハンドアナリシスモードのカメラパラメーター制御</h2>
+<p>ハンドアナリシスモードは、カメラの LED の強さや露光時間、ゲインの設定をすべて Joy-Con 側で行います。</p>
+<p>処理するデータが飽和しないように、物体が近づいた場合は LED や露光時間、ゲインを弱くしていき、物体が遠ざかっていくとその逆の反応になります。</p>
+<p>アプリケーション側から制御することが難しく、またバグ修正などで将来的に<span style="color: rgb(51,51,51);">撮影画像が変更されることがありうるため</span>、イメージモードはあくまでプレビューを目的として使用することを推奨します。</p>
+<h2 id="Anchor_112902387_h2_4">ハンドアナリシスモードのデータ座標系</h2>
+<p>ハンドアナリシスモードは、カメラの z 座標で正規化した x、y 位置を tangent で表現しています。</p>
+<p>この座標系を使うことで、将来カメラの画角が変わった場合でも同一の座標として扱うことが出来ます。</p>
+<p>x 座標は tan(103.3/2 deg) = 1.25、y 座標系は tan(84/2 deg) = 0.9 までの値を取ることができます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902387/161444422.jpg" width="500" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_112902387_h2_5">出力フォーマット</h2>
+<p>シルエットモードの出力は以下の要素で構成されています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902387/241556571.jpg" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>1) カメラ空間上のすべてのシルエット情報は&nbsp;HandAnalysisSilhouetteState::points&nbsp;の点の配列に格納されます。各点を結んでいくと、Shape のシルエットになります(<span style="color: rgb(0,255,0);">緑色のライン</span>)。それぞれの点が ( tan(x/z), tan(y/z) ) で表現されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>...</th>
+      <th>345</th>
+      <th>346</th>
+      <th>347</th>
+      <th>348</th>
+      <th>349</th>
+      <th>350</th>
+    </tr>
+    <tr>
+      <td>x</td>
+      <td>
+        <p>-0.05</p>
+      </td>
+      <td>
+        <p>-0.08</p>
+      </td>
+      <td>
+        <p>-0.10</p>
+      </td>
+      <td>
+        <p>-0.04</p>
+      </td>
+      <td>
+        <p>&hellip;</p>
+      </td>
+      <td>
+        <p>-0.42</p>
+      </td>
+      <td>
+        <p>-0.37</p>
+      </td>
+      <td>
+        <p>-0.33</p>
+      </td>
+      <td>
+        <p>-0.28</p>
+      </td>
+      <td>
+        <p>-0.22</p>
+      </td>
+      <td>
+        <p>-0.16</p>
+      </td>
+    </tr>
+    <tr>
+      <td>y</td>
+      <td>
+        <p>-0.87</p>
+      </td>
+      <td>
+        <p>-0.87</p>
+      </td>
+      <td>
+        <p>-0.91</p>
+      </td>
+      <td>
+        <p>-0.92</p>
+      </td>
+      <td>
+        <p>&hellip;</p>
+      </td>
+      <td>
+        <p>-0.79</p>
+      </td>
+      <td>
+        <p>-0.82</p>
+      </td>
+      <td>
+        <p>-0.79</p>
+      </td>
+      <td>
+        <p>-0.82</p>
+      </td>
+      <td>
+        <p>-0.79</p>
+      </td>
+      <td>
+        <p>-0.82</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>2) 指情報は Hand::fingers&nbsp;メンバから取得することが出来ます。それぞれの指メンバは指の先端位置を示す Finger::tip (<span style="color: rgb(255,0,0);">赤色の点</span>)と、指の根っこ位置を示す Finger::root (<span style="color: rgb(0,0,255);">青色の点</span>)を持ちます。</p>
+<p>3) 手のひらの情報は&nbsp;Hand::Palm メンバから取得することが出来ます。手のひらは中心位置を示す Palm::center&nbsp;(<span style="color: rgb(0,255,0);">緑色の点</span>)と、その面積を示す Palm::area 等を持ちます。</p>
+<p>4) 手の情報は&nbsp;Hand::Arm メンバから取得することが出来ます。手は手首の位置を示す Arm::wristPosition (<span style="color: rgb(128,0,128);">紫色の点</span>)と、その面積を示す Palm::area を持ちます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902387/241556590.jpg" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>上図は構造体の関係図を簡単に示した物になります。</p>
+<p>画像上で見つかった物体は Shape として扱われます。</p>
+<p>その中で手<span style="color: rgb(51,51,51);">と認識された物体は Hand 構造体に格納されます。</span></p>
+<p>
+  <span style="color: rgb(51,51,51);">Hand 要素はそれぞれ Finger と Palm と Arm と Protrusion&nbsp;によって構成されます。</span>
+</p>
+<p>2. 画像モードの出力は uint16_t&nbsp;の 40x30 解像度の線形フォーマットになります。<span style="color: rgb(51,51,51);">&nbsp;</span></p>
+<p>
+  <span style="color: rgb(51,51,51);">&nbsp;</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>samplingNumber</td>
+      <td>処理結果を受け取る度に増加する値です。</td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>ambientNoiseLevel</td>
+      <td>
+        <p>環境ノイズの状態です。</p>
+        <p>環境ノイズ(外部光)が多い場合はこの変数を見て、</p>
+        <p>例えばユーザへプレイ環境を変えるように案内する、</p>
+        <p>といったような通知をすることができます。</p>
+        <p>詳細については、<a href="../Pages/Page_112902609.html#Anchor_112902609_IR%E3%82%BB%E3%83%B3%E3%82%B5%E3%83%BC%E3%81%AE%E5%A4%96%E9%83%A8%E5%85%89%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E6%A9%9F%E8%83%BD">共通機能</a> の</p>
+        <p>「モーションIRカメラの外部光フィルタ機能」の項目を参照してください。</p>
+      </td>
+      <td>
+        <p>IrCameraAmbientNoiseLevel_Low/</p>
+        <p>IrCameraAmbientNoiseLevel_Middle/</p>
+        <p>IrCameraAmbientNoiseLevel_High</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_112902387_h1_3">ハンドアナリシスモードの使用方法</h1>
+<p>プログラム上では以下のような流れで使用します。</p>
+<p>
+  <span style="color: rgb(51,51,51);">&nbsp;</span>
+</p>
+<ol>
+  <li>
+    <p>Npad::Id&nbsp;を元に、<span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を取得し、モーションIRカメラを初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/irsensor.h&gt;
+</span>
+<span class="nn">nn::irsensor::</span><span class="n">IrCameraHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">GetIrCameraHandle</span><span class="p">(</span><span class="n">npadIds</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>ハンドアナリシスモードの初期設定を生成します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">HandAnalysisConfig</span> <span class="n">config</span><span class="p">;</span>
+<span class="c1">// モード値を設定
+</span><span class="n">config</span><span class="p">.</span><span class="n">mode</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">HandAnalysisMode_Silhouette</span><span class="p">;</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>取得した <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、&nbsp; <span class="ApiLink_nn__irsensor__Run">nn::irsensor::Run</span><span style="color: rgb(51,51,51);">HandAnalysis</span>関数を呼び、キャプチャを開始します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre> <span class="nn">nn::irsensor::</span><span class="n">RunHandAnalysis</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">config</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>シルエットモードを使用している場合は、出力用の <span class="ApiLink_nn__irsensor__">nn::irsensor::</span><span style="color: rgb(51,51,51);">HandAnalysis</span>SilhouetteState のバッファを準備して、 <span class="ApiLink_nn__irsensor__Get">nn::irsensor::Get</span><span style="color: rgb(51,51,51);">HandAnalysis</span>SilhouetteState&nbsp;関数を呼びます。イメージモードを使用している場合は、出力用の <span class="ApiLink_nn__irsensor__">nn::irsensor::</span><span style="color: rgb(51,51,51);">HandAnalysis</span>ImageState&nbsp;のバッファを準備して、 <span class="ApiLink_nn__irsensor__Get">nn::irsensor::Get</span><span style="color: rgb(51,51,51);">HandAnalysis</span>ImageState&nbsp;関数を呼びます。<br />呼び出した時点の最新の処理結果を取得しますが、コントローラの BT 転送の都合上最速でも15ms 間隔での更新になるため、<br />例えば、ゲームフレームなどと同期する形で、ポーリング方式で使用することを推奨します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">HandAnalysisSilhouetteState</span> <span class="n">states</span><span class="p">;</span>
+<span class="nn">nn::irsensor::</span><span class="n">GetHandAnalysisSilhouetteState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>停止したい <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、 <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を呼び、ハンドアナリシスモードを停止します。<br />その後、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を呼び、 モーションIRカメラを終了します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">StopImageProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Finalize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_112902387_h2_6">ハンドアナリシスモードのサンプル</h2>
+<p>ハンドアナリシスモードの挙動を確認したい場合は、 Samples\Sources\Applications\IrSensorViewer に配置されているサンプルを参照してください。</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <br />
+  </span>
+</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__irsensor__HandAnalysisConfig', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_hand_analysis_config.html' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraHandle', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_handle.html' )
+// ApiLink_nn__irsensor__Run
+SetUrl( 'ApiLink_nn__irsensor__', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html' )
+// ApiLink_nn__irsensor__Get
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3052171f2c63aafc0e4a164366ae22d7' )
+SetUrl( 'ApiLink_nn__irsensor__Finalize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6265f5c6e6d6fc0e67fc6882a8945284' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

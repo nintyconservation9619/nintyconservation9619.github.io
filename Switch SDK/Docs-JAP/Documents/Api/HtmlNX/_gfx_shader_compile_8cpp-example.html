@@ -1,0 +1,1213 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: GfxShaderCompile.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">GfxShaderCompile.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_gfx_shader_compile.html">GfxShaderCompile</a> および <a class="el" href="_gfx_shader_compile_8cpp.html" title="シェーダのランタイムコンパイルのサンプルプログラム ">GfxShaderCompile.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdio&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstring&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;stdint.h&gt;</span> <span class="comment">// This is C++11, not supported by Cafe: #include &lt;cstdint&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="init_8h.html">nn/init.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="vi_8h.html">nn/vi.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="gfx_8h.html">nn/gfx.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined( NN_BUILD_TARGET_PLATFORM_OS_NN )</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"><span class="preprocessor">#if defined( NN_BUILD_TARGET_PLATFORM_OS_NN ) &amp;&amp; defined( NN_BUILD_APISET_NX )</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;<a class="code" href="nv___memory_management_8h.html">nv/nv_MemoryManagement.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"><span class="preprocessor">#if defined( NN_BUILD_APISET_CAFE )</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;cafe/gx2.h&gt;</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;SimpleShader.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if NN_GFX_IS_TARGET_NVN</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;<a class="code" href="nvn_8h.html">nvn/nvn.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;<a class="code" href="nvn___func_ptr_inline_8h.html">nvn/nvn_FuncPtrInline.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">    #if defined( NN_BUILD_TARGET_PLATFORM_OS_NN )</span></div>
+<div class="line"><span class="preprocessor">        #include &lt;<a class="code" href="nvn_tool___glslc_interface_8h.html">nvnTool/nvnTool_GlslcInterface.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">    #endif</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">bool</span> IsDescriptorPoolMode = <span class="keyword">true</span>;</div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">bool</span> IsPipelineMode = <span class="keyword">false</span>;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> ScanBufferCount = 2;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> RenderTargetWidth = 1280;</div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> RenderTargetHeight = 720;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> VsGlsl =</div>
+<div class="line">    <span class="stringliteral">&quot;#version 430\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;out gl_PerVertex\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;{\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;    vec4 gl_Position;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;};\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;in vec4 i_Position;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;in vec2 i_TexCoord;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;out vec2 texCoord;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;void main()\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;{\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;    gl_Position = i_Position;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;    texCoord = i_TexCoord.xy;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;}\n&quot;</span>;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keyword">const</span> PsGlsl =</div>
+<div class="line">    <span class="stringliteral">&quot;#version 430\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;layout( location = 0 ) out vec4 o_Color;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;in vec2 texCoord;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;uniform sampler2D tex;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;layout( std140 ) uniform Mat\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;{\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;    vec4 color;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;};\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;void main()\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;{\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;    vec4 tex_color = texture( tex, texCoord );\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;    o_Color = color + tex_color;\n&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;}\n&quot;</span>;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">float</span> Vertices[] =</div>
+<div class="line">{</div>
+<div class="line">    -0.5f, -0.5f, 0.0f, -0.5f, -0.5f,</div>
+<div class="line">    0.0f, 0.5f, 0.0f, 0.5f, 0.5f,</div>
+<div class="line">    0.5f, -0.5f, 0.0f, 0.5f, -0.5f</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> Indices[] =</div>
+<div class="line">{</div>
+<div class="line">    0, 1, 2</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">int</span> g_BufferDescriptorBaseIndex = 0;</div>
+<div class="line"><span class="keywordtype">int</span> g_TextureDescriptorBaseIndex = 0;</div>
+<div class="line"><span class="keywordtype">int</span> g_SamplerDescriptorBaseIndex = 0;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">// メモリ</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> GraphicsSystemMemorySize = 8 * 1024 * 1024;</div>
+<div class="line"></div>
+<div class="line"><a name="_a0"></a><a class="code" href="classnn_1_1util_1_1_byte_ptr.html">nn::util::BytePtr</a> g_pMemoryHeap( NULL );</div>
+<div class="line"><a class="code" href="classnn_1_1util_1_1_byte_ptr.html">nn::util::BytePtr</a> g_pMemory( NULL );</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">enum</span> MemoryPoolType</div>
+<div class="line">{</div>
+<div class="line">    MemoryPoolType_CpuCached_GpuCached,</div>
+<div class="line">    MemoryPoolType_CpuUncached_GpuCached,</div>
+<div class="line">    MemoryPoolType_CpuInvisible_GpuCached_Compressible,</div>
+<div class="line"></div>
+<div class="line">    MemoryPoolType_End</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> MemoryPoolSize[ MemoryPoolType_End ] =</div>
+<div class="line">{</div>
+<div class="line">    16 * 1024 * 1024,</div>
+<div class="line">    16 * 1024 * 1024,</div>
+<div class="line">    20 * 1024 * 1024</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>* g_pPoolMemory[ MemoryPoolType_End ] = {};</div>
+<div class="line">ptrdiff_t g_MemoryPoolOffset[ MemoryPoolType_End ] = {};</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// ディスプレイを初期化</span></div>
+<div class="line"><a name="_a1"></a><a class="code" href="classnn_1_1vi_1_1_display.html">nn::vi::Display</a>* g_pDisplay;</div>
+<div class="line"><a name="_a2"></a><a class="code" href="classnn_1_1vi_1_1_layer.html">nn::vi::Layer</a>* g_pLayer;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeLayer()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a3"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a name="a4"></a><a class="code" href="namespacenn_1_1vi.html#ae9cd501562a820272816af783bd798dc">nn::vi::OpenDefaultDisplay</a>( &amp;g_pDisplay );</div>
+<div class="line">    <a name="a5"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.<a name="a6"></a><a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>() );</div>
+<div class="line">    <a name="a7"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( result );</div>
+<div class="line"></div>
+<div class="line">    result = <a name="a8"></a><a class="code" href="namespacenn_1_1vi.html#a86b2688dc743e37f3acaca99ccdf8c12">nn::vi::CreateLayer</a>( &amp;g_pLayer, g_pDisplay );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.<a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>() );</div>
+<div class="line"></div>
+<div class="line">    result = <a name="a9"></a><a class="code" href="namespacenn_1_1vi.html#a2b21403527d5c914a19e58b697c7fcb3">nn::vi::SetLayerScalingMode</a>( g_pLayer, <a name="a10"></a><a class="code" href="namespacenn_1_1vi.html#ab220832b6e24cc6c01d8c7de55ab49a8a183897c0b0608120e5ebad8d7b08cc93">nn::vi::ScalingMode_FitToLayer</a> );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.IsSuccess() );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// デバイスを初期化</span></div>
+<div class="line"><a name="_a11"></a><a class="code" href="classnn_1_1gfx_1_1_t_device.html">nn::gfx::Device</a> g_Device;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeDevice()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a12"></a><a class="code" href="classnn_1_1gfx_1_1_device_info.html">nn::gfx::Device::InfoType</a> info;</div>
+<div class="line">    info.<a name="a13"></a><a class="code" href="classnn_1_1gfx_1_1_device_info.html#a2cb416e4373b83e5581daf818c4b2809">SetDefault</a>();</div>
+<div class="line">    info.<a name="a14"></a><a class="code" href="classnn_1_1gfx_1_1_device_info.html#af7b3c5e40d0dd908893c651db2844b53">SetDebugMode</a>( <a name="a15"></a><a class="code" href="namespacenn_1_1gfx.html#a35665e0cf072ae6e38846c0f315d7c0aa7712caf756159fd42526c96775283f96">nn::gfx::DebugMode_Enable</a> );</div>
+<div class="line">    info.<a name="a16"></a><a class="code" href="classnn_1_1gfx_1_1_device_info.html#a5b400f8e8ec5b457db033faab20714af">SetApiVersion</a>( <a name="a17"></a><a class="code" href="namespacenn_1_1gfx.html#aadcb725d8dd0dd4ee3987d07fb990cfd">nn::gfx::ApiMajorVersion</a>, <a name="a18"></a><a class="code" href="namespacenn_1_1gfx.html#a810943869115c31d39dcc3598bddb92a">nn::gfx::ApiMinorVersion</a> );</div>
+<div class="line">    g_Device.<a name="a19"></a><a class="code" href="classnn_1_1gfx_1_1_t_device.html#a78cd197d82ff797eeb658446e9cfe387">Initialize</a>( info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a name="_a20"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html">nn::gfx::MemoryPool</a> g_MemoryPool[ MemoryPoolType_End ];</div>
+<div class="line"><span class="keywordtype">void</span> InitializeMemoryPool()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> <a name="a21"></a><a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623">MemoryPoolProperty</a>[ MemoryPoolType_End ] =</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a22"></a><a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a663a11b1bc56170998d3ca281574e1f1">nn::gfx::MemoryPoolProperty_CpuCached</a> | <a name="a23"></a><a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a98262dd58342754947cd689a64939f13">nn::gfx::MemoryPoolProperty_GpuCached</a>,</div>
+<div class="line">        <a name="a24"></a><a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a52c9ef53497763d967da50e415056a2e">nn::gfx::MemoryPoolProperty_CpuUncached</a> | <a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a98262dd58342754947cd689a64939f13">nn::gfx::MemoryPoolProperty_GpuCached</a>,</div>
+<div class="line">        <a name="a25"></a><a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623ab3cc70e30a942511e9a19ff7a222ce80">nn::gfx::MemoryPoolProperty_CpuInvisible</a> | <a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a98262dd58342754947cd689a64939f13">nn::gfx::MemoryPoolProperty_GpuCached</a></div>
+<div class="line">            | <a name="a26"></a><a class="code" href="namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623aa4997d0d2f3098f3ad4ebae926432472">nn::gfx::MemoryPoolProperty_Compressible</a></div>
+<div class="line">    };</div>
+<div class="line"></div>
+<div class="line">    <a name="_a27"></a><a class="code" href="classnn_1_1gfx_1_1_memory_pool_info.html">nn::gfx::MemoryPool::InfoType</a> info;</div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> idxMemoryPool = 0; idxMemoryPool &lt; MemoryPoolType_End; ++idxMemoryPool )</div>
+<div class="line">    {</div>
+<div class="line">        info.<a name="a28"></a><a class="code" href="classnn_1_1gfx_1_1_memory_pool_info.html#a44095ba4528dc6b167cf13b530bc332f">SetDefault</a>();</div>
+<div class="line">        info.<a name="a29"></a><a class="code" href="classnn_1_1gfx_1_1_memory_pool_info.html#a49eb9305aa9e2e39b25e775c5c0bfeff">SetMemoryPoolProperty</a>( MemoryPoolProperty[ idxMemoryPool ] );</div>
+<div class="line">        <span class="keywordtype">size_t</span> alignment = <a name="a30"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#a24ea067d3fd3c752dcb7332ad2ce3b56">nn::gfx::MemoryPool::GetPoolMemoryAlignment</a>( &amp;g_Device, info );</div>
+<div class="line">        <span class="keywordtype">size_t</span> granularity = <a name="a31"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#aee1bf8475049973f8637ed19653833a1">nn::gfx::MemoryPool::GetPoolMemorySizeGranularity</a>( &amp;g_Device, info );</div>
+<div class="line">        g_pPoolMemory[ idxMemoryPool ] = malloc( MemoryPoolSize[ idxMemoryPool ] );</div>
+<div class="line">        <span class="keywordtype">void</span>* pPoolMemoryAligned = <a class="code" href="classnn_1_1util_1_1_byte_ptr.html">nn::util::BytePtr</a>(</div>
+<div class="line">            g_pPoolMemory[ idxMemoryPool ] ).<a name="a32"></a><a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( alignment ).<a name="a33"></a><a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>();</div>
+<div class="line">        <span class="keywordtype">size_t</span> memoryPoolSizeAligned = <a name="a34"></a><a class="code" href="namespacenn_1_1util.html#a8a8aac07f25fdd659091e1065b8c89a5">nn::util::align_down</a>( MemoryPoolSize[ idxMemoryPool ], granularity );</div>
+<div class="line">        info.<a name="a35"></a><a class="code" href="classnn_1_1gfx_1_1_memory_pool_info.html#aba32b6de36f3db1702087a8c06d5097d">SetPoolMemory</a>( pPoolMemoryAligned, memoryPoolSizeAligned );</div>
+<div class="line">        g_MemoryPool[ idxMemoryPool ].<a name="a36"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#a59045ae9d58968a0b6448d66f0b4781f">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">        g_MemoryPoolOffset[ idxMemoryPool ] = 0;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// スワップチェーンを初期化</span></div>
+<div class="line"><a name="_a37"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html">nn::gfx::SwapChain</a> g_SwapChain;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeSwapChain()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a38"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html">nn::gfx::SwapChain::InfoType</a> info;</div>
+<div class="line"></div>
+<div class="line">    info.<a name="a39"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html#a3ac6ceecac07289b5580e5bf083dc037">SetDefault</a>();</div>
+<div class="line">    info.<a name="a40"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html#a45d3735bcc2edc68a19ce845184a0e8f">SetLayer</a>( g_pLayer );</div>
+<div class="line">    info.<a name="a41"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html#a9d43effd89913b22ceb8670ac2c2b9a4">SetWidth</a>( RenderTargetWidth );</div>
+<div class="line">    info.<a name="a42"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html#afb17a5865e81f13dae1532792d406afb">SetHeight</a>( RenderTargetHeight );</div>
+<div class="line">    info.<a name="a43"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html#a7b4bafd4ea97d6130e74d9763e947bff">SetFormat</a>( <a name="a44"></a><a class="code" href="namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ad679fce65d58a5b097510ff075590526">nn::gfx::ImageFormat_R8_G8_B8_A8_UnormSrgb</a> );</div>
+<div class="line">    info.<a name="a45"></a><a class="code" href="classnn_1_1gfx_1_1_swap_chain_info.html#ab489421ecb43aae64bc8d0d22b612cd0">SetBufferCount</a>( ScanBufferCount );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a name="a46"></a><a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( <a name="a47"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a4bba38bb9f96e845cad769f04b00bc26">nn::gfx::SwapChain::IsMemoryPoolRequired</a> ) )</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">size_t</span> size = g_SwapChain.<a name="a48"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a9bb603e276006241f413dd2702e734ca">CalculateScanBufferSize</a>( &amp;g_Device, info );</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuInvisible_GpuCached_Compressible ];</div>
+<div class="line">        offset = <a name="a49"></a><a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a name="a50"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a4223dd4e76c8d42f61983fa2c859da20">nn::gfx::SwapChain::GetScanBufferAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">        g_SwapChain.<a name="a51"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a9c4b1c9b1103c792c89bb111808f711e">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuInvisible_GpuCached_Compressible ], offset, size );</div>
+<div class="line">        offset += size;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        g_SwapChain.<a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a9c4b1c9b1103c792c89bb111808f711e">Initialize</a>( &amp;g_Device, info, NULL, 0, 0 );</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// キューを初期化</span></div>
+<div class="line"><a name="_a52"></a><a class="code" href="classnn_1_1gfx_1_1_t_queue.html">nn::gfx::Queue</a> g_Queue;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeQueue()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a53"></a><a class="code" href="classnn_1_1gfx_1_1_queue_info.html">nn::gfx::Queue::InfoType</a> info;</div>
+<div class="line">    info.<a name="a54"></a><a class="code" href="classnn_1_1gfx_1_1_queue_info.html#adb123117503c34bb0c5ee707e9b619b2">SetDefault</a>();</div>
+<div class="line">    info.<a name="a55"></a><a class="code" href="classnn_1_1gfx_1_1_queue_info.html#ad39eb3b3594837511c4ed024b96db180">SetCapability</a>( <a name="a56"></a><a class="code" href="namespacenn_1_1gfx.html#a305234f652e5c28bf7caed3bcfab60d3a3c85c0b4d0af93ffe600e26ea8a89e57">nn::gfx::QueueCapability_Graphics</a> );</div>
+<div class="line">    g_Queue.<a name="a57"></a><a class="code" href="classnn_1_1gfx_1_1_t_queue.html#aabd6f0085d48c2af853394c2f1df1767">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// コマンドバッファを初期化</span></div>
+<div class="line"><a name="_a58"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html">nn::gfx::CommandBuffer</a> g_QueueCommandBuffer[ ScanBufferCount ];</div>
+<div class="line"><span class="keywordtype">void</span> InitializeQueueCommandBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a59"></a><a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html">nn::gfx::CommandBuffer::InfoType</a> info;</div>
+<div class="line">    info.<a name="a60"></a><a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html#ae2c8f9bbcf68ce7d42deba2352e4836c">SetDefault</a>();</div>
+<div class="line">    info.<a name="a61"></a><a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html#a1ee219b3f9aa9bc7ffb878de1e4e7574">SetQueueCapability</a>( <a class="code" href="namespacenn_1_1gfx.html#a305234f652e5c28bf7caed3bcfab60d3a3c85c0b4d0af93ffe600e26ea8a89e57">nn::gfx::QueueCapability_Graphics</a> );</div>
+<div class="line">    info.<a name="a62"></a><a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html#a2dc75925a14c5d81ebd838b730a6a026">SetCommandBufferType</a>( <a name="a63"></a><a class="code" href="namespacenn_1_1gfx.html#a0e171a31353ada1910b428cd08e7d2d3a6009481892695c8b4bcfca4ab86d9313">nn::gfx::CommandBufferType_Direct</a> );</div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> idxCommandBuffer = 0; idxCommandBuffer &lt; ScanBufferCount; ++idxCommandBuffer )</div>
+<div class="line">    {</div>
+<div class="line">        g_QueueCommandBuffer[ idxCommandBuffer ].<a name="a64"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a5ceea989aa3ee861d3d3e57316b190ec">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html">nn::gfx::CommandBuffer</a> g_CommandBuffer;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeCommandBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html">nn::gfx::CommandBuffer::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html#ae2c8f9bbcf68ce7d42deba2352e4836c">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html#a1ee219b3f9aa9bc7ffb878de1e4e7574">SetQueueCapability</a>( <a class="code" href="namespacenn_1_1gfx.html#a305234f652e5c28bf7caed3bcfab60d3a3c85c0b4d0af93ffe600e26ea8a89e57">nn::gfx::QueueCapability_Graphics</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_command_buffer_info.html#a2dc75925a14c5d81ebd838b730a6a026">SetCommandBufferType</a>( <a name="a65"></a><a class="code" href="namespacenn_1_1gfx.html#a0e171a31353ada1910b428cd08e7d2d3a334e30250c695f8bfed86fc89b3dc49e">nn::gfx::CommandBufferType_Nested</a> );</div>
+<div class="line">    g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a5ceea989aa3ee861d3d3e57316b190ec">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// ビューポートシザーを初期化</span></div>
+<div class="line"><a name="_a66"></a><a class="code" href="classnn_1_1gfx_1_1_t_viewport_scissor_state.html">nn::gfx::ViewportScissorState</a> g_ViewportScissor;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeViewport()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a67"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_scissor_state_info.html">nn::gfx::ViewportScissorState::InfoType</a> info;</div>
+<div class="line">    info.<a name="a68"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_scissor_state_info.html#ab9c4f718c28bbd39b9ccb11c1fc74a21">SetDefault</a>();</div>
+<div class="line">    info.<a name="a69"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_scissor_state_info.html#a4cfc5de9d6913b0caf3f3d61a6eaae2c">SetScissorEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line">    <a name="_a70"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_state_info.html">nn::gfx::ViewportStateInfo</a> viewportInfo;</div>
+<div class="line">    {</div>
+<div class="line">        viewportInfo.<a name="a71"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_state_info.html#ab2f35b1c78bd77d5d18202cff743902a">SetDefault</a>();</div>
+<div class="line">        viewportInfo.<a name="a72"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_state_info.html#a5f2ee737e00c49646f66bc3eab21824a">SetWidth</a>( static_cast&lt; float &gt;( RenderTargetWidth ) );</div>
+<div class="line">        viewportInfo.<a name="a73"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_state_info.html#a4546e049c35d16267d7f17c29de27511">SetHeight</a>( static_cast&lt; float &gt;( RenderTargetHeight ) );</div>
+<div class="line">    }</div>
+<div class="line">    <a name="_a74"></a><a class="code" href="classnn_1_1gfx_1_1_scissor_state_info.html">nn::gfx::ScissorStateInfo</a> scissorInfo;</div>
+<div class="line">    {</div>
+<div class="line">        scissorInfo.<a name="a75"></a><a class="code" href="classnn_1_1gfx_1_1_scissor_state_info.html#a6e56a6510701c498bd9b0cf1e2bd76d8">SetDefault</a>();</div>
+<div class="line">        scissorInfo.<a name="a76"></a><a class="code" href="classnn_1_1gfx_1_1_scissor_state_info.html#a32b5bcc1f381044da047847f4928285b">SetWidth</a>( RenderTargetWidth );</div>
+<div class="line">        scissorInfo.<a name="a77"></a><a class="code" href="classnn_1_1gfx_1_1_scissor_state_info.html#a57465efb7793057fe855f61d7e10dea0">SetHeight</a>( RenderTargetHeight );</div>
+<div class="line">    }</div>
+<div class="line">    info.<a name="a78"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_scissor_state_info.html#a8f4e89948a5dc8d65392565442c4bf77">SetViewportStateInfoArray</a>( &amp;viewportInfo, 1 );</div>
+<div class="line">    info.<a name="a79"></a><a class="code" href="classnn_1_1gfx_1_1_viewport_scissor_state_info.html#af7b01ae781d2d2b04b88e23e4606f218">SetScissorStateInfoArray</a>( &amp;scissorInfo, 1 );</div>
+<div class="line">    <span class="comment">// ビューポートの数がひとつのときは追加要求メモリなし</span></div>
+<div class="line">    g_ViewportScissor.<a name="a80"></a><a class="code" href="classnn_1_1gfx_1_1_t_viewport_scissor_state.html#a0f44e5cfdd496380fc4aa818195adf9e">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 頂点シェーダを初期化</span></div>
+<div class="line"><a name="_a81"></a><a class="code" href="classnn_1_1gfx_1_1_t_shader.html">nn::gfx::Shader</a> g_VertexShader;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeVertexShader()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a82"></a><a class="code" href="classnn_1_1gfx_1_1_shader_info.html">nn::gfx::Shader::InfoType</a> info;</div>
+<div class="line">    info.<a name="a83"></a><a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a102fc1aa14553548dabaab13d6a7c6c8">SetDefault</a>();</div>
+<div class="line">    info.<a name="a84"></a><a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a281495fe6c18ea882544a90391dba39b">SetSeparationEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line"><span class="preprocessor">#ifdef CAFE</span></div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( VsGlsl );</div>
+<div class="line">    info.<a name="a85"></a><a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a name="a86"></a><a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73feaa5a9e711b0362499e98049d578099ac7">nn::gfx::ShaderStage_Vertex</a>, &amp;SimpleShader_VS );</div>
+<div class="line">    info.<a name="a87"></a><a class="code" href="classnn_1_1gfx_1_1_shader_info.html#aa740e0a0c30b5b639189c98ab450b2a7">SetCodeType</a>( <a name="a88"></a><a class="code" href="namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455a36acc7fa8a2a62deba785b8825d71c40">nn::gfx::ShaderCodeType_Binary</a> );</div>
+<div class="line"><span class="preprocessor">#else</span></div>
+<div class="line">    <a name="_a89"></a><a class="code" href="structnn_1_1gfx_1_1_shader_code.html">nn::gfx::ShaderCode</a> code;</div>
+<div class="line">    code.<a name="a90"></a><a class="code" href="structnn_1_1gfx_1_1_shader_code.html#ac076127868ed0c71a6140a9803ec6d16">codeSize</a> = <span class="keyword">static_cast&lt;</span> uint32_t <span class="keyword">&gt;</span>( strlen( VsGlsl ) );</div>
+<div class="line">    code.<a name="a91"></a><a class="code" href="structnn_1_1gfx_1_1_shader_code.html#a3e8dc06f0f818556a4b2218d5efc49a6">pCode</a> = VsGlsl;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73feaa5a9e711b0362499e98049d578099ac7">nn::gfx::ShaderStage_Vertex</a>, &amp;code );</div>
+<div class="line">    info.<a name="a92"></a><a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a9b2040b1e673b5a12445fd28cdb2b0e3">SetSourceFormat</a>( <a name="a93"></a><a class="code" href="namespacenn_1_1gfx.html#adc920051ac721033328c13cf667901afa199717e9b16f6d807bd3116221da9db0">nn::gfx::ShaderSourceFormat_Glsl</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#aa740e0a0c30b5b639189c98ab450b2a7">SetCodeType</a>( <a name="a94"></a><a class="code" href="namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455a3cf271292131cceee9c228c73f9f788e">nn::gfx::ShaderCodeType_Source</a> );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a52eb9f5e1bec94e73a2bb152af8e3d91">nn::gfx::ShaderInitializeResult</a> result = g_VertexShader.<a name="a95"></a><a class="code" href="classnn_1_1gfx_1_1_t_shader.html#adc9b3152309b5c3af8854cdb08adceab">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result == <a name="a96"></a><a class="code" href="namespacenn_1_1gfx.html#a52eb9f5e1bec94e73a2bb152af8e3d91ad542c72930fffff3ee80a71bef4e3c07">nn::gfx::ShaderInitializeResult_Success</a> );</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( result );</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">// ピクセルシェーダを初期化</span></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_shader.html">nn::gfx::Shader</a> g_PixelShader;</div>
+<div class="line"><span class="keywordtype">int</span> g_SlotTex;</div>
+<div class="line"><span class="keywordtype">int</span> g_SlotMat;</div>
+<div class="line"><span class="keywordtype">void</span> InitializePixelShader()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_shader_info.html">nn::gfx::Shader::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a102fc1aa14553548dabaab13d6a7c6c8">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a281495fe6c18ea882544a90391dba39b">SetSeparationEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line"><span class="preprocessor">#ifdef CAFE</span></div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( PsGlsl );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a name="a97"></a><a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, &amp;SimpleShader_PS );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#aa740e0a0c30b5b639189c98ab450b2a7">SetCodeType</a>( <a class="code" href="namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455a36acc7fa8a2a62deba785b8825d71c40">nn::gfx::ShaderCodeType_Binary</a> );</div>
+<div class="line"><span class="preprocessor">#else</span></div>
+<div class="line">    <a class="code" href="structnn_1_1gfx_1_1_shader_code.html">nn::gfx::ShaderCode</a> code;</div>
+<div class="line">    code.<a class="code" href="structnn_1_1gfx_1_1_shader_code.html#ac076127868ed0c71a6140a9803ec6d16">codeSize</a> = <span class="keyword">static_cast&lt;</span> uint32_t <span class="keyword">&gt;</span>( strlen( PsGlsl ) );</div>
+<div class="line">    code.<a class="code" href="structnn_1_1gfx_1_1_shader_code.html#a3e8dc06f0f818556a4b2218d5efc49a6">pCode</a> = PsGlsl;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, &amp;code );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a9b2040b1e673b5a12445fd28cdb2b0e3">SetSourceFormat</a>( <a class="code" href="namespacenn_1_1gfx.html#adc920051ac721033328c13cf667901afa199717e9b16f6d807bd3116221da9db0">nn::gfx::ShaderSourceFormat_Glsl</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#aa740e0a0c30b5b639189c98ab450b2a7">SetCodeType</a>( <a class="code" href="namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455a3cf271292131cceee9c228c73f9f788e">nn::gfx::ShaderCodeType_Source</a> );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a52eb9f5e1bec94e73a2bb152af8e3d91">nn::gfx::ShaderInitializeResult</a> result = g_PixelShader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#adc9b3152309b5c3af8854cdb08adceab">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result == <a class="code" href="namespacenn_1_1gfx.html#a52eb9f5e1bec94e73a2bb152af8e3d91ad542c72930fffff3ee80a71bef4e3c07">nn::gfx::ShaderInitializeResult_Success</a> );</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( result );</div>
+<div class="line"></div>
+<div class="line">    g_SlotMat = g_PixelShader.<a name="a98"></a><a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a40f2b7445a7507aa747549259ce13a86">GetInterfaceSlot</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>,</div>
+<div class="line">        <a name="a99"></a><a class="code" href="namespacenn_1_1gfx.html#ab1daeef6bae19eb4973f832b77ce72a6ab7fbbea1768272a153568501e23161c4">nn::gfx::ShaderInterfaceType_ConstantBuffer</a>, <span class="stringliteral">&quot;Mat&quot;</span> );</div>
+<div class="line">    g_SlotTex = g_PixelShader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a40f2b7445a7507aa747549259ce13a86">GetInterfaceSlot</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>,</div>
+<div class="line">        <a name="a100"></a><a class="code" href="namespacenn_1_1gfx.html#ab1daeef6bae19eb4973f832b77ce72a6aad5cae847813afbd39070bb0f8a6b7fd">nn::gfx::ShaderInterfaceType_Sampler</a>, <span class="stringliteral">&quot;tex&quot;</span> );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// パイプラインを初期化</span></div>
+<div class="line"><a name="_a101"></a><a class="code" href="classnn_1_1gfx_1_1_t_pipeline.html">nn::gfx::Pipeline</a> g_Pipeline;</div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_shader.html">nn::gfx::Shader</a> g_Shader;</div>
+<div class="line"><span class="keywordtype">void</span> InitializePipeline()</div>
+<div class="line">{</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="classnn_1_1gfx_1_1_shader_info.html">nn::gfx::Shader::InfoType</a> info;</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a102fc1aa14553548dabaab13d6a7c6c8">SetDefault</a>();</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a281495fe6c18ea882544a90391dba39b">SetSeparationEnabled</a>( <span class="keyword">false</span> );</div>
+<div class="line"><span class="preprocessor">#if defined( CAFE )</span></div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( VsGlsl );</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( PsGlsl );</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73feaa5a9e711b0362499e98049d578099ac7">nn::gfx::ShaderStage_Vertex</a>, &amp;SimpleShader_VS );</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, &amp;SimpleShader_PS );</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#aa740e0a0c30b5b639189c98ab450b2a7">SetCodeType</a>( <a class="code" href="namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455a36acc7fa8a2a62deba785b8825d71c40">nn::gfx::ShaderCodeType_Binary</a> );</div>
+<div class="line"><span class="preprocessor">#else</span></div>
+<div class="line">        <a class="code" href="structnn_1_1gfx_1_1_shader_code.html">nn::gfx::ShaderCode</a> vsCode;</div>
+<div class="line">        vsCode.<a class="code" href="structnn_1_1gfx_1_1_shader_code.html#ac076127868ed0c71a6140a9803ec6d16">codeSize</a> = <span class="keyword">static_cast&lt;</span> uint32_t <span class="keyword">&gt;</span>( strlen( VsGlsl ) );</div>
+<div class="line">        vsCode.<a class="code" href="structnn_1_1gfx_1_1_shader_code.html#a3e8dc06f0f818556a4b2218d5efc49a6">pCode</a> = VsGlsl;</div>
+<div class="line">        <a class="code" href="structnn_1_1gfx_1_1_shader_code.html">nn::gfx::ShaderCode</a> psCode;</div>
+<div class="line">        psCode.<a class="code" href="structnn_1_1gfx_1_1_shader_code.html#ac076127868ed0c71a6140a9803ec6d16">codeSize</a> = <span class="keyword">static_cast&lt;</span> uint32_t <span class="keyword">&gt;</span>( strlen( PsGlsl ) );</div>
+<div class="line">        psCode.<a class="code" href="structnn_1_1gfx_1_1_shader_code.html#a3e8dc06f0f818556a4b2218d5efc49a6">pCode</a> = PsGlsl;</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73feaa5a9e711b0362499e98049d578099ac7">nn::gfx::ShaderStage_Vertex</a>, &amp;vsCode );</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a76d3b906c15eebfb00589b5969d242bc">SetShaderCodePtr</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, &amp;psCode );</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#a9b2040b1e673b5a12445fd28cdb2b0e3">SetSourceFormat</a>( <a class="code" href="namespacenn_1_1gfx.html#adc920051ac721033328c13cf667901afa199717e9b16f6d807bd3116221da9db0">nn::gfx::ShaderSourceFormat_Glsl</a> );</div>
+<div class="line">        info.<a class="code" href="classnn_1_1gfx_1_1_shader_info.html#aa740e0a0c30b5b639189c98ab450b2a7">SetCodeType</a>( <a class="code" href="namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455a3cf271292131cceee9c228c73f9f788e">nn::gfx::ShaderCodeType_Source</a> );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">        <a class="code" href="namespacenn_1_1gfx.html#a52eb9f5e1bec94e73a2bb152af8e3d91">nn::gfx::ShaderInitializeResult</a> result = g_Shader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#adc9b3152309b5c3af8854cdb08adceab">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result == <a class="code" href="namespacenn_1_1gfx.html#a52eb9f5e1bec94e73a2bb152af8e3d91ad542c72930fffff3ee80a71bef4e3c07">nn::gfx::ShaderInitializeResult_Success</a> );</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( result );</div>
+<div class="line">        g_SlotMat = g_Shader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a40f2b7445a7507aa747549259ce13a86">GetInterfaceSlot</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>,</div>
+<div class="line">            <a class="code" href="namespacenn_1_1gfx.html#ab1daeef6bae19eb4973f832b77ce72a6ab7fbbea1768272a153568501e23161c4">nn::gfx::ShaderInterfaceType_ConstantBuffer</a>, <span class="stringliteral">&quot;Mat&quot;</span> );</div>
+<div class="line">        g_SlotTex = g_Shader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a40f2b7445a7507aa747549259ce13a86">GetInterfaceSlot</a>( <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>,</div>
+<div class="line">            <a class="code" href="namespacenn_1_1gfx.html#ab1daeef6bae19eb4973f832b77ce72a6aad5cae847813afbd39070bb0f8a6b7fd">nn::gfx::ShaderInterfaceType_Sampler</a>, <span class="stringliteral">&quot;tex&quot;</span> );</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="_a102"></a><a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html">nn::gfx::RasterizerState::InfoType</a> rasterizerStateInfo;</div>
+<div class="line">    rasterizerStateInfo.<a name="a103"></a><a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a45a46efee0f61cab478fd5a41be0e9b9">SetDefault</a>();</div>
+<div class="line">    rasterizerStateInfo.<a name="a104"></a><a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a92289196919c33b4b55f6379463be28d">SetCullMode</a>( <a name="a105"></a><a class="code" href="namespacenn_1_1gfx.html#af10f98bfe496b042c8efd7e5a99e8a3aa7fb8a9e531b3753b321c74afc29ab86f">nn::gfx::CullMode_None</a> );</div>
+<div class="line">    rasterizerStateInfo.<a name="a106"></a><a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#ac41e9cda160239333202215bea73c5b1">SetPrimitiveTopologyType</a>( <a name="a107"></a><a class="code" href="namespacenn_1_1gfx.html#a6fcf21493e8aeae81cec48c49eec5ad8afb917cda5a7dcb6daf3764a63786baa4">nn::gfx::PrimitiveTopologyType_Triangle</a> );</div>
+<div class="line">    rasterizerStateInfo.<a name="a108"></a><a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a253866f358c056a5e6e6c531cb1029f9">SetScissorEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line">    rasterizerStateInfo.<a name="a109"></a><a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a5358351caf04fc526dc378c45e24d238">SetDepthClipEnabled</a>( <span class="keyword">false</span> );</div>
+<div class="line"></div>
+<div class="line">    <a name="_a110"></a><a class="code" href="classnn_1_1gfx_1_1_blend_state_info.html">nn::gfx::BlendState::InfoType</a> blendStateInfo;</div>
+<div class="line">    blendStateInfo.<a name="a111"></a><a class="code" href="classnn_1_1gfx_1_1_blend_state_info.html#a76f3150742ecfcf23c1fae90fd3e56bb">SetDefault</a>();</div>
+<div class="line">    <a name="_a112"></a><a class="code" href="classnn_1_1gfx_1_1_blend_target_state_info.html">nn::gfx::BlendTargetStateInfo</a> blendTargetStateInfo;</div>
+<div class="line">    {</div>
+<div class="line">        blendTargetStateInfo.<a name="a113"></a><a class="code" href="classnn_1_1gfx_1_1_blend_target_state_info.html#a9895fb0508aa80516823d15b7430f717">SetDefault</a>();</div>
+<div class="line">    };</div>
+<div class="line">    blendStateInfo.<a name="a114"></a><a class="code" href="classnn_1_1gfx_1_1_blend_state_info.html#af5443a1e809276d057e67e728c520ccc">SetBlendTargetStateInfoArray</a>( &amp;blendTargetStateInfo, 1 );</div>
+<div class="line"></div>
+<div class="line">    <a name="_a115"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html">nn::gfx::DepthStencilState::InfoType</a> depthStencilStateInfo;</div>
+<div class="line">    depthStencilStateInfo.<a name="a116"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html#a625c1e2d78a22bdfe924768332ec8a09">SetDefault</a>();</div>
+<div class="line">    depthStencilStateInfo.<a name="a117"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html#a7b378183626b680dd8c153cd7d6cabb0">SetDepthTestEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line">    depthStencilStateInfo.<a name="a118"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html#a5689e4c548008489d78e04af10e1ed0e">SetDepthWriteEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line"></div>
+<div class="line">    <a name="_a119"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html">nn::gfx::VertexState::InfoType</a> vertexStateInfo;</div>
+<div class="line">    vertexStateInfo.<a name="a120"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html#a288d4df89c521ba94213c28aeda3974f">SetDefault</a>();</div>
+<div class="line">    ptrdiff_t stride = <span class="keyword">sizeof</span>( float ) * 5;</div>
+<div class="line">    <a name="_a121"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html">nn::gfx::VertexAttributeStateInfo</a> vertexAttributeStateInfo[ 2 ];</div>
+<div class="line">    {</div>
+<div class="line">        vertexAttributeStateInfo[ 0 ].<a name="a122"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#af2d6004ad1f4fedce84b3b6d32571807">SetDefault</a>();</div>
+<div class="line">        vertexAttributeStateInfo[ 0 ].<a name="a123"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a178380d476d3d236261ac9c37eac339b">SetNamePtr</a>( <span class="stringliteral">&quot;i_Position&quot;</span> );</div>
+<div class="line">        vertexAttributeStateInfo[ 0 ].<a name="a124"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a7b8b117150c06e6f15645cd370ebee83">SetBufferIndex</a>( 0 );</div>
+<div class="line">        vertexAttributeStateInfo[ 0 ].<a name="a125"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a0fddeb963eb51084566d728179859cce">SetFormat</a>( <a name="a126"></a><a class="code" href="namespacenn_1_1gfx.html#a9400d72942c2a253b3b87837380a11b8a2685adf06b5cfa1ffb32525af207ae18">nn::gfx::AttributeFormat_32_32_32_Float</a> );</div>
+<div class="line">        vertexAttributeStateInfo[ 0 ].<a name="a127"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a20dafb6550061b2fb68025ec37d1bf6c">SetOffset</a>( 0 );</div>
+<div class="line">    }</div>
+<div class="line">    {</div>
+<div class="line">        vertexAttributeStateInfo[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#af2d6004ad1f4fedce84b3b6d32571807">SetDefault</a>();</div>
+<div class="line">        vertexAttributeStateInfo[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a178380d476d3d236261ac9c37eac339b">SetNamePtr</a>( <span class="stringliteral">&quot;i_TexCoord&quot;</span> );</div>
+<div class="line">        vertexAttributeStateInfo[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a7b8b117150c06e6f15645cd370ebee83">SetBufferIndex</a>( 0 );</div>
+<div class="line">        vertexAttributeStateInfo[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a0fddeb963eb51084566d728179859cce">SetFormat</a>( <a name="a128"></a><a class="code" href="namespacenn_1_1gfx.html#a9400d72942c2a253b3b87837380a11b8a901dc076be56ddcafd693fd566e09801">nn::gfx::AttributeFormat_32_32_Float</a> );</div>
+<div class="line">        vertexAttributeStateInfo[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a20dafb6550061b2fb68025ec37d1bf6c">SetOffset</a>( <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 3 );</div>
+<div class="line">    }</div>
+<div class="line">    <a name="_a129"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_buffer_state_info.html">nn::gfx::VertexBufferStateInfo</a> vertexBufferStateInfo;</div>
+<div class="line">    {</div>
+<div class="line">        vertexBufferStateInfo.<a name="a130"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_buffer_state_info.html#a101fb66a31611c4dc43a47db963b23bc">SetDefault</a>();</div>
+<div class="line">        vertexBufferStateInfo.<a name="a131"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_buffer_state_info.html#a93e8020f74cb57101e42aa3c718474fe">SetStride</a>( stride );</div>
+<div class="line">    }</div>
+<div class="line">    vertexStateInfo.<a name="a132"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html#a0c77abd14a547bd4264d4bcb36bba3e3">SetVertexAttributeStateInfoArray</a>( vertexAttributeStateInfo, 2 );</div>
+<div class="line">    vertexStateInfo.<a name="a133"></a><a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html#ac299c861afc2be2c45c58da4b1ee4bd6">SetVertexBufferStateInfoArray</a>( &amp;vertexBufferStateInfo, 1 );</div>
+<div class="line"></div>
+<div class="line">    <a name="_a134"></a><a class="code" href="classnn_1_1gfx_1_1_render_target_state_info.html">nn::gfx::RenderTargetStateInfo</a> renderTargetStateInfo;</div>
+<div class="line">    renderTargetStateInfo.<a name="a135"></a><a class="code" href="classnn_1_1gfx_1_1_render_target_state_info.html#a06074c9b19af4e97bddd889caaeebfe1">SetDefault</a>();</div>
+<div class="line"></div>
+<div class="line">    nn::gfx::Pipeline::InfoType info;</div>
+<div class="line">    info.SetDefault();</div>
+<div class="line">    info.SetShaderPtr( &amp;g_Shader );</div>
+<div class="line">    info.SetRasterizerStateInfo( &amp;rasterizerStateInfo );</div>
+<div class="line">    info.SetBlendStateInfo( &amp;blendStateInfo );</div>
+<div class="line">    info.SetDepthStencilStateInfo( &amp;depthStencilStateInfo );</div>
+<div class="line">    info.SetVertexStateInfo( &amp;vertexStateInfo );</div>
+<div class="line">    info.SetRenderTargetStateInfo( &amp;renderTargetStateInfo );</div>
+<div class="line">    <span class="keywordtype">size_t</span> dataSize = <a name="a136"></a><a class="code" href="classnn_1_1gfx_1_1_t_pipeline.html#ad919329391e87cdf5dc3119e0677f121">nn::gfx::Pipeline::GetRequiredMemorySize</a>( info );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( <a name="a137"></a><a class="code" href="classnn_1_1gfx_1_1_t_pipeline.html#a2e79d88735159cf7013cb13be741dabea9aeea5fa089332cda22035543278e695">nn::gfx::Pipeline::RequiredMemoryInfo_Alignment</a> );</div>
+<div class="line">    g_Pipeline.<a name="a138"></a><a class="code" href="classnn_1_1gfx_1_1_t_pipeline.html#a290a0657d97931310fec196056d091d0">SetMemory</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>(), dataSize );</div>
+<div class="line">    g_pMemory.<a name="a139"></a><a class="code" href="classnn_1_1util_1_1_byte_ptr.html#af44783b143e4350c3aaef5d576007f96">Advance</a>( dataSize );</div>
+<div class="line">    g_Pipeline.<a name="a140"></a><a class="code" href="classnn_1_1gfx_1_1_t_pipeline.html#a991fb6795efdffe730224d6bce8a4a92">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Initialize the rasterizer state</span></div>
+<div class="line"><a name="_a141"></a><a class="code" href="classnn_1_1gfx_1_1_t_rasterizer_state.html">nn::gfx::RasterizerState</a> g_RasterizerState;</div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> InitializeRasterizerState()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html">nn::gfx::RasterizerState::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a45a46efee0f61cab478fd5a41be0e9b9">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a92289196919c33b4b55f6379463be28d">SetCullMode</a>( <a class="code" href="namespacenn_1_1gfx.html#af10f98bfe496b042c8efd7e5a99e8a3aa7fb8a9e531b3753b321c74afc29ab86f">nn::gfx::CullMode_None</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#ac41e9cda160239333202215bea73c5b1">SetPrimitiveTopologyType</a>( <a class="code" href="namespacenn_1_1gfx.html#a6fcf21493e8aeae81cec48c49eec5ad8afb917cda5a7dcb6daf3764a63786baa4">nn::gfx::PrimitiveTopologyType_Triangle</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a253866f358c056a5e6e6c531cb1029f9">SetScissorEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_rasterizer_state_info.html#a5358351caf04fc526dc378c45e24d238">SetDepthClipEnabled</a>( <span class="keyword">false</span> );</div>
+<div class="line">    g_RasterizerState.<a name="a142"></a><a class="code" href="classnn_1_1gfx_1_1_t_rasterizer_state.html#ab8bff07010deabb29f933514e25a5ddf">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Initialize the blend state</span></div>
+<div class="line"><a name="_a143"></a><a class="code" href="classnn_1_1gfx_1_1_t_blend_state.html">nn::gfx::BlendState</a> g_BlendState;</div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> InitializeBlendState()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_blend_state_info.html">nn::gfx::BlendState::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_blend_state_info.html#a76f3150742ecfcf23c1fae90fd3e56bb">SetDefault</a>();</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_blend_target_state_info.html">nn::gfx::BlendTargetStateInfo</a> targetInfo;</div>
+<div class="line">    {</div>
+<div class="line">        targetInfo.<a class="code" href="classnn_1_1gfx_1_1_blend_target_state_info.html#a9895fb0508aa80516823d15b7430f717">SetDefault</a>();</div>
+<div class="line">    };</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_blend_state_info.html#af5443a1e809276d057e67e728c520ccc">SetBlendTargetStateInfoArray</a>( &amp;targetInfo, 1 );</div>
+<div class="line">    <span class="keywordtype">size_t</span> size = <a name="a144"></a><a class="code" href="classnn_1_1gfx_1_1_t_blend_state.html#abe1303314a2531918705097b6d767813">nn::gfx::BlendState::GetRequiredMemorySize</a>( info );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( <a name="a145"></a><a class="code" href="classnn_1_1gfx_1_1_t_blend_state.html#ae951838a409bd52c2898c4527eb53de5a2f66ce8fa0036dcffedf0132f377995f">nn::gfx::BlendState::RequiredMemoryInfo_Alignment</a> );</div>
+<div class="line">    g_BlendState.<a name="a146"></a><a class="code" href="classnn_1_1gfx_1_1_t_blend_state.html#a1586662eba3503e93e0ee20667ac0c62">SetMemory</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>(), size );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#af44783b143e4350c3aaef5d576007f96">Advance</a>( size );</div>
+<div class="line">    g_BlendState.<a name="a147"></a><a class="code" href="classnn_1_1gfx_1_1_t_blend_state.html#af5db37942061feee28e6e0ba533b8470">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Initialize the depth stencil state</span></div>
+<div class="line"><a name="_a148"></a><a class="code" href="classnn_1_1gfx_1_1_t_depth_stencil_state.html">nn::gfx::DepthStencilState</a> g_DepthStencilState;</div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> InitializeDepthStencilState()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html">nn::gfx::DepthStencilState::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html#a625c1e2d78a22bdfe924768332ec8a09">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html#a7b378183626b680dd8c153cd7d6cabb0">SetDepthTestEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_depth_stencil_state_info.html#a5689e4c548008489d78e04af10e1ed0e">SetDepthWriteEnabled</a>( <span class="keyword">true</span> );</div>
+<div class="line">    g_DepthStencilState.<a name="a149"></a><a class="code" href="classnn_1_1gfx_1_1_t_depth_stencil_state.html#af6810c239aae3e3ae854634075fee8b6">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Initialize the vertex state</span></div>
+<div class="line"><a name="_a150"></a><a class="code" href="classnn_1_1gfx_1_1_t_vertex_state.html">nn::gfx::VertexState</a> g_VertexState;</div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> InitializeVertexState()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html">nn::gfx::VertexState::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html#a288d4df89c521ba94213c28aeda3974f">SetDefault</a>();</div>
+<div class="line">    ptrdiff_t stride = <span class="keyword">sizeof</span>( float ) * 5;</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html">nn::gfx::VertexAttributeStateInfo</a> attribs[ 2 ];</div>
+<div class="line">    {</div>
+<div class="line">        attribs[ 0 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#af2d6004ad1f4fedce84b3b6d32571807">SetDefault</a>();</div>
+<div class="line">        attribs[ 0 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a178380d476d3d236261ac9c37eac339b">SetNamePtr</a>( <span class="stringliteral">&quot;i_Position&quot;</span> );</div>
+<div class="line">        attribs[ 0 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a7b8b117150c06e6f15645cd370ebee83">SetBufferIndex</a>( 0 );</div>
+<div class="line">        attribs[ 0 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a0fddeb963eb51084566d728179859cce">SetFormat</a>( <a class="code" href="namespacenn_1_1gfx.html#a9400d72942c2a253b3b87837380a11b8a2685adf06b5cfa1ffb32525af207ae18">nn::gfx::AttributeFormat_32_32_32_Float</a> );</div>
+<div class="line">        attribs[ 0 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a20dafb6550061b2fb68025ec37d1bf6c">SetOffset</a>( 0 );</div>
+<div class="line">    }</div>
+<div class="line">    {</div>
+<div class="line">        attribs[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#af2d6004ad1f4fedce84b3b6d32571807">SetDefault</a>();</div>
+<div class="line">        attribs[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a178380d476d3d236261ac9c37eac339b">SetNamePtr</a>( <span class="stringliteral">&quot;i_TexCoord&quot;</span> );</div>
+<div class="line">        attribs[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a7b8b117150c06e6f15645cd370ebee83">SetBufferIndex</a>( 0 );</div>
+<div class="line">        attribs[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a0fddeb963eb51084566d728179859cce">SetFormat</a>( <a class="code" href="namespacenn_1_1gfx.html#a9400d72942c2a253b3b87837380a11b8a901dc076be56ddcafd693fd566e09801">nn::gfx::AttributeFormat_32_32_Float</a> );</div>
+<div class="line">        attribs[ 1 ].<a class="code" href="classnn_1_1gfx_1_1_vertex_attribute_state_info.html#a20dafb6550061b2fb68025ec37d1bf6c">SetOffset</a>( <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 3 );</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_vertex_buffer_state_info.html">nn::gfx::VertexBufferStateInfo</a> buffer;</div>
+<div class="line">    {</div>
+<div class="line">        buffer.<a class="code" href="classnn_1_1gfx_1_1_vertex_buffer_state_info.html#a101fb66a31611c4dc43a47db963b23bc">SetDefault</a>();</div>
+<div class="line">        buffer.<a class="code" href="classnn_1_1gfx_1_1_vertex_buffer_state_info.html#a93e8020f74cb57101e42aa3c718474fe">SetStride</a>( stride );</div>
+<div class="line">    }</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html#a0c77abd14a547bd4264d4bcb36bba3e3">SetVertexAttributeStateInfoArray</a>( attribs, 2 );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_vertex_state_info.html#ac299c861afc2be2c45c58da4b1ee4bd6">SetVertexBufferStateInfoArray</a>( &amp;buffer, 1 );</div>
+<div class="line">    <span class="keywordtype">size_t</span> size = <a name="a151"></a><a class="code" href="classnn_1_1gfx_1_1_t_vertex_state.html#a794f62501ffab3aebd46dc4607536367">nn::gfx::VertexState::GetRequiredMemorySize</a>( info );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( <a name="a152"></a><a class="code" href="classnn_1_1gfx_1_1_t_vertex_state.html#af160b1c52f080aa17003ae2f76270f04a28f95f8dd0ae4f2463b624523c3ce715">nn::gfx::VertexState::RequiredMemoryInfo_Alignment</a> );</div>
+<div class="line">    g_VertexState.<a name="a153"></a><a class="code" href="classnn_1_1gfx_1_1_t_vertex_state.html#af340c8323a047f7cbe9911ce4878235b">SetMemory</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>(), size );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#af44783b143e4350c3aaef5d576007f96">Advance</a>( size );</div>
+<div class="line">    g_VertexState.<a name="a154"></a><a class="code" href="classnn_1_1gfx_1_1_t_vertex_state.html#abf0b283095f8d47b616588b9e83369b0">Initialize</a>( &amp;g_Device, info, &amp;g_VertexShader );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 頂点用のバッファを初期化</span></div>
+<div class="line"><a name="_a155"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html">nn::gfx::Buffer</a> g_VertexBuffer;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeVertexBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a156"></a><a class="code" href="classnn_1_1gfx_1_1_buffer_info.html">nn::gfx::Buffer::InfoType</a> info;</div>
+<div class="line">    info.<a name="a157"></a><a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#a234ab03cd4d0ea8dfdfbe588a0895eac">SetDefault</a>();</div>
+<div class="line">    info.<a name="a158"></a><a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#acf66bfe2703001b5c3c800d73fae0dc5">SetSize</a>( <span class="keyword">sizeof</span>( Vertices ) );</div>
+<div class="line">    info.<a name="a159"></a><a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#a8baa33ab5cf098fcec0e1609c6ecf0c7">SetGpuAccessFlags</a>( <a name="a160"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5aa319bbae0c949cb5829c882b68e7500a">nn::gfx::GpuAccess_VertexBuffer</a> );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( <a name="a161"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#af96326338663a23e227df75dd7d32faa">nn::gfx::Buffer::IsMemoryPoolRequired</a> ) )</div>
+<div class="line">    {</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">        offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a name="a162"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a99b1cd500e55e26460655d68eee13842">nn::gfx::Buffer::GetBufferAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">        g_VertexBuffer.<a name="a163"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a4052c47a96fb7c0b60f851b423fa6d39">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, info.<a name="a164"></a><a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>() );</div>
+<div class="line">        offset += info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>();</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        g_VertexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a4052c47a96fb7c0b60f851b423fa6d39">Initialize</a>( &amp;g_Device, info, NULL, 0, 0 );</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span>* pMapped = g_VertexBuffer.<a name="a165"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#ae4ea23c81cbef8a6cd39a378678d2df6">Map</a>();</div>
+<div class="line">    memcpy( pMapped, Vertices, info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>() );</div>
+<div class="line">    g_VertexBuffer.<a name="a166"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a27f71dd8a5fa21d256199bf8fcc807ab">FlushMappedRange</a>( 0, info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>() );</div>
+<div class="line">    g_VertexBuffer.<a name="a167"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a8a5e6d06cc7f541da91237ddf540f4b8">Unmap</a>();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// インデクス用のバッファを初期化</span></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html">nn::gfx::Buffer</a> g_IndexBuffer;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeIndexBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_buffer_info.html">nn::gfx::Buffer::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#a234ab03cd4d0ea8dfdfbe588a0895eac">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#acf66bfe2703001b5c3c800d73fae0dc5">SetSize</a>( <span class="keyword">sizeof</span>( Indices ) );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#a8baa33ab5cf098fcec0e1609c6ecf0c7">SetGpuAccessFlags</a>( <a name="a168"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5a1ba60cf566c205e5c387ecbf68a51fe6">nn::gfx::GpuAccess_IndexBuffer</a> );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( <a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#af96326338663a23e227df75dd7d32faa">nn::gfx::Buffer::IsMemoryPoolRequired</a> ) )</div>
+<div class="line">    {</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">        offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a99b1cd500e55e26460655d68eee13842">nn::gfx::Buffer::GetBufferAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">        g_IndexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a4052c47a96fb7c0b60f851b423fa6d39">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>() );</div>
+<div class="line">        offset += info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>();</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        g_IndexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a4052c47a96fb7c0b60f851b423fa6d39">Initialize</a>( &amp;g_Device, info, NULL, 0, 0 );</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span>* pMapped = g_IndexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#ae4ea23c81cbef8a6cd39a378678d2df6">Map</a>();</div>
+<div class="line">    memcpy( pMapped, Indices, info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>() );</div>
+<div class="line">    g_IndexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a8a5e6d06cc7f541da91237ddf540f4b8">Unmap</a>();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 深度ステンシルバッファ用のテクスチャを初期化</span></div>
+<div class="line"><a name="_a169"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html">nn::gfx::Texture</a> g_DepthStencilBuffer;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeDepthBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a170"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html">nn::gfx::Texture::InfoType</a> info;</div>
+<div class="line">    info.<a name="a171"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a7347a6f3179dc816dc7eb761cdc37152">SetDefault</a>();</div>
+<div class="line">    info.<a name="a172"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#aa9542aaf7fe4dea102f8ec01188c3227">SetWidth</a>( RenderTargetWidth );</div>
+<div class="line">    info.<a name="a173"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a2351f69b4b5c3bece70bfc416a74f96a">SetHeight</a>( RenderTargetHeight );</div>
+<div class="line">    info.<a name="a174"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a214c396c13c6086b75cf63dc374f14ab">SetGpuAccessFlags</a>( <a name="a175"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5a1663c5652d151ae04844adb9a3784bea">nn::gfx::GpuAccess_DepthStencil</a> );</div>
+<div class="line">    info.<a name="a176"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#ac1912ab092b3f1acd897e96ea4eb7ffc">SetImageStorageDimension</a>( <a name="a177"></a><a class="code" href="namespacenn_1_1gfx.html#a52703c69a29adb8ba4cf3d02c6be65d6aeecfd005f00573cce0430313e61bc33e">nn::gfx::ImageStorageDimension_2d</a> );</div>
+<div class="line">    info.<a name="a178"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#aabd5c4ee3aaf0dfc3577843da1d8bc1f">SetImageFormat</a>( <a name="a179"></a><a class="code" href="namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605a9a2ade4fb6f1b9641233da173242056e">nn::gfx::ImageFormat_D16_Unorm</a> );</div>
+<div class="line">    info.<a name="a180"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a8187f32da9bbbed65c49a1c00932d796">SetMipCount</a>( 1 );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( <a name="a181"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html#ad72a001ac78d43ddcd4858d9b7793005">nn::gfx::Texture::IsMemoryPoolRequired</a> ) )</div>
+<div class="line">    {</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuInvisible_GpuCached_Compressible ];</div>
+<div class="line">        offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a name="a182"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a6580c829bab613b6e9850e543f9a7203">nn::gfx::Texture::CalculateMipDataAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">        <span class="keywordtype">size_t</span> size = <a name="a183"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html#ac9d3334566c6451da3f015e5ed1fd1ad">nn::gfx::Texture::CalculateMipDataSize</a>( &amp;g_Device, info );</div>
+<div class="line">        g_DepthStencilBuffer.<a name="a184"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a8b733d649540691011c2ca3949cd5620">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuInvisible_GpuCached_Compressible ], offset, size );</div>
+<div class="line">        offset += size;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        g_DepthStencilBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a8b733d649540691011c2ca3949cd5620">Initialize</a>( &amp;g_Device, info, NULL, 0, 0 );</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">// 深度ステンシルビューを初期化</span></div>
+<div class="line"><a name="_a185"></a><a class="code" href="classnn_1_1gfx_1_1_t_depth_stencil_view.html">nn::gfx::DepthStencilView</a> g_DepthStencilView;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeDepthBufferView()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a186"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_view_info.html">nn::gfx::DepthStencilView::InfoType</a> info;</div>
+<div class="line">    info.<a name="a187"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_view_info.html#a3398861ad8d8a8caad22f50b725bf8a7">SetDefault</a>();</div>
+<div class="line">    info.<a name="a188"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_view_info.html#ac3d84bfc8d50531d6270e0c8b328bcac">SetImageDimension</a>( <a name="a189"></a><a class="code" href="namespacenn_1_1gfx.html#ae5b7c631f74a2dbfeff59cc3764d488fa292e541aac404ecfc004b8ed4f98bbc9">nn::gfx::ImageDimension_2d</a> );</div>
+<div class="line">    info.<a name="a190"></a><a class="code" href="classnn_1_1gfx_1_1_depth_stencil_view_info.html#a0f517ffb3e39c0a96efcbb6b42e5b227">SetTexturePtr</a>( &amp;g_DepthStencilBuffer );</div>
+<div class="line">    g_DepthStencilView.<a name="a191"></a><a class="code" href="classnn_1_1gfx_1_1_t_depth_stencil_view.html#ab49a5deea867df6acae96bcf5a871a68">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 定数バッファ用のバッファを初期化</span></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html">nn::gfx::Buffer</a> g_ConstantBuffer;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeConstantBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_buffer_info.html">nn::gfx::Buffer::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#a234ab03cd4d0ea8dfdfbe588a0895eac">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#acf66bfe2703001b5c3c800d73fae0dc5">SetSize</a>( <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 4 );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#a8baa33ab5cf098fcec0e1609c6ecf0c7">SetGpuAccessFlags</a>( <a name="a192"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5af73fa5ff79cf33f75dfecb4cbe5c139d">nn::gfx::GpuAccess_ConstantBuffer</a> );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( <a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#af96326338663a23e227df75dd7d32faa">nn::gfx::Buffer::IsMemoryPoolRequired</a> ) )</div>
+<div class="line">    {</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">        offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a99b1cd500e55e26460655d68eee13842">nn::gfx::Buffer::GetBufferAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">        g_ConstantBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a4052c47a96fb7c0b60f851b423fa6d39">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>() );</div>
+<div class="line">        offset += info.<a class="code" href="classnn_1_1gfx_1_1_buffer_info.html#ade5a953d5136e969a8a7a225eb91b436">GetSize</a>();</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        g_ConstantBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a4052c47a96fb7c0b60f851b423fa6d39">Initialize</a>( &amp;g_Device, info, NULL, 0, 0 );</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// テクスチャを初期化</span></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_texture.html">nn::gfx::Texture</a> g_Texture;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeLinearTexture()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_texture_info.html">nn::gfx::Texture::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a7347a6f3179dc816dc7eb761cdc37152">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a214c396c13c6086b75cf63dc374f14ab">SetGpuAccessFlags</a>( <a name="a193"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5a4a531ae2d7e145f647300ea67bc76ccc">nn::gfx::GpuAccess_Texture</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#aa9542aaf7fe4dea102f8ec01188c3227">SetWidth</a>( 256 );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a2351f69b4b5c3bece70bfc416a74f96a">SetHeight</a>( 256 );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#ac1912ab092b3f1acd897e96ea4eb7ffc">SetImageStorageDimension</a>( <a class="code" href="namespacenn_1_1gfx.html#a52703c69a29adb8ba4cf3d02c6be65d6aeecfd005f00573cce0430313e61bc33e">nn::gfx::ImageStorageDimension_2d</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#aabd5c4ee3aaf0dfc3577843da1d8bc1f">SetImageFormat</a>( <a name="a194"></a><a class="code" href="namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ae9a6f4b8714c06cc877193b5635c8019">nn::gfx::ImageFormat_R8_G8_B8_A8_Unorm</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a8187f32da9bbbed65c49a1c00932d796">SetMipCount</a>( 1 );</div>
+<div class="line">    info.<a name="a195"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a8c5d2d45349d88498a860af810a23727">SetTileMode</a>( <a name="a196"></a><a class="code" href="namespacenn_1_1gfx.html#a35d6955da6f9f2af739d26025bce7502a7975ea1e51afdc4c4549031bfff27477">nn::gfx::TileMode_Linear</a> );</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">size_t</span> alignment = <a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a6580c829bab613b6e9850e543f9a7203">nn::gfx::Texture::CalculateMipDataAlignment</a>( &amp;g_Device, info );</div>
+<div class="line">    <span class="keywordtype">size_t</span> size = <a class="code" href="classnn_1_1gfx_1_1_t_texture.html#ac9d3334566c6451da3f015e5ed1fd1ad">nn::gfx::Texture::CalculateMipDataSize</a>( &amp;g_Device, info );</div>
+<div class="line">    <span class="keywordtype">size_t</span> pitch = <a name="a197"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a1cb515928e54198e11bdad346f61f3ca">nn::gfx::Texture::GetRowPitch</a>( &amp;g_Device, info );</div>
+<div class="line">    ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuCached_GpuCached ];</div>
+<div class="line">    offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, alignment );</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html">nn::gfx::MemoryPool</a>&amp; memoryPool = g_MemoryPool[ MemoryPoolType_CpuCached_GpuCached ];</div>
+<div class="line">    uint8_t* pixels = <a class="code" href="classnn_1_1util_1_1_byte_ptr.html">nn::util::BytePtr</a>( memoryPool.<a name="a198"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#a5d3bdba22ff2a1ac666916ffd96c4fe6">Map</a>(), offset ).Get&lt; uint8_t &gt;();</div>
+<div class="line">    <span class="keywordflow">for</span> ( <span class="keywordtype">int</span> y = 0; y &lt; info.<a name="a199"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a6396ddb8217db6fb649eacf01f42e75d">GetHeight</a>(); ++y )</div>
+<div class="line">    {</div>
+<div class="line">        uint8_t* row = pixels + y * pitch;</div>
+<div class="line">        <span class="keywordflow">for</span> ( <span class="keywordtype">int</span> x = 0; x &lt; info.<a name="a200"></a><a class="code" href="classnn_1_1gfx_1_1_texture_info.html#a0ba54295e5e7a1ce5c5df85bfd6d1fca">GetWidth</a>(); ++x )</div>
+<div class="line">        {</div>
+<div class="line">            uint8_t* pixel = row + x * 4;</div>
+<div class="line">            pixel[ 0 ] = <span class="keyword">static_cast&lt;</span> uint8_t <span class="keyword">&gt;</span>( x );</div>
+<div class="line">            pixel[ 1 ] = <span class="keyword">static_cast&lt;</span> uint8_t <span class="keyword">&gt;</span>( y );</div>
+<div class="line">            pixel[ 2 ] = 0x00;</div>
+<div class="line">            pixel[ 3 ] = 0xFF;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    memoryPool.<a name="a201"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#aad3bd8d831eb63ab9136ee0e40a98010">FlushMappedRange</a>( offset, size );</div>
+<div class="line">    memoryPool.<a name="a202"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#a213c2b4de9f80ba22eb0cfc7df3c5b5b">Unmap</a>();</div>
+<div class="line"></div>
+<div class="line">    g_Texture.<a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a8b733d649540691011c2ca3949cd5620">Initialize</a>( &amp;g_Device, info, &amp;memoryPool, offset, size );</div>
+<div class="line">    offset += size;</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// テクスチャビューを初期化</span></div>
+<div class="line"><a name="_a203"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture_view.html">nn::gfx::TextureView</a> g_TextureView;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeLinearTextureView()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a204"></a><a class="code" href="classnn_1_1gfx_1_1_texture_view_info.html">nn::gfx::TextureView::InfoType</a> info;</div>
+<div class="line">    info.<a name="a205"></a><a class="code" href="classnn_1_1gfx_1_1_texture_view_info.html#a85314df45dd260c6f915685d835e2d3e">SetDefault</a>();</div>
+<div class="line">    info.<a name="a206"></a><a class="code" href="classnn_1_1gfx_1_1_texture_view_info.html#a172ca9e1807a64f8a029f5e6ef07735e">SetImageDimension</a>( <a class="code" href="namespacenn_1_1gfx.html#ae5b7c631f74a2dbfeff59cc3764d488fa292e541aac404ecfc004b8ed4f98bbc9">nn::gfx::ImageDimension_2d</a> );</div>
+<div class="line">    info.<a name="a207"></a><a class="code" href="classnn_1_1gfx_1_1_texture_view_info.html#accbd6647f7d583cfeaddeecfdc48843e">SetImageFormat</a>( <a class="code" href="namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ae9a6f4b8714c06cc877193b5635c8019">nn::gfx::ImageFormat_R8_G8_B8_A8_Unorm</a> );</div>
+<div class="line">    info.<a name="a208"></a><a class="code" href="classnn_1_1gfx_1_1_texture_view_info.html#a541b3523db0743886085c5f17a13acf2">SetTexturePtr</a>( &amp;g_Texture );</div>
+<div class="line">    info.<a name="a209"></a><a class="code" href="classnn_1_1gfx_1_1_texture_view_info.html#a8706781da06568ef9ee3da23a6971f49">SetChannelMapping</a>( <a name="a210"></a><a class="code" href="namespacenn_1_1gfx.html#a316da17ee518b1112dfc738d00f56057ab0543b37979080fea5adbd4e230a510e">nn::gfx::ChannelMapping_Red</a>, <a name="a211"></a><a class="code" href="namespacenn_1_1gfx.html#a316da17ee518b1112dfc738d00f56057aa1bb51fa5f1214b0797e489c9a0470e5">nn::gfx::ChannelMapping_Green</a>,</div>
+<div class="line">        <a name="a212"></a><a class="code" href="namespacenn_1_1gfx.html#a316da17ee518b1112dfc738d00f56057aa262401dd84109139035014102816379">nn::gfx::ChannelMapping_Blue</a>, <a name="a213"></a><a class="code" href="namespacenn_1_1gfx.html#a316da17ee518b1112dfc738d00f56057a06438e133477b13ee96dcceb8c91e580">nn::gfx::ChannelMapping_Alpha</a> );</div>
+<div class="line">    g_TextureView.<a name="a214"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture_view.html#abd4b6a9cb75d19c446b1c8cedcf8d5f2">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// サンプラを初期化</span></div>
+<div class="line"><a name="_a215"></a><a class="code" href="classnn_1_1gfx_1_1_t_sampler.html">nn::gfx::Sampler</a> g_Sampler;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeSampler()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a216"></a><a class="code" href="classnn_1_1gfx_1_1_sampler_info.html">nn::gfx::Sampler::InfoType</a> info;</div>
+<div class="line">    info.<a name="a217"></a><a class="code" href="classnn_1_1gfx_1_1_sampler_info.html#a0a8b936b65f761b509f7c9873983f75f">SetDefault</a>();</div>
+<div class="line">    info.<a name="a218"></a><a class="code" href="classnn_1_1gfx_1_1_sampler_info.html#a5834b5ed1253675f8cc144267b982689">SetFilterMode</a>( <a name="a219"></a><a class="code" href="namespacenn_1_1gfx.html#ad02723fd1d5795fe8801dc262eae6e1aa427f4709d113c547afb328c2e314a72a">nn::gfx::FilterMode_MinLinear_MagLinear_MipPoint</a> );</div>
+<div class="line">    info.<a name="a220"></a><a class="code" href="classnn_1_1gfx_1_1_sampler_info.html#a729bb669172b22822c2b3e3b206cd6f1">SetAddressU</a>( <a name="a221"></a><a class="code" href="namespacenn_1_1gfx.html#a196a725dd687649e105dc924a75ab40bac228ae434b46d8c618ef115e0d1aa4a0">nn::gfx::TextureAddressMode_Mirror</a> );</div>
+<div class="line">    info.<a name="a222"></a><a class="code" href="classnn_1_1gfx_1_1_sampler_info.html#a4b884f39b099e21ee9bf99933cd99e7b">SetAddressV</a>( <a class="code" href="namespacenn_1_1gfx.html#a196a725dd687649e105dc924a75ab40bac228ae434b46d8c618ef115e0d1aa4a0">nn::gfx::TextureAddressMode_Mirror</a> );</div>
+<div class="line">    info.<a name="a223"></a><a class="code" href="classnn_1_1gfx_1_1_sampler_info.html#aad204b43e3fe75fa2a5d386e8061ea10">SetAddressW</a>( <a class="code" href="namespacenn_1_1gfx.html#a196a725dd687649e105dc924a75ab40bac228ae434b46d8c618ef115e0d1aa4a0">nn::gfx::TextureAddressMode_Mirror</a> );</div>
+<div class="line">    g_Sampler.<a name="a224"></a><a class="code" href="classnn_1_1gfx_1_1_t_sampler.html#a409b6c740f965c39549d46d496d1ba0d">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a name="_a225"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html">nn::gfx::DescriptorPool</a> g_BufferDescriptorPool;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeBufferDescriptorPool()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a226"></a><a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html">nn::gfx::DescriptorPool::InfoType</a> info;</div>
+<div class="line">    info.<a name="a227"></a><a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#aadd3cda040dfc4444a8c285b7ac01e39">SetDefault</a>();</div>
+<div class="line">    info.<a name="a228"></a><a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#a9a411ac342c1d77a029771436d7db638">SetDescriptorPoolType</a>( <a name="a229"></a><a class="code" href="namespacenn_1_1gfx.html#a14fc8bd39227425748a8fb55c035d10ca2aad5a856c8b554d31af6143ac2df562">nn::gfx::DescriptorPoolType_BufferView</a> );</div>
+<div class="line">    info.<a name="a230"></a><a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#a0ad0426ae3ed984e03a6e4d1b390e47c">SetSlotCount</a>( g_BufferDescriptorBaseIndex + 1 );</div>
+<div class="line">    <span class="keywordtype">size_t</span> size = <a name="a231"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#a82a7f8cf8719fba71ce6d652b41cc3d1">nn::gfx::DescriptorPool::CalculateDescriptorPoolSize</a>( &amp;g_Device, info );</div>
+<div class="line">    ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">    offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a name="a232"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#a4daa7d7869ad16b2f02f9d3ebeb7e11c">nn::gfx::DescriptorPool::GetDescriptorPoolAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">    g_BufferDescriptorPool.<a name="a233"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#adc3149a4cf4eb2af5ed872284dc0c9a0">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">        &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, size );</div>
+<div class="line">    offset += size;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html">nn::gfx::DescriptorPool</a> g_SamplerDescriptorPool;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeSamplerDescriptorPool()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html">nn::gfx::DescriptorPool::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#aadd3cda040dfc4444a8c285b7ac01e39">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#a9a411ac342c1d77a029771436d7db638">SetDescriptorPoolType</a>( <a name="a234"></a><a class="code" href="namespacenn_1_1gfx.html#a14fc8bd39227425748a8fb55c035d10ca831f2090660e1269d9440b8095bf004d">nn::gfx::DescriptorPoolType_Sampler</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#a0ad0426ae3ed984e03a6e4d1b390e47c">SetSlotCount</a>( g_SamplerDescriptorBaseIndex + 1 );</div>
+<div class="line">    <span class="keywordtype">size_t</span> size = <a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#a82a7f8cf8719fba71ce6d652b41cc3d1">nn::gfx::DescriptorPool::CalculateDescriptorPoolSize</a>( &amp;g_Device, info );</div>
+<div class="line">    ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">    offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#a4daa7d7869ad16b2f02f9d3ebeb7e11c">nn::gfx::DescriptorPool::GetDescriptorPoolAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">    g_SamplerDescriptorPool.<a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#adc3149a4cf4eb2af5ed872284dc0c9a0">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">        &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, size );</div>
+<div class="line">    offset += size;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html">nn::gfx::DescriptorPool</a> g_TextureDescriptorPool;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeTextureDescriptorPool()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html">nn::gfx::DescriptorPool::InfoType</a> info;</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#aadd3cda040dfc4444a8c285b7ac01e39">SetDefault</a>();</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#a9a411ac342c1d77a029771436d7db638">SetDescriptorPoolType</a>( <a name="a235"></a><a class="code" href="namespacenn_1_1gfx.html#a14fc8bd39227425748a8fb55c035d10cae1ab626ffc219a9f27d569a732154bd0">nn::gfx::DescriptorPoolType_TextureView</a> );</div>
+<div class="line">    info.<a class="code" href="classnn_1_1gfx_1_1_descriptor_pool_info.html#a0ad0426ae3ed984e03a6e4d1b390e47c">SetSlotCount</a>( g_TextureDescriptorBaseIndex + 2 );</div>
+<div class="line">    <span class="keywordtype">size_t</span> size = <a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#a82a7f8cf8719fba71ce6d652b41cc3d1">nn::gfx::DescriptorPool::CalculateDescriptorPoolSize</a>( &amp;g_Device, info );</div>
+<div class="line">    ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">    offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#a4daa7d7869ad16b2f02f9d3ebeb7e11c">nn::gfx::DescriptorPool::GetDescriptorPoolAlignment</a>( &amp;g_Device, info ) );</div>
+<div class="line">    g_TextureDescriptorPool.<a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#adc3149a4cf4eb2af5ed872284dc0c9a0">Initialize</a>( &amp;g_Device, info,</div>
+<div class="line">        &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, size );</div>
+<div class="line">    offset += size;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a name="_a236"></a><a class="code" href="classnn_1_1gfx_1_1_t_fence.html">nn::gfx::Fence</a> g_Fence;</div>
+<div class="line"><span class="keywordtype">void</span> InitializeFence()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a237"></a><a class="code" href="classnn_1_1gfx_1_1_fence_info.html">nn::gfx::Fence::InfoType</a> info;</div>
+<div class="line">    info.<a name="a238"></a><a class="code" href="classnn_1_1gfx_1_1_fence_info.html#add8ed7191d969495cb46b560192b595d">SetDefault</a>();</div>
+<div class="line">    g_Fence.<a name="a239"></a><a class="code" href="classnn_1_1gfx_1_1_t_fence.html#a8d7ff4eb26bd5eae8beac1058ee58d30">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a name="_a240"></a><a class="code" href="classnn_1_1gfx_1_1_t_semaphore.html">nn::gfx::Semaphore</a> g_DisplaySemaphore;</div>
+<div class="line"><span class="keywordtype">void</span> <a name="a241"></a><a class="code" href="namespacenn_1_1os.html#af76bc96a9333f18ed5d7bead209eb4f3">InitializeSemaphore</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a242"></a><a class="code" href="classnn_1_1gfx_1_1_semaphore_info.html">nn::gfx::Semaphore::InfoType</a> info;</div>
+<div class="line">    info.<a name="a243"></a><a class="code" href="classnn_1_1gfx_1_1_semaphore_info.html#a18ee4aa527ccd678bcb4a179e691e386">SetDefault</a>();</div>
+<div class="line">    g_DisplaySemaphore.<a name="a244"></a><a class="code" href="classnn_1_1gfx_1_1_t_semaphore.html#a99f73266b33792c6918fcdd812ef038c">Initialize</a>( &amp;g_Device, info );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeGfxObjects()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// メモリ</span></div>
+<div class="line">    g_pMemoryHeap.<a name="a245"></a><a class="code" href="classnn_1_1util_1_1_byte_ptr.html#ab1bb92c783f155e2be3e84bd02bcfd61">Reset</a>( malloc( 1024 * 1024 ) );</div>
+<div class="line">    g_pMemory = g_pMemoryHeap;</div>
+<div class="line"></div>
+<div class="line">    InitializeDevice();</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if NN_GFX_IS_TARGET_NVN</span></div>
+<div class="line">    nn::gfx::Device::DataType&amp; deviceData = <a name="a246"></a><a class="code" href="namespacenn_1_1gfx.html#adbafa89439698491beeecbdb1613de50">nn::gfx::AccessorToData</a>( g_Device );</div>
+<div class="line">    <a name="a247"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>( deviceData.pNvnDevice,</div>
+<div class="line">        <a name="a248"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a513596e8b2dc04714d6478aed173a891">NVN_DEVICE_INFO_RESERVED_TEXTURE_DESCRIPTORS</a>, &amp;g_TextureDescriptorBaseIndex );</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>( deviceData.pNvnDevice,</div>
+<div class="line">        <a name="a249"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a5b9a26a5aadab05c4a9f8a286718fbc7">NVN_DEVICE_INFO_RESERVED_SAMPLER_DESCRIPTORS</a>, &amp;g_SamplerDescriptorBaseIndex );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">    InitializeMemoryPool();</div>
+<div class="line"></div>
+<div class="line">    InitializeSwapChain();</div>
+<div class="line">    InitializeQueue();</div>
+<div class="line"></div>
+<div class="line">    InitializeQueueCommandBuffer();</div>
+<div class="line">    InitializeCommandBuffer();</div>
+<div class="line">    InitializeViewport();</div>
+<div class="line">    InitializeVertexShader();</div>
+<div class="line">    InitializePixelShader();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> ( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsPipelineMode ) )</div>
+<div class="line">    {</div>
+<div class="line">        InitializePipeline();</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        InitializeRasterizerState();</div>
+<div class="line">        InitializeBlendState();</div>
+<div class="line">        InitializeDepthStencilState();</div>
+<div class="line">        InitializeVertexState();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    InitializeVertexBuffer();</div>
+<div class="line">    InitializeIndexBuffer();</div>
+<div class="line">    InitializeDepthBuffer();</div>
+<div class="line">    InitializeDepthBufferView();</div>
+<div class="line">    InitializeConstantBuffer();</div>
+<div class="line"></div>
+<div class="line">    InitializeLinearTexture();</div>
+<div class="line">    InitializeLinearTextureView();</div>
+<div class="line">    InitializeSampler();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsDescriptorPoolMode ) )</div>
+<div class="line">    {</div>
+<div class="line">        InitializeBufferDescriptorPool();</div>
+<div class="line">        InitializeSamplerDescriptorPool();</div>
+<div class="line">        InitializeTextureDescriptorPool();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    InitializeFence();</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#af76bc96a9333f18ed5d7bead209eb4f3">InitializeSemaphore</a>();</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( g_pMemoryHeap.<a name="a250"></a><a class="code" href="classnn_1_1util_1_1_byte_ptr.html#ab2e58750b882b4b7afb7d3930afef5f7">Distance</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>() ) &lt; 1024 * 1024 );</div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> idxMemoryPool = 0; idxMemoryPool &lt; MemoryPoolType_End; ++idxMemoryPool )</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( static_cast&lt; size_t &gt;( g_MemoryPoolOffset[ idxMemoryPool ] )</div>
+<div class="line">            &lt; MemoryPoolSize[ idxMemoryPool ] );</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> OutOfCommandMemoryEventCallback(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html">nn::gfx::CommandBuffer</a>* pCommandBuffer, <span class="keyword">const</span> <a name="_a251"></a><a class="code" href="structnn_1_1gfx_1_1_out_of_memory_event_arg.html">nn::gfx::OutOfMemoryEventArg</a>&amp; arg )</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( arg.<a name="a252"></a><a class="code" href="structnn_1_1gfx_1_1_out_of_memory_event_arg.html#a9e98d2172e69d5932eb2dbcc8ec45d0e">minRequiredSize</a> &lt;= 1024 );</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( arg );</div>
+<div class="line">    ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">    offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a name="a253"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a83c6570a8bf3ad63a2c88604fdb64660">nn::gfx::CommandBuffer::GetCommandMemoryAlignment</a>( &amp;g_Device ) );</div>
+<div class="line">    pCommandBuffer-&gt;<a name="a254"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#acdb687c47bf13d8d1e65a499a5d8a4a9">AddCommandMemory</a>(</div>
+<div class="line">        &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, 1024 );</div>
+<div class="line">    offset += 1024;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> OutOfControlMemoryEventCallback(</div>
+<div class="line">    <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html">nn::gfx::CommandBuffer</a>* pCommandBuffer, <span class="keyword">const</span> <a class="code" href="structnn_1_1gfx_1_1_out_of_memory_event_arg.html">nn::gfx::OutOfMemoryEventArg</a>&amp; arg )</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( arg.<a class="code" href="structnn_1_1gfx_1_1_out_of_memory_event_arg.html#a9e98d2172e69d5932eb2dbcc8ec45d0e">minRequiredSize</a> &lt;= 256 );</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( arg );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( <a name="a255"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a2a74828d24db1eec34e72d3f088a5803">nn::gfx::CommandBuffer::GetControlMemoryAlignment</a>( &amp;g_Device ) );</div>
+<div class="line">    pCommandBuffer-&gt;<a name="a256"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a5803f064362d4af367f7fd061cf10f39">AddControlMemory</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>(), 256 );</div>
+<div class="line">    g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#af44783b143e4350c3aaef5d576007f96">Advance</a>( 256 );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> MakeCommand()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a257"></a><a class="code" href="classnn_1_1gfx_1_1_gpu_address.html">nn::gfx::GpuAddress</a> gpuAddress;</div>
+<div class="line"></div>
+<div class="line">    g_CommandBuffer.<a name="a258"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a6232e70a4abb4bfbf1e4e94ce6726f58">Reset</a>();</div>
+<div class="line">    {</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">        offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset, <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a83c6570a8bf3ad63a2c88604fdb64660">nn::gfx::CommandBuffer::GetCommandMemoryAlignment</a>( &amp;g_Device ) );</div>
+<div class="line">        g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#acdb687c47bf13d8d1e65a499a5d8a4a9">AddCommandMemory</a>(</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, 1024 );</div>
+<div class="line">        offset += 1024;</div>
+<div class="line">        g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a2a74828d24db1eec34e72d3f088a5803">nn::gfx::CommandBuffer::GetControlMemoryAlignment</a>( &amp;g_Device ) );</div>
+<div class="line">        g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a5803f064362d4af367f7fd061cf10f39">AddControlMemory</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>(), 256 );</div>
+<div class="line">        g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#af44783b143e4350c3aaef5d576007f96">Advance</a>( 256 );</div>
+<div class="line">        g_CommandBuffer.<a name="a259"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a4ed672bd30534da1157e6db1e934ff9c">SetOutOfCommandMemoryEventCallback</a>( OutOfCommandMemoryEventCallback );</div>
+<div class="line">        g_CommandBuffer.<a name="a260"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#af62031e416ae376fdb07c3cecac651b6">SetOutOfControlMemoryEventCallback</a>( OutOfControlMemoryEventCallback );</div>
+<div class="line">    }</div>
+<div class="line">    g_CommandBuffer.<a name="a261"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ab22bb14832e8fca483b977dcb18d5286">Begin</a>();</div>
+<div class="line">    {</div>
+<div class="line">        g_VertexBuffer.<a name="a262"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a67df38d01bea9fdc073b6c3657a34011">GetGpuAddress</a>( &amp;gpuAddress );</div>
+<div class="line">        g_CommandBuffer.<a name="a263"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#af39eba323201a036bf09a1f542fa4ae0">SetVertexBuffer</a>( 0, gpuAddress, <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 5, <span class="keyword">sizeof</span>( Vertices ) );</div>
+<div class="line"></div>
+<div class="line">        g_CommandBuffer.<a name="a264"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a7e5cade7802122a5272657dfaec5d1f1">InvalidateMemory</a>( <a name="a265"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5a569fa278473bf8871cece2df59df5e68">nn::gfx::GpuAccess_ShaderCode</a> | <a name="a266"></a><a class="code" href="namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5ab49f83cffb7a771c178eafdbbd93ca1a">nn::gfx::GpuAccess_Descriptor</a> );</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsDescriptorPoolMode ) )</div>
+<div class="line">        {</div>
+<div class="line">            g_CommandBuffer.<a name="a267"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a442595cd1fd51ba8054116b1e9437cf5">SetDescriptorPool</a>( &amp;g_BufferDescriptorPool );</div>
+<div class="line">            g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a442595cd1fd51ba8054116b1e9437cf5">SetDescriptorPool</a>( &amp;g_TextureDescriptorPool );</div>
+<div class="line">            g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a442595cd1fd51ba8054116b1e9437cf5">SetDescriptorPool</a>( &amp;g_SamplerDescriptorPool );</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if NN_GFX_IS_TARGET_GX</span></div>
+<div class="line">        GX2SetShaderMode( GX2_SHADER_MODE_UNIFORM_BLOCK );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">        g_CommandBuffer.<a name="a268"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ab1c541475f015777b8ce4bdfffe7c1c3">SetViewportScissorState</a>( &amp;g_ViewportScissor );</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> ( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsPipelineMode ) )</div>
+<div class="line">        {</div>
+<div class="line">            g_CommandBuffer.<a name="a269"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a42e5b9f3411f240c6c06433e60dbbcad">SetPipeline</a>( &amp;g_Pipeline );</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span></div>
+<div class="line">        {</div>
+<div class="line">            g_CommandBuffer.<a name="a270"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#affa101add0b7e50e308ef467bb3a574c">SetShader</a>( &amp;g_VertexShader, <a name="a271"></a><a class="code" href="namespacenn_1_1gfx.html#a1e02bfe3380ee94c02ac4f0c762c4196a8762a22749a58ed02be391ea4dfe33d5">nn::gfx::ShaderStageBit_Vertex</a> );</div>
+<div class="line">            g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#affa101add0b7e50e308ef467bb3a574c">SetShader</a>( &amp;g_PixelShader, <a name="a272"></a><a class="code" href="namespacenn_1_1gfx.html#a1e02bfe3380ee94c02ac4f0c762c4196a85216535e31a0bdc4584642adf2f5126">nn::gfx::ShaderStageBit_Pixel</a> );</div>
+<div class="line">            g_CommandBuffer.<a name="a273"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#af7a11b30ffe96e7185e5b363aced45a6">SetRasterizerState</a>( &amp;g_RasterizerState );</div>
+<div class="line">            g_CommandBuffer.<a name="a274"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ab2e69208132de5735704d7399ec45927">SetBlendState</a>( &amp;g_BlendState );</div>
+<div class="line">            g_CommandBuffer.<a name="a275"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#aff6009b3f54bdeb6fa8669bbebf5100c">SetDepthStencilState</a>( &amp;g_DepthStencilState );</div>
+<div class="line">            g_CommandBuffer.<a name="a276"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#af6703eb0e67ca9e419631c01f3677c33">SetVertexState</a>( &amp;g_VertexState );</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined( CAFE )</span></div>
+<div class="line">        GX2SetShaderMode( GX2_SHADER_MODE_UNIFORM_BLOCK );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">        g_CommandBuffer.<a name="a277"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a33c9afc3f95512cc61bbef4f0b60f7a6">SetBufferStateTransition</a>( &amp;g_ConstantBuffer,</div>
+<div class="line">            <a name="a278"></a><a class="code" href="namespacenn_1_1gfx.html#aa5ef532ce7ee1eeb3055c417fbb4363fac81e8fda1627a68c258d3cb42d9b89df">nn::gfx::BufferState_DataTransfer</a>, 0, <a name="a279"></a><a class="code" href="namespacenn_1_1gfx.html#aa5ef532ce7ee1eeb3055c417fbb4363fac06dee9a1e259417688c86abc1e70f70">nn::gfx::BufferState_ConstantBuffer</a>, <a name="a280"></a><a class="code" href="namespacenn_1_1gfx.html#aa912f4b02b7e42a10746e5ab3cd4e174a8b2a56d35ad91aed006bdbf26cd42955">nn::gfx::PipelineStageBit_PixelShader</a> );</div>
+<div class="line">        g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a33c9afc3f95512cc61bbef4f0b60f7a6">SetBufferStateTransition</a>( &amp;g_VertexBuffer,</div>
+<div class="line">            <a class="code" href="namespacenn_1_1gfx.html#aa5ef532ce7ee1eeb3055c417fbb4363fac81e8fda1627a68c258d3cb42d9b89df">nn::gfx::BufferState_DataTransfer</a>, 0, <a name="a281"></a><a class="code" href="namespacenn_1_1gfx.html#aa5ef532ce7ee1eeb3055c417fbb4363fac043e83146bb809b9d51b29767a46867">nn::gfx::BufferState_VertexBuffer</a>, 0 );</div>
+<div class="line">        g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a33c9afc3f95512cc61bbef4f0b60f7a6">SetBufferStateTransition</a>( &amp;g_IndexBuffer,</div>
+<div class="line">            <a class="code" href="namespacenn_1_1gfx.html#aa5ef532ce7ee1eeb3055c417fbb4363fac81e8fda1627a68c258d3cb42d9b89df">nn::gfx::BufferState_DataTransfer</a>, 0, <a name="a282"></a><a class="code" href="namespacenn_1_1gfx.html#aa5ef532ce7ee1eeb3055c417fbb4363fa35b0a28ec18093fde8a897b13cd00071">nn::gfx::BufferState_IndexBuffer</a>, 0 );</div>
+<div class="line">        g_CommandBuffer.<a name="a283"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a9d3efd13c434bb824fadb39977b1d6df">SetTextureStateTransition</a>( &amp;g_Texture, NULL,</div>
+<div class="line">            <a name="a284"></a><a class="code" href="namespacenn_1_1gfx.html#ab4aaf139c1aa33c4c175e21423cc86fda92050c0d76816afe2708cfd892414211">nn::gfx::TextureState_DataTransfer</a>, 0, <a name="a285"></a><a class="code" href="namespacenn_1_1gfx.html#ab4aaf139c1aa33c4c175e21423cc86fda954cebcb3b7eab59c779a7cff2b20ae2">nn::gfx::TextureState_ShaderRead</a>, <a class="code" href="namespacenn_1_1gfx.html#aa912f4b02b7e42a10746e5ab3cd4e174a8b2a56d35ad91aed006bdbf26cd42955">nn::gfx::PipelineStageBit_PixelShader</a> );</div>
+<div class="line">        g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a9d3efd13c434bb824fadb39977b1d6df">SetTextureStateTransition</a>( &amp;g_DepthStencilBuffer, NULL,</div>
+<div class="line">            <a class="code" href="namespacenn_1_1gfx.html#ab4aaf139c1aa33c4c175e21423cc86fda92050c0d76816afe2708cfd892414211">nn::gfx::TextureState_DataTransfer</a>, 0, <a name="a286"></a><a class="code" href="namespacenn_1_1gfx.html#ab4aaf139c1aa33c4c175e21423cc86fda72ddafc35efe4a2a4e3a43cd79dff3e8">nn::gfx::TextureState_DepthRead</a> | <a name="a287"></a><a class="code" href="namespacenn_1_1gfx.html#ab4aaf139c1aa33c4c175e21423cc86fda2d18c495674ee688a254a7ff211c77c1">nn::gfx::TextureState_DepthWrite</a>, 0 );</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsDescriptorPoolMode ) )</div>
+<div class="line">        {</div>
+<div class="line">            <a name="_a288"></a><a class="code" href="classnn_1_1gfx_1_1_descriptor_slot.html">nn::gfx::DescriptorSlot</a> constantBufferDescriptor;</div>
+<div class="line">            <a class="code" href="classnn_1_1gfx_1_1_descriptor_slot.html">nn::gfx::DescriptorSlot</a> textureDescriptor;</div>
+<div class="line">            <a class="code" href="classnn_1_1gfx_1_1_descriptor_slot.html">nn::gfx::DescriptorSlot</a> samplerDescriptor;</div>
+<div class="line">            g_BufferDescriptorPool.<a name="a289"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ac2b65342f8057bd6423d99bfa6aa526b">GetDescriptorSlot</a>( &amp;constantBufferDescriptor, g_BufferDescriptorBaseIndex );</div>
+<div class="line">            g_TextureDescriptorPool.<a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ac2b65342f8057bd6423d99bfa6aa526b">GetDescriptorSlot</a>( &amp;textureDescriptor, g_TextureDescriptorBaseIndex );</div>
+<div class="line">            g_SamplerDescriptorPool.<a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ac2b65342f8057bd6423d99bfa6aa526b">GetDescriptorSlot</a>( &amp;samplerDescriptor, g_SamplerDescriptorBaseIndex );</div>
+<div class="line">            textureDescriptor.<a name="a290"></a><a class="code" href="classnn_1_1gfx_1_1_descriptor_slot.html#ad18d73a6e08dff09cb9d45ee9a5ba28e">Offset</a>( <a name="a291"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ae33316d611cd1261c1e304cd70921a47">nn::gfx::DescriptorPool::GetDescriptorSlotIncrementSize</a>(</div>
+<div class="line">                &amp;g_Device, <a class="code" href="namespacenn_1_1gfx.html#a14fc8bd39227425748a8fb55c035d10cae1ab626ffc219a9f27d569a732154bd0">nn::gfx::DescriptorPoolType_TextureView</a> ) );</div>
+<div class="line">            g_CommandBuffer.<a name="a292"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ab03dd5ed3b0bbb7ab222027003a4a829">SetConstantBuffer</a>( g_SlotMat,</div>
+<div class="line">                <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, constantBufferDescriptor );</div>
+<div class="line">            g_CommandBuffer.<a name="a293"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a9467eab0515bf34ac7db35da6ced273f">SetTextureAndSampler</a>( g_SlotTex,</div>
+<div class="line">                <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, textureDescriptor, samplerDescriptor );</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span></div>
+<div class="line">        {</div>
+<div class="line">            g_ConstantBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a67df38d01bea9fdc073b6c3657a34011">GetGpuAddress</a>( &amp;gpuAddress );</div>
+<div class="line">            g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ab03dd5ed3b0bbb7ab222027003a4a829">SetConstantBuffer</a>( g_SlotMat,</div>
+<div class="line">                <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, gpuAddress, <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 4 );</div>
+<div class="line">            g_CommandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a9467eab0515bf34ac7db35da6ced273f">SetTextureAndSampler</a>( g_SlotTex,</div>
+<div class="line">                <a class="code" href="namespacenn_1_1gfx.html#a23a67c7d8f6b5765e2de8173797f73fea4af13ef64af0ee06eb539013de2be40a">nn::gfx::ShaderStage_Pixel</a>, &amp;g_TextureView, &amp;g_Sampler );</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        g_IndexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a67df38d01bea9fdc073b6c3657a34011">GetGpuAddress</a>( &amp;gpuAddress );</div>
+<div class="line">        g_CommandBuffer.<a name="a294"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#af9cfb2a18747ed8eafad571a4e1bb20c">DrawIndexed</a>( <a name="a295"></a><a class="code" href="namespacenn_1_1gfx.html#a6ef31e9a8914c972be0e767e565b2f94ab5923670671fe640c8ab13c165b05f88">nn::gfx::PrimitiveTopology_TriangleList</a>,</div>
+<div class="line">            <a name="a296"></a><a class="code" href="namespacenn_1_1gfx.html#aef2ddd2bcaa4d6af0f04681470e3f3fba19aee3fb7b27d7d66f4c5270a6aa9b09">nn::gfx::IndexFormat_Uint32</a>, gpuAddress, 3, 0 );</div>
+<div class="line">    }</div>
+<div class="line">    g_CommandBuffer.<a name="a297"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a3b4d64880cd75e66c314bdbac29c04f0">End</a>();</div>
+<div class="line"></div>
+<div class="line">    <a name="_a298"></a><a class="code" href="classnn_1_1gfx_1_1_t_color_target_view.html">nn::gfx::ColorTargetView</a>* pScanBufferViews[ ScanBufferCount ];</div>
+<div class="line">    g_SwapChain.<a name="a299"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a45ea35235aa2290a663da18a68715195">GetScanBufferViews</a>( pScanBufferViews, ScanBufferCount );</div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> idxCommandBuffer = 0; idxCommandBuffer &lt; ScanBufferCount; ++idxCommandBuffer )</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html">nn::gfx::CommandBuffer</a>&amp; commandBuffer = g_QueueCommandBuffer[ idxCommandBuffer ];</div>
+<div class="line">        <a class="code" href="classnn_1_1gfx_1_1_t_color_target_view.html">nn::gfx::ColorTargetView</a>* pScanBuffer = pScanBufferViews[ idxCommandBuffer ];</div>
+<div class="line">        commandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a6232e70a4abb4bfbf1e4e94ce6726f58">Reset</a>();</div>
+<div class="line">        ptrdiff_t&amp; offset = g_MemoryPoolOffset[ MemoryPoolType_CpuUncached_GpuCached ];</div>
+<div class="line">        offset = <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>( offset,</div>
+<div class="line">            <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a83c6570a8bf3ad63a2c88604fdb64660">nn::gfx::CommandBuffer::GetCommandMemoryAlignment</a>( &amp;g_Device ) );</div>
+<div class="line">        commandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#acdb687c47bf13d8d1e65a499a5d8a4a9">AddCommandMemory</a>(</div>
+<div class="line">            &amp;g_MemoryPool[ MemoryPoolType_CpuUncached_GpuCached ], offset, 1024 );</div>
+<div class="line">        offset += 1024;</div>
+<div class="line">        g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aedba2c0b5997b8ca4a5536a7110aa712">AlignUp</a>( <a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a2a74828d24db1eec34e72d3f088a5803">nn::gfx::CommandBuffer::GetControlMemoryAlignment</a>( &amp;g_Device ) );</div>
+<div class="line">        commandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a5803f064362d4af367f7fd061cf10f39">AddControlMemory</a>( g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>(), 256 );</div>
+<div class="line">        g_pMemory.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#af44783b143e4350c3aaef5d576007f96">Advance</a>( 256 );</div>
+<div class="line">        commandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ab22bb14832e8fca483b977dcb18d5286">Begin</a>();</div>
+<div class="line">        {</div>
+<div class="line">            commandBuffer.<a name="a300"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a3da2d3c95fe888adb5a3f84dcc013d45">ClearColor</a>( pScanBuffer, 0.3f, 0.1f, 0.1f, 1.0f, NULL );</div>
+<div class="line">            commandBuffer.<a name="a301"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#ae51f685157847b92ffb0c05362a4a6ef">ClearDepthStencil</a>( &amp;g_DepthStencilView,</div>
+<div class="line">                1.0f, 0, <a name="a302"></a><a class="code" href="namespacenn_1_1gfx.html#a733cd65018ead22dd2cd0a62a8bd2ec9a93c09969027b90e4794060197dedb5fb">nn::gfx::DepthStencilClearMode_DepthStencil</a>, NULL );</div>
+<div class="line">            commandBuffer.<a name="a303"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a3698a1cbd3b59b649c048f709ddd766c">SetRenderTargets</a>( 1, &amp;pScanBuffer, &amp;g_DepthStencilView );</div>
+<div class="line">            commandBuffer.<a name="a304"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a41c75c6bf8f1ef0f723480ac1b93e52b">CallCommandBuffer</a>( &amp;g_CommandBuffer );</div>
+<div class="line">        }</div>
+<div class="line">        commandBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a3b4d64880cd75e66c314bdbac29c04f0">End</a>();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">} <span class="comment">// NOLINT</span></div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> FinalizeGfxObjects()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// 各オブジェクトを破棄</span></div>
+<div class="line">    g_DisplaySemaphore.<a name="a305"></a><a class="code" href="classnn_1_1gfx_1_1_t_semaphore.html#aacacbf82b1b02a9739de5e90e3171934">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_Fence.<a name="a306"></a><a class="code" href="classnn_1_1gfx_1_1_t_fence.html#a01e22e4949f3b06cb8120da6f7161d81">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsDescriptorPoolMode ) )</div>
+<div class="line">    {</div>
+<div class="line">        g_BufferDescriptorPool.<a name="a307"></a><a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ab1876c09dc1056b8c9838530b70da015">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        g_TextureDescriptorPool.<a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ab1876c09dc1056b8c9838530b70da015">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        g_SamplerDescriptorPool.<a class="code" href="classnn_1_1gfx_1_1_t_descriptor_pool.html#ab1876c09dc1056b8c9838530b70da015">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    }</div>
+<div class="line">    g_Sampler.<a name="a308"></a><a class="code" href="classnn_1_1gfx_1_1_t_sampler.html#af725b5cfc86c86d203b292253db4c12b">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_TextureView.<a name="a309"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture_view.html#a081d672b58ed42d9609bcebc0dbdf635">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_Texture.<a name="a310"></a><a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a6c338d7cb41ca394337e5ed8573dbd3b">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_ConstantBuffer.<a name="a311"></a><a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a208391f1e05916badd0ed1709ee7ae39">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_DepthStencilView.<a name="a312"></a><a class="code" href="classnn_1_1gfx_1_1_t_depth_stencil_view.html#a0d83b18572de6b8327bc2c5f9ff37a3d">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_DepthStencilBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_texture.html#a6c338d7cb41ca394337e5ed8573dbd3b">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_IndexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a208391f1e05916badd0ed1709ee7ae39">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_VertexBuffer.<a class="code" href="classnn_1_1gfx_1_1_t_buffer.html#a208391f1e05916badd0ed1709ee7ae39">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsPipelineMode ) )</div>
+<div class="line">    {</div>
+<div class="line">        g_Pipeline.<a name="a313"></a><a class="code" href="classnn_1_1gfx_1_1_t_pipeline.html#a3b6229d45532a3f242df5e3c3a8a3913">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        g_Shader.<a name="a314"></a><a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a430eda57347c0d10da6d3d1b1da71780">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        g_RasterizerState.<a name="a315"></a><a class="code" href="classnn_1_1gfx_1_1_t_rasterizer_state.html#a5b5201bf723256cd010bdc073255ead8">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        g_BlendState.<a name="a316"></a><a class="code" href="classnn_1_1gfx_1_1_t_blend_state.html#a6f473591839db9f6414ae43c5c00a8a9">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        g_DepthStencilState.<a name="a317"></a><a class="code" href="classnn_1_1gfx_1_1_t_depth_stencil_state.html#a2bfe347fcec21f7e1a1c5cf1b1a2a430">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        g_VertexState.<a name="a318"></a><a class="code" href="classnn_1_1gfx_1_1_t_vertex_state.html#a19e30cf38c0013dac475066d821abe11">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    g_PixelShader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a430eda57347c0d10da6d3d1b1da71780">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_VertexShader.<a class="code" href="classnn_1_1gfx_1_1_t_shader.html#a430eda57347c0d10da6d3d1b1da71780">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_ViewportScissor.<a name="a319"></a><a class="code" href="classnn_1_1gfx_1_1_t_viewport_scissor_state.html#abe11609e98c342a9739bc67d2e18d50f">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_CommandBuffer.<a name="a320"></a><a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a9f586139056ebe1b952e2aebe4be9cdf">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> idxCommandBuffer = 0; idxCommandBuffer &lt; ScanBufferCount; ++idxCommandBuffer )</div>
+<div class="line">    {</div>
+<div class="line">        g_QueueCommandBuffer[ idxCommandBuffer ].<a class="code" href="classnn_1_1gfx_1_1_t_command_buffer.html#a9f586139056ebe1b952e2aebe4be9cdf">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    }</div>
+<div class="line">    g_Queue.<a name="a321"></a><a class="code" href="classnn_1_1gfx_1_1_t_queue.html#acf2af9f9d16498d6bd45f72d3a79b567">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    g_SwapChain.<a name="a322"></a><a class="code" href="classnn_1_1gfx_1_1_t_swap_chain.html#a9c688b45bc96aa437db41130d9c9993c">Finalize</a>( &amp;g_Device );</div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> idxMemoryPool = 0; idxMemoryPool &lt; MemoryPoolType_End; ++idxMemoryPool )</div>
+<div class="line">    {</div>
+<div class="line">        g_MemoryPool[ idxMemoryPool ].<a name="a323"></a><a class="code" href="classnn_1_1gfx_1_1_t_memory_pool.html#aad1f3e656aea98302fd5266262a46441">Finalize</a>( &amp;g_Device );</div>
+<div class="line">        free( g_pPoolMemory[ idxMemoryPool ] );</div>
+<div class="line">    }</div>
+<div class="line">    g_Device.<a name="a324"></a><a class="code" href="classnn_1_1gfx_1_1_t_device.html#a6a6db34b0acc447ff87e6d07e813ae0b">Finalize</a>();</div>
+<div class="line"></div>
+<div class="line">    free( g_pMemoryHeap.<a class="code" href="classnn_1_1util_1_1_byte_ptr.html#aec6b5a8431e11fcebf681e8ce602c2fb">Get</a>() );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  Main Function</span></div>
+<div class="line"><span class="comment">//  メイン関数です。</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined( NN_BUILD_TARGET_PLATFORM_OS_NN ) &amp;&amp; defined( NN_BUILD_APISET_NX )</span></div>
+<div class="line"><span class="keywordtype">void</span>* Allocate( <span class="keywordtype">size_t</span> size, <span class="keywordtype">size_t</span> alignment, <span class="keywordtype">void</span>* )</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> aligned_alloc( alignment, <a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>(size , alignment));</div>
+<div class="line">}</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="namespacenns_1_1g3d.html#ac23ca3ba1949451319eb3bbaec93a93d">Free</a>( <span class="keywordtype">void</span>* addr, <span class="keywordtype">void</span>* )</div>
+<div class="line">{</div>
+<div class="line">    free( addr );</div>
+<div class="line">}</div>
+<div class="line"><span class="keywordtype">void</span>* Reallocate( <span class="keywordtype">void</span>* addr, <span class="keywordtype">size_t</span> newSize, <span class="keywordtype">void</span>* )</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> realloc( addr, newSize );</div>
+<div class="line">}</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a325"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line"><span class="preprocessor">#if defined( NN_BUILD_TARGET_PLATFORM_OS_NN ) &amp;&amp; defined( NN_BUILD_APISET_NX )</span></div>
+<div class="line">    <span class="comment">// グラフィックスシステムのためのメモリ周りの初期化を行います。</span></div>
+<div class="line">    {</div>
+<div class="line">        <a name="a326"></a><a class="code" href="namespacenv.html#a7d85cfdd1bae1b635cc66b8d58077688">nv::SetGraphicsAllocator</a>( Allocate, Free, Reallocate, NULL );</div>
+<div class="line">        <a name="a327"></a><a class="code" href="namespacenv.html#aacadc57952b370f2286108f5835ce726">nv::InitializeGraphics</a>( malloc( GraphicsSystemMemorySize ), GraphicsSystemMemorySize );</div>
+<div class="line">    }</div>
+<div class="line">    <span class="comment">// グラフィックス開発者向けツールおよびデバッグレイヤのためのメモリアロケータを設定します。</span></div>
+<div class="line">    <a name="a328"></a><a class="code" href="namespacenv.html#a5ef00427dfc2493551bb66b37731bb35">nv::SetGraphicsDevtoolsAllocator</a>( Allocate, Free, Reallocate, NULL );</div>
+<div class="line">    <span class="comment">// GLSLC のためのメモリアロケータを設定します。</span></div>
+<div class="line">    <a name="a329"></a><a class="code" href="nvn_tool___glslc_interface_8h.html#af077328b0d3b4282ff8110098ee0e138">glslcSetAllocator</a>( Allocate, Free, Reallocate, NULL );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line">    <a name="a330"></a><a class="code" href="namespacenn_1_1vi.html#acecc11f3b92d6d1e0c6b5d056d4b05fd">nn::vi::Initialize</a>();</div>
+<div class="line">    InitializeLayer();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ライブラリを初期化</span></div>
+<div class="line">    <a name="a331"></a><a class="code" href="namespacenn_1_1gfx.html#a7fdc6aeebf1a1d6cc8a8893bcc3fd128">nn::gfx::Initialize</a>();</div>
+<div class="line">    InitializeGfxObjects();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>( IsDescriptorPoolMode ) )</div>
+<div class="line">    {</div>
+<div class="line">        g_BufferDescriptorPool.BeginUpdate();</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="classnn_1_1gfx_1_1_gpu_address.html">nn::gfx::GpuAddress</a> gpuAddress;</div>
+<div class="line">            g_ConstantBuffer.GetGpuAddress( &amp;gpuAddress );</div>
+<div class="line">            g_BufferDescriptorPool.SetBufferView( g_BufferDescriptorBaseIndex, gpuAddress, <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 4 );</div>
+<div class="line">        }</div>
+<div class="line">        g_BufferDescriptorPool.EndUpdate();</div>
+<div class="line"></div>
+<div class="line">        g_TextureDescriptorPool.BeginUpdate();</div>
+<div class="line">        {</div>
+<div class="line">            g_TextureDescriptorPool.SetTextureView( g_TextureDescriptorBaseIndex + 1, &amp;g_TextureView );</div>
+<div class="line">        }</div>
+<div class="line">        g_TextureDescriptorPool.EndUpdate();</div>
+<div class="line"></div>
+<div class="line">        g_SamplerDescriptorPool.BeginUpdate();</div>
+<div class="line">        {</div>
+<div class="line">            g_SamplerDescriptorPool.SetSampler( g_SamplerDescriptorBaseIndex, &amp;g_Sampler );</div>
+<div class="line">        }</div>
+<div class="line">        g_SamplerDescriptorPool.EndUpdate();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    MakeCommand();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 毎フレームのレンダリング</span></div>
+<div class="line">    <span class="keywordflow">for</span>( <span class="keywordtype">int</span> frame = 0; frame &lt; 60 * 10; ++frame )</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// 定数バッファを更新</span></div>
+<div class="line">        <span class="keywordtype">float</span>* pConstantBuffer = g_ConstantBuffer.Map&lt; <span class="keywordtype">float</span> &gt;();</div>
+<div class="line">        {</div>
+<div class="line">            pConstantBuffer[ 0 ] =  ( ( frame &amp; 0x0100 ) - ( frame &amp; 0xFF ) *</div>
+<div class="line">                ( ( ( frame &amp; 0x0100 ) &gt;&gt; 7 ) - 1 ) ) * ( 1.0f / 256.0f );</div>
+<div class="line">            pConstantBuffer[ 1 ] = 0.4f;</div>
+<div class="line">            pConstantBuffer[ 2 ] = 0.4f;</div>
+<div class="line">            pConstantBuffer[ 3 ] = 1.0f;</div>
+<div class="line">        }</div>
+<div class="line"><span class="preprocessor">#ifdef CAFE</span></div>
+<div class="line">        GX2EndianSwap( pConstantBuffer, <span class="keyword">sizeof</span>( <span class="keywordtype">float</span> ) * 4 );</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">        g_ConstantBuffer.Unmap();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// スキャンバッファの取得</span></div>
+<div class="line">        <span class="keywordtype">int</span> nextScanBufferIndex = 0;</div>
+<div class="line">        <a class="code" href="namespacenn_1_1gfx.html#a985cf9ff1acdd52a02949c42fdfd21a8">nn::gfx::AcquireScanBufferResult</a> acquireResult = g_SwapChain.AcquireNextScanBufferIndex(</div>
+<div class="line">            &amp;nextScanBufferIndex, &amp;g_DisplaySemaphore, NULL );</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( acquireResult == <a name="a332"></a><a class="code" href="namespacenn_1_1gfx.html#a985cf9ff1acdd52a02949c42fdfd21a8a58e54fbd4d9caa45601b702540d432ad">nn::gfx::AcquireScanBufferResult_Success</a> );</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( acquireResult );</div>
+<div class="line">        g_Queue.SyncSemaphore( &amp;g_DisplaySemaphore );</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// コマンドの実行</span></div>
+<div class="line">        g_Queue.ExecuteCommand( &amp;g_QueueCommandBuffer[ nextScanBufferIndex ], &amp;g_Fence );</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 結果の表示</span></div>
+<div class="line">        g_Queue.Present( &amp;g_SwapChain, 1 );</div>
+<div class="line"></div>
+<div class="line">        g_Queue.Flush();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 単純さのため同じフレームのコマンドを待機しています。</span></div>
+<div class="line">        <span class="comment">// GPU リソースをダブルバッファ化して CPU と GPU を並列に動かすとより効率的になります。</span></div>
+<div class="line">        g_Fence.Sync( <a name="a333"></a><a class="code" href="classnn_1_1_time_span.html#adc879772bbd4cd05381326fe0dd58b97">nn::TimeSpan::FromSeconds</a>( 1 ) );</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    g_Queue.Sync();</div>
+<div class="line"></div>
+<div class="line">    FinalizeGfxObjects();</div>
+<div class="line">    <a name="a334"></a><a class="code" href="namespacenn_1_1gfx.html#a8e776d92173c3073b31a5cf65e306dfc">nn::gfx::Finalize</a>();</div>
+<div class="line"></div>
+<div class="line">    <a name="a335"></a><a class="code" href="namespacenn_1_1vi.html#a76acdc780c2ad611533182993df1cebe">nn::vi::DestroyLayer</a>( g_pLayer );</div>
+<div class="line">    <a name="a336"></a><a class="code" href="namespacenn_1_1vi.html#a68ddf473ecdaf1c52996a2f7fad2ef61">nn::vi::CloseDisplay</a>( g_pDisplay );</div>
+<div class="line">    <a name="a337"></a><a class="code" href="namespacenn_1_1vi.html#a7451676fd7f7b48369ff4c01a1fa91dd">nn::vi::Finalize</a>();</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

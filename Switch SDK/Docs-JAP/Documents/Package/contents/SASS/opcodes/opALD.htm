@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>ALD</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    ALD : Attribute Load<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Attribute Load" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Graphics Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ALD", subsection => 5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+       Immediate attribute loads:
+<code>        <code>{@{!}Pg}</code>   <code><b>ALD</b>{.io}{.P}{.sz}</code>    <code>Rd,a[#ImmU10]{,Rb}</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ALD" } -->
+
+       Indexed patch attribute loads:
+<code>        <code>{@{!}Pg}</code>   <code><b>ALD</b>{.io}.P{.sz}</code>      <code>Rd,a[Ra + #ImmS11]{,Rb}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ALD" } -->
+
+       Indexed VTG (Vertex,Tess,Geom) attribute loads:
+<code>        <code>{@{!}Pg}</code>   <code><b>ALD</b>{.io}.PHYS{.sz}</code>   <code>Rd,a[Ra]{,Rb}</code>             <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ALD" } -->
+
+ .io:     {.I*,.O}
+          Load from the input ISBE (.I) or output ISBE (.O).  Only VSa, VSb, TI, and TS can use .O option.
+
+ .P:      Load patch attributes
+ .sz:     { <b>.32*, .64, .96, .128</b> } 
+ .PHYS:   Indexed mode for VTG attribute load that uses physical attribute number determined via AL2P
+	  .PHYS is encoded as .P=0 and Ra!=RZ and imm=0
+          vector ALD/AST disallowed when .PHYS modifier is used.
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+Load VTG (Vertex,Tess,Geom) attribute(s).</p>
+<p>
+If Ra is not specified or Ra is RZ, the input address is an <b>unsigned</b> 10b
+immediate.  The immediate is in bytes.</p>
+<p>
+If Ra is specified and is not RZ, the immediate has to be zero and value in Ra register
+is the al2pResult_vtg_t data structure result of <b>AL2P</b> instruction. </p> 
+<p>
+Vertex shaders do not need to specify the vertex handle Rb ,
+and will raise an ILLEGAL_INSTR_ENCODING error when Rb != RZ. Geometry and
+Tessellation shaders must specify Rb, since it allows access to the vertex
+neighbourhood.</p>
+
+<h4>Patch Attributes</h4>
+<p>
+The .P modifier is designed to allow for reading of Per-Patch attributes by Tessellation Shaders (TS).  
+Unlike normal vertex attributes, patch attributes are stored per patch (as opposed to per-vertex), so an Rb 
+vertex index is ignored.  Patch attributes also exist in a different address space which is not controlled by 
+an IMAP/OMAP (so there is no defaulting).  As part of the shader program header, a Tessellation Shader 
+will declare the size of its patch attribute buffer (8,16,32,64,128).  This means that TI/TS shaders 
+must agree on the size and format of the Patch Attribute section, since there is no HW enforced pipe to
+line up inputs/outputs.</p>
+<p>
+Generic patch attributes are not specifiable without a TI shader.  However, a TS shader can still read the 
+TESSELLATION_LOD_* attributes even if a TI shader is not being used. </p> 
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+When accessing per-primitive attributes (PRIMITIVE_ID), the vertex specified by 
+Rb is ignored and the implicit primitive handle is used instead.</p>
+<p>
+An input BMAP (buffer map) is formed from the IMAP (input map) of the current shader, the OMAP (output map) of 
+the previous shader, and the address of the attribute.  An output BMAP is formed from the IMAP of the next shader,
+the OMAP of the current shader, and the address of the attribute.   </p>
+<p>
+The <b>ALD.I</b> or <b>ALD.O</b> return value depends on the BMAP, and will receive a return value that is one of:</p>
+<ol><li>the output from the previous (.I) or current (.O) stage;</li>
+    <li>a hardware-generated attribute value; or</li>
+    <li>a default value; or</li>
+    <li>garbage.</li>
+</ol>
+
+<p>
+For the most common usage cases, the BMAP Definition is simply:</p>
+<pre>
+   input  BMAP = (IMAP from current stage &amp; OMAP of previous stage)
+   output BMAP = (OMAP from current stage &amp; (IMAP from next stage | ST_REQ from current stage))
+</pre>
+
+<p>
+<b>If .I option:</b>                     // load from input ISBE</p>
+<p>
+For an attribute address, the following table describes the behavior:</p>
+<pre>
+  ----------------------------------------------------------------------------------------------
+                  Previous Stage
+   input BMAP      write status       ALD Return Value
+  ----------------------------------------------------------------------------------------------
+       0               *              Default
+       1               0              Garbage (ISBE leftover) or HW-generated Attribute Value
+       1               1              Output From Previous Stage
+  ----------------------------------------------------------------------------------------------
+</pre>
+
+<p>
+<b>If .O option:</b>                     // load from output ISBE, not possible for GS</p>
+<p>
+For an attribute address, the following table describes the behavior:</p>
+<pre>
+  ----------------------------------------------------------------------------------------------
+                  Current Stage
+   output BMAP     write status       ALD Return Value
+  ----------------------------------------------------------------------------------------------
+       0               *              Default
+       1               0              Garbage (ISBE leftover)
+       1               1              Output From Current Stage
+  ----------------------------------------------------------------------------------------------
+</pre>
+
+<p>
+Defaulted ALD will return 0x0 or 0x3f80_0000, depending on the address.
+Reading attribute addresses above 1024 (256*4) or below 0 will return 0x0.</p>
+<p>
+When doing a vector load, <b>ALD</b> will access up to 4 consecutive logical
+attribute addresses. If a particular logical attribute address is not enabled,
+then the default value is returned for that logical attribute.  </p>
+<p>
+Alignment applies to both register and attribute index. LSB bits are dropped for alignment:</p>
+<pre>
+   .32      forces (RA+#ImmS11) 2 lsb to 00.
+   .64      forces Rd register address[0:0] to  0 and (Ra+#ImmS11) 3 lsb to 000.
+   .96/.128 forces Rd register address[1:0] to 00 and (Ra+#ImmS11) 4 lsb to 0000.
+</pre>
+
+<p>
+Handling of corrupted Rb (vertex index) for Geometry/Tessellation shader:</p>
+<pre>
+     1. Sass bug if Rb missing in assembler syntax for Geom/Tess.
+     2. In range 0-ISBE vtx size (swiss cheese):
+       (a) valid for thread, result is valid
+       (b) invalid for source thread (a vertex from a different primitive), cannot detect,
+           treat as (a)
+     3. Out of range 0-ISBE vtx size: return 0 and optional Trap
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>ALD</b> R0,a[16];                   // no vertex handle for VS
+<b>ALD</b> R0,a[R1],R5;                // use vertex handle for GS
+<b>ALD.P</b> R0,a[R1+4],R5;            // patch attrib load
+
+using AL2P to do indexed ALD:
+<b>AL2P</b>.I.64       R0,  R1, 12;
+<b>ALD</b>.I.PHYS.64   R2,  a[R0] ;
+
+
+</pre>
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

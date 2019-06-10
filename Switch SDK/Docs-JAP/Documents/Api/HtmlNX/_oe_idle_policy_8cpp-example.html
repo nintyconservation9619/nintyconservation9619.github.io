@@ -1,0 +1,248 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: OeIdlePolicy.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">OeIdlePolicy.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_oe_idle_policy.html">無操作状態の制御</a> および <a class="el" href="_oe_idle_policy_8cpp.html" title="無操作状態の制御のサンプルプログラム ">OeIdlePolicy.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nn_Common.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___time_span_8h.html">nn/nn_TimeSpan.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/gfxLog.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/nns_Log.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/hid.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="oe___idle_policy_api_8h.html">nn/oe/oe_IdlePolicyApi.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line">    <a name="_a0"></a><a class="code" href="classnn_1_1os_1_1_timer_event.html">nn::os::TimerEvent</a> g_OneSecondTimer(<a name="a1"></a><a class="code" href="namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452a31f6133098296b3ddb7e14da3dc695cc">nn::os::EventClearMode_AutoClear</a>);</div>
+<div class="line">    <span class="keywordtype">int</span> g_ElapsedSeconds = 0;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> UpdateExtensionMode(<a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754de">nn::oe::UserInactivityDetectionTimeExtensionMode</a> mode) <a name="a2"></a><a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">switch</span> ( mode )</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a3"></a><a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deaa8475312a81b5b263b26c68d9f607b52">nn::oe::UserInactivityDetectionTimeExtensionMode_Disabled</a>:</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a4"></a><a class="code" href="namespacenn_1_1oe.html#a7c22abba7b05db494231a2893edfcf91">nn::oe::SetUserInactivityDetectionTimeExtended</a>(<span class="keyword">false</span>);</div>
+<div class="line">            NNS_LOG(<span class="stringliteral">&quot;Mode: Disabled.\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a5"></a><a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deac4e7bfdb512446ce1520a179b24cae1a">nn::oe::UserInactivityDetectionTimeExtensionMode_Enabled</a>:</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="namespacenn_1_1oe.html#a7c22abba7b05db494231a2893edfcf91">nn::oe::SetUserInactivityDetectionTimeExtended</a>(<span class="keyword">true</span>);</div>
+<div class="line">            NNS_LOG(<span class="stringliteral">&quot;Mode: Enabled.\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a6"></a><a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754dea3b88de7444aa887ad3431613bf78a7fd">nn::oe::UserInactivityDetectionTimeExtensionMode_EnabledUnsafe</a>:</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a7"></a><a class="code" href="namespacenn_1_1oe.html#ad3513ab7afd7048df84376b4f684fdf1">nn::oe::SetUserInactivityDetectionTimeExtendedUnsafe</a>(<span class="keyword">true</span>);</div>
+<div class="line">            NNS_LOG(<span class="stringliteral">&quot;Mode: EnabledUnsafe.\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <a name="a8"></a><a class="code" href="nn___macro_8h.html#abfe6f7c5f80ef52b7c0616042aba59b9">NN_UNEXPECTED_DEFAULT</a>;</div>
+<div class="line">    }</div>
+<div class="line">    g_ElapsedSeconds = 0;</div>
+<div class="line">    g_OneSecondTimer.StartPeriodic(<a name="a9"></a><a class="code" href="classnn_1_1_time_span.html#adc879772bbd4cd05381326fe0dd58b97">nn::TimeSpan::FromSeconds</a>(1), <a class="code" href="classnn_1_1_time_span.html#adc879772bbd4cd05381326fe0dd58b97">nn::TimeSpan::FromSeconds</a>(1));</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754de">nn::oe::UserInactivityDetectionTimeExtensionMode</a> NextExtensionMode(<a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754de">nn::oe::UserInactivityDetectionTimeExtensionMode</a> mode) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">switch</span> ( mode )</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deaa8475312a81b5b263b26c68d9f607b52">nn::oe::UserInactivityDetectionTimeExtensionMode_Disabled</a>:</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">return</span> <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deac4e7bfdb512446ce1520a179b24cae1a">nn::oe::UserInactivityDetectionTimeExtensionMode_Enabled</a>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deac4e7bfdb512446ce1520a179b24cae1a">nn::oe::UserInactivityDetectionTimeExtensionMode_Enabled</a>:</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">return</span> <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754dea3b88de7444aa887ad3431613bf78a7fd">nn::oe::UserInactivityDetectionTimeExtensionMode_EnabledUnsafe</a>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754dea3b88de7444aa887ad3431613bf78a7fd">nn::oe::UserInactivityDetectionTimeExtensionMode_EnabledUnsafe</a>:</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">return</span> <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deaa8475312a81b5b263b26c68d9f607b52">nn::oe::UserInactivityDetectionTimeExtensionMode_Disabled</a>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <a class="code" href="nn___macro_8h.html#abfe6f7c5f80ef52b7c0616042aba59b9">NN_UNEXPECTED_DEFAULT</a>;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> RunTimeCountingThread() <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">static</span> <a name="_a10"></a><a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a> s_Thread;</div>
+<div class="line">    <span class="keyword">static</span> <a name="a11"></a><a class="code" href="nn___macro_8h.html#a6ce9d4b07ab8bec971ac8875873615b5">NN_ALIGNAS</a>(4096) char s_ThreadStack[4 * <a class="code" href="namespacenn.html">nn</a>::os::<a name="a12"></a><a class="code" href="namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">MemoryPageSize</a>];</div>
+<div class="line">    <a class="code" href="namespacenn.html">nn</a>::os::<a name="a13"></a><a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">CreateThread</a>(</div>
+<div class="line">        &amp;s_Thread,</div>
+<div class="line">        [](<span class="keywordtype">void</span>* arg) {</div>
+<div class="line">            <a name="a14"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(arg);</div>
+<div class="line">            <span class="keywordflow">while</span> ( <a name="a15"></a><a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>(<span class="keyword">true</span>) )</div>
+<div class="line">            {</div>
+<div class="line">                g_OneSecondTimer.Wait();</div>
+<div class="line">                ++g_ElapsedSeconds;</div>
+<div class="line">                NNS_LOG(<span class="stringliteral">&quot;%d sec\n&quot;</span>, g_ElapsedSeconds);</div>
+<div class="line">            }</div>
+<div class="line">        },</div>
+<div class="line">        <span class="keyword">nullptr</span>,</div>
+<div class="line">        s_ThreadStack,</div>
+<div class="line">        <span class="keyword">sizeof</span>(s_ThreadStack),</div>
+<div class="line">        <a name="a16"></a><a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a></div>
+<div class="line">    );</div>
+<div class="line">    <a name="a17"></a><a class="code" href="namespacenn_1_1os.html#a90f2d7d33024e710d09a2b6d01b15522">nn::os::SetThreadNamePointer</a>(&amp;s_Thread, <span class="stringliteral">&quot;1sTimerThread&quot;</span>);</div>
+<div class="line">    <a name="a18"></a><a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>(&amp;s_Thread);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  メイン関数</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a19"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// ログ描画用スレッドのコアを指定します。</span></div>
+<div class="line">    nns::gfxLog::SetThreadCoreNumber(0);</div>
+<div class="line"></div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;Press A key on Debug Pad or Game Pad, or touch the screen to change extension mode.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    nns::hid::ControllerManager controllerManager;</div>
+<div class="line">    nns::hid::util::SetControllerManagerWithDefault(&amp;controllerManager);</div>
+<div class="line"></div>
+<div class="line">    RunTimeCountingThread();</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754de">nn::oe::UserInactivityDetectionTimeExtensionMode</a> currentMode = <a class="code" href="namespacenn_1_1oe.html#ab56ac40f2fbbedd360b034da1a7754deaa8475312a81b5b263b26c68d9f607b52">nn::oe::UserInactivityDetectionTimeExtensionMode_Disabled</a>;</div>
+<div class="line">    UpdateExtensionMode(currentMode);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">auto</span>&amp; gamePad = *<span class="keyword">reinterpret_cast&lt;</span>nns::hid::GamePad*<span class="keyword">&gt;</span>(controllerManager.GetController(nns::hid::ControllerId_GamePad, 0));</div>
+<div class="line">    <span class="keyword">auto</span>&amp; debugPad = *<span class="keyword">reinterpret_cast&lt;</span>nns::hid::DebugPad*<span class="keyword">&gt;</span>(controllerManager.GetController(nns::hid::ControllerId_DebugPad, 0));</div>
+<div class="line">    <span class="keyword">auto</span>&amp; touchScreen = *<span class="keyword">reinterpret_cast&lt;</span>nns::hid::TouchScreen*<span class="keyword">&gt;</span>(controllerManager.GetController(nns::hid::ControllerId_TouchScreen, 0));</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">bool</span> wasTouched = <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">while</span> ( <a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>(<span class="keyword">true</span>) )</div>
+<div class="line">    {</div>
+<div class="line">        controllerManager.Update();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordtype">bool</span> changeMode = <span class="keyword">false</span>;</div>
+<div class="line">        <span class="keywordtype">bool</span> isTouched = touchScreen.IsConnected() &amp;&amp; touchScreen.GetTouchStates().size() &gt; 0;</div>
+<div class="line">        <span class="keywordflow">if</span> ( (gamePad.IsConnected() &amp;&amp; gamePad.HasAnyButtonsDown(nns::hid::Button::A::Mask)) ||</div>
+<div class="line">             (debugPad.IsConnected() &amp;&amp; debugPad.HasAnyButtonsDown(nns::hid::Button::A::Mask)) ||</div>
+<div class="line">             (isTouched &amp;&amp; !wasTouched) )</div>
+<div class="line">        {</div>
+<div class="line">            changeMode = <span class="keyword">true</span>;</div>
+<div class="line">        }</div>
+<div class="line">        wasTouched = isTouched;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> ( changeMode )</div>
+<div class="line">        {</div>
+<div class="line">            currentMode = NextExtensionMode(currentMode);</div>
+<div class="line">            UpdateExtensionMode(currentMode);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <a name="a20"></a><a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a name="a21"></a><a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(16));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// プログラムの終了</span></div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;\nEnd of Demo.\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a class="code" href="classnn_1_1_time_span.html#adc879772bbd4cd05381326fe0dd58b97">nn::TimeSpan::FromSeconds</a>(5));</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

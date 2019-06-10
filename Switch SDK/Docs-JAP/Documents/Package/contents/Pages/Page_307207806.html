@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>aac デコーダ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- aac デコーダ -->
+<div class="pagetitle" id="PageId_307207806">aac デコーダ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_307207806_h1_1">aac デコーダ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_307207806_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_307207806_h2_2">使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_307207806_h2_3">API リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_307207806_h2_4">制約事項</a>
+      </li>
+      <li>
+        <a href="#Anchor_307207806_h2_5">注意点</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_307207806_h1_1">aac デコーダ</h1>
+<h2 id="Anchor_307207806_h2_1">機能概要</h2>
+<p>aac デコーダは aac データをデコードして PCM データに変換するための機能を提供します。</p>
+<p>aac デコーダとして、以下のクラスが提供されています。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <p>クラス名</p>
+      </th>
+      <th>
+        <p>概要</p>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html">nn::codec::AacDecoder</a>
+      </td>
+      <td>CPU リソースにより opus デコードを行います</td>
+    </tr>
+  </tbody>
+</table>
+<p>aac デコーダは作業用のバッファを利用者に要求します。</p>
+<p>デコードに必要な作業用バッファのサイズは以下のパラメータを用いて <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html#a0afe7be76689c7f113be05acb0195d7d">nn::codec::AacDecoder::GetWorkBufferSize()</a>&nbsp;により取得することができます。</p>
+<ul>
+  <li>サンプルレート</li>
+  <li>チャンネル数</li>
+  <li>audio object type</li>
+</ul>
+<p>上記のパラメータに加えて、作業用バッファの情報を <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html#a3166f9440959e812c73cd6bad4812c0e">nn::codec::AacDecoder::Initialize()</a>&nbsp;に与えて初期化することにより、aac デコーダは利用可能になります。初期化処理以降、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html#a7e9e38af6b9b06dbf0798a53995618bc">nn::codec::AacDecoder::Finalize()</a>&nbsp;を呼ぶまでは作業用バッファの内容を改変してはいけません。</p>
+<p>デコード処理は <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html#a4b9d35493cc25786fb444ce36b7c6461">nn::codec::OpusDecoder::DecodeInterleaved()</a>&nbsp;により行われます。入出力バッファに関して、以下に注意する必要があります。</p>
+<ul>
+  <li>入力バッファ<ul><li>AAC の入力バッファサイズは、最大で「768&nbsp;&times; チャンネル数」バイトです</li></ul></li>
+  <li>出力バッファ<ul><li>AAC-LC の場合、最大で 1024 サンプルが出力される可能性があるため、「1024 &times; チャンネル数 &times; sizeof(int16_t)」バイトのバッファを用意すれば十分です</li></ul></li>
+</ul>
+<p>デコード処理中に実際に利用された入力データサイズ、出力サンプル数は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html#a4b9d35493cc25786fb444ce36b7c6461">nn::codec::OpusDecoder::DecodeInterleaved()</a>&nbsp;の引数に指定する値から知ることができます。</p>
+<h2 id="Anchor_307207806_h2_2">使用例</h2>
+<p>
+  <a href="../../../Api/HtmlNX/_page_sample_codec_aac_decoder.html">aac デコーダのサンプル</a> を参照してください。</p>
+<h2 id="Anchor_307207806_h2_3">API リファレンス</h2>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html">nn::codec 名前空間</a> の <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_aac_decoder.html">AacDecoder クラス</a> を参照してください。</p>
+<h2 id="Anchor_307207806_h2_4">制約事項</h2>
+<p>特にありません。</p>
+<h2 id="Anchor_307207806_h2_5">注意点</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__codec">nn::codec</span> の aac デコーダの出力結果は、<a href="../Pages/Page_115048712.html">MOVIE ライブラリ</a>&nbsp;のバックエンドの aac デコーダの出力結果と同一とはならない可能性があります</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__codec', '../../../Api/HtmlNX/namespacenn_1_1codec.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

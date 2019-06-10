@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>セーブデータ (NX Addon)</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- セーブデータ (NX Addon) -->
+<div class="pagetitle" id="PageId_107782148">セーブデータ (NX Addon)</div>
+<div class="text_separate">
+<p>NX アプリケーションにおけるセーブデータの仕様は、以下を除き、&nbsp;<a href="../Pages/Page_107320205.html">Windows 環境でのセーブデータ</a> と同様です。</p>
+<p>利用する前に、セーブデータの全様や運用について説明している&nbsp;<a href="../Pages/Page_227085130.html">セーブデータ</a>&nbsp;を十分ご確認ください。</p>
+<h1 id="Anchor_107782148_h1_1">セーブデータの種類とマウント</h1>
+<p>NX アプリケーションで利用できるセーブデータの種類とマウント方法は次の通りです。</p>
+<ul>
+  <li>ユーザーアカウントセーブデータ<ul><li>ユーザーアカウント毎に作成できるアプリケーションのセーブデータです。<span class="ApiLink_nn__fs__MountSaveData">nn::fs::MountSaveData</span>() でマウントできます。詳しい使い方は<a href="../../../Api/HtmlNX/_page_sample_fs_save_data.html">サンプル</a>を参照してください。</li></ul></li>
+  <li>デバッグ用セーブデータ<ul><li><p>アプリケーション毎に 1 つ作成できるセーブデータです。<span class="ApiLink_nn__fs__MountSaveDataForDebug">nn::fs::MountSaveDataForDebug</span>() でマウントできます。詳しい使い方は<a href="../../../Api/HtmlNX/_page_sample_fs_save_data_for_debug.html">サンプル</a>を参照してください。</p><div class="warn_new"><div class="warn_new_left">警告：</div><div class="warn_new_right"><p>デバッグ用セーブデータは製品環境で使用することはできません。<strong><br /></strong>詳細については <a href="../Pages/Page_83956190.html#Anchor_83956190_fsApiForDebug">FS ライブラリ／開発向けオーバービュー</a> の「デバッグ API の利用について」を参照してください。</p></div></div></li></ul></li>
+</ul>
+<p>NX アプリケーションでは合計 10 個までの異なるセーブデータを同時にマウントできます。同じセーブデータを複数同時にマウントすることはできません。</p>
+<h1 id="Anchor_107782148_h1_2">アプリケーションによるセーブデータの作成<a name="Anchor_107782148_savedata_creation_by_application"></a></h1>
+<p>
+  <a href="../Pages/Page_166503043.html#Anchor_166503043_h3_12">起動時本体アカウント選択</a>&nbsp;を利用して選択されたユーザーアカウントのセーブデータについては、アプリケーション起動時点でシステムが作成します。空き容量不足などでセーブデータが作成されなかった場合は、アプリケーションは起動されません。<br />起動時本体アカウント選択の詳細については、アカウントガイドおよび&nbsp;<a href="../Pages/Page_166503043.html#Anchor_166503043_h3_12">機能 &gt; ビルド &gt; アプリケーションイメージの作成 &gt; nmeta ファイルの書き方 / 起動時本体アカウント選択</a>&nbsp;を参照して下さい。</p>
+<p>
+  <a href="../Pages/Page_166503043.html#Anchor_166503043_h3_12">起動時本体アカウント選択</a>&nbsp;を利用しないアプリケーションや、アプリケーション内で複数のユーザーアカウントを切り替えてそのセーブデータにアクセスするようなアプリケーションでは、<span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() を実行してセーブデータを作成する必要があります。<br />詳しい使い方は&nbsp;<a href="../../../Api/HtmlNX/_page_sample_fs_save_data.html">サンプルプログラム</a>&nbsp;を参照してください。なお、この場合も<strong>ユーザーアカウントセーブデータの作成のためには&nbsp;nmeta ファイル (.nmeta) の設定が必要です。</strong>詳しくは&nbsp;<a href="#Anchor_107782148_savedata_meta">セーブデータの設定</a>&nbsp;を参照してください。</p>
+<p>また、<span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() の実行時に、作成済みのセーブデータのサイズを拡張する場合があります。後述の「nmeta ファイルに記述するセーブデータサイズの更新」を参照してください。</p>
+<p>
+  <span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() を呼び出した際に、セーブデータを作成またはサイズ拡張するための空き容量が足りない場合があります。後述の「セーブデータのエラーハンドリング」を参照してください。</p>
+<h1 id="Anchor_107782148_h1_3">セーブデータの削除</h1>
+<p>セーブデータの削除は&nbsp;<a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;または&nbsp;<a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;から実行できます。</p>
+<h1 id="Anchor_107782148_h1_4">セーブデータの配置場所のエミュレーション</h1>
+<p>NX アプリケーションで <span class="ApiLink_nn__fs__SetSaveDataRootPath">nn::fs::SetSaveDataRootPath</span>() を実行しホスト PC 上のパスを指定した上でセーブデータをマウントすると、指定したホスト PC 上のパスにセーブデータのエミュレーションディレクトリが生成され、セーブデータファイルシステムの内容をホスト PC 上のファイルシステムでエミュレーションすることができます。<br />以下のようなパスにセーブデータが配置されます。 0000000000000001 の部分は、セーブデータごとに割り振られる ID 値が入ります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>＜nn::fs::SetSaveDataRootPath() に指定したホスト PC 上のパス＞/0000000000000001/0/</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>本体保存メモリーに保存される本来のセーブデータの内容とエミュレーションディレクトリの内容は同期されない点にご注意ください。</p>
+<h1 id="Anchor_107782148_h1_5">
+  <span style="color: rgb(117,117,117);">セーブデータの特性</span>
+</h1>
+<h2 id="Anchor_107782148_h2_1">ジャーナリング機能によるデータ保護</h2>
+<p>ファイルの作成や、削除、書き込みといった操作は「更新記録」として一時的に書き溜められ、<span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>()&nbsp;を呼び出したタイミングで操作を確定します。この、更新を一時的に記録しておく場所は「ジャーナリング領域」と呼ばれ、セーブデータの新規作成時に開発者がサイズを指定可能です。</p>
+<p>
+  <span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() を呼び出すまでにジャーナリング領域サイズ分までデータを操作することができ、それを超えて操作しようとした場合はエラーを示す Result が返り、<span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() が成功しなくなります。製品環境ではこのエラーが発生しないよう十分なジャーナリング領域を指定する、必要な書き込みを終えたらすみやかに&nbsp;<span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() を呼び出す、といった対応をする必要があります。</p>
+<p>NX Addon 5.1.0 未満の SDK では&nbsp;<span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() の代わりに <span class="ApiLink_nn__fs__CommitSaveData">nn::fs::CommitSaveData</span>() を利用してください。</p>
+<h2 id="Anchor_107782148_h2_2">ブロックの割当</h2>
+<p>セーブデータは「データ保存領域」「ジャーナリング領域」のそれぞれをブロック単位に分割して管理しています。1 ブロックの大きさは 16KB です。</p>
+<p>データ保存領域は、ファイルの作成やリサイズ等でブロックの割当・解放が行われます。ファイルはファイルデータ 16 KB 毎に 1 ブロック割り当てます。16KB の倍数ではないサイズのファイルを作成した場合は、内部的にはブロックサイズに切り上げて必要ブロック数を割り当てます。また、ファイルやディレクトリの管理にもデータ保存領域のブロックを用います。ファイルの個数が 168 個までは 1 ブロック、168 個を超えると 2 ブロック割り当て、以降 168 ファイルごとに 1 ブロック割り当てます。ディレクトリも同様にブロックを割り当てます。ただし、ファイルやディレクトリの管理に割り当てられたブロックはその後の操作で解放されることはありません。以下に例を示します。</p>
+<ul>
+  <li>32KB のファイルを作成した場合は 2 ブロックのデータ保存領域を割当</li>
+  <li>45KB のファイルを作成した場合は 3 ブロックのデータ保存領域を割当</li>
+  <li>45KB のファイルを 32 KB にリサイズした場合は 1 ブロックのデータ保存領域が解放</li>
+  <li>空のセーブデータに新規にファイルを 1 つだけ作成した場合（ルートディレクトリも作成される）は 2 ブロックのデータ保存領域を割当</li>
+  <li>1 ディレクトリ、167 ファイルからなるセーブデータに 0 バイトのファイルを追加した場合、データ保存領域を割り当てない</li>
+  <li>1 ディレクトリ、168 ファイルからなるセーブデータに 0 バイトのファイルを追加した場合、1 ブロックのデータ保存領域を割当</li>
+  <li>1 ディレクトリ、169 ファイルからなるセーブデータから 1 ファイルを削除した場合、データ保存領域は解放されない</li>
+</ul>
+<p>ジャーナリング領域は、ファイルの作成や削除、書き込みといったデータ保存領域に割り当てられたブロックを書き変える操作を行う毎にブロックの割当が行われ、<span class="ApiLink_nn__fs__Commit">nn::fs::Commit</span>() の呼び出しにより割り当てられていたブロックを解放します。ファイルシステムの状況によって操作に対して必要なブロック数が変動するため、数ブロック分余裕を持って設定することを推奨します。以下に例を示します。</p>
+<ul>
+  <li>ディレクトリを新規に作成・削除した場合は最大 2 ブロックのジャーナリング領域を割当</li>
+  <li>ファイルを削除した場合は最大 3 ブロックのジャーナリング領域を割当</li>
+  <li>0 バイトのファイルを新規に作成した場合は最大 3 ブロックのジャーナリング領域を割当</li>
+  <li>16KB の倍数サイズのファイルを新規に作成し、中身を書き換えなかった場合は最大 3 ブロックのジャーナリング領域を割当</li>
+  <li>16KB の倍数サイズではないファイルを新規に作成し、中身を書き換えなかった場合は最大 4 ブロックのジャーナリング領域を割当</li>
+  <li>16KB のファイルを新規に作成し、その内容を書き換えた場合は最大 4 ブロックのジャーナリング領域を割当</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>データ保存領域サイズにはファイル管理ブロック、ディレクトリ管理ブロックの最低 2 ブロック、32KB を含める必要がある点にご注意ください。</p>
+    <p>ファイルやディレクトリを作成、削除、リネームしたり、ファイルサイズを変更したりする場合はファイル管理ブロック、ディレクトリ管理ブロックが更新されます。そのため、ジャーナリング領域サイズにもファイル管理ブロック、ディレクトリ管理ブロックの最低 2 ブロック、32KB を含める必要があります。</p>
+    <p>また、ファイル管理ブロック・ディレクトリ管理ブロックが複数ブロックになった場合、作成・削除・リネーム・ファイルサイズ変更によってどの管理ブロックが更新されるかはわからないため、全管理ブロック数をジャーナリング領域サイズに含めてください。</p>
+    <p>データ保存領域・ジャーナリング領域それぞれの最低サイズは、上記 2 ブロックにファイル作成用の 1 ブロックを加えた 3 ブロック(= 48 KB) になります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ファイル管理ブロック、ディレクトリ管理ブロックとして一度確保されたブロックは、ファイル・ディレクトリが削除された後も解放されず、その後ファイル・ディレクトリが再作成された際に再利用されます。</p>
+    <p>ファイル・ディレクトリを全削除しても領域が全解放されるわけではない点にご注意ください。</p>
+  </div>
+</div>
+<h2 id="Anchor_107782148_h2_3">
+  <br />新規作成、リサイズ直後のファイルの内容</h2>
+<p>新規作成した直後のファイルは、すべて 0 で埋められた状態になります。</p>
+<p>
+  <span class="ApiLink_nn__fs__SetFileSize">nn::fs::SetFileSize</span>() で拡張した領域についても、 0 で埋められた状態になります。</p>
+<h1 id="Anchor_107782148_h1_6">セーブデータの設定<a name="Anchor_107782148_savedata_meta"></a></h1>
+<p>セーブデータの設定は nmeta ファイル (.nmeta) に記述します。</p>
+<p>以下の項目が設定できます。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目名</th>
+      <th>概要</th>
+      <th>補足</th>
+    </tr>
+    <tr>
+      <td>NintendoSdkMeta/Application/UserAccountSaveDataSize</td>
+      <td>ユーザーアカウントセーブデータのデータ保存領域サイズ</td>
+      <td>16KB 単位、48 KB 以上である必要があります。</td>
+    </tr>
+    <tr>
+      <td>NintendoSdkMeta/Application/UserAccountSaveDataJournalSize</td>
+      <td>ユーザーアカウントセーブデータのジャーナリング領域サイズ</td>
+      <td>16KB 単位、48 KB 以上である必要があります。</td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>本体保存メモリーを不適切に占有してユーザー体験が悪くなることがないよう、セーブデータサイズは必要最小限であることが望ましいです。<br />ユーザーアカウントセーブデータのデータ保存領域サイズとジャーナリング領域サイズの合計が 64MB で不足する場合は、任天堂の窓口までご相談ください。</p>
+    <p>ご相談の際には次の情報をお知らせください。</p>
+    <ul>
+      <li>データ保存領域サイズとジャーナリング領域サイズ</li>
+      <li>データ保存領域サイズの内訳（各要素の内容、サイズ、要素数）</li>
+      <li>ユーザーの遊び方によって保存すべきデータのサイズが大きく変わる場合は、セーブデータ容量拡張機能を利用するか</li>
+      <li>一時ストレージ機能を使用すべきデータが含まれていないか</li>
+      <li>キャッシュストレージ機能を使用すべきデータが含まれていないか</li>
+      <li>ゲーム性を損なわない範囲で圧縮やデータ形式変更などによるサイズの最適化を行ったか</li>
+    </ul>
+  </div>
+</div>
+<h2 id="Anchor_107782148_h2_4">
+  <br />設定例</h2>
+<p>以下は、データ保存領域サイズ 1MB, ジャーナリング領域サイズ 256KB を設定した nmeta ファイルの例です。</p>
+<p>この場合、たとえば 1MB - 16KB*2 （ファイル・ディレクトリ管理ブロック分）のサイズのファイルを 1 つ配置することができ、コミットまでに 256KB までの領域を書き換えることができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml <span class="nv">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span>?&gt;
+&lt;NintendoSdkMeta&gt;
+&nbsp;&nbsp;&lt;Core&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Name&gt;Application&lt;/Name&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;ApplicationId&gt;0x0005000C10000000&lt;/ApplicationId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Is64BitInstruction&gt;True&lt;/Is64BitInstruction&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;ProcessAddressSpace&gt;AddressSpace64Bit&lt;/ProcessAddressSpace&gt;
+&nbsp;&nbsp;&lt;/Core&gt;
+&nbsp;&nbsp;&lt;Application&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;UserAccountSaveDataSize&gt;0x0000000000100000&lt;/UserAccountSaveDataSize&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;UserAccountSaveDataJournalSize&gt;0x0000000000040000&lt;/UserAccountSaveDataJournalSize&gt;
+&nbsp;&nbsp;&lt;/Application&gt;
+&lt;/NintendoSdkMeta&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />現在、以下のいずれかの方法で起動した上で、「アプリケーション起動前にユーザーを選択するオプション」によりシステムが作成した場合、または&nbsp;<span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() の呼び出しにより作成した場合のみ、セーブデータが作成されます。</p>
+<ul>
+  <li>セーブデータの設定を記述した nmeta ファイルから作成したメタデータを nspd に配置し、VSI から アプリケーションプログラムフォーマット = Raw で起動した場合<ul><li><p>メタデータの作成については&nbsp;<a href="../Pages/Page_107320233.html#Anchor_107320233_h2_12">機能 &gt; ビルド &gt; アプリケーションイメージの作成 &gt; ツールリファレンス &gt; AuthoringTool / nspd に配置するメタデータを作成する</a>&nbsp;を参照してください。</p></li><li><p>メタデータは以下のように配置する必要があります。</p><div style="border-width: 1px;" class="preformatted panel"><div class="preformattedContent panelContent"><pre>ApplicationXXX.nspd/program0.ncd/
+                    meta0.ncd/
+                    control0.ncd/</pre></div></div></li></ul></li>
+  <li>セーブデータの設定を記述した nmeta ファイルから作成したメタデータを nspd に配置し、&nbsp;RunOnTarget で nspd を指定して起動した場合</li>
+  <li>セーブデータの設定を記述した nmeta ファイルを指定して VSI から アプリケーションプログラムフォーマット = NSP で起動した場合</li>
+  <li>セーブデータの設定を記述した nmeta ファイルを指定して作成した nsp ファイルを RunOnTarget で起動した場合</li>
+  <li>セーブデータの設定を記述した nmeta ファイルを指定して作成した nsp ファイルを NAND にインストールした上で起動した場合</li>
+</ul>
+<p>アプリケーションプログラムフォーマット = NCA で起動した場合や、メタデータを nspd に配置していない場合はセーブデータが作成されず、マウントに失敗する点にご注意ください。&nbsp;</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>セーブデータが作成済みの場合、そのまま使用され、再作成はされないため、セーブデータの設定の更新があっても反映されない点にご注意ください。</p>
+    <p>そのため、セーブデータの設定を記述・変更した際は、一度セーブデータを削除してください。</p>
+  </div>
+</div>
+<h1 id="Anchor_107782148_h1_7">セーブデータのサイズ拡張<a name="Anchor_107782148_savedata_extension"></a></h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>この機能は NX Addon 3.1.0 以降で利用できます。</p>
+  </div>
+</div>
+<p>セーブデータのデータ保存領域およびジャーナリング領域は、次のいずれかの方法で拡張することができます。いずれの場合でも、拡張前のセーブデータの内容は維持されます。</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_166503043.html">nmeta ファイル</a>&nbsp;のセーブデータサイズの記述を更新した修正版アプリケーションを元にパッチを作成する</li>
+  <li>アプリケーション内で <span class="ApiLink_nn__fs__ExtendSaveData">nn::fs::ExtendSaveData</span>() を実行する</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>セーブデータサイズの縮小には対応していません。無用に大きなサイズに拡張することは避けてください。</p>
+  </div>
+</div>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>セーブデータのサイズ拡張には拡張方法に関わらず 32 回の回数制限があります。拡張回数がこの回数を超えないよう、計画的に拡張してください。<br />もしこの回数を超えて拡張を行いたい場合は、任天堂の窓口までご相談ください。</p>
+  </div>
+</div>
+<h2 id="Anchor_107782148_h2_5">nmeta ファイルに記述するセーブデータサイズの更新<a name="Anchor_107782148_savedata_extension_by_patch"></a></h2>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <span style="color: rgb(51,51,51);">nmeta ファイルに記述するセーブデータサイズの更新でデータ保存領域サイズとジャーナリング領域サイズの合計が 64MB より大きくなる場合には事前の申請が必要です。任天堂の窓口までご相談ください。</span>
+    </p>
+    <p>
+      <span style="color: rgb(51,51,51);">ご相談の際には次の情報をお知らせください。</span>
+    </p>
+    <ul>
+      <li>更新後のデータ保存領域サイズとジャーナリング領域サイズ</li>
+      <li>更新後のデータ保存領域サイズの内訳（各要素の内容、サイズ、要素数）</li>
+      <li>ゲーム性を損なわない範囲で圧縮やデータ形式変更などによるサイズの最適化を行ったか</li>
+      <li>更新を必要とする理由</li>
+      <li>今後もさらにセーブデータサイズの更新を実施する計画があるか</li>
+    </ul>
+  </div>
+</div>
+<p>nmeta ファイルの NintendoSdkMeta/Application/UserAccountSaveDataSize、NintendoSdkMeta/Application/UserAccountSaveDataJournalSize の記述を更新することで、パッチ適用後のアプリケーションのユーザーアカウントセーブデータ作成時に既存のセーブデータがあった場合、nmeta ファイルの記述に従って自動でサイズを拡張します。&nbsp;</p>
+<p>「アプリケーションによるセーブデータの作成」で前述したように、<a href="../Pages/Page_166503043.html#Anchor_166503043_h3_12">起動時本体アカウント選択</a>&nbsp;を利用するアプリケーションはシステムが自動でセーブデータの作成および拡張を行います。この場合はアプリケーションでのエラーハンドリングは不要です。空き容量不足などでセーブデータが作成および拡張されなかった場合は、アプリケーションは起動されません。<br /><a href="../Pages/Page_166503043.html#Anchor_166503043_h3_12">起動時本体アカウント選択</a>&nbsp;を利用しないアプリケーションでは&nbsp;<span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() の呼び出し時にサイズの拡張が実行されます。この場合、空き容量が不足する場合があるため、セーブデータ作成時と同様に適切なハンドリングを行ってください。</p>
+<p>ただし、nmeta ファイルのセーブデータサイズを更新してパッチを作成する場合には以下の制限があります。</p>
+<ul>
+  <li>更新後のセーブデータのデータ保存領域、ジャーナリング領域のサイズ値がそれぞれ 1 MiB の倍数である</li>
+</ul>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <a href="../Pages/Page_194625008.html">データ配信キャッシュストレージ</a> のサイズも同様に、nmeta ファイルの更新(NintendoSdkMeta/Application/BcatDeliveryCacheStorageSize) で拡張することが出来ます。拡張のタイミングおよび注意事項はユーザーアカウントセーブデータの拡張と同様です。</p>
+  </div>
+</div>
+<h2 id="Anchor_107782148_h2_6">
+  <span style="color: rgb(117,117,117);">セーブデータサイズの随時拡張</span>
+</h2>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <span style="color: rgb(51,51,51);">セーブデータサイズの随時拡張機能を利用するには事前の申請が必要です。任天堂の窓口までご相談ください。</span>
+    </p>
+    <p>
+      <span style="color: rgb(51,51,51);">ご相談の際には次の情報をお知らせください。</span>
+    </p>
+    <ul>
+      <li>拡張後のデータ保存領域サイズとジャーナリング領域サイズ</li>
+      <li>拡張後のデータ保存領域サイズの内訳（各要素の内容、サイズ、要素数）</li>
+      <li>ゲーム性を損なわない範囲で圧縮やデータ形式変更などによるサイズの最適化を行ったか</li>
+      <li>拡張を必要とする理由</li>
+      <li>今後もさらにセーブデータ拡張を実施する計画があるか</li>
+    </ul>
+  </div>
+</div>
+<p>
+  <span class="ApiLink_nn__fs__ExtendSaveData">nn::fs::ExtendSaveData</span>() を実行することで、ユーザーアカウントセーブデータのデータ保存領域およびジャーナリング領域をそれぞれ指定したサイズに拡張することができます。&nbsp;</p>
+<p>この機能を利用することでアプリケーションユーザーのユースケースに応じて、NintendoSdkMeta/Application/UserAccountSaveDataSize、NintendoSdkMeta/Application/UserAccountSaveDataJournalSize に記述したサイズを超えて、セーブデータのサイズを拡張することができます。&nbsp;</p>
+<p>この機能を利用する場合、以下の値の設定が必要です。これらの値を超えるセーブデータのサイズ拡張はできません。</p>
+<table class="wrapped">
+  <colgroup>
+    <col style="width: 436.0px;" />
+    <col style="width: 395.0px;" />
+    <col style="width: 234.0px;" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <p>項目名</p>
+      </th>
+      <th>
+        <p>概要</p>
+      </th>
+      <th>
+        <p>補足</p>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NintendoSdkMeta/Application/UserAccountSaveDataSizeMax</td>
+      <td>ユーザーアカウントセーブデータのデータ保存領域サイズの拡張上限</td>
+      <td>1 MiB 単位である必要があります。</td>
+    </tr>
+    <tr>
+      <td>NintendoSdkMeta/Application/UserAccountSaveDataJournalSizeMax</td>
+      <td>ユーザーアカウントセーブデータのジャーナリング領域サイズの拡張上限</td>
+      <td>1 MiB 単位である必要があります。</td>
+    </tr>
+  </tbody>
+</table>
+<p>また、<span class="ApiLink_nn__fs__ExtendSaveData">nn::fs::ExtendSaveData</span>() の実行前にユーザーアカウントセーブデータをアンマウントしておく必要があります。</p>
+<p>
+  <span class="ApiLink_nn__fs__ExtendSaveData">nn::fs::ExtendSaveData</span>() を呼び出した際に、サイズ拡張するための空き容量が足りない場合があります。後述の「セーブデータのエラーハンドリング」を参照してください。</p>
+<h1 id="Anchor_107782148_h1_8">セーブデータのエラーハンドリング</h1>
+<p>セーブデータ操作で以下のケースにおいてはアプリケーションによるエラーハンドリングが必要になります。</p>
+<ul>
+  <li>アプリケーション中で <span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() を実行してセーブデータを作成またはサイズ拡張する場合</li>
+  <li>アプリケーション中で <span class="ApiLink_nn__fs__ExtendSaveData">nn::fs::ExtendSaveData</span>() を実行してセーブデータのサイズを拡張する場合</li>
+</ul>
+<p>いずれのケースでも、セーブデータを作成またはサイズ拡張するための空き容量が足りない場合があります。この場合、システムが自動で以下のメッセージを表示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>セーブデータを作れませんでした。
+本体保存メモリーの空き容量が足りません。
+HOMEメニューの設定 →「データ管理」で、いらないデータを消去してください。</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>このメッセージ表示後ユーザに空き容量不足の解消を促しますが、解消されなかった場合は、API の返り値として <span class="ApiLink_nn__fs__ResultUsableSpaceNotEnough">nn::fs::ResultUsableSpaceNotEnough</span> が返ります。<br />この場合、セーブデータが意図通りに作成されていないもしくはサイズ設定されていません。セーブデータ操作を中断し、適切なハンドリングを行うようにしてください。</p>
+<ul>
+  <li>例：ユーザーにユーザーアカウントを選択させるシーンから <span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() を実行した際に <span class="ApiLink_nn__fs__ResultUsableSpaceNotEnough">nn::fs::ResultUsableSpaceNotEnough</span> が返った場合、ユーザーアカウント選択操作をキャンセルして前のシーンに戻る。</li>
+</ul>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;または&nbsp;<a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;で NAND の空き容量を埋めることができます。空き容量不足状態にした上で、 <span class="ApiLink_nn__fs__ResultUsableSpaceNotEnough">nn::fs::ResultUsableSpaceNotEnough</span> が正しくハンドリングできていることを確認してください。</p>
+<p>上記以外のセーブデータ操作のエラーハンドリングは、その他のファイルシステム操作と同様です。<a href="../Pages/Page_174247773.html">エラーハンドリング</a> も参照してください。</p>
+<h1 id="Anchor_107782148_h1_9">他アプリケーションのセーブデータの参照</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>他のアプリケーションのセーブデータを書き込み可能な状態でマウントする必要がある場合は、任天堂の窓口までご相談ください。</p>
+  </div>
+</div>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>この機能を他社のアプリケーションのセーブデータに対して利用する場合は、NintendoSdkMeta/Core/FsAccessControlData/SaveDataOwnerIds の設定値について事前に相談が必要です。任天堂の窓口までご相談ください。</p>
+  </div>
+</div>
+<p>他のアプリケーションのセーブデータを <span class="ApiLink_nn__fs__MountSaveDataReadOnly">nn::fs::MountSaveDataReadOnly</span>() で読み込み専用でマウントして参照できます。<br />この API を使用するには事前に nmeta ファイルの NintendoSdkMeta/Core/FsAccessControlData/SaveDataOwnerIds で、アクセスしたいセーブデータを持つアプリケーションのアプリケーション ID を記述する必要があります。</p>
+<p>アプリケーションID 0x0100000000010001, 0x0100000000010002 のセーブデータにアクセスする場合の記述例を以下に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml <span class="nv">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span>?&gt;
+&lt;NintendoSdkMeta&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Core&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Name&gt;Application&lt;/Name&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ApplicationId&gt;0x0100000000010000&lt;/ApplicationId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FsAccessControlData&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FlagPresets&gt;Debug&lt;/FlagPresets&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;SaveDataOwnerIds&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Accessibility&gt;Read&lt;/Accessibility&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Id&gt;0x0100000000010001&lt;/Id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/SaveDataOwnerIds&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;SaveDataOwnerIds&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Accessibility&gt;Read&lt;/Accessibility&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Id&gt;0x0100000000010002&lt;/Id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/SaveDataOwnerIds&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/FsAccessControlData&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Core&gt;
+&lt;/NintendoSdkMeta&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>NintendoSdkMeta/Core/FsAccessControlData/FsAccessControlData/SaveDataOwnerIds を指定する場合、通常は下記記述例のとおり /NintendoSdkMeta/Core/FsAccessControlData/FlagPresets/Debug も併せて指定してください。</p>
+    <p>
+      <a href="../Pages/Page_83956190.html#Anchor_83956190_fsApiForDebug">FS ライブラリ／開発向けオーバービュー</a> の「デバッグ API の利用について」で説明されているとおり、FsAccessControlData の FlagPresets 要素の省略は「デバッグ用 API を制限するための設定」を有効にすることに相当するため、デバッグ API が利用できなくなります。FlagPresets のデフォルト要素は アプリケーション desc ファイルの /Desc/Default/FsAccessControlData/FlagPresets にあります。&quot;Debug&quot; 以外の要素が FlagPresets に将来追加された場合はそれについても併せて記述が必要となる可能性があります。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_107782148_h1_10">セーブデータのバックアップ</h1>
+<p>セーブデータをバックアップするために以下の2つの方法を提供しています。</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_310878092.html#Anchor_310878092_h2_5">DevMenu</a> のセーブデータバックアップ機能</li>
+  <li>ツール <a href="../Pages/Page_165349096.html">BackupSaveData</a> による PC へのバックアップ</li>
+</ul>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__fs__MountSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#afdbda9f24e47b02bb74da4558bbd0760' )
+SetUrl( 'ApiLink_nn__fs__MountSaveDataForDebug', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a767e38eb403bd2ebb4374c5214dc0e95' )
+SetUrl( 'ApiLink_nn__fs__EnsureSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ae5f48fe542ce22263e1399e3b50190e8' )
+SetUrl( 'ApiLink_nn__fs__SetSaveDataRootPath', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a90c27aaf70aec66968715663cd8c5415' )
+SetUrl( 'ApiLink_nn__fs__Commit', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab534529ae3c325863fe1eb34bd03c872' )
+SetUrl( 'ApiLink_nn__fs__CommitSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ac2f25cffd056f24d6facfda13f977fa6' )
+SetUrl( 'ApiLink_nn__fs__SetFileSize', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab469b77c1d8c44eaedb9b6d658aba6c6' )
+SetUrl( 'ApiLink_nn__fs__ExtendSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ab83b2cf5e8413aa2833c8df5d2771bf9' )
+SetUrl( 'ApiLink_nn__fs__ResultUsableSpaceNotEnough', '../../../Api/HtmlNX/classnn_1_1fs_1_1_result_usable_space_not_enough.html' )
+SetUrl( 'ApiLink_nn__fs__MountSaveDataReadOnly', '../../../Api/HtmlNX/namespacenn_1_1fs.html#adf5b846d93790ec79b2d6fee53e97db9' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

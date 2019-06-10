@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Faceline</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Faceline -->
+<div class="pagetitle" id="PageId_126918959">Faceline</div>
+<div class="text_separate">
+<h1 id="Anchor_126918959_h1_1">Faceline</h1>
+<h2 id="Anchor_126918959_h2_1">概要</h2>
+<p>
+  <span class="ApiLink_nn__mii__Faceline">nn::mii::Faceline</span> は顔輪郭テクスチャを構成する各パーツのシェイプやテクスチャなどのデータを保持するクラスです。</p>
+<p>顔輪郭テクスチャの構成に関しては<a href="../Pages/Page_126557702.html">顔モデル構造の顔輪郭テクスチャのページ</a>を参照してください。</p>
+<h2 id="Anchor_126918959_h2_2">初期化と終了処理</h2>
+<p>初期化と終了処理時の注意点に関しては説明します。各関数の API リファレンスも合わせて参照してください。</p>
+<h3 id="Anchor_126918959_h3_1">初期化処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__Faceline__Initialize">nn::mii::Faceline::Initialize</span>() 関数を使用して初期化を行います。</p>
+<p>初期化用のメモリのサイズとアライメントは <span class="ApiLink_nn__mii__Faceline__CalculateMemorySize">nn::mii::Faceline::CalculateMemorySize</span>() と <span class="ApiLink_nn__mii__Faceline__CalculateMemoryAlignment">nn::mii::Faceline::CalculateMemoryAlignment</span>() 関数を使用することで取得できます。</p>
+<p>初期化用のメモリプールのサイズとアライメントは <span class="ApiLink_nn__mii__Faceline__CalculateMemoryPoolSize">nn::mii::Faceline::CalculateMemoryPoolSize</span>() と <span class="ApiLink_nn__mii__Faceline__CalcualteMemoryPoolAlignment">nn::mii::Faceline::CalcualteMemoryPoolAlignment</span>() 関数を使用することで取得できます。これらの関数に渡す <a href="../Pages/Page_126918946.html">Resource</a> は初期化時に渡すものと同じものを渡す必要があります。Faceline の初期化時に渡すメモリプールのプロパティには、<span class="ApiLink_nn__gfx__MemoryPoolProperty_CpuCached">nn::gfx::MemoryPoolProperty_CpuCached</span> を指定してください。</p>
+<p>Resource の初期化時の設定によっては、Resource が保持するソースのデータは圧縮されたままの場合があります。圧縮されたままのリソースの場合、Faceline の初期化時に必要なリソースのみ圧縮の展開を行います。そのため、圧縮展開用の一時バッファが必要となります。圧縮展開用の一時バッファは専用の構造体 <span class="ApiLink_nn__mii__TemporaryBuffer">nn::mii::TemporaryBuffer</span> として定義されています。</p>
+<p>初期化時に受け取った Resource と <span class="ApiLink_nn__mii__CharInfo">nn::mii::CharInfo</span> から顔輪郭テクスチャをレンダリングするためのデータを構成します。初期化した内容は終了処理を呼ぶまで変更できません。</p>
+<p>初期化時に利用したメモリ、メモリプールは終了処理を呼ぶまで保持する必要があります。一時バッファ（<span class="ApiLink_nn__mii__TemporaryBuffer">nn::mii::TemporaryBuffer</span>）は初期化後に破棄することができます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <div class="confluence-information-macro-body">
+      <p>プラットフォームのメモリプール制限を考慮した実装になっているため、Win/Nvn 環境では初期化に使用するメモリプールのサイズとアライメントのサイズが他のプラットフォーム（Win/Generic や NX 開発機）に比べて大きくなっています。具体的には以下の関数が影響を受けます。</p>
+      <ul>
+        <li>
+          <span class="ApiLink_nn__mii__Faceline__CalculateMemoryPoolSize">nn::mii::Faceline::CalculateMemoryPoolSize</span>()</li>
+        <li>
+          <span class="ApiLink_nn__mii__Faceline__CalcualteMemoryPoolAlignment">nn::mii::Faceline::CalcualteMemoryPoolAlignment</span>()</li>
+      </ul>
+      <p>Win/Nvn と他のプラットフォームを同じ実装で動作させる場合には注意してください。</p>
+    </div>
+  </div>
+</div>
+<h3 id="Anchor_126918959_h3_2">終了処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__Faceline__Finalize">nn::mii::Faceline::Finalize</span>() を呼ぶと終了処理を行います。終了処理が行われた後は初期化に使用したメモリ、メモリプールの破棄を行うことができます。</p>
+<h2 id="Anchor_126918959_h2_3">TextureView の取得</h2>
+<p>初期化済みの Faceline から顔輪郭テクスチャをレンダリングするために必要な <span class="ApiLink_nn__gfx__TextureView">nn::gfx::TextureView</span> を取得できます。Faceline から取得できる TextureView は列挙体 <span class="ApiLink_nn__mii__Faceline__TextureType">nn::mii::Faceline::TextureType</span> と関連しています。</p>
+<p>
+  <span class="ApiLink_nn__mii__Faceline__GetTextureView">nn::mii::Faceline::GetTextureView</span>() 関数を使用すると各テクスチャの TextureView のポインタが取得できます。初期化時に渡した CharInfo に設定されたパラメータによっては、TextureView が存在しない TextureType もあります。そのような TextureType を引数として渡した場合は、nullptr が返ってきます。</p>
+<p>例えば、皺のない Mii の場合は、TextureType_Wrinkle を引数に指定した場合、nullptr が返ってきます。<br />GetTextureView() 関数から nullptr が返ってきた場合は適宜ハンドリングし無視するようにしてください。</p>
+<h2 id="Anchor_126918959_h2_4">DescriptorSlot の設定</h2>
+<p>Faceline から取得した <span class="ApiLink_nn__gfx__TextureView">nn::gfx::TextureView</span> をデスクリプタプールにセットし、取得したデスクリプタスロットを再び Faceline にセットします。<br />セットには <span class="ApiLink_nn__mii__Faceline__SetTextureDescriptorSlot">nn::mii::Faceline::SetTextureDescriptorSlot</span>() 関数を使います。取得した TextureView の <span class="ApiLink_nn__mii__Faceline__TextureType">nn::mii::Faceline::TextureType</span> と同じタイプを指定してセットしてください。</p>
+<h2 id="Anchor_126918959_h2_5">DrawParam の取得</h2>
+<p>初期化済みの Faceline から顔輪郭テクスチャをレンダリングするための <a href="../Pages/Page_126918978.html">DrawParam</a> を取得できます。Faceline から取得できる DrawParam は列挙体 <span class="ApiLink_nn__mii__Faceline__DrawType">nn::mii::Faceline::DrawType</span> と関連しています。顔輪郭テクスチャへのレンダリングは DrawType 列挙体の順番通りに行ってください。</p>
+<p>
+  <span class="ApiLink_nn__mii__Faceline__GetDrawParam">nn::mii::Faceline::GetDrawParam</span>() 関数を使用すると各 DrawParam のポインタが取得できます。初期化時に渡した CharInfo に設定されたパラメータによっては、描画の必要のない DrawType も存在します。そのような DrawType を引数として渡した場合は、nullptr が返ってきます。</p>
+<p>例えば、皺のない Mii の場合は、 DrawType_Wrinkle を引数に指定した場合、nullptr が返ってきます。GetDrawParam() 関数から nullptr が返ってきた場合はその DrawType は描画しないようにしてください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__Faceline', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html' )
+SetUrl( 'ApiLink_nn__mii__Faceline__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#a14ee4397d72f464be2d6a1a21ee2ad70' )
+SetUrl( 'ApiLink_nn__mii__Faceline__CalculateMemorySize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#aeaaab76dfeae3db16e5a9e10df7645f6' )
+SetUrl( 'ApiLink_nn__mii__Faceline__CalculateMemoryAlignment', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#a821dda7b911eabc22b3737c269d2f89b' )
+SetUrl( 'ApiLink_nn__mii__Faceline__CalculateMemoryPoolSize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#a047e5588833ded6e754dbace5e12938c' )
+// ApiLink_nn__mii__Faceline__CalcualteMemoryPoolAlignment
+SetUrl( 'ApiLink_nn__gfx__MemoryPoolProperty_CpuCached', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a663a11b1bc56170998d3ca281574e1f1' )
+SetUrl( 'ApiLink_nn__mii__TemporaryBuffer', '../../../Api/HtmlNX/structnn_1_1mii_1_1_temporary_buffer.html' )
+SetUrl( 'ApiLink_nn__mii__CharInfo', '../../../Api/HtmlNX/structnn_1_1mii_1_1_char_info.html' )
+SetUrl( 'ApiLink_nn__mii__Faceline__Finalize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#a4d61c39a466c6e18b74ee649931024e6' )
+SetUrl( 'ApiLink_nn__gfx__TextureView', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ac96ae14e7816fb1316ccc186a52eb9aa' )
+SetUrl( 'ApiLink_nn__mii__Faceline__TextureType', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#a873afe5239b55bb1aa34752560a728e6' )
+SetUrl( 'ApiLink_nn__mii__Faceline__GetTextureView', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#aac4239a87dc47b0cdb50980f2b973bce' )
+SetUrl( 'ApiLink_nn__mii__Faceline__SetTextureDescriptorSlot', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#a546d88621b1d8314f5166cde3c05a9a1' )
+SetUrl( 'ApiLink_nn__mii__Faceline__DrawType', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#ad5d86743cbdcfba4bd86707590e7d6f7' )
+SetUrl( 'ApiLink_nn__mii__Faceline__GetDrawParam', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html#acd6267e90d9f382a2a997093716af179' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

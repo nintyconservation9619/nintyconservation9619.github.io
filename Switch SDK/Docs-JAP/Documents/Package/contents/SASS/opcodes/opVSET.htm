@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VSET</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VSET : Integer Byte/Short Set<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Byte/Short Set" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Video Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VSET", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VSET</b>.cmp{.safmt.sbfmt}{.op2}</code>   <code>Rd{.CC}, Ra{.partselA}, Rb{.partselB}, Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VSET" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VSET</b>.cmp{.safmt.ifmt}{.op2}</code>    <code>Rd{.CC}, Ra{.partselA}, #imm16,        Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VSET" } -->
+
+
+ .cmp:        { <b>.F, .LT, .EQ, .LE, .GT, .NE, .GE, .T </b>}   Unsigned and signed comparisons
+
+ .safmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b>} 
+ .sbfmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b>} 
+ .ifmt:       {              <b>.U16, .S16*</b>          }
+              Source formats
+
+ .op2:        { <b>.PASS*, .MRG_16H, .MRG_16L, .MRG_8B0, .MRG_8B2, .ACC, .MIN, .MAX</b>}
+
+
+ .CC:         Write condition codes
+
+ .partselA:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b>} 
+              if (.U16|.S16) { <b>.H0*, .H1</b>}
+
+ .partselB:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b>} 
+              if (.U16|.S16) { <b>.H0*, .H1</b>}
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>VSET</b>.cmp compares register Ra.partselA and source operand Rb.partselB or #imm16 with comparison 
+operation .cmp, and sets destination register Rd to Boolean integer value 1 if the comparison is true, 
+otherwise it sets Rd to 0.  The optional second stage operation .op2 combines the Boolean comparison
+result with Rc and sets Rd.  </p>
+
+<h4>Basic math operation:</h4>
+<p>
+The comparison test .cmp is specified by one of 8 (<b>.F, .LT, .EQ,
+.LE, .GT, .NE, .GE, .T</b>) 
+The result is 0x1 (comparison TRUE) or 0x0 (comparison FALSE).</p>
+
+<h4>Intermediate sign and saturation:</h4>
+<p>
+The sign of the intermediate result is always unsigned.
+There is no saturation.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>VSET</b>.NE.U32.S32.ACC R0, R1, R2, R3;
+<b>VSET</b>.LT.S32.S32.MIN R0, R1, R2, RZ;
+
+<b>VSET</b>.NE.U32.S16.ACC R0, R1, 0xfffe, R3;
+<b>VSET</b>.LT.S32.S16.MIN R0, R1,      4, RZ;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

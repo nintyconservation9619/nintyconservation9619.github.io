@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダーバリエーションジェネレーター</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダーバリエーションジェネレーター -->
+<div class="pagetitle" id="PageId_286731115">シェーダーバリエーションジェネレーター</div>
+<div class="text_separate">
+<p>シェーダーバリエーションジェネレーター (%NINTENDO_SDK_ROOT%\Tools\Graphics\3dTools\3dIntermediateFileShaderVariationGenerator.exe) の使用方法と注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_286731115_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_286731115_h1_2">コマンドラインオプション</a>
+    </li>
+    <li>
+      <a href="#Anchor_286731115_h1_3">処理内容</a>
+    </li>
+    <li>
+      <a href="#Anchor_286731115_h1_4">使用例</a>
+    </li>
+    <li>
+      <a href="#Anchor_286731115_h1_6">制限事項</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_286731115_h1_1">概要</h1>
+<p>指定したモデル中間ファイル(.fmd) のシェーダーアサイン情報を集計して、モデルのシェーダーオプションに対応したシェーダーバリエーションファイル(.fsv) を作成します。<br />フォルダーを指定した場合はフォルダーを再帰的に辿りつつ、フォルダー以下の全てのモデル中間ファイルを集計します。</p>
+<h1 id="Anchor_286731115_h1_2">コマンドラインオプション</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dIntermediateFileShaderVariationGenerator.exe [-h] [--version]
+[--args-file &quot;&quot;] [-s] [--shader-definition &quot;&quot;] [-o &quot;&quot;]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>中間ファイルをスクリプトで処理します。</p>
+<p>
+  <strong>--args-file &quot;&quot;</strong>
+</p>
+<p>引数ファイルを指定します。<br />引数ファイルに記述した内容を、引数として指定できます。<br />引数ファイルは複数行に渡って各オプションを記述できます。<br />行頭に # がある行はコメントとして扱います。<br />オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<p>
+  <strong>--version</strong>
+</p>
+<p>バージョン情報を表示します。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプを表示します。</p>
+<p>
+  <strong>-s --silent</strong>
+</p>
+<p>処理中のメッセージ表示を抑制します。</p>
+<p>
+  <strong>--shader-definition</strong>
+</p>
+<p>生成するシェーダーバリエーションファイルに対応するシェーダー定義ファイルを指定します。<br />指定したシェーダー定義ファイルがアサインされているモデル中間ファイルが集計対象となります。</p>
+<p>
+  <strong>中間ファイル|フォルダー</strong>
+</p>
+<p>集計対象のモデル中間ファイル(.fmd) 、またはフォルダーを指定します。<br />フォルダーを指定した場合は、そのフォルダー以下に存在するすべてのモデル中間ファイルを集計対象とします。また、フォルダー以下に存在するフォルダーも再帰的に検索されます。</p>
+<!--Remove-->
+<h1 id="Anchor_286731115_h1_3">処理内容</h1>
+<p>各モデル中間ファイルの全てのシェイプを検索し、それぞれのシェイプに対応した fsv の &lt;shader_program&gt; が構築されます。<br />各シェイプが参照するマテリアルの &lt;shader_option_array&gt; のオプション値を元に、fsv の &lt;shader_program&gt;/&lt;option_array&gt;/&lt;option&gt; の choice 値が埋められます。</p>
+<p>※全く同じ &lt;option_array&gt; を持つ &lt;shader_program&gt; は一つにまとまられるため、fsv の &lt;shader_program&gt; の数は全てのシェイプの数よりも少なくなることがあります。</p>
+<p>static オプションと dynamic オプションで処理内容が異なりますので注意してください。</p>
+<table class="relative-table wrapped" style="width: 63.3571%;">
+  <colgroup>
+    <col style="width: 27.383%;" />
+    <col style="width: 72.617%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th>処理内容</th>
+    </tr>
+    <tr>
+      <th>static オプションの choice</th>
+      <td>
+        <p>シェーダー定義ファイルで定義されている <strong>default 値を反映</strong></p>
+        <p>モデル中間ファイルにオプションのアサイン情報があれば、<strong>マテリアルの &lt;shader_option_array&gt; のオプション値を反映</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <th>dynamic オプションの choice</th>
+      <td>
+        <p>シェーダー定義ファイルで定義されている <strong>choice 値を反映</strong></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_286731115_h1_4">使用例</h1>
+<p>以下に、G3dDemo/Resources 以下のモデル中間ファイルの内、town.fsdb がアサインされた全てのモデルに対応する town.fsva を出力する例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dIntermediateFileShaderVariationGenerator.exe　G3dDemo/Resources --shader-definition town.fsdb --output town.fsva</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ここで出力したシェーダーバリエーションファイルは、以下のようにシェーダーアーカイブファイル(.bfsha) を作成する際に 3dShaderConverter.exe の入力として利用することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --glsl-version 430 --api-type GL --code-type Binary_Source --output town.bfsha town.fsdb town.fsva --force-variation</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!--Remove-->
+<p>
+  <br />
+</p>
+<h1 id="Anchor_286731115_h1_6">制限事項</h1>
+<p>dynamic オプションの範囲は、シェーダ定義ファイルで定義されている choice の値がそのまま反映されます。<br />今後のリリースで、ユーザーが用意したスクリプトで dynamic オプションの範囲を設定できるようにすることを予定しています。</p>
+<p>
+  <br />
+</p>
+<!--Remove-->
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

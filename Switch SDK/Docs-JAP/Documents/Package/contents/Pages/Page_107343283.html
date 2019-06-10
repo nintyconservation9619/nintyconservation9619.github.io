@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ファイルフォーマットとコンバートの流れ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ファイルフォーマットとコンバートの流れ -->
+<div class="pagetitle" id="PageId_107343283">ファイルフォーマットとコンバートの流れ</div>
+<div class="text_separate">
+<p>ここでは、レイアウトにおけるファイルフォーマットとコンバートの流れについて説明します。</p>
+<h1 id="Anchor_107343283_h1_1">コンバートの流れ</h1>
+<p>&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_107343283/161442268.png" class="embedded-image" />
+  </span>
+</p>
+<ul>
+  <li>図では、左から右にデータが処理されていきます。</li>
+  <li>最終的には、arc（レイアウトアーカイブ）ファイルに変換され、ランタイムライブラリにロードされます。</li>
+  <li>以下のように分類されています。<br /><ul><li>濃青の四角は、ツール</li><li>青い四角は、配置とアニメーション</li><li>赤い四角は、テクスチャ</li><li>水色の四角は、フォント</li><li>緑の四角は、シェーダのバリエーションファイル</li><li>紫の四角は、シェーダー</li><li>灰色の四角は、シェーダバリエーションテーブル</li></ul></li>
+  <li>大まかに説明すると、LayoutConverter 以前は、デザイナーが取り扱う領域、LayoutConverter 以後はプログラマが取り扱う領域です。</li>
+</ul>
+<h2 id="Anchor_107343283_h2_1">配置、アニメーション(flyt/flan)</h2>
+<ul>
+  <li>配置、アニメーションは、flyt/flan ファイルで管理されます。</li>
+  <li>flyt/flan ファイルは、LayoutEdtior によって編集されます。</li>
+  <li>flyt/flan ファイルは、LayoutConverter でバイナリ変換され bflyt/bflan ファイルになります。</li>
+</ul>
+<h2 id="Anchor_107343283_h2_2">テクスチャ(ftxb, bntx)</h2>
+<ul>
+  <li>tga (テクスチャ)ファイルは、LayoutConverter で処理されて、ftxb ファイル（テクスチャバイナリ中間ファイル）に変換されます。</li>
+  <li>複数の ftxb ファイルは、LayoutArchiver で変換されるときに、一つの bntx (テクスチャバイナリファイル)に統合されます。統合の際に、ftxb は削除されます。</li>
+  <li>ユーザーが アーカイブファイル内に任意のテクスチャを含めたい場合は、ftxb を LayoutArchiver のソースデータとして含めてください。<ul><li>ftxb は 3D テクスチャーコンバーターや、Photoshop プラグインで出力します。</li></ul></li>
+</ul>
+<h2 id="Anchor_107343283_h2_3">シェーダー（bnsh）</h2>
+<ul>
+  <li>LayoutConverter が flyt のマテリアル設定に合わせて、組み込みシェーダーを出力します。</li>
+  <li>ユーザーシェーダーの用途で、アーカイブファイル内に任意のシェーダーを含めたい場合は、bnsh を GFX の ShaderConverter で出力して、LayoutArchiver のソースデータとして含めてください。<ul><li>ユーザーシェーダーについては、Ui2dUserShader サンプルを参考にしてください。</li></ul></li>
+</ul>
+<h2 id="Anchor_107343283_h2_4">シェーダバリエーションテーブル(bushvt)</h2>
+<ul>
+  <li>マテリアルのブレンドの種類と、シェーダバリエーションインデックスとを対応付けるテーブルです。</li>
+  <li>このファイルは特にユーザーが意識する必要はありません。</li>
+</ul>
+<h2 id="Anchor_107343283_h2_5">フォント(bffnt, otf/ttf, bfttf)</h2>
+<ul>
+  <li>フォントは、ビットマップ形式（bffnt）か、スケーラブルフォント形式（otf/ttf と bfttf）が利用できます。<ul><li>ビットマップ形式を利用する場合は、FontConverter を使って出力を行います。<ul><li>bmp （文字形状を定義するファイル）と、xlor （文字順序を定義する XML ファイル）を変換元情報として入力します。</li></ul></li></ul></li>
+</ul>
+<h2 id="Anchor_107343283_h2_6">レイアウトアーカイブ(arc)</h2>
+<ul>
+  <li>レイアウトアーカイブは、レイアウトに必要なデータをひとまとめに統合します。</li>
+  <li>ランタイムライブラリは、arc を ResourceAccessor クラスに関連付けてデータをロードします。<br /><br /></li>
+</ul>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_239574379.html">3D テクスチャーコンバーター</a>
+  </li>
+  <li>
+    <a href="../Pages/Page_83955693.html">Photoshop プラグイン</a>
+  </li>
+  <li>
+    <a href="../Pages/Page_89982392.html">ShaderConverter</a>
+  </li>
+  <li>
+    <a href="../Pages/Page_83955932.html">LayoutArchiver</a>
+  </li>
+  <li>
+    <a href="../Pages/Page_83955930.html">LayoutConverter&amp;nbsp;</a>
+  </li>
+  <li>
+    <a href="../Pages/Page_162556315.html">ArchiveShaderCombiner</a>
+    <br />
+    <br />
+  </li>
+</ul>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

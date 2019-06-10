@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>システムイベント</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- システムイベント -->
+<div class="pagetitle" id="PageId_83955843">システムイベント</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955843_h1_1">システムイベント機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955843_h2_1">前提</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955843_h2_2">システムイベントの使用方法</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955843_h3_1">システムイベントの初期化</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955843_h3_2">システムイベントの使用</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955843_h3_3">システムイベントの破棄</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955843_h2_3">システムイベント使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955843_h3_4">多重待ちする時の注意点</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955843_h1_1">システムイベント機能</h1>
+<h2 id="Anchor_83955843_h2_1">前提</h2>
+<p>システムイベント機能は、通常の <a href="../Pages/Page_83955790.html">イベント機能</a>&nbsp;と同様の機能ですが、システムから通知されるイベントのシグナル通知に対して同期待ちを行なうための機能です。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955843_h2_2">システムイベントの使用方法</h2>
+<h3 id="Anchor_83955843_h3_1">システムイベントの初期化</h3>
+<p>システムイベントを利用するには、まず <span class="ApiLink_nn__os__SystemEventType">nn::os::SystemEventType</span> 構造体のオブジェクトを用意し、初期化する必要があります。</p>
+<p>ただし、システムイベントオブジェクトを初期化する API は直接は提供されておりません。NintendoSDK の各モジュールのライブラリ API として、未初期化の <span class="ApiLink_nn__os__SystemEventType">nn::os::SystemEventType</span> 構造体オブジェクトを渡すことで初期化されたシステムイベントが利用できるようものが個別に提供されています。</p>
+<h3 id="Anchor_83955843_h3_2">システムイベントの使用</h3>
+<p>上記の方法で初期化が完了したシステムイベントは、以下の API を使って制御することができます。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa689721442ec303678047dd75c957bea">nn::os::WaitSystemEvent()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0367a830f313d114698a17311e7274c5">nn::os::TryWaitSystemEvent()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af25710360462b312201c3685e238f46e">nn::os::TimedWaitSystemEvent()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a70789090416cc882f4aa2c786092e49a">nn::os::ClearSystemEvent()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a4b03654db54c77da2e8a8c185257d250">nn::os::InitializeMultiWaitHolder()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3d924bc362ec80648323428be5182338">nn::os::DestroySystemEvent()</a>
+  </li>
+</ul>
+<p>上記の通り、システムイベント向けには <span class="ApiLink_nn__os__SignalSystemEvent">nn::os::SignalSystemEvent</span>() のような API は提供されず、システムイベントがシグナル化するタイミングは完全にシステム依存となっています。また、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a70789090416cc882f4aa2c786092e49a">nn::os::ClearSystemEvent()</a> は提供されていますが、システム側のクリアタイミングと矛盾しないように注意が必要です。詳細は、各モジュールで提供されているマニュアル等を参照して下さい。</p>
+<h3 id="Anchor_83955843_h3_3">システムイベントの破棄</h3>
+<p>使用済みになったシステムイベントは以下の API で破棄して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span> <span class="nf">DestroySystemEvent</span><span class="p">(</span><span class="nn">nn::os::</span><span class="n">SystemEventType</span><span class="o">*</span> <span class="n">event</span><span class="p">)</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955843_h2_3">システムイベント使用上の注意事項</h2>
+<h3 id="Anchor_83955843_h3_4">多重待ちする時の注意点</h3>
+<p>システムイベントを多重待ち（<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd" rel="nofollow">WaitAny</a>）対象の１つとして待機し、そのシステムイベントのシグナル化によって待ちが解除された場合、たとえ自動クリアモード（<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452" rel="nofollow">EventClearMode_AutoClear</a>）であっても自動的にクリアはされません。</p>
+<p>多重待ち機能はシグナル化されたオブジェクトの状態を変化させません。そのため、シグナル化された <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">MultiWaitHolderType</a> オブジェクトを取得した後に、必ず <span class="external-link"><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0367a830f313d114698a17311e7274c5">TryWaitSystemEvent()</a></span> などを使って対象システムイベントに対する待機処理を行なって下さい。その時点で初めて、対象システムイベントの自動クリアが行なわれます。その間に、対象システムイベントが既に他のスレッドによって <span class="external-link">&nbsp;</span><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0367a830f313d114698a17311e7274c5"><span class="external-link">Try<span class="external-link">WaitSystemE</span>vent()</span></a> などが行なわれている可能性がある場合には、その返値を確認して再度多重待ちを行なうなどの対応が必要になります。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__SystemEventType', '../../../Api/HtmlNX/structnn_1_1os_1_1_system_event_type.html' )
+// ApiLink_nn__os__SignalSystemEvent
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

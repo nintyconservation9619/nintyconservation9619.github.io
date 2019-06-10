@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>起動パラメータ取得</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 起動パラメータ取得 -->
+<div class="pagetitle" id="PageId_235537216">起動パラメータ取得</div>
+<div class="text_separate">
+<h1 id="Anchor_235537216_h1_1">起動パラメータ取得</h1>
+<h2 id="Anchor_235537216_h2_1">機能概要</h2>
+<p>アプリケーションは、自身に対する起動パラメータを受け取ることができます。この起動パラメータによって、アプリケーションは自身が起動された文脈に合わせて、その挙動を制御することができます。</p>
+<p>アプリケーションに渡される起動パラメータは、如何なるケースにおいても、アプリケーションの開発もしくは企画や運営に関わる当事者がその内容を決定します。システムが勝手にアプリケーションにとって未知の起動パラメータを渡すことはありません。また、システムや NintendoSDK の API は起動パラメータの中身（内容）に関しては一切関与しません。</p>
+<h2 id="Anchor_235537216_h2_2">起動パラメータを渡すことのできる本体機能</h2>
+<p>以下の機能に関する起動パラメータをアプリケーションに渡すことができます。</p>
+<ul>
+  <li>ゲームニュース<ul><li>ゲームニュースから起動パラメータ付きでアプリケーションを起動することができます。</li><li>詳しくは、「ゲームニュース配信ガイド」の「特定のアプリケーションを起動する」を参照してください。</li></ul></li>
+</ul>
+<h2 id="Anchor_235537216_h2_3">起動パラメータ取得機能の使用方法</h2>
+<ol>
+  <li>
+    <p>OE ライブラリヘッダを include してください。<br /></p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre> <span class="cp">#include &lt;nn/oe.h&gt;
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>OE ライブラリの起動パラメータ取得関数に、パラメータを格納するバッファを渡して呼び出してください。<br /></p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">char</span> <span class="n">parameterBuffer</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+<span class="kt">size_t</span> <span class="n">outRealParameterSize</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">isSuccess</span> <span class="o">=</span> <span class="nn">nn::oe::</span><span class="n">TryPopLaunchParameter</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outRealParameterSize</span><span class="p">,</span> <span class="n">parameterBuffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">parameterBuffer</span><span class="p">));</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>パラメータを受け取るバッファ領域（上記 parameterBuffer[] 配列）のサイズは、想定される起動パラメータを受け取るのに十分なサイズを確保した上で受け取るようにして下さい。</p>
+  </li>
+</ol>
+<h3 id="Anchor_235537216_h3_1">起動パラメータの取得順序<br /></h3>
+<p>現時点においては、ゲームニュース以外の起動パラメータが渡されることはありませんが、将来的に機能拡張された場合には、複数の起動パラメータが渡されることが起こり得ます。この場合、それぞれのパラメータは Push された順番通りに取り出すことができます。 <br /></p>
+<h3 id="Anchor_235537216_h3_2">起動パラメータに関する注意事項</h3>
+<p>アプリケーションは、複数の起動パラメータが渡されることを予め想定し、未知のものはスキップし、既知のものだけを正しく処理するように実装して下さい。</p>
+<p>特に、将来的に新しいファームウェア上で古いバージョンのアプリケーションが起動された場合には、そのアプリケーションにとって未知の起動パラメータが渡されることが起こり得ます。そのような場合でも問題ないようにするために、以下のことを十分に検討した上でご利用ください。</p>
+<ul>
+  <li>起動パラメータのフォーマットの定義について<br /><ul><li>旧バージョンのアプリケーションが、将来的に定義される新たな起動パラメータを受け取った場合でも、それを未知のフォーマットであると判定できるようにしておくこと</li></ul></li>
+  <li>起動パラメータの取得に関する実装について<br /><ul><li>十分なサイズのバッファを予め用意して取得すること</li><li>未知な起動パラメータは無視すること</li><li>既知の起動パラメータを確実に処理するため、起動パラメータがなくなるまで繰り返し取得すること</li></ul></li>
+</ul>
+<h2 id="Anchor_235537216_h2_4">起動パラメータ取得に関する開発支援機能</h2>
+<p>DevMenu には、SD カードにインストールしたバイナリファイルをアプリケーションの起動パラメータとして渡す機能が用意されています。</p>
+<p>詳しくは、<a href="../Pages/Page_107328771.html">DevMenu のマニュアル</a> から「起動パラメータのインストール、アンインストール」を参照してください。</p>
+<h2 id="Anchor_235537216_h2_5">起動パラメータ取得機能の関数リファレンス</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__TryPopLaunchParameter">nn::oe::TryPopLaunchParameter</span>()</li>
+</ul>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe__TryPopLaunchParameter', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a598cba59fa41b29220deeb8b3d367d48' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

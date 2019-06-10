@@ -1,0 +1,981 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Programming Guide</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Programming Guide -->
+<div class="pagetitle" id="PageId_166508736">Programming Guide</div>
+<div class="text_separate">
+<p>Table of Contents</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_166508736_h1_1">Introduction</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166508736_h2_1">Using movies in your application</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_2">Library overview</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_3">Thread Safety</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_4">Memory functions</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_166508736_h1_2">Movie Extractor</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166508736_h2_5">Creating an extractor</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_6">Getting track information</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_7">Selecting tracks for playback</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_8">Advancing the playback position</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_9">Querying sample information</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_10">Controlling playback position</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_166508736_h1_3">Movie Decoder</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166508736_h2_11">Creating a decoder</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_12">Registering decoder events</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_13">Configuring the decoder with track information</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_14">Starting the decoder</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_15">Processing input buffers</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_16">Processing output buffers</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_17">Processing end of playback</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_18">Stopping the decoder </a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_19">Switching streams</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_166508736_h1_4">Handling errors in decoding</a>
+    </li>
+    <li>
+      <a href="#Anchor_166508736_h1_5">Resource Usage</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166508736_h2_20">Thread count</a>
+      </li>
+      <li>
+        <a href="#Anchor_166508736_h2_21">Memory requirement</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_166508736_h1_1">Introduction</h1>
+<p>The <strong>movie</strong> library can be integrated into your applications to provide real-time playback of multimedia content.&nbsp;This library can be used to read compressed data from movie files into audio/video streams, and decompress audio/video steams to provide content for use in your applications. This programming manual outlines the basic steps required for using the movie&nbsp;library, and discusses relevant programming considerations. Code snippets have been provided to illustrate API usage (error handling is not shown for brevity).</p>
+<p>The movie library consists of decoder and extractor APIs, which can be used together or alone. The decoder API allows you to directly decode your own elementary streams using dedicated NX hardware using&nbsp;a variety of standard codecs such as H.264, VP8 and VP9 for video, and AAC and Vorbis for audio. The extractor API can generate elementary&nbsp;streams from standardized containers such as MP4 and WebM.&nbsp;</p>
+<p>When integrated into your application, the movie library will provide continuous content in the form of image data (for video frames), and audio sample segments (for audio frames). You can utilize this data in any way you see fit to enhance your application with real-time audio/video playback. The movie library can provide multiple simultaneous extract/decode instances with independent transport controls (up to four). The extraction and decoding functions provide new content as it is processed using independent asynchronous events, allowing data to be consumed, rendered, synchronized, or discarded based on application demands.</p>
+<p>Notes:</p>
+<ul>
+  <li>
+    <em>The video decoding process is performed almost entirely using dedicated NX hardware, however some processing is required by the CPU to transfer buffers through the hardware, perform management operations, and decode audio streams.</em>
+  </li>
+  <li>
+    <em>Although video decoding does not directly use GPU resources, it is reliant on shared graphics and display subsystems. Therefore, it is mandatory to initialize the graphics system prior to decoding video streams.</em>
+  </li>
+</ul>
+<p>
+  <em>
+    <br />
+  </em>
+</p>
+<h2 id="Anchor_166508736_h2_1">Using movies in your application</h2>
+<p>The movie library can play back decoded content in real-time, but what to do with the content is left up to the application. The move library does not directly render movies to the system (i.e. display and sound output), but relies on the application to use the decoded output based on the use case. For example, one application may implement a full screen movie player in the traditional sense, whereas another may use the content to provide in-game video animation on 3D surfaces with spatial audio. The SDK contains a basic sample application that can get you started, but due to the diversity of use cases you may be required to implement code that is considerably different than the ones provided; considerations on how to render the image data and how to apply the audio data are important in your use of the move library.</p>
+<p>Because there is no physical dependency between the movie output and the system, the quality of the content is left largely up to the way it is encoded and the needs of the application. There are, however limitations on frame-rate, resolution, and so on as described in the&nbsp;<a href="../Pages/Page_166508727.html">Authoring Guidelines</a>. When creating content for your application, use these guidelines to help determine the best way to encode content for performance, compatibility, and quality.</p>
+<p>A typical movie file will contain multiple content tracks interleaved into one file. When using the extractor and decoder APIs in combination, you can get basic information about content tracks to create decoders for the tracks of interest, and then pump the decoder(s) with information that the extractor provides by parsing the file. The extractor will automatically separate (demux) the selected tracks to provide segments of the tracks roughly in the order they are provided in the file. The segments the extractor and decoder provide are based largely on the way the data is encoded. In order to synchronize the tracks, the application will need to render the information on a timely manner, and drop content as needed depending on the use case.</p>
+<h2 id="Anchor_166508736_h2_2">Library overview</h2>
+<div>The movie library is packaged as an NSO (shared object library) and set of C++ header files within the <strong>movie</strong> namespace. The library is divided into two logical class namespaces:</div>
+<div>
+  <ul>
+    <li>
+      <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html">movie::Extractor</a> class extracts and de-multiplexes compressed data from standard file containers to create compressed streams</li>
+    <li>
+      <a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html">movie::Decoder</a> class decodes compressed streams into PCM data for audio streams and/or pixel data (either in ARGB or NV12 formats) for video streams<br /><br /></li>
+  </ul>
+  <div>The movie library decoder and extractor classes can be instanced to provide multiple simultaneous playback capability. The library is multi-threaded to support asynchronous processing; up 14&nbsp;threads can be created by the library for each instance. Although it is possible execute simultaneous playback instances, the performance may be impacted based on the availability of software and hardware resources in the system.</div>
+  <div>Prior to playback, the application must perform some basic tasks to set up the library and related components.</div>
+  <ul>
+    <li>Set up the extractor</li>
+  </ul>
+  <ol>
+    <li style="list-style-type: none; background-image: none;">
+      <ol>
+        <li>
+          <em>Create an extractor instance</em>
+        </li>
+        <li>
+          <em>Assign a data source (URI) defining the content to parse</em>
+        </li>
+        <li>
+          <em>Query track information and select what tracks should be extracted (once selected the extractor threads will start parsing internally)</em>
+        </li>
+      </ol>
+    </li>
+  </ol>
+  <ul>
+    <li>Set up the decoder(s)</li>
+  </ul>
+  <ol>
+    <li style="list-style-type: none; background-image: none;">
+      <ol>
+        <li style="text-align: left;">
+          <em>Create decoder instance(s) based on the tracks you want to decode</em>
+        </li>
+        <li style="text-align: left;">
+          <em>Configure the decoder with track metadata information</em>
+        </li>
+        <li style="text-align: left;">
+          <em>Set up event handlers to listen for event notifications from the decoders</em>
+        </li>
+        <li style="text-align: left;">
+          <em>Start the decoders</em>
+        </li>
+      </ol>
+    </li>
+  </ol>
+  <ul>
+    <li>Set up the rendering</li>
+  </ul>
+  <ol>
+    <li style="list-style-type: none; background-image: none;">
+      <ol>
+        <li>
+          <em>Initialize the audio and graphics libraries (depending on application use case)</em>
+        </li>
+        <li>
+          <em>Determine the decoder output formats and resolution based on rendering requirements</em>
+        </li>
+        <li>
+          <em>Allocate rendering buffers that will be used to copy decoder output</em>
+        </li>
+      </ol>
+    </li>
+  </ol>
+  <p>
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_166508736/175079674.png" class="embedded-image" />
+    </span>
+  </p>
+  <p>Notes:</p>
+  <ul>
+    <li>
+      <em>When a track is selected in the extractor, the extractor threads will begin parsing content immediately</em>
+    </li>
+    <li>
+      <em>When the&nbsp;decoder is started, it will allocate internal input/output buffers in buffer queues, and will start checking to cycle the buffers through the queues</em>
+      <br />
+      <br />
+    </li>
+  </ul>
+  <p>Once setup is complete, two processing loops are established via the decoder event handling mechanism. The purpose of these loops is to continuously recycle the internally allocated decoder input/output buffers. The input buffer loop allows the application to provide encoded data to the decoder, and the output buffer loops allows the decoder to provide decoded data back to the application.</p>
+  <ul>
+    <li>Input buffer processing loop</li>
+  </ul>
+  <ol>
+    <li style="list-style-type: none; background-image: none;">
+      <ol>
+        <li>The decoder signals an inputBufferAvailable event when a buffer is available in the input buffer queue</li>
+        <li>The application queries the extractor to find data available for a matching track<ol><li>If matching extractor data is available, the application fills the input buffer with the encoded data, adding timestamps and necessary flags</li><li>If matching extractor data is not available, the application pends the filling of the input buffer until data is available</li></ol></li>
+        <li>The application advances extractor position in the stream to prepare data for the next frame</li>
+      </ol>
+    </li>
+  </ol>
+  <ul>
+    <li>Output buffer processing loop</li>
+  </ul>
+  <ol>
+    <li style="list-style-type: none; background-image: none;">
+      <ol>
+        <li>The decoder signals an outputBufferAvailable event when an input buffer has been decoded into an output buffer</li>
+        <li>The application asks for the decoded frame to be copied into its own rendering buffers for post-processing or rendering of the frame</li>
+        <li>The application explicitly releases the buffer back to the decoder for re-use</li>
+      </ol>
+    </li>
+  </ol>
+  <p>
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_166508736/175079662.png" class="embedded-image" />
+    </span>
+  </p>
+  <p>Note:</p>
+  <ul>
+    <li>
+      <em>In addition to managing the input and output buffer processing loops, applications will also handle any special playback conditions such as seeking. end-of-playback, and error conditions (described later)&nbsp;</em>
+    </li>
+  </ul>
+  <h2 id="Anchor_166508736_h2_3">Thread Safety</h2>
+  <p>Movie APIs are <strong>not</strong>&nbsp;completely thread safe presently. The calls in input and output buffer processing loops can happen concurrently from separate threads, but care must be taken that decoder and extractor setup or start/stop APIs do not get called at the same time.</p>
+</div>
+<h2 id="Anchor_166508736_h2_4">Memory functions</h2>
+<p>The movie library depends on the application to provide memory allocation functions to manage memory. Two sets of allocation callback functions are needed - one for the multimedia heap and another for the graphics heap. If desired, both graphics and multimedia heaps can share and the same callback functions. The movie library requests most allocations through the <a href="../../../Api/HtmlNX/namespacemovie.html#a1e3325e363470d39e3732a11bfaac62e">movie::SetAllocator</a> functions, and varies primarily depending on content resolution and the decoder used. The library generally allocates less than 2 MB of memory through the <a href="../../../Api/HtmlNX/namespacenv.html#a7d85cfdd1bae1b635cc66b8d58077688">nv::SetGraphicsAllocator</a> functions.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Set allocator callback functions 
+</span>&nbsp;<span class="nn">movie::</span><span class="n">SetAllocator</span><span class="p">(</span><span class="n">MultimediaAllocate</span><span class="p">,</span> <span class="n">MultimediaFree</span><span class="p">,</span> <span class="n">MultimediaReallocate</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+&nbsp;<span class="nn">nv::</span><span class="n">SetGraphicsAllocator</span><span class="p">(</span><span class="n">GraphicsAllocate</span><span class="p">,</span> <span class="n">GraphicsFree</span><span class="p">,</span> <span class="n">GraphicsReallocate</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Note:</p>
+<ul>
+  <li>
+    <em>Make sure &nbsp;<a href="../../../Api/HtmlNX/namespacenv.html#aacadc57952b370f2286108f5835ce726">nv::InitializeGraphics</a>()&nbsp;is called before setting graphics allocator callbacks.</em>
+  </li>
+</ul>
+<h1 id="Anchor_166508736_h1_2">Movie Extractor</h1>
+<p>The <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html">movie::Extractor</a>&nbsp;class can be used to parse standard media files to obtain information about the content, determine what content in the media is to be played, and provide real-time content to a decoder.</p>
+<p>To use the extractor, include the header file&nbsp;&lt;movie/Extractor.h&gt;.</p>
+<h2 id="Anchor_166508736_h2_5">Creating an extractor</h2>
+<p>To create an extractor, you simply instance the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html">movie::Extractor</a>&nbsp;class. You can then specify the file (in the form of a <a href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier">URI</a> ) for the extractor to read using the&nbsp;&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#a11665ccf66c3340ecb44189bc7cbb3de">movie::Extractor::SetDataSource</a> function.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Create an extractor object for the desired container type
+</span><span class="nn">movie::</span><span class="n">Extractor</span><span class="o">*</span> <span class="n">movieExtractor</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">movie::</span><span class="n">Extractor</span><span class="p">(</span><span class="n">containerType</span><span class="p">);</span>
+
+<span class="c1">// Set the URI for the stream that needs to be decoded
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">SetDataSource</span><span class="p">(</span><span class="n">uri</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>container format</th>
+      <th>file extension</th>
+      <th>containerType</th>
+    </tr>
+    <tr>
+      <td>MPEG4</td>
+      <td>.mp4, .m4a,.m4v</td>
+      <td>ContainerType_Mpeg4</td>
+    </tr>
+    <tr>
+      <td>Matroska</td>
+      <td>.mkv</td>
+      <td>ContainerType_Matroska</td>
+    </tr>
+    <tr>
+      <td>WebM</td>
+      <td>.webm</td>
+      <td>ContainerType_WebM</td>
+    </tr>
+  </tbody>
+</table>
+<p>Note:</p>
+<ul>
+  <li>
+    <em>URIs must specify to a local file resident on a supported storage media accessible through the <a href="../../../Api/HtmlNX/namespacenn_1_1fs.html">nn::fs</a> filesystem. URIs pointing to files on a network or web servers are not supported.</em>
+  </li>
+  <li>
+    <em>You can also use the alternate function <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#a5440f4ea6b5929227dc7cb4f5c4caefb">SetDataSource</a>(const void* buffer, int32_t length) that contains the equivalent file data in memory.</em>
+  </li>
+</ul>
+<h2 id="Anchor_166508736_h2_6">Getting track information</h2>
+<p>Multimedia files can contain multiple audio, video, text, and other tracks.&nbsp;Track information about a movie can be obtained from the extractor API. Applications can call <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ab0df30cdf172fb0b6f226b3338e32dec">movie::Extractor::GetTrackCount</a> to find the total number of contained tracks, and then parse the track information using the <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ae1185be7850eeffad8858742e4731cc2">movie::Extractor::GetTrackConfiguration</a> function. The GetTrackConfiguration function returns track information in a <a href="../../../Api/HtmlNX/classmovie_1_1_media_data.html">movie::MediaData</a> object. &nbsp;MediaData is a flexible container to hold information in key-value pairs that can be queried easily.&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Find the total number of tracks
+</span><span class="kt">int32_t</span> <span class="n">m_Tracks</span><span class="p">;</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m_Tracks</span><span class="p">);</span>
+
+<span class="c1">// Get track Configuration data for track index, i
+</span><span class="nn">movie::</span><span class="n">MediaData</span> <span class="n">mdata</span><span class="p">;</span>
+<span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackConfiguration</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mdata</span><span class="p">);</span>
+
+<span class="c1">// Find audio sample rate
+</span>&nbsp;<span class="kt">int32_t</span> <span class="n">SampleRate</span><span class="p">;</span>
+&nbsp;<span class="n">mdata</span><span class="o">-&gt;</span><span class="n">FindInt32</span><span class="p">(</span><span class="s">&quot;sample-rate&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">SampleRate</span><span class="p">);</span>
+
+<span class="c1">// Find track duration
+</span><span class="kt">int64_t</span> <span class="n">durationUs</span><span class="p">;</span>
+<span class="n">mdata</span><span class="o">-&gt;</span><span class="n">FindInt64</span><span class="p">(</span><span class="s">&quot;durationUs&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">durationUs</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>The following key value pairs can be used to query track information:</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Key Name</th>
+      <th>Value Type</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>mime</td>
+      <td>string</td>
+      <td>Mime type name for the track</td>
+    </tr>
+    <tr>
+      <td>durationUs</td>
+      <td>int64</td>
+      <td>Track duration in microseconds</td>
+    </tr>
+    <tr>
+      <td>bit-rate</td>
+      <td>int32</td>
+      <td>Bit-rate in bits per second</td>
+    </tr>
+    <tr>
+      <td>width</td>
+      <td>int32</td>
+      <td>Video width in number of rows</td>
+    </tr>
+    <tr>
+      <td>height</td>
+      <td>int32</td>
+      <td>Video height in number of lines</td>
+    </tr>
+    <tr>
+      <td>crop</td>
+      <td>Rect (int32_t, int32_t, int32_t, int32_t)</td>
+      <td>Crop rectangle of the output video</td>
+    </tr>
+    <tr>
+      <td>frame-rate</td>
+      <td>int32</td>
+      <td>Video presentation frame rate in frames per second</td>
+    </tr>
+    <tr>
+      <td>channel-count</td>
+      <td>int32</td>
+      <td>&nbsp;Number of audio channels</td>
+    </tr>
+    <tr>
+      <td>sample-rate</td>
+      <td>int32</td>
+      <td>Audio sample rate in Hertz</td>
+    </tr>
+    <tr>
+      <td>is-sync-frame</td>
+      <td>int32</td>
+      <td>
+        <p>Whether the video frame is a sync frame</p>
+      </td>
+    </tr>
+    <tr>
+      <td>nv12-colorspace</td>
+      <td>int32</td>
+      <td>color space information. enum defined in movie::ColorSpace</td>
+    </tr>
+    <tr>
+      <td>media-language</td>
+      <td>string</td>
+      <td>
+        <p>language type for the track. (It returns the three-letter codes defined in ISO 639-2 for language names.)</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_166508736_h2_7">Selecting tracks for playback</h2>
+<p>The extractor is capable of parsing (or demuxing) multiple tracks in the content simultaneously. To determine what tracks you wish the extractor to demux, you can call the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ae316072526a3e2b6c314ba60f9ac4a5d">movie::Extractor::SelectTrack</a>&nbsp;function on specific tracks. There is also a <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ab8d0d52ee5b948ac322440d44a191436">movie::Extractor::UnselectTrack </a>that can disable the demuxing of selected tracks.</p>
+<h2 id="Anchor_166508736_h2_8">Advancing the playback position</h2>
+<p>The process of playback using the extractor is performed by sequentially requesting content data frame&nbsp;reads via the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#a94be703e0356147bece8a2902d992935">movie::Extractor::Read</a>&nbsp;function, and then advancing to the next data frame via the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#af716b575562bec884d887490ea04c8fa">movie::Extractor::Advance</a>&nbsp;function. The data obtained by the extractor is typically sent to the decoder for eventual rendering by the application.</p>
+<h2 id="Anchor_166508736_h2_9">Querying sample information</h2>
+<p>Once the extractor Read function is called, the functions&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#a2dd8e59f32b5fe480c95ecf53cec1263">movie::Extractor::GetSampleTime</a>&nbsp;and&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#aa879f0afaa7e4fbf288ead0f38ba62c7">movie::Extractor::GetSampleMetaData</a>&nbsp;can be used to obtain information about the newly extracted frame data (sample). This information can change on each invocation of read since the content stream may change its content between frames. Since the extractor demuxes multi-stream content, the application can use the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ac83e9643c0aad39f6c0cadaf3b23c946">movie::Extractor::GetTrackIndexForAvailableData</a>&nbsp;to determine what track among the selected tracks for playback was just read, and what decoder it should be sent to.</p>
+<h2 id="Anchor_166508736_h2_10">Controlling playback position</h2>
+<p>The extractor allows playback control within the content stream using the <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ae8cd035258e01414f9506211cff5222a">movie::Extractor::SeekTo</a>&nbsp;function. However, since video frames typically have dependencies on previously decoded frames it is not guaranteed to seek to an exact time in the stream. The extractor searches for key frames (frames which are encoded without any reference to prior frames) nearest to the specified seek time value. Therefore, the accuracy of the seeking function is dependent on the characteristics of the encoded content.&nbsp;To be more specific, when seeking forward, it will move media position to a key frame which is located right after at the given time. When seek backward, it will move media position to a key frame which is located right before at the given frame.</p>
+<p>Since a seek operation can occur at any time during playback, it is likely that the decoder may have pending frames to decode immediately following the seek function. To remove these stale frames the application should call the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#affb6f4d8d34c744c93730fb90f2214ee">movie::Decoder::Flush</a>&nbsp;to discard the stale data re-initialize the internal buffer queues in the decoder.</p>
+<h1 id="Anchor_166508736_h1_3">Movie Decoder</h1>
+<p>The <a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html">movie::Decoder</a> class can be used to decompress standard encoded audio and video content streams to provide image and sound data to the application.</p>
+<p>To use the decoder, include the header file&nbsp;&lt;movie/Decoder.h&gt;.</p>
+<h2 id="Anchor_166508736_h2_11">Creating a decoder</h2>
+<p>To create a decoder, you simply instance the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html">movie::Decoder</a> class. There are two constructors for this class. The first constructor requires two arguments that determines the specific input format of the encoded content, and the specific output format to decode into. The third argument uses default decoder mode. The default decoder mode is movie::DecoderMode_Cpu. Decoder mode can be changed using a second constructor, where movie::DecoderMode can be specified. Due to performance reasons, it is recommended to use&nbsp;movie::DecoderMode_NativeTexture video decoder mode. Audio decoder thread priority can be specified using fourth argument. This priority&nbsp;applies to all the threads created by audio decoder. Only audio decoder thread priority can be specified. Video decoder uses default thread priority. This class supports both audio and video decoder definitions, and a decoder should be instantiated for each format you wish to decode.</p>
+<p>The types, formats and decoder modes can be found in the &lt;movie/DecoderCommon.h&gt; header file.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Create a decoder object for the desired content and output format
+// This constructor uses default movie::DecoderMode_Cpu decoder mode
+</span><span class="nn">movie::</span><span class="n">Decoder</span><span class="o">*</span> <span class="n">decoder</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">movie::</span><span class="n">Decoder</span><span class="p">(</span><span class="n">decoderType</span><span class="p">,</span> <span class="n">decoderOutputFormat</span><span class="p">);</span>
+<span class="c1">// Create a decoder object for the desired decoder type, output format, decoder mode and audio thread priority
+</span><span class="nn">movie::</span><span class="n">Decoder</span><span class="o">*</span> <span class="n">decoder</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">movie::</span><span class="n">Decoder</span><span class="p">(</span><span class="n">decoderType</span><span class="p">,</span> <span class="n">decoderOutputFormat</span><span class="p">,</span> <span class="n">decoderMode</span><span class="p">,</span> <span class="n">audioThreadPriority</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Input format</th>
+      <th>Description</th>
+      <th>decoderType</th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">video</td>
+      <td>video/avc</td>
+      <td>DecoderType_VideoAvc</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">video</td>
+      <td>video/x-vnd.on2.vp8</td>
+      <td>DecoderType_VideoVp8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">video</td>
+      <td>video/x-vnd.on2.vp9</td>
+      <td>DecoderType_VideoVp9</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">audio</td>
+      <td>audio/mp4a-latm</td>
+      <td>DecoderType_AudioAac</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">audio</td>
+      <td>audio/vorbis</td>
+      <td>DecoderType_AudioVorbis</td>
+    </tr>
+  </tbody>
+</table>
+<table class="wrapped relative-table" style="width: 52.9938%;">
+  <colgroup>
+    <col style="width: 13.1339%;" />
+    <col style="width: 23.407%;" />
+    <col style="width: 63.459%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Output format</th>
+      <th>Description</th>
+      <th>decoderOutputFormat</th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">video</td>
+      <td>ARGB (8:8:8:8 bit)</td>
+      <td>
+        <p>DecoderOutputFormat_VideoColorArgb</p>
+        <p>
+          <strong>Note:</strong> </p>
+        <ul>
+          <li>Will be deprecated, do not use.<br class="_mce_tagged_br" /></li>
+          <li>Slow path, CPU is used for YUV to RGB conversion.</li>
+          <li>Supported only in movie::DecoderMode_Cpu mode.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">video</td>
+      <td>NV12</td>
+      <td>
+        <p>DecoderOutputFormat_VideoColorNv12</p>
+        <p>
+          <strong>Note:</strong>
+        </p>
+        <ul>
+          <li>Supported only in movie::DecoderMode_Cpu mode.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">video</td>
+      <td>Video output format - ABGR (8:8:8:8 bit)&nbsp;</td>
+      <td>
+        <p>DecoderOutputFormat_VideoColorAbgr</p>
+        <p>
+          <strong>Note:</strong>
+        </p>
+        <ul>
+          <li>Hardware is used for YUV to RGB conversion.</li>
+          <li>Supported only in movie::DecoderMode_NativeTexture mode.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">audio</td>
+      <td>PCM 16 bit</td>
+      <td>DecoderOutputFormat_AudioPcm16</td>
+    </tr>
+  </tbody>
+</table>
+<table class="relative-table wrapped" style="width: 52.925%;">
+  <colgroup>
+    <col style="width: 26.9531%;" />
+    <col style="width: 73.0469%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Decoder Mode</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>DecoderMode_Cpu</td>
+      <td>
+        <p>Decoder uses CPU accessible&nbsp;buffers.</p>
+        <p>This is the slower path for video decoder due to pixel copy using CPU.</p>
+        <p>This is the only available mode for Audio decoder.</p>
+      </td>
+    </tr>
+    <tr>
+      <td>DecoderMode_NativeTexture</td>
+      <td>
+        <div class="content-wrapper">
+          <p>Hardware copies data from native buffer to Texture.</p>
+          <p>In this mode, DecoderOutputFormat_VideoColorAbgr is the only supported video decoder output format.</p>
+          <p>This mode is available only for video decoder.</p>
+          <p>
+            <br />
+          </p>
+          <p>When texture is created, NVN_TEXTURE_FLAGS_VIDEO_DECODE_BIT flag need to be passed to NVN texture builder.<br /></p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>NVNtextureBuilder builder;
+nvnTextureBuilderSetFlags(&amp;builder, NVN_TEXTURE_FLAGS_VIDEO_DECODE_BIT);</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <br />
+          </p>
+          <p>In this mode, when texture is sent to video decoder (Using &ldquo;movie::GetOutputBuffer()&rdquo; API), the decoder has exclusive ownership of the texture until API is returned. Application should not refer to the texture owned by the decoder. At present there are no fence or sync mechanisms available. Based on circumstances,&nbsp;an application may need to allocate atleast two textures for correct &nbsp;rendering.</p>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_166508736_h2_12">Registering decoder events</h2>
+<p>The decoders utilize dedicated hardware that produce output independent of the application processing state. In order to process the decoder output in a timely manner, the application registers functions that respond to specific <a href="../../../Api/HtmlNX/structmovie_1_1_decoder_events.html">movie:DecoderEvent</a>s&nbsp;generated by the decoder. Four different events can be generated by the decoder as follows:</p>
+<table class="wrapped relative-table" style="width: 52.8562%;">
+  <colgroup>
+    <col style="width: 25.8149%;" />
+    <col style="width: 74.1851%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Event</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>errorEvent</td>
+      <td>An error was generated during the decoding process</td>
+    </tr>
+    <tr>
+      <td>formatChangeEvent</td>
+      <td>The format of the decoded content has changed</td>
+    </tr>
+    <tr>
+      <td>inputBufferAvailableEvent</td>
+      <td>An input buffer is available to the application to fill with encoded data</td>
+    </tr>
+    <tr>
+      <td>outputBufferAvailableEvent</td>
+      <td>An output buffer is available to the application to extract decoded data</td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Create decoder events structure and register to the decoder
+</span><span class="nn">nn::os::</span><span class="n">EventType</span> <span class="n">inputBufferAvailableEvent</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">EventType</span> <span class="n">outputBufferAvailableEvent</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">EventType</span> <span class="n">formatChangedEvent</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">EventType</span> <span class="n">errorEvent</span><span class="p">;</span>
+
+<span class="n">decoderEvents</span><span class="o">-&gt;</span><span class="n">errorEvent</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">errorEvent</span><span class="p">;</span>
+<span class="n">decoderEvents</span><span class="o">-&gt;</span><span class="n">formatChangedEvent</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">formatChangedEvent</span><span class="p">;</span>
+<span class="n">decoderEvents</span><span class="o">-&gt;</span><span class="n">inputBufferAvailableEvent</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">inputBufferAvailableEvent</span><span class="p">;</span>
+<span class="n">decoderEvents</span><span class="o">-&gt;</span><span class="n">outputBufferAvailableEvent</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">outputBufferAvailableEvent</span><span class="p">;</span>
+
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">RegisterClientEvents</span><span class="p">(</span><span class="n">decoderEvents</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_166508736_h2_13">Configuring the decoder with track information</h2>
+<p>Prior the decoding data associated with a specific track, the application must pass the track configuration data to the decoder object. The track configuration data contains a detailed specification of the incoming content stream to decode. If you are using the extractor API, you can use the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#ae1185be7850eeffad8858742e4731cc2">movie::Extractor::GetTrackConfiguration</a>&nbsp;function output as a direct input to the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a944ade387d0de8b7fb358981520271ac">movie::decoder::Configure</a>&nbsp;function. If you are not using an extractor, you can instantiate a <a href="../../../Api/HtmlNX/classmovie_1_1_media_data.html">movie::MediaData</a> class and set the properties using the supplied functions.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">movie::</span><span class="n">MediaData</span> <span class="n">mdata</span><span class="p">;</span>
+
+<span class="c1">// Query track information (for track i) and specify it to the decoder
+</span><span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackConfiguration</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mdata</span><span class="p">);</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Configure</span><span class="p">(</span><span class="n">mdata</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(112,112,112);">The&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a944ade387d0de8b7fb358981520271ac">movie::Decoder::Configure</a>&nbsp;function applies the track configuration data asynchronously, so applications should wait for the&nbsp;<span style="color: rgb(112,112,112);">formatChangedEvent after calling this function. Once this event has been received, you can use the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a97a919eea334cdbd948a5ca8b81af60e">movie::Decoder::GetOutputFormat</a>&nbsp;function to query decoder output to find cropping width and height information. At this time applications can also&nbsp;</span></span>use the&nbsp;&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a6f925535d07327242784c1d1c0ee05c6">movie::Decoder::GetOutputBufferSize</a>&nbsp;to query the size and alignment requirements for the output buffers.&nbsp;</p>
+<p>Note:</p>
+<ul>
+  <li>
+    <em>Decoder output format cropping size may be different than the encoded in the bit-stream due to alignment constraints</em>
+  </li>
+  <li>
+    <em>When decoder is configured with application provided movie::MediaData, decoder may allocate new memory and associate it with application provided&nbsp;movie::MediaData object. This memory will be deleted when&nbsp;movie::MediaData object is deleted or goes out of scope. If the application want to reuse movie::MediaData object after calling&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a944ade387d0de8b7fb358981520271ac">movie::decoder::Configure</a>&nbsp;function,&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_media_data.html">movie::MediaData</a>::Clear() API need to be called.&nbsp;</em>
+    <em>This will delete any memory allocation done during configuration as part of&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_media_data.html">movie::MediaData</a>&nbsp;object.</em>
+  </li>
+</ul>
+<h2 id="Anchor_166508736_h2_14">Starting the decoder</h2>
+<p>
+  <em>&nbsp;</em>Once the decoder has been created, events have been registered, and track information has been specified, the decoder can be prepared for processing. This can be performed by calling&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a8ccd0573d0c1564ca61ded0a3b5c7d70">movie::Decoder::Start</a>&nbsp;function. Once called, the decoders will enter a state to support the exchange between the application and the decoding hardware of encoded content to support real-time playback.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Activate decoder processing
+</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Start</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_166508736_h2_15">Processing input buffers</h2>
+<p>The movie library decoder uses a series of buffers to transfer content to and from the application. The application is responsible for providing encoded segment&nbsp;(or data frame) input &nbsp;to the decoder using these buffers, and processing decoded data frame output using the same buffers when made available. When using the extractor, the application must also coordinate the exchange of input data frames between the extractor and the decoder. &nbsp;In this scenario, the following steps should be followed:</p>
+<ol>
+  <li>Poll the extractor to determine what track has data available to decode</li>
+  <li>Find an available decoder buffer to use<ol><li>Get index for an available input buffer. <em>(This can also be done when&nbsp;inputBufferAvailableEvent is signaled).&nbsp;</em></li><li>Get the input buffer corresponding the buffer index</li></ol></li>
+  <li>Read the extractor compressed data frame into the buffer</li>
+  <li>Get the presentation time for the compressed data frame</li>
+  <li>Send the buffer to decoder</li>
+  <li>Advance the extractor position to the next data frame</li>
+</ol>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Poll the extractor to determine what track contains data to decode
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">-&gt;</span><span class="n">GetTrackIndexForAvailableData</span><span class="p">(</span><span class="o">&amp;</span><span class="n">currentTrackIndex</span><span class="p">);</span>
+
+<span class="c1">// Find an available decoder buffer to use
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">AcquireInputBufferIndex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">inputBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">numberOfBuffersAvailable</span><span class="p">);</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">GetInputBuffer</span><span class="p">(</span><span class="n">inputBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">inputBuffer</span><span class="p">);</span>
+
+<span class="c1">// Read the extractor compressed data frame into the buffer
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">-&gt;</span><span class="n">Read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">inputBuffer</span><span class="p">);</span>
+
+<span class="c1">// Get the presentation time for the compressed data frame
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">-&gt;</span><span class="n">GetSampleTime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">presentationTimeUs</span><span class="p">);</span>
+
+<span class="c1">// Send the buffer to the decoder
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">SendInputBufferForDecode</span><span class="p">(</span><span class="n">inputBufferIndex</span><span class="p">,</span> <span class="n">inputBuffer</span><span class="p">.</span><span class="n">Offset</span><span class="p">(),</span> <span class="n">inputBuffer</span><span class="p">.</span><span class="n">Size</span><span class="p">(),</span> <span class="n">presentationTimeUs</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+
+<span class="c1">// Advance the extractor position to the next data frame
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">-&gt;</span><span class="n">Advance</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_166508736_h2_16">Processing output buffers</h2>
+<p>The movie library decoder output buffers contain either video pixel data or PCM audio data. To process decoder output, the application should call the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a979842af48b34e007e2918a408881878">movie::Decoder::AcquireOutputBufferIndex</a>&nbsp;function to find the index for available output buffer, and then call the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a56c59e1fb49f8e402f4260d6312d3c11">movie::Decoder::GetOutputBuffer</a>&nbsp;function to copy the internal decoder data to the application-supplied buffer. Once the buffer information is no longer needed, the application should call the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a2ae4fab180b4c2dc41c9f8fc33770aa6">movie::Decoder::ReleaseOutputBufferIndex</a>&nbsp;function to allow the decoder to re-use the buffer for upcoming decoding frames.&nbsp;For efficient processing, the call to release the acquired output buffer should be made as soon as possible to avoid blocking the decoder.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Acquire the buffer index for decoded frame
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">AcquireOutputBufferIndex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outputBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">presentationTimeUs</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">flags</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">numberOfBuffersAvailable</span><span class="p">);</span>
+
+<span class="c1">// Copy the decoder output to the application buffer
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">GetOutputBuffer</span><span class="p">(</span><span class="n">outputBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buffer</span><span class="p">);</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">ReleaseOutputBufferIndex</span><span class="p">(</span><span class="n">outputBufferIndex</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>The format of the data returned by the decoder varies based on the output format specified when the decoder was created. Likewise, information returned by GetOutputBufferFormat() is specific to this specification. Currently there are three types of output formats that can be determined as follows.</p>
+<p>
+  <strong>ARGB (DecoderOutputFormat_VideoColorArgb)</strong>
+</p>
+<p>In this format, the image data will be organized as a single contiguous 2D row-major array with each sample defined as a packed 32 bit unsigned integer (8 bits alpha, 8 bits red, 8 blue, and 8 bits green respectively) representing one pixel. Movie decoders do not support alpha. Movie library will return a default alpha value of 255. The dimensions of the rendered area can be queried from the format via FindInt32() with the names <strong>width</strong> and <strong>height</strong>.&nbsp;</p>
+<p>
+  <strong>ABGR(DecoderOutputFormat_VideoColorAbgr)</strong>
+</p>
+<p>This format is similar to&nbsp;<strong>DecoderOutputFormat_VideoColorArgb. </strong>Only difference is image data red, blue and green are packed in different order.</p>
+<p>
+  <strong>NV12 (DecoderOutputFormat_VideoColorNv12)</strong>
+</p>
+<p>In this format, the image data will be organized as a single buffer that contains 2 contiguous 2D row-major arrays in packed format. The starting locations of the two arrays within the buffer are defined by byte offsets that can be obtained from the format via FindInt32() with the names <strong>nv12-y-offset</strong>, and <strong>nv12-uv-offset</strong>.&nbsp;</p>
+<p>The first array contains a Y (intensity) image with each sample defined as a single packed 8 bit unsigned integer presenting one pixel. The range of values for the data is limited to 16 to 235, such that 16 represent black, and 235 represents white as per the ITU-R BT.601/BT.709 specifications.</p>
+<p>The second array contains an interleaved chroma (UV or Cb/Cr) image with each sample defined as two 8 bit unsigned integers (8 bits blue, 8 bits red) representing 4 adjacent pixels (2 wide by 2 high). Therefore the size of the Y data is twice the size of the Cb/Cr data. The range of values for the data is limited to 16 to 240, such that 16 represent black, and 240 represents full color intensity as per the ITU-R BT.601/BT.709 specifications.</p>
+<p>The range of YCbCr vary according to the colorspace that is specified in the content, and can be one of ITU-R BT.601, or ITU-R BT.709. If the content does not specify the colorspace definition, the decoder will output according to the content resolution. If the content is SD(480p and lower), it uses ITU-R BT.601. If HD, it uses ITU-R BT.709. The colorspace of output buffer can be obtained from the format via FindInt32() with the names <strong>nv12-colorspace</strong>. Please note that when&nbsp;movie::DecoderMode_Cpu is used for the decoder mode, the colorspace info obtained via FindInt32 is based on the content resolution, not decoder output format.&nbsp;For information on how to convert YCbCr into RGB refer to<a href="https://en.wikipedia.org/wiki/YCbCr"> this article.</a>&nbsp;</p>
+<p>
+  <strong>PCM (DecoderOutputFormat_AudioPcm16)</strong>
+</p>
+<p>In this format, the buffer will be organized as a single contiguous array of samples packed as PCM 16 bit signed integers. The samples are interleaved based on the number of channels in the original content, currently up to six (5.1) channels. The unit of time represented by each sample (or interleaved group of samples) is determined by the sample rate of the original content. The size of the buffer returned by the decoder may vary based on the encoded information.</p>
+<h2 id="Anchor_166508736_h2_17">Processing end of playback</h2>
+<p>In order to properly time the end of playback, the application is required to signal the end of the input stream to the decoder. To signal this end of stream condition, you can pass the movie::BufferFlags_EndOfStream&nbsp;flag when you call the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#af8cf50e9cc39c5e57f6a0c291ac85f17">movie::Decoder::SendInputBufferForDecode</a> function, either&nbsp;on the last valid input buffer or on a subsequent call with an empty input buffer. If you use an extractor, the <a href="../../../Api/HtmlNX/classmovie_1_1_extractor.html#a94be703e0356147bece8a2902d992935">movie::Extractor::Read</a>&nbsp;function&nbsp;will return&nbsp;<a href="../../../Api/HtmlNX/namespacemovie.html#aae52268c80d5ad84f5ca8eda8eaad4c5a7e5d9e91d2e94737185fe49c47a607a7">movie::Status_EndOfStream</a>&nbsp;when it encounters the end of the stream, at which point the application should pass the movie::BufferFlags_EndOfStream to the input buffer.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// Read the extractor compressed data frame into the buffer
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">m_Extractor</span><span class="o">-&gt;</span><span class="n">Read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buffer</span><span class="p">);</span>
+ 
+<span class="c1">// Pass end of stream to the decoder
+</span><span class="k">if</span><span class="p">(</span> <span class="p">(</span><span class="n">movieStatus</span> <span class="o">==</span> <span class="nn">movie::</span><span class="n">Status_EndOfStream</span> <span class="p">)</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">flags</span> <span class="o">=</span> <span class="nn">movie::</span><span class="n">BufferFlags_EndOfStream</span><span class="p">;</span>
+
+<span class="c1">// Send the buffer to the decoder
+</span><span class="n">extractor</span><span class="o">-&gt;</span><span class="n">GetSampleTime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">presentationTimeUs</span><span class="p">);</span>
+<span class="n">decoder</span><span class="o">-&gt;</span><span class="n">SendInputBufferForDecode</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">buffer</span><span class="p">.</span><span class="n">Offset</span><span class="p">(),</span> <span class="n">buffer</span><span class="p">.</span><span class="n">Size</span><span class="p">(),</span> <span class="n">presentationTimeUs</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>The decoder will continue to return output buffers until the input buffer containing the end of stream flag is processed. When this buffer is processed, the decoder will return a buffer with the same flag in the&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a979842af48b34e007e2918a408881878">movie::Decoder::AcquireOutputBufferIndex</a> call. The decoder may return either the last decoded frame, or empty data in the last buffer depending on whether input data was provided. In the latter case, the time-stamp of the empty buffer should be ignored.</p>
+<p>Once the application signals the end of stream, no additional buffers should be submitted unless the codec has been flushed, or stopped and restarted.</p>
+<h2 id="Anchor_166508736_h2_18">Stopping the decoder&nbsp;</h2>
+<p>The function&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a577023b841484fd29ce2321748082b00">movie::Decoder::Stop</a>&nbsp;can be used to stop all buffer and event processing in the decoder.&nbsp;</p>
+<p>
+  <br />
+</p>
+<div class="line number1 index0 alt2">
+  <h2 id="Anchor_166508736_h2_19">Switching streams</h2>
+</div>
+<div class="line number2 index1 alt1">
+  <p>When switching from one stream to another, the decoders must be stopped and configured again with the configuration data for new stream. The decoder object can be re-used in this case. However, extractor object must be deleted and a new extractor allocated and properly setup.&nbsp;</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">//1. stop decoder
+</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Stop</span><span class="p">();</span>
+ 
+<span class="c1">//2. delete existing extractor object and create new one
+</span><span class="k">delete</span> <span class="n">movieExtractor</span><span class="p">;</span>
+ 
+<span class="c1">//3. Create an extractor object for the desired container type
+</span><span class="nn">movie::</span><span class="n">Extractor</span><span class="o">*</span> <span class="n">movieExtractor</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">movie::</span><span class="n">Extractor</span><span class="p">(</span><span class="n">containerType</span><span class="p">);</span>
+
+<span class="c1">//4. Extractor setup steps - SetDataSource, get track configuration and select tracks
+// Set the URI for the stream that needs to be decoded
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">SetDataSource</span><span class="p">(</span><span class="n">uri</span><span class="p">);</span>
+ 
+<span class="c1">// Find the total number of tracks
+</span><span class="kt">int32_t</span> <span class="n">m_Tracks</span><span class="p">;</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m_Tracks</span><span class="p">);</span>
+
+<span class="c1">// Get track Configuration data for track index, i
+</span><span class="nn">movie::</span><span class="n">MediaData</span> <span class="n">mdata</span><span class="p">;</span>
+<span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackConfiguration</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mdata</span><span class="p">);</span>
+ 
+<span class="c1">// select desired track
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">SelectTrack</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+<span class="c1">// 5. Configure decoder 
+</span><span class="nn">movie::</span><span class="n">MediaData</span> <span class="n">mdata</span><span class="p">;</span>
+
+<span class="c1">// Query track information (for track i) and specify it to the decoder
+</span><span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackConfiguration</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mdata</span><span class="p">);</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Configure</span><span class="p">(</span><span class="n">mdata</span><span class="p">);</span>
+ 
+<span class="c1">//6. Activate decoder processing
+</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Start</span><span class="p">();</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <br />
+  </p>
+</div>
+<h1 id="Anchor_166508736_h1_4">Handling errors in decoding</h1>
+<p>Decoder and extractor APIs generate return status codes defined in the <a href="../../../Api/HtmlNX/namespacemovie.html#aae52268c80d5ad84f5ca8eda8eaad4c5">movie::Status</a> enumeration. The application should check the return status and handle it appropriately.</p>
+<p>Decoders also generate asynchronous error events when they encounter problems during decoding. The application can call <a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a245636259d749b9a5ef8211b34cf05fe">movie::Decoder::GetLastError</a> to find the last error code generated. For non-recoverable errors, which usually indicate asynchronous errors, it is recommended that applications call&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a461cc207b93dfb93aa831b3898462da3">movie::Decoder::Reset</a> API to reset internal decoder state. Once Reset is called, all buffer indices are invalidated, as are the indices stored in application's buffer list. The decoder also enters an un-initialized state and loses all prior configuration information. To restart another decode session, the&nbsp;<a href="../../../Api/HtmlNX/structmovie_1_1_decoder_events.html">movie:DecoderEvent</a>s should be registered again and&nbsp;<a href="../../../Api/HtmlNX/classmovie_1_1_decoder.html#a944ade387d0de8b7fb358981520271ac">movie::Decoder::Configure</a>&nbsp;should be called.</p>
+<p>Note that the extractor states do not change with the decoder Reset() API, so it is possible to restart the decoder from where it is left off.</p>
+<p>In case the application wants to use the extractor with a different movie file, it should destroy the current extractor object and create another instance.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// On Error, reset decoder's internal states. 
+</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Reset</span><span class="p">();</span>
+ 
+<span class="c1">//clear any buffer index lists maintained by the client
+</span> 
+<span class="c1">//register decoder's event callbacks again
+</span><span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">RegisterClientEvents</span><span class="p">(</span><span class="n">decoderEvents</span><span class="p">);</span>
+
+<span class="c1">// Configure decoder
+</span><span class="nn">movie::</span><span class="n">MediaData</span> <span class="n">mdata</span><span class="p">;</span>
+
+<span class="c1">// Query track information (for track i) and specify it to the decoder
+</span><span class="n">movieExtractor</span><span class="o">-&gt;</span><span class="n">GetTrackConfiguration</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mdata</span><span class="p">);</span>
+<span class="n">movieStatus</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Configure</span><span class="p">(</span><span class="n">mdata</span><span class="p">);</span>
+
+<span class="c1">//start decoder
+</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">Start</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_166508736_h1_5">Resource Usage</h1>
+<h2 id="Anchor_166508736_h2_20">Thread count</h2>
+<p>Since processing in the movie library happens asynchronously, the library creates several internal threads. The priority of these threads are set to <span class="ApiLink_nn__os__DefaultThreadPriority">nn::os::DefaultThreadPriority</span>. The priority of all threads created by movie library can be changed using following movie utility&nbsp;API.</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span> <span class="nf">SetThreadPriority</span><span class="p">(</span><span class="kt">int</span> <span class="n">threadPriority</span><span class="p">)</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Above API call must be made before any decoder or extractor objects are created. If this API is called, after creating decoder or extractor&nbsp;objects, the threads will have default priority. The application can also assign which CPU cores these threads run on by calling the&nbsp;SetCoreMask() function. This call must be made before any decoder or extractor objects are created. If this call is not made, the movie library will inherit the core mask specification from the calling thread. Audio decoder thread priority can be specified using decoder&nbsp;constructor.</p>
+<p>The movie library creates different numbers of threads based on different use cases:</p>
+<ul>
+  <li>Decoding a video only elementary stream: 10 threads</li>
+  <li>Decoding video and audio elementary streams: 13 threads</li>
+  <li>Extracting video and/or audio&nbsp;from a file container: 1 thread</li>
+</ul>
+<p>Therefore the total number of threads that will be created to decode a file container with audio and video tracks is 14. Thread lifetime is determined by the lifetime of the decoder&nbsp;and extractor objects. Each instance of extractor and decoder objects will create their own unique set of threads.</p>
+<h2 id="Anchor_166508736_h2_21">Memory requirement</h2>
+<p>The movie library makes variety of memory allocation calls. The actual memory usage varies by content specification, but it is recommend that applications provision for worst case memory consumption as follows:</p>
+<ul>
+  <li>Allocations through new(): 1.5MB</li>
+  <li>Allocations through movie API allocators: 100MB for 720p resolution</li>
+</ul>
+<div>
+  <div class="syntaxhighlighter sh-default nogutter plain">
+    <p>
+      <br />
+    </p>
+    <p>
+      <br />
+    </p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__DefaultThreadPriority', '../../../Api/HtmlNX/namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

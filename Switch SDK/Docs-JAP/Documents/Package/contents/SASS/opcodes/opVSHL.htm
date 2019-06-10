@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VSHL</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VSHL : Integer Byte/Short Shift Left<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Byte/Short Shift Left" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Video Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VSHL", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VSHL</b>{.dfmt}{.safmt.sbfmt}{.mode}{.SAT}{.op2}</code>   <code>Rd{.CC}, Ra{.partselA}, Rb{.partselB}, Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VSHL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VSHL</b>{.dfmt}{.safmt.ifmt}{.mode}{.SAT}{.op2}</code>    <code>Rd{.CC}, Ra{.partselA}, #imm16,        Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VSHL" } -->
+
+ .dfmt:       { <b>.UD, .SD*</b> }
+              Destination format (unsigned or signed)
+
+ .safmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b> }
+ .sbfmt:      { <b>.U32*, .U16, .U8 </b> } 
+ .ifmt:       { <b>.U16* </b> } 
+              Source formats
+
+ .mode:       { <b>.C*, .W</b> }
+              .C (Clamp): Rb/#imm16 is treated as an unsigned integer and is clamped to (0-32).  // Default mode.
+              .W (Wrap):  Rb/#imm16 is treated as an unsigned integer and is masked by 0x001f
+
+ .op2:        { <b>.PASS*, .MRG_16H, .MRG_16L, MRG_8B0, .MRG_8B2, .ACC, .MIN, .MAX</b>}
+
+ .CC:         Write condition codes
+
+ .partselA:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b> }
+              if (.U16|.S16) { <b>.H0*, .H1</b> }
+
+ .partselB:   if (.U8)  { <b>.B0*, .B1, .B2, .B3</b> } 
+              if (.U16) { <b>.H0*, .H1</b> }
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Shift Ra Left by contents of Rb (or #imm16) with optional second stage operation and 
+optional saturate.</p>
+
+<h4>Basic math operation:</h4>
+<p>
+The <b>Ra</b> input is first promoted to S34 (based on the .S or .U input format) 
+followed by a shift left <b>Ra</b> &lt;&lt; <b>Rb</b> or #imm16 giving an S34 result.
+Only the 34 lsbs of the shift left result are retained, discarding any overflows.
+The lsb insertion is always 0.</p>
+
+<h4>Note:</h4>
+<ul><li>The Intermediate result is only useful if it is known that it will not overflow the S34
+	intermediate value.</li>
+</ul>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+
+<pre>
+<b>VSHL</b>.W          R0, R1, R7,  RZ;
+<b>VSHL</b>.UD.U32.U16 R0, R1, 0x9, RZ;
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

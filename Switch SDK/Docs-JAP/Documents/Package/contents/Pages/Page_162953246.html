@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ミックス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ミックス -->
+<div class="pagetitle" id="PageId_162953246">ミックス</div>
+<div class="text_separate">
+<h1 id="Anchor_162953246_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_162953246_h2_1">音量の指定方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_162953246_h3_1">パンニング</a>
+      </li>
+      <li>
+        <a href="#Anchor_162953246_h3_2">各チャンネルの音量の直接指定</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_162953246_h2_2">出力モード</a>
+    </li>
+    <li>
+      <a href="#Anchor_162953246_h2_3">ダウンミックス処理</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_162953246_h1_2">ミックス</h1>
+<p>音がどの方向から聞こえるかは、複数あるスピーカーからそれぞれどれだけの音量で出力するかに依存します。<br />Atk ライブラリでは、パンニングなどのパラメータを元にして、<br />各サウンドがどのスピーカーからどれだけの音量で出力するかを決める、ミックスの計算が行われます。</p>
+<p>また、Atk サウンドシステムの出力モードも同様にミックスの計算方法に影響を与えます。</p>
+<p>ここでは各サウンドの最終的な出力の計算について説明を行います。</p>
+<h2 id="Anchor_162953246_h2_1">音量の指定方法</h2>
+<p>音量を <span class="ApiLink_nn__atk__SoundHandle">nn::atk::SoundHandle</span> から指定する方法には２種類あり、パンニングを指定する方法と、各チャンネルの音量を指定する方法があります。</p>
+<h3 id="Anchor_162953246_h3_1">パンニング</h3>
+<p>パンニングの指定には 2 つの種類があり、左右方向のパンニングであるパンと、前後方向のパンニングであるサラウンドパンに分けられます。<br />これら 2 つの種類のパンニングは SoundHandle などのクラスで指定することができ、その設定は独立に行われます。</p>
+<p>左右方向のパンニングであるパンを指定するには SetPan() 関数を用います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 左右方向のパンニングを設定する
+</span><span class="n">g_SoundHandle</span><span class="p">.</span><span class="n">SetPan</span><span class="p">(</span><span class="o">-</span><span class="mf">0.3f</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また、前後方向のパンニングであるサラウンドパンを指定するには SetSurroundPan() 関数を用います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 前後方向のパンニングを設定する
+</span><span class="n">g_SoundHandle</span><span class="p">.</span><span class="n">SetSurroundPan</span><span class="p">(</span><span class="mf">1.0f</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの関数で指定した値は、 SoundMaker で設定した値などと重ねあわされ、最終的なパラメータとして反映されます。<br />SoundMaker で設定できるパンの設定については 『<a href="../Pages/Page_83955834.html">パンの動作</a>』を参照してください。<br />また、パンニングのパラメータの重ね合わせのされ方については、『<a href="../Pages/Page_83955829.html">サウンドパラメータ制御の動作</a>』の<em>サウンドパラメータの種類と処理方法の対応一覧の項を参照してください。</em></p>
+<h4 id="Anchor_162953246_h4_1">左右方向のパンニング</h4>
+<p>SetPan() 関数により、左右方向のパンニングを設定することができます。<br />SoundMaker で作成したサウンドの設定に応じて、以下の三種類で異なるパンニングの計算が行われます。</p>
+<ul>
+  <li>入力波形がモノラルの場合</li>
+  <li>入力波形がステレオで、パンモードがデュアルパンの場合</li>
+  <li>入力波形がステレオで、パンモードがバランスパンの場合</li>
+</ul>
+<p>詳細は、 <a href="../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html#ae885603d22af10a06d74d8f3460ad1cd">nn::atk::SoundHandle::SetPan</a>()&nbsp;の API リファレンスを参照してください。</p>
+<h4 id="Anchor_162953246_h4_2">前後方向のパンニング</h4>
+<p>SetSurroundPan() 関数により、前後方向のパンニングを設定することができます。</p>
+<p>詳細は、<a href="../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html#ab4d9886992848fa75705e4c82fd8126e">nn::atk::SoundHandle::SetSurroundPan</a>() の API リファレンスを参照してください。</p>
+<h3 id="Anchor_162953246_h3_2">各チャンネルの音量の直接指定</h3>
+<p>パンニングによる音量計算を使用せずに、直接各チャンネルに対する音量を設定することも可能です。</p>
+<p>その場合は <span class="ApiLink_nn__atk__SoundHandle__SetMixMode">nn::atk::SoundHandle::SetMixMode</span> に <span class="ApiLink_nn__atk__MixMode_MixVolume">nn::atk::MixMode_MixVolume</span> を指定してください。<br />パン、サラウンドパンの値は無視され、<span class="ApiLink_nn__atk__SoundHandle__SetMixVolume">nn::atk::SoundHandle::SetMixVolume</span> で設定した <span class="ApiLink_nn__atk__MixVolume">nn::atk::MixVolume</span> の音量が反映されるようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_SoundHandle</span><span class="p">.</span><span class="n">SetMixMode</span><span class="p">(</span><span class="nn">nn::atk::</span><span class="n">MixMode_MixVolume</span><span class="p">);</span>
+<span class="nn">nn::atk::</span><span class="n">MixVolume</span> <span class="n">g_MixVolume</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nn">nn::atk::</span><span class="n">ChannelIndex_Count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_MixVolume</span><span class="p">.</span><span class="n">channel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0f</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">g_SoundHandle</span><span class="p">.</span><span class="n">SetMixVolume</span><span class="p">(</span><span class="n">g_MixVolume</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162953246/174067637.png" width="438" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>パン、サラウンドパンを用いた音量計算に戻したい場合は <span class="ApiLink_nn__atk__SoundHandle__SetMixMode">nn::atk::SoundHandle::SetMixMode</span> に <span class="ApiLink_nn__atk__MixMode_Pan">nn::atk::MixMode_Pan</span> を指定してください。</p>
+<p>
+  <span class="ApiLink_nn__atk__MixVolume">nn::atk::MixVolume</span> の使用方法については、<a href="../../../Api/HtmlNX/_page_sample_atk_mix_mode.html">AtkMixMode サンプル</a> も参考にしてください。</p>
+<h4 id="Anchor_162953246_h4_3">ステレオ波形の音量指定</h4>
+<p>ステレオ波形を使用したサウンドについては、<br /><span class="ApiLink_nn__atk__SoundHandle__SetMixVolume">nn::atk::SoundHandle::SetMixVolume</span> の引数に波形のチャンネル番号を与えることで<br />ステレオ波形のチャンネル毎に音量を設定することも可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_SoundHandle</span><span class="p">.</span><span class="n">SetMixVolume</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">g_MixVolumeLeftChannel</span><span class="p">);</span>
+<span class="n">g_SoundHandle</span><span class="p">.</span><span class="n">SetMixVolume</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">g_MixVolumeRightChannel</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_162953246_h4_4">トラックを持つサウンドの音量指定</h4>
+<p>ストリームサウンドやシーケンスサウンドのように、トラックを持つサウンドについては<br /><span class="ApiLink_nn__atk__StreamSoundHandle__SetTrackMixVolume">nn::atk::StreamSoundHandle::SetTrackMixVolume</span> や <span class="ApiLink_nn__atk__SequenceSoundHandle__SetTrackMixVolume">nn::atk::SequenceSoundHandle::SetTrackMixVolume</span> を使用することで<br />トラック毎に音量を設定することも可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::StreamSoundHandle::</span><span class="n">TrackBitFlagSet</span> <span class="n">streamBitFlag</span><span class="p">;</span>
+<span class="n">streamBitFlag</span><span class="p">.</span><span class="n">Reset</span><span class="p">();</span>
+<span class="n">streamBitFlag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+<span class="n">g_StreamSoundHandle</span><span class="p">.</span><span class="n">SetTrackMixVolume</span><span class="p">(</span><span class="n">streamBitFlag</span><span class="p">,</span> <span class="n">g_MixVolume</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ただし、トラック毎に設定した音量は <span class="ApiLink_nn__atk__SoundHandle__SetMixVolume">nn::atk::SoundHandle::SetMixVolume</span> で設定したサウンド全体の音量とは別に扱われ、<br />最終的な音量はこれらを掛け合わせた結果になります。&nbsp;</p>
+<h2 id="Anchor_162953246_h2_2">出力モード</h2>
+<p>
+  <span class="ApiLink_nn__atk__SoundSystem__SetOutputMode">nn::atk::SoundSystem::SetOutputMode</span>() を用いることで、サウンドの最終的な出力の計算方法を変更することができます。</p>
+<p>パンニングと出力モードの変更に応じて、以下の&nbsp;4 つのチャンネルに対してミックスの計算が行われます。</p>
+<ul>
+  <li>前左チャンネル (Front Left)</li>
+  <li>前右チャンネル (Front Right)</li>
+  <li>後左チャンネル (Rear Left)</li>
+  <li>後右チャンネル (Rear Right)</li>
+</ul>
+<p>
+  <span class="ApiLink_nn__atk__SoundSystem__SetOutputMode">nn::atk::SoundSystem::SetOutputMode</span>() で設定された出力モードに合わせて、パンニングの一部またはすべてのパラメータが音量の計算に利用され、最終的な音量が計算されます。</p>
+<p>詳細な音量の計算方法については、 <a href="../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a9ca02be58bfbf562d37b3edb863986e7">nn::atk::SoundSystem::SetOutputMode</a>() の API リファレンスを参照してください。</p>
+<h2 id="Anchor_162953246_h2_3">ダウンミックス処理</h2>
+<p>以上の処理を行ったうえで、各チャンネルに設定される音量が決定されたのちに、<br />最終的なスピーカーの出力数に応じて <span class="ApiLink_nn__audio">nn::audio</span> でのダウンミックス処理が行われることになります。</p>
+<p>ダウンミックスの詳細な処理内容については、「<a href="../Pages/Page_89991492.html">オーディオレンダラ</a>」の Sink の項を参照してください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>現状では、PC 版の環境で <span class="ApiLink_nn__atk__SoundSystem__SetOutputMode">nn::atk::SoundSystem::SetOutputMode</span>() で OutputMode_Surround を指定し、<br />  最終的なスピーカーの出力数が 2ch となった場合、 Front Left および Front Right の出力がそのまま左チャンネル、右チャンネルのスピーカー出力となり、<br />Rear Left や Rear Right など他のチャンネルの出力は一切スピーカー出力に反映されない点にご注意ください。  <br /> </p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__SoundHandle', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html' )
+SetUrl( 'ApiLink_nn__atk__SoundHandle__SetMixMode', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html#a13f5158280bd300a8e50b1c69aed632d' )
+SetUrl( 'ApiLink_nn__atk__MixMode_MixVolume', '../../../Api/HtmlNX/namespacenn_1_1atk.html#a20ba8af46c11f2d64a05c75062113f82a592436d3e1abfc3e415ca0f478a7edbd' )
+SetUrl( 'ApiLink_nn__atk__SoundHandle__SetMixVolume', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html#acc8460209d1eb38de2e186f2840866de' )
+SetUrl( 'ApiLink_nn__atk__MixVolume', '../../../Api/HtmlNX/structnn_1_1atk_1_1_mix_volume.html' )
+SetUrl( 'ApiLink_nn__atk__MixMode_Pan', '../../../Api/HtmlNX/namespacenn_1_1atk.html#a20ba8af46c11f2d64a05c75062113f82a7992eb9f0c3140dbdc52a8a533b6dc8c' )
+SetUrl( 'ApiLink_nn__atk__StreamSoundHandle__SetTrackMixVolume', '../../../Api/HtmlNX/classnn_1_1atk_1_1_stream_sound_handle.html#ab4870ab7df34ced16b83a264d408d146' )
+SetUrl( 'ApiLink_nn__atk__SequenceSoundHandle__SetTrackMixVolume', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sequence_sound_handle.html#a76c5d2187206633ebeb85b0d4086db6b' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SetOutputMode', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a5ceed4da0556ace46c5be4bd55dd5c8c' )
+SetUrl( 'ApiLink_nn__audio', '../../../Api/HtmlNX/namespacenn_1_1audio.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

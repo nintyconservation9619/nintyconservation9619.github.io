@@ -1,0 +1,494 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エフェクトランタイムを組み込む　</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エフェクトランタイムを組み込む　 -->
+<div class="pagetitle" id="PageId_83955666">エフェクトランタイムを組み込む　</div>
+<div class="text_separate">
+<h1 id="Anchor_83955666_h1_1">はじめに</h1>
+<p>アプリにエフェクトランタイムをシンプルなコードで組み込むチュートリアルです。</p>
+<p>本チュートリアルでは、アプリケーションにエフェクトランタイムを組み込み、エフェクトバイナリを再生するまでの手順を紹介します。本チュートリアルは、<a href="../Pages/Page_83956229.html">エフェクトランタイムオーバービュー</a>を既読していることを前提に記述されていますので、先にそちらを読むことをオススメします。</p>
+<p>チュートリアルは以下の３ステップで構成されます。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955666_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955666_h1_2">エフェクトランタイムの初期化</a>
+    </li>
+    <ul>
+      <ul>
+        <ul>
+          <li>
+            <a href="#Anchor_83955666_h4_1">nn::vfx::Heap の派生クラス</a>
+          </li>
+          <li>
+            <a href="#Anchor_83955666_h4_2">nn::vfx::Config クラス</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_83955666_h3_1">ディスクリプタプールについて</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_83955666_h1_3">エフェクトバイナリ登録とエミッタセットの生成</a>
+    </li>
+    <ul>
+      <ul>
+        <li>
+          <a href="#Anchor_83955666_h3_2">エフェクトバイナリの登録</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955666_h3_3">エフェクトバイナリの破棄</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955666_h3_4">エミッタセットの生成</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_83955666_h1_4">エフェクトの定期処理</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955666_h2_1">エフェクトの再生管理</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955666_h2_2">更新処理</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955666_h2_3">描画処理</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955666_h3_5">nn::gfx::Queue について</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955666_h2_4">アプリフレームワークへの組み込み</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955666_h1_2">エフェクトランタイムの初期化</h1>
+<p style="color: rgb(51,51,51);">まずは、nn::vfx::System クラスを生成し、エフェクトランタイムの初期化を行います。エフェクトランタイムでは、nn::vfx::System クラスを軸に、エフェクトの計算処理や描画処理を行います。nn::vfx::System クラスの詳細は<span style="color: rgb(51,51,51);">クラスドキュメント</span>をご覧ください。以下のコードは、エフェクトランタイムの初期化例です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// UsrHeapは、nn::vfx::Heapの派生クラスです。
+</span><span class="n">UsrHeap</span> <span class="n">vfxHeap</span><span class="p">;</span>
+<span class="n">vfxHeap</span><span class="p">.</span><span class="n">SetAllocator</span><span class="p">(</span> <span class="n">allocator</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトランタイムを初期化する為のコンフィグクラスです。
+</span><span class="nn">nn::vfx::</span><span class="n">Config</span> <span class="n">config</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">SetEffectHeap</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">vfxHeap</span> <span class="p">);</span>
+<span class="n">config</span><span class="p">.</span><span class="n">SetEffectDynamicHeap</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">vfxHeap</span> <span class="p">);</span>
+<span class="n">config</span><span class="p">.</span><span class="n">SetGfxDevice</span><span class="p">(</span> <span class="n">pGfxDevice</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトシステムを生成します。
+</span><span class="n">m_pVfxSys</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">nn::vfx::</span><span class="n">System</span><span class="p">(</span> <span class="n">config</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラスの生成するには、以下の二つ要素が必要です</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__vfx__Heap">nn::vfx::Heap</span> の派生クラス</li>
+  <li>
+    <span class="ApiLink_nn__vfx__Config">nn::vfx::Config</span> クラス</li>
+</ol>
+<h4 id="Anchor_83955666_h4_1">nn::vfx::Heap の派生クラス</h4>
+<p>
+  <span class="ApiLink_nn__vfx__Heap">nn::vfx::Heap</span> の派生クラスは各ユーザーにて実装する必要があります。実装に各ユーザーが独自に用意した ヒープ を利用したり、&nbsp;<span class="ApiLink_nn__mem__StandardAllocator">nn::mem::StandardAllocator</span> ライブラリが利用できます。</p>
+<h4 id="Anchor_83955666_h4_2">nn::vfx::Config クラス</h4>
+<p>
+  <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラスの初期化引数には、<span class="ApiLink_nn__vfx__Config">nn::vfx::Config</span> クラスを指定します。<span class="ApiLink_nn__vfx__Config">nn::vfx::Config</span> クラスには、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラス内で確保されるリソースの各種サイズ等の設定を行います。基本的なパラメータは、デフォルト値で初期化されますが、<span class="ApiLink_nn__vfx__Heap">nn::vfx::Heap</span> インスタンスや <span class="ApiLink_nn__gfx__Device">nn::gfx::Device</span> インスタンス の設定は必須です。</p>
+<h3 id="Anchor_83955666_h3_1">ディスクリプタプールについて</h3>
+<p>テクスチャオブジェクトやサンプラオブジェクトは、ディスクリプタプールに登録しディスクリプタスロットを取得した上で利用することができます。ディスクリプタ プールは、アプリで１つだけ用意されるものなので、エフェクトランタイム内部で生成されるテクスチャやサンプラオブジェクトはコールバック関数を通して、生成されたオブジェクトの情報をアプリ側に通知し、アプリ側でディスクリプタプール への登録、ディスクリプタスロットの取得を行っていただく必要があります。</p>
+<p>詳しくは、<a href="../Pages/Page_100732452.html">ディスクリプタプールについて</a> を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//  テクスチャをディスクリプタプールへ登録するコールバック関数
+</span><span class="kt">bool</span> <span class="nf">AllocateSlotForTexture</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">*</span> <span class="n">dstSlot</span><span class="p">,</span> <span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">TextureView</span><span class="o">&amp;</span> <span class="n">textureView</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// textureViewをディスクリプタプールに登録し、登録先のdstSlotを返す必要があります。
+</span><span class="p">}</span>
+
+<span class="c1">//  サンプラをディスクリプタプールへ登録するコールバック関数
+</span><span class="kt">bool</span> <span class="nf">AllocateSlotForSampler</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">DescriptorSlot</span><span class="o">*</span> <span class="n">dstSlot</span><span class="p">,</span> <span class="k">const</span> <span class="nn">nn::gfx::</span><span class="n">Sampler</span><span class="o">&amp;</span> <span class="n">sampler</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// samplerをディスクリプタプールに登録し、登録先のdstSlotを返す必要があります。
+</span><span class="p">}</span>
+
+<span class="c1">// エフェクトシステムを生成します。
+</span><span class="n">m_pVfxSys</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">nn::vfx::</span><span class="n">System</span><span class="p">(</span> <span class="n">config</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトシステムが生成するテクスチャをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span> <span class="n">pRegisterTextureSlotCallback</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトシステムが生成するサンプラをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">RegisterSamplerToDescriptorPool</span><span class="p">(</span> <span class="n">pRegisterSamplerSlotCallback</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>コールバック関数は、 <span class="ApiLink_nn__ui2d">nn::ui2d</span> や <span class="ApiLink_nn__font">nn::font</span> と同じ仕様になっており、そのまま流用可能です。<br />また、<span class="ApiLink_nn__gfx__util__DescriptorPoolAllocator">nn::gfx::util::DescriptorPoolAllocator</span> 等を利用して、コールバック関数を容易に記述することが可能です。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>エフェクトランタイムでは、コンピュートシェーダを利用してパーティクルの演算等を行うので、エフェクトランタイムのグラフィックスコマンドを積む <span class="ApiLink_nn__gfx__Queue">nn::gfx::Queue</span> は、<span class="ApiLink_nn__gfx__QueueCapability_Compute">nn::gfx::QueueCapability_Compute</span> フラグを立てて初期化する必要があります。</p>
+  </div>
+</div>
+<h1 id="Anchor_83955666_h1_3">エフェクトバイナリ登録とエミッタセットの生成</h1>
+<p>
+  <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> クラスに対して再生するエフェクトバイナリを登録し、再生するエフェクトのオブジェクトを生成します。</p>
+<h3 id="Anchor_83955666_h3_2">エフェクトバイナリの登録</h3>
+<p>
+  <span class="ApiLink_nn__vfx__System__EntryResource">nn::vfx::System::EntryResource</span>() を呼び出し、エフェクトシステムにエフェクトバイナリを登録します。また、登録したエフェクトバイナリに含まれるテクスチャをディスクリプタプールに登録するため、<span class="ApiLink_nn__vfx__Resource__RegisterTextureViewToDescriptorPool">nn::vfx::Resource::RegisterTextureViewToDescriptorPool</span> を呼び出す必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エフェクトバイナリをロードする。
+</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">EFFECT_BINARY_PATH</span> <span class="o">=</span> <span class="s">&quot;EffectBinary.ptcl&quot;</span><span class="p">;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">binary</span> <span class="o">=</span> <span class="n">file_load</span><span class="p">(</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">EFFECT_BINARY_PATH</span><span class="p">,</span> <span class="nn">nw::vfx::</span><span class="n">SystemParameters_ParticleBinaryDataAlignment</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトシステムにエフェクトバイナリを登録する。
+</span><span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">EntryResource</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">vfxHeap</span><span class="p">,</span> <span class="n">binary</span><span class="p">,</span> <span class="n">resourceId</span> <span class="p">);</span>
+
+<span class="c1">// リソース内に含まれるテクスチャをディスクリプタプールに登録する。
+</span><span class="n">m_pVfxSys</span> <span class="o">-&gt;</span><span class="n">GetResource</span><span class="p">(</span> <span class="n">newResId</span> <span class="p">)</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span> <span class="n">pRegisterTextureSlotCallback</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>エフェクトバイナリは、EffectMakerで作成したエフェクト中間ファイルからバイナリコンバートして生成します。</p>
+<p>
+  <span class="ApiLink_nn__vfx__System__EntryResource">nn::vfx::System::EntryResource</span>() の引数は下記の3つです。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__vfx__Heap">nn::vfx::Heap</span> クラスのインスタンス</li>
+  <li>ロードしたエフェクトバイナリのアドレス</li>
+  <li>リソース管理用ＩＤ</li>
+</ol>
+<p>リソース初期化時に必要とされるメモリは、引数で指定する <span class="ApiLink_nn__vfx__Heap">nn::vfx::Heap</span> インスタンスから確保されます。エフェクトバイナリの先頭アドレスは、<span class="ApiLink_nn__vfx__SystemParameters_ParticleBinaryDataAlignment">nn::vfx::SystemParameters_ParticleBinaryDataAlignment</span> で指定されたサイズでアラインメントする必要があります。リソース管理用のIDは既定では上限が8個なので、0～7まで指定可能です。<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 初期化に与えるConfig のパラメータ設定により上限は調整可能です。</p>
+<h3 id="Anchor_83955666_h3_3">エフェクトバイナリの破棄</h3>
+<p>登録済みエフェクトバイナリは、そのバイナリから生成されたエミッタセットの描画が完了したのちに破棄可能になります。エフェクトバイナリの破棄を不正なタイミングで行うとＧＰＵストールの原因になります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エフェクトシステムに登録されたエフェクトバイナリを破棄する。
+</span><span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">m_pVfxSys</span> <span class="o">-&gt;</span><span class="n">ClearResource</span><span class="p">(</span> <span class="n">newResId</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955666_h3_4">エミッタセットの生成</h3>
+<p>バイナリ登録後、エフェクトの再生単位であるエミッタセットを生成することで、エフェクトの再生・描画が可能になります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エミッタセットIDを検索します。
+</span><span class="kt">int</span> <span class="n">emitterSetId</span> <span class="o">=</span> <span class="n">m_pVfxSys</span><span class="o">-&gt;</span><span class="n">SearchEmitterSetID</span><span class="p">(</span> <span class="n">emitterSetName</span><span class="p">,</span> <span class="n">resourceId</span> <span class="p">);</span>
+
+<span class="c1">// エミッタセットを操作する為のハンドル。
+</span><span class="nn">nn::vfx::</span><span class="n">Handle</span> <span class="n">handle</span><span class="p">;</span>
+
+<span class="c1">// エミッタセットを0番グループで生成します。
+</span><span class="kt">int</span> <span class="n">groupId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">CreateEmitterSetID</span><span class="p">(</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">emitterSetId</span><span class="p">,</span> <span class="n">resourceId</span><span class="p">,</span> <span class="n">groupId</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>エミッタセットを生成するには、まずエミッタセット名からエミッタセットIDを取得する必要があります。エミッタセット名は、エミッタセット中間ファイル( EmitterSet.eset ) のファイル名（拡張子を除く）です。取得したエミッタセットIDを使い、<span class="ApiLink_nn__vfx__System__CreateEmitterSetID">nn::vfx::System::CreateEmitterSetID</span>() を呼び出し、エミッタセットを生成します。引数のリソースIDは、リソース登録時に利用した値、グループIDは、生成されたエミッタセットが所属するグループを指定します。エミッタセット生成に成功すると、引数で指定した handle に生成済みエミッタセットインスタンスが渡されます。</p>
+<h1 id="Anchor_83955666_h1_4">エフェクトの定期処理</h1>
+<p>生成済みエミッタセットを再生するには、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> 内、更新処理メソッド / 描画処理メソッドを毎フレームに呼び出す必要があります。</p>
+<h2 id="Anchor_83955666_h2_1">エフェクトの再生管理</h2>
+<p>エミッタセットの再生は、基本的に「グループ」という概念で管理されます。エミッタセットの生成は個別に行いますが、更新処理や描画処理はグループ単位で行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//-------------------------------------
+// 更新処理
+//-------------------------------------
+// フレーム単位での初期化
+</span><span class="n">mEftSys</span><span class="o">-&gt;</span><span class="n">BeginFrame</span><span class="p">();</span>
+
+<span class="c1">// フレームを進めるエミッタの計算処理を行う。
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="n">group0</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="o">!</span><span class="n">isPause</span> <span class="p">);</span>
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="n">group1</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="n">isPause</span> <span class="p">);</span>
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="n">group2</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="n">isPause</span> <span class="p">);</span>
+
+<span class="c1">//-------------------------------------
+// 描画処理
+//-------------------------------------
+// 描画カメラの設定
+</span><span class="nn">nn::vfx::</span><span class="n">ViewParam</span> <span class="n">viewParam</span><span class="p">;</span>
+<span class="n">viewParam</span><span class="p">.</span><span class="n">Set</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">viewMtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">projMtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cameraPos</span><span class="p">,</span> <span class="n">nearZ</span><span class="p">,</span> <span class="n">farZ</span> <span class="p">);</span>
+
+<span class="c1">// baseFovy, currentFovy は「スケール制限に画角を連動」使用時のみ必要。引数としては省略可。
+// viewParam.Set( &amp;viewMtx, &amp;projMtx, &amp;cameraPos, nearZ, farZ, baseFovy, currentFovy );
+</span>
+<span class="c1">// テンポラリバッファのスワップ
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SwapBuffer</span><span class="p">();</span>
+
+<span class="c1">// 並列処理インデックス　並列に描画処理しない場合は、0 を指定する
+</span><span class="kt">int</span> <span class="n">processIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="c1">// 描画前処理(ビュー情報の初期化)
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SetViewParam</span><span class="p">(</span> <span class="n">processIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">viewParam</span> <span class="p">);</span>
+
+<span class="c1">// 描画エントリ
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">isPause</span> <span class="p">)</span> <span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">processIndex</span><span class="p">,</span> <span class="n">group0</span> <span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span> <span class="n">isPause</span>  <span class="p">)</span> <span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">processIndex</span><span class="p">,</span> <span class="n">group1</span> <span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span> <span class="n">isPause</span>  <span class="p">)</span> <span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">processIndex</span><span class="p">,</span> <span class="n">group2</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span class="ApiLink_nn__vfx__ViewParam__Set">nn::vfx::ViewParam::Set</span>() で、「ゲーム中の基準となる画角」「現在の画角」を設定することができます。<br />これは EffectMaker の <a href="../Pages/Page_96065890.html">カメラ距離スケール制限（近）</a>, <a href="../Pages/Page_107777564.html">カメラ距離スケール制限（遠）</a> の設定で「スケール制限に画角を連動」機能を使用する場合、ランタイム側で必要な設定です。</p>
+    <p>ゲーム中に画角が変化しない場合は、特に値を設定する必要は無く、引数自体も省略可能です。</p>
+  </div>
+</div>
+<h2 id="Anchor_83955666_h2_2">更新処理</h2>
+<p>
+  <span class="ApiLink_nn__vfx__System__BeginFrame">nn::vfx::System::BeginFrame</span> では、毎フレームに初期化が必要なパラメータ等などの処理を行います。<span class="ApiLink_nn__vfx__System__Calculate">nn::vfx::System::Calculate</span> では、引数で指定するグループに所属するエミッタセットの更新処理を行います。</p>
+<h2 id="Anchor_83955666_h2_3">描画処理</h2>
+<p>描画処理では、描画ビューの設定とテンポラリバッファのスワップ、エミッタセットの描画処理を行います。<span class="ApiLink_nn__vfx__System__SwapBuffer">nn::vfx::System::SwapBuffer</span> は、内部で保持する GPUが参照するテンポラリバッファのスワップを行います。詳しくは、 <a href="../Pages/Page_91194043.html">ランタイム内部で消費するメモリ</a> を参照ください。 <span class="ApiLink_nn__vfx__System_Draw">nn::vfx::System:Draw</span> メソッドの引数に渡す processIndex は、描画処理を並列で行う場合の並列処理インデックスです。並列で描画処理を行わない場合は、 0 を指定します。</p>
+<h3 id="Anchor_83955666_h3_5">nn::gfx::Queue について</h3>
+<p>&nbsp;vfx ランタイムは、コンピュートシェーダを利用してパーティクルの挙動演算を行うため、 <span class="ApiLink_nn__gfx__Queue">nn::gfx::Queue</span> の初期化時に <span class="ApiLink_nn__gfx__QueueCapability_Compute">nn::gfx::QueueCapability_Compute</span> フラグを立てる必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::Queue::</span><span class="n">InfoType</span> <span class="n">queueInfo</span><span class="p">;</span>
+<span class="n">queueInfo</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+<span class="n">queueInfo</span><span class="p">.</span><span class="n">SetCapability</span><span class="p">(</span> <span class="nn">nn::gfx::</span><span class="n">QueueCapability_Graphics</span> <span class="o">|</span> <span class="nn">nn::gfx::</span><span class="n">QueueCapability_Compute</span> <span class="p">);</span>
+<span class="n">g_Queue</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">queueInfo</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955666_h2_4">アプリフレームワークへの組み込み</h2>
+<p>&nbsp;これらの エフェクトランタイム の定期処理の呼び出しは、エフェクトバイナリ登録 や エミッタセットの生成 などの処理よりも後段で行われる必要があります。この呼び出し順が崩れてしまうと不具合の原因となります。</p>
+<p>&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955666/183373123.png" class="embedded-image" />
+  </span>
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html' )
+SetUrl( 'ApiLink_nn__vfx__Heap', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_heap.html' )
+SetUrl( 'ApiLink_nn__vfx__Config', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_config.html' )
+SetUrl( 'ApiLink_nn__mem__StandardAllocator', '../../../Api/HtmlNX/classnn_1_1mem_1_1_standard_allocator.html' )
+SetUrl( 'ApiLink_nn__gfx__Device', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_device.html' )
+SetUrl( 'ApiLink_nn__ui2d', '../../../Api/HtmlNX/namespacenn_1_1ui2d.html' )
+SetUrl( 'ApiLink_nn__font', '../../../Api/HtmlNX/namespacenn_1_1font.html' )
+SetUrl( 'ApiLink_nn__gfx__util__DescriptorPoolAllocator', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_descriptor_pool_allocator.html' )
+SetUrl( 'ApiLink_nn__gfx__Queue', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#afceb1f20a49ed58f99e33f2324312e1b' )
+SetUrl( 'ApiLink_nn__gfx__QueueCapability_Compute', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a305234f652e5c28bf7caed3bcfab60d3ab72dda7b4fe6ffb3857ab0fd98a21e5c' )
+SetUrl( 'ApiLink_nn__vfx__System__EntryResource', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a0418cc91c6dceab635cb5117b6aaf5e2' )
+SetUrl( 'ApiLink_nn__vfx__Resource__RegisterTextureViewToDescriptorPool', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_resource.html#a2fe947b2d9204cbb5ffc217824a7b436' )
+SetUrl( 'ApiLink_nn__vfx__SystemParameters_ParticleBinaryDataAlignment', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#a066f6ff695f03644411e5d69515b4d94a7e4bdf4fcd382dfbdeb39cfcb7b9a890' )
+// ApiLink_nn__vfx__System__CreateEmitterSetID
+// ApiLink_nn__vfx__ViewParam__Set
+SetUrl( 'ApiLink_nn__vfx__System__BeginFrame', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a38d660ef0b863e7f6f12fa9b0d91e470' )
+SetUrl( 'ApiLink_nn__vfx__System__Calculate', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#adb42c694f9bd27d36f90d4c6c2dc3061' )
+SetUrl( 'ApiLink_nn__vfx__System__SwapBuffer', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#ad97a3156aaee023dedd02403bc844c25' )
+// ApiLink_nn__vfx__System_Draw
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

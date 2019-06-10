@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ui2d/font の UTF-8 対応版機能について</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ui2d/font の UTF-8 対応版機能について -->
+<div class="pagetitle" id="PageId_115060409">ui2d/font の UTF-8 対応版機能について</div>
+<div class="text_separate">
+<h1 id="Anchor_115060409_h1_1">はじめに</h1>
+<p>本ページでは、ui2d/font の UTF-8 対応版機能について解説します。</p>
+<h1 id="Anchor_115060409_h1_2">UTF-8 対応版機能について</h1>
+<p>ui2d/font は UTF-16 を基本として設計していますが、絵文字等のサロゲートペア領域の文字も扱えるようにするために、部分的に UTF-8 の使用にも対応しました。 具体的には、下記の通りです。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__font">nn::font</span> の各機能は UTF-8 に対応しています。</li>
+  <li>
+    <span class="ApiLink_nn__ui2d">nn::ui2d</span> において、TextBox の初期化時に UTF-8 を扱うように指定可能です。</li>
+  <li>
+    <span class="ApiLink_nn__ui2d">nn::ui2d</span> において bflyt からレイアウトを構築したときに、TextBox に設定されたテキストを UTF-8 に自動コンバートして読み込めます。(現在未対応ですが、将来的な対応を予定しています。)</li>
+</ul>
+<p>ただし、LayoutEditor 上で UTF-8 の文字列を扱ったり、bflyt に UTF-8 のテキストを含めることはできませんのでご注意ください。 基本的には UTF-16 をお使い頂き、絵文字等のサロゲートペア領域の文字を扱いたいテキストボックスに限って UTF-8 モードにプログラム上で設定して頂く流れを想定しています。</p>
+<h1 id="Anchor_115060409_h1_3">互換性と変更点</h1>
+<p>基本的に従来の UTF-16 がそのまま使えるように互換性を保ちつつ、UTF-8 を使いたい方は使えるように機能拡張を行っています。</p>
+<p>具体的な基本方針は下記の通りです。</p>
+<ol>
+  <li>1 文字単位で扱う部分は UTF-32 で扱うように仕様変更し、UTF-16 も UTF-8 も同じ関数を用いるようにします。</li>
+  <li>文字列を扱う部分は UTF-16 と UTF-8 とで別の関数を用意します。UTF-8 の関数は関数名の末尾に接尾辞「Utf8」が付きます。</li>
+</ol>
+<p>例えば、従来 1 文字単位で扱う <span class="ApiLink_nn__font__GetCharWidth">nn::font::GetCharWidth</span>(char16_t) という関数には引数に UTF-16 の値を渡していましたが、今後は <span class="ApiLink_nn__font__GetCharWidth">nn::font::GetCharWidth</span>(uint32_t) の引数に UTF-32 の値を渡すように変更されます。UTF-16 の 1 文字を UTF-32 の 1 文字に変換するときは単なるキャストで済みますので、特別な変換処理は必要なくそのまま渡して構いません。UTF-8 を UTF-32 に変換する場合は <span class="ApiLink_nn__font__ConvertCharUtf8ToUtf32">nn::font::ConvertCharUtf8ToUtf32</span> 関数を用います。</p>
+<p>1 文字単位で扱う部分が UTF-32 になったことで、従来の UTF-16 のものに比べるとメモリ消費量が若干増えます。例えばサンプルとして付属している simple.flyt を読み込んだ際には、メモリ使用量が以前は 360.9 KB だったのに対し、365.6 KB になりました(このうち sample.bffnt のバイナリサイズは、266.9KB から 268.7KB へ増加)。CPU および GPU の負荷はほとんど変わりません。</p>
+<h1 id="Anchor_115060409_h1_4">詳細説明</h1>
+<h2 id="Anchor_115060409_h2_1">nn::fontll</h2>
+<p>
+  <span class="ApiLink_nn__fontll">nn::fontll</span> は元々 UTF-32 でやりとりするようになっているため、特に変更はありません。</p>
+<h2 id="Anchor_115060409_h2_2">nn::font</h2>
+<p>
+  <span class="ApiLink_nn__font">nn::font</span> の大部分の関数は、1 文字単位で引数や戻り値をやりとりするものになっていますので、これらすべてにおいて UTF-16 から UTF-32 に拡張される変更が入ります。</p>
+<p>UTF-16 の文字をこれらとやり取りしたい場合は単なるキャストで済みます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>char16_t utf16Character = 'A';
+int width = pFont-&gt;GetCharWidth(static_cast&lt;uint32_t&gt;(utf16Character));</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>UTF-8 の文字をこれらの関数に渡す場合は、<span class="ApiLink_nn__font__ConvertCharUtf8ToUtf32">nn::font::ConvertCharUtf8ToUtf32</span> 関数を用いて変換します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>char utf8Character[] = u8&quot;A&quot;;
+int width = pFont-&gt;GetCharWidth(nn::font::ConvertCharUtf8ToUtf32(utf8Character));</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>文字列を引数に取る関数に UTF-8 の文字列を渡すには、関数名の末尾に「Utf8」の接尾辞が付いたものを呼び出してください。例えば「RegisterGlyphsWithLength」の場合、引数に UTF-8 を取る「RegisterGlyphsWithLengthUtf8」が用意されています。</p>
+<h2 id="Anchor_115060409_h2_3">nn::ui2d</h2>
+<p>UTF-8 を扱う TextBox を作成するには、Layout クラスの Build もしくは BuildWithName メソッドの引数「utf8」に true を指定する方法と、TextBox クラスのコンストラクタの引数「buildArgSet.isUtf8」に true を指定する方法とがあります。前者はレイアウトに含まれるすべての TextBox の文字コードが UTF-8 に設定され、後者は個別の TextBox に対して設定することができます。</p>
+<p>文字列の長さを指定する場合には、UTF-16 では文字数を指定していましたが、UTF-8 では基本的にバイト数になります。ただし、TextBox の AllocateStringBuffer メソッドだけは例外で、UTF-8 の場合でも文字数を指定します。文字数を指定するべきかバイト数を指定するべきかは、API リファレンスの各関数の説明のところに記載していますので参照してください。</p>
+<h1 id="Anchor_115060409_h1_5">注意事項</h1>
+<ul>
+  <li>タグプロセッサを含む文字列を <span class="ApiLink_nn__util__ConvertCharacterUtf16NativeToUtf8">nn::util::ConvertCharacterUtf16NativeToUtf8</span> 等の文字コード変換関数に渡すと、正しく変換できずにエラーが発生したり文字列が壊れることがありますので、タグプロセッサを含む文字列は文字コードの変換を行わないでください。例えば UTF-8 版の関数にタグプロセッサを含む文字列を渡したい場合は、UTF-16 で用意したものを変換したりせず、初めから UTF-8 の文字列を用意してください。</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__font', '../../../Api/HtmlNX/namespacenn_1_1font.html' )
+SetUrl( 'ApiLink_nn__ui2d', '../../../Api/HtmlNX/namespacenn_1_1ui2d.html' )
+// ApiLink_nn__font__GetCharWidth
+SetUrl( 'ApiLink_nn__font__ConvertCharUtf8ToUtf32', '../../../Api/HtmlNX/namespacenn_1_1font.html#ac250e6a02fab85b785ab860d03cc0b6a' )
+SetUrl( 'ApiLink_nn__fontll', '../../../Api/HtmlNX/namespacenn_1_1fontll.html' )
+SetUrl( 'ApiLink_nn__util__ConvertCharacterUtf16NativeToUtf8', '../../../Api/HtmlNX/namespacenn_1_1util.html#ac706453bef5ce6867499d41bff823a0b' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

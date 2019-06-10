@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['uid',['Uid',['../structnn_1_1account_1_1_uid.html',1,'nn::account']]],
+  ['uint8x4',['Uint8x4',['../structnn_1_1util_1_1_uint8x4.html',1,'nn::util']]],
+  ['uniformblock',['UniformBlock',['../classnns_1_1g3d_1_1_uniform_block.html',1,'nns::g3d']]],
+  ['unorm8x4',['Unorm8x4',['../structnn_1_1util_1_1_unorm8x4.html',1,'nn::util']]],
+  ['updatecacheshelper',['UpdateCachesHelper',['../classnn_1_1atk_1_1viewer_1_1_update_caches_helper.html',1,'nn::atk::viewer']]],
+  ['updatesamplesarg',['UpdateSamplesArg',['../structnn_1_1atk_1_1_effect_aux_1_1_update_samples_arg.html',1,'nn::atk::EffectAux']]],
+  ['url',['Url',['../structnn_1_1friends_1_1_url.html',1,'nn::friends']]],
+  ['userconfig',['UserConfig',['../structnn_1_1ldn_1_1_user_config.html',1,'nn::ldn']]],
+  ['userexceptioninfo',['UserExceptionInfo',['../structnn_1_1os_1_1_user_exception_info.html',1,'nn::os']]],
+  ['userexceptioninfodetail',['UserExceptionInfoDetail',['../structnn_1_1os_1_1_user_exception_info_detail.html',1,'nn::os']]],
+  ['userexceptioninfodetailaarch32status32',['UserExceptionInfoDetailAarch32Status32',['../structnn_1_1os_1_1_user_exception_info_detail_aarch32_status32.html',1,'nn::os']]],
+  ['userexceptioninfodetailaarch32status64',['UserExceptionInfoDetailAarch32Status64',['../structnn_1_1os_1_1_user_exception_info_detail_aarch32_status64.html',1,'nn::os']]],
+  ['userexceptioninfodetailaarch64',['UserExceptionInfoDetailAarch64',['../structnn_1_1os_1_1_user_exception_info_detail_aarch64.html',1,'nn::os']]],
+  ['userexceptioninfodetailwin32',['UserExceptionInfoDetailWin32',['../structnn_1_1os_1_1_user_exception_info_detail_win32.html',1,'nn::os']]],
+  ['userhandle',['UserHandle',['../structnn_1_1account_1_1_user_handle.html',1,'nn::account']]],
+  ['usermodelpreview',['UserModelPreview',['../classnn_1_1vfx_1_1viewer_1_1detail_1_1_user_model_preview.html',1,'nn::vfx::viewer::detail']]],
+  ['userpresence',['UserPresence',['../classnn_1_1friends_1_1_user_presence.html',1,'nn::friends']]],
+  ['userselectionsettings',['UserSelectionSettings',['../structnn_1_1account_1_1_user_selection_settings.html',1,'nn::account']]],
+  ['usershaderinformation',['UserShaderInformation',['../structnn_1_1ui2d_1_1_user_shader_information.html',1,'nn::ui2d']]],
+  ['userword',['UserWord',['../structnn_1_1swkbd_1_1_user_word.html',1,'nn::swkbd']]],
+  ['uuid',['Uuid',['../structnn_1_1util_1_1_uuid.html',1,'nn::util']]]
+];

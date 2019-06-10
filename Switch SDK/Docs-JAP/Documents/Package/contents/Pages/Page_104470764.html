@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NX における性能の考え方</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NX における性能の考え方 -->
+<div class="pagetitle" id="PageId_104470764">NX における性能の考え方</div>
+<div class="text_separate">
+<p>NX は、今までの携帯機よりも消費電力、発熱が大きい SoC を採用しています。そのため、従来は気にする必要が無かった消費電力や温度について、ゲーム開発でも考慮しなければならない場合があります。</p>
+<p>NX では、従来のプラットフォームのようにゲーム動作時に消費電力や温度をゲーム開発者が意識しなくて済む環境を用意します。ただし、そのゲームがどういった性能を使うかは意識する必要が出てきます。</p>
+<p>本ドキュメントでは、NX が従来のプラットフォームと異なる点を説明し、NX の性能制御方法について説明します。</p>
+<h1 id="Anchor_104470764_h1_1">熱と冷却能力について</h1>
+<p>NX の冷却能力は、NX SoC のピーク時の発熱を下回ります。そのため、ゲームで安定して性能を使うにはこの冷却能力の範囲内で電力 = 性能を使う必要があります。具体的な冷却能力や、その冷却能力で使える性能については、筐体設計の評価やゲームの消費電力測定を踏まえて今後整理します。</p>
+<p>冷却能力は、ドックに本体を挿してテレビで遊んでいる状態 (据置モード) と、ドックから外している状態 (携帯モード) とで異なります。</p>
+<p>ゲーム開発者は冷却能力を踏まえて、CPU や GPU の性能を選択して使う必要があります。性能の選択とは、開発しようとしているゲームは、CPU 性能 (あるいは電力) をどのくらい使うか、GPU 性能をどのくらい使うか踏まえて、それぞれにどの程度性能を割り当てるか決めるという事です。たとえば 2D 主体のゲームであれば GPU 性能をあまり使わないので CPU 性能に多く割り当てるとか、3D 主体だと GPU 性能も必要なので CPU 性能、GPU 性能をバランスよく割り当てる、といったことを考える必要があります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_104470764/104728099.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <u>※上記図内では CPU / GPU 以外は固定になっていますが、CPU / GPU 以外も変動します</u>
+</p>
+<p>消費電力は、おおよそ以下の要素で決まります。</p>
+<ul>
+  <li>CPU / GPU のクロック</li>
+  <li>CPU の利用コア数</li>
+  <li>CPU / GPU のアクティブ時間</li>
+</ul>
+<p>ゲーム開発者はこれらの要素を考慮して、冷却能力内に収まるようにする必要があります。据置モードと携帯モードでは冷却能力が異なるため、モード切り替え時には性能の割り当て直しが必要となる場合もあります。</p>
+<h1 id="Anchor_104470764_h1_2">
+  <span style="letter-spacing: 1.92px;">性能の選択</span>
+</h1>
+<p>NX では、ゲーム開発者が消費電力や発熱を考慮しなくても開発できる環境を用意します。ただし後述のプリセット選択の理解につながるため、熱や電力を知っておく方が好ましいです。</p>
+<p>NX のシステムは熱の問題が起こらないクロック / コア数のプリセットを用意します。ゲーム開発者はプリセットから性能を選択します。このプリセットは、CPU / GPU のアクティブ時間が 100% となっても発熱が冷却能力の範囲に収まるようになっています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_104470764/104728098.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <u>※上記クロックは、このドキュメントのために適当に割り振ったものであり、実際にこうなるわけではありません</u>
+</p>
+<p>この環境でゲームが性能を使うためには、従来のようにどうやって効率よく CPU/GPU を使うか(アクティブ時間を高くするか)を考える必要があります。</p>
+<h2 id="Anchor_104470764_h2_1">注意</h2>
+<p>アクティブ時間が 100% となる前提での性能設定なので、CPU/GPU のアクティブ時間が 100% にできないような場合には熱予算を持て余すことになります。</p>
+<p>また、SoC のクロックも頭打ちされるため、アクティブ時間が 80% でよいのでもう少しピーク性能を上げたいというようなこともできません。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>カスタムシェーダでカスタム可能な関数</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- カスタムシェーダでカスタム可能な関数 -->
+<div class="pagetitle" id="PageId_218170764">カスタムシェーダでカスタム可能な関数</div>
+<div class="text_separate">
+<h1 id="Anchor_218170764_h1_1">カスタムシェーダでカスタム可能な関数</h1>
+<p>カスタムシェーダで、ユーザーが独自にカスタム可能なエフェクト標準の関数について、こちらに一覧をまとめます。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955731.html">カスタムシェーダの例</a>
+      </th>
+      <td>カスタムシェーダの解説です。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_218170681.html">カスタムシェーダで利用可能な変数・マクロ</a>
+      </th>
+      <td>カスタムシェーダでユーザーが利用可能な変数・マクロについての解説です。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_86606325.html">カスタムフィールド</a>
+      </th>
+      <td>カスタムフィールドの解説です。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_218170764_h2_1">カスタム定義の基本的な方法</h2>
+<p>カスタム可能なエフェクトのシェーダ内の関数は基本的に、</p>
+<ul>
+  <li>特定のプリプロセッサが立っていなければその関数を定義する</li>
+</ul>
+<p>形で実装されています。つまり、</p>
+<ul>
+  <li>特定のプリプロセッサを事前に立てた上で、その関数の独自定義を記述すれば、そちらの関数に置き換えることができる</li>
+</ul>
+<p>ことになります。具体的には、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#define USE_USR_FUNCTION_HOGE_HOGE
+</span><span class="kt">void</span> <span class="nf">HogeHoge</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ここでカスタム実装に置き換え
+</span><span class="p">}</span>
+ 
+<span class="c1">// ここから上をカスタムシェーダで記述してください
+</span> 
+<span class="p">...</span>
+ 
+<span class="c1">// ここから下はエフェクトのシェーダが持つ標準の実装の例です
+</span>
+<span class="cp">#ifndef USE_USR_FUNCTION_HOGE_HOGE
+</span><span class="kt">void</span> <span class="nf">HogeHoge</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エフェクトランタイムが持つ標準の実装
+</span><span class="p">}</span>
+<span class="cp">#endif
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>このような構成になっていますので、ある関数のカスタム実装を定義したい場合は、上のコード例の前半部分のような形で記述してください。</p>
+<p>次項でカスタム可能な関数を列挙しますが、基本的に対応する関数名とプリプロセッサを組み合わせて使えばよく、記述の仕方自体は上記と同じです。</p>
+<h2 id="Anchor_218170764_h2_2">頂点シェーダ・ピクセルシェーダ共通</h2>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th rowspan="2">関数名　　　　　　　　　　　　　　</th>
+      <th rowspan="2">カスタム時に宣言すべきプリプロセッサ</th>
+      <th colspan="3">シェーダごとの使用可否</th>
+      <th rowspan="2">説明</th>
+    </tr>
+    <tr>
+      <th>頂点</th>
+      <th>ピクセル</th>
+      <th>コンピュート</th>
+    </tr>
+    <tr>
+      <th>
+        <p>float GetDepthValue( vec4 position )</p>
+      </th>
+      <th>USE_USR_GET_DEPTH_VALUE</th>
+      <td>○</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>アプリ側から渡させているデプスバッファテクスチャから、深度値を取得する関数です。プロジェクション変換後の <code>vec4</code> を引数として渡します。</p>
+        <p>デフォルトの実装では、リニア変換を行いつつ深度値を取得します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>float GetDepthValueFromTexture( vec4 projection )</p>
+      </th>
+      <th>USE_USR_GET_DEPTH_VALUE_FROM_TEXTURE</th>
+      <td>○</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>アプリ側から渡させているデプスバッファテクスチャから、深度値を取得する関数です。<br />こちらは内部的に <code>texture2DProj()</code> で取得するために投影用の <code>vec4</code> を引数として渡します。&nbsp;</p>
+        <p>デフォルトの実装では、リニア変換を行いつつ深度値を取得します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>vec3 GetLocalNormal()</th>
+      <th>USE_USR_GET_LOCAL_NORMAL</th>
+      <td>○</td>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>法線を取得する関数です。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>vec3 GetLocalTangent()</p>
+      </th>
+      <th>USE_USR_GET_LOCAL_TANGENT</th>
+      <td>○</td>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>接線を取得する関数です。</td>
+    </tr>
+    <tr>
+      <th>vec3 GetLocalBinormal()</th>
+      <th>USE_USR_GET_LOCAL_BINORMAL</th>
+      <td>○</td>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>従法線を取得する関数です。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>float CalcVertexSoftEdge()</p>
+      </th>
+      <th>USE_USR_VERTEX_SOFT_EDGE</th>
+      <td>○</td>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>頂点シェーダでのソフトエッジ処理の時に呼び出される関数です。</td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(51,51,51);">void AdjustmentWorldPosition()</span>
+      </th>
+      <th>USE_USR_ADJUSTMENT_WORLD_POSITION</th>
+      <td>○</td>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>
+        <p>頂点シェーダ内で頂点の世界座標が決定した直後に呼ばれる関数です。<br /><code>gl_Position</code> はパーティクルの中心ではなくパーティクルもしくはプリミティブの一頂点ごとの座標です。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(51,51,51);">void FinalAdjustmentVertexProcess()</span>
+      </th>
+      <th>USE_USR_FINAL_ADJUSTMENT_VERTEX_PROCSS</th>
+      <td>○</td>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>
+        <p>頂点シェーダ処理を最下段で呼び出される関数です。<br />これまでに計算された、カラー、テクスチャ座標、または独自にフラグメントシェーダに送る値の処理などを記述します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>
+          <span style="color: rgb(51,51,51);">GetTexture0Color( vec2 texCoord&nbsp;)</span>
+        </p>
+        <p>
+          <span style="color: rgb(51,51,51);">
+            <span style="color: rgb(51,51,51);">GetTexture1Color<span style="color: rgb(51,51,51);">(&nbsp;vec2 texCoord&nbsp;)</span></span>
+          </span>
+        </p>
+        <p>
+          <span style="color: rgb(51,51,51);">
+            <span style="color: rgb(51,51,51);">
+              <span style="color: rgb(51,51,51);">GetTexture2Color<span style="color: rgb(51,51,51);">(&nbsp;vec2 texCoord&nbsp;)</span></span>
+            </span>
+          </span>
+        </p>
+      </th>
+      <th>
+        <p>USE_USR_GET_TEXTURE_COLOR</p>
+        <p>USE_USR_GET_TEXTURE1_COLOR</p>
+        <p>USE_USR_GET_TEXTURE2_COLOR</p>
+      </th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>テクスチャカラー取得関数です。uv 座標を <code>vec2</code> で渡します。</p>
+        <p>指定テクスチャカラーに対して操作を行いたい場合に上書き利用します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>vec3 GetPrimitiveColor()</th>
+      <th>USE_USR_GET_PRIMITIVE_COLOR</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>プリミティブのカラーを取得する関数です。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>float GetPrimitiveAlpha()</p>
+      </th>
+      <th>USE_USR_GET_PRIMITIVE_ALPHA</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>プリミティブのアルファを取得する関数です。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>vec4 GetFrameBufferTextureColor( vec4 projection )</p>
+      </th>
+      <th>USE_USR_GET_FRAME_BUFFER_VALUE</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>アプリ側から渡させているフレームバッファテクスチャから、フレームバッファの RGBA を取得する関数です。<br />こちらは内部的に <code>texture2DProj()</code> で取得するために投影用の <code>vec4</code> を引数として渡します。&nbsp;</p>
+        <p>デフォルトの実装では、引数をそのまま <code>texture2dProj()</code> に渡してその結果を返します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>vec3 GetFragmentColor( vec3 texture, vec3 vcolor0, vec3 vcolor1 )</p>
+      </th>
+      <th>USE_USR_GET_FRAGMENT_COLOR</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;&nbsp;</td>
+      <td>
+        <p>テクスチャ 0,1,2 のブレンド後、最終的な出力カラーを決める段階で呼ばれる関数です。</p>
+        <p>ここを定数値を返すようにカスタムすることで、テクスチャフェッチなどの処理をすべてコンパイル時最適化で切り落とし、</p>
+        <p>深度値のみを描画するようなカスタム処理が可能です。</p>
+        <p>
+          <code>texture</code> がブレンド後のテクスチャ RGB 、 <code>vcolor0</code>, <code>vcolor1</code> にはそれぞれ EffectMaker のカラー0、カラー1が渡されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>float GetFragmentAlpha( float texture, float alpha0, float alpha1 )</p>
+      </th>
+      <th>USE_USR_GET_FRAGMENT_ALPHA</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;&nbsp;</td>
+      <td>
+        <p>テクスチャ 0,1,2 のブレンド後、最終的な出力アルファを決める段階で呼ばれる関数です。</p>
+        <p>
+          <code>texture</code> がブレンド後のテクスチャ RGB 、 <code>alpha0</code>, <code>alpha1</code> にはそれぞれ EffectMaker のアルファ0、アルファ1が渡されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>vec4 BlendTexture1Color( vec4 texture0, vec4 texture1 )</p>
+      </th>
+      <th>
+        <p>USE_USR_BLEND_TEXTURE1_COLOR</p>
+      </th>
+      <td>&times;&nbsp;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>テクスチャ0 と テクスチャ1 のブレンドを行う関数です。</p>
+        <p>
+          <code>texture0</code> には テクスチャ0 の RGB 、 <code>texture1</code> にはテクスチャ1 の RGB がそれぞれ渡されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(51,51,51);">vec4 BlendTexture2Color( vec4 texture, vec4 texture2 )</span>
+      </th>
+      <th>
+        <span style="color: rgb(51,51,51);">USE_USR_BLEND_TEXTURE2_COLOR</span>
+      </th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>
+          <code>BlendTexture1Color()</code> のブレンド結果とテクスチャ２のブレンドを行う関数です。</p>
+        <p>
+          <code>texture</code> には <code>BlendTexture1Color()</code> でブレンドされた結果の RGB 、 <code>texture2</code> にはテクスチャ2 の RGB がそれぞれ渡されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>float CalculateSoftEdge()</p>
+      </th>
+      <th>USE_USR_SOFT_EDGE</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>ピクセルシェーダでのソフトエッジ処理の時に呼び出される関数です。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>void FinalAdjustmentFragmentColor()</p>
+      </th>
+      <th>USE_USR_FINAL_ADJUSTMENT_FRAGMENT_COLOR</th>
+      <td>&times;</td>
+      <td>○</td>
+      <td>&times;</td>
+      <td>
+        <p>ピクセルシェーダ処理を最後尾で呼び出される関数です。</p>
+        <p>
+          <code>OUTPUT_COLOR</code> にこれまでの計算結果が入力されていますので、それに対して独自の効果を付加します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>void AdjustmentStreamOutPosVec( inout vec3 outPos, inout vec3 outVec, inout float outParticleLife )</p>
+      </th>
+      <th>USE_USR_CUSTOM_FIELD</th>
+      <td>&times;</td>
+      <td>&times;</td>
+      <td>○</td>
+      <td>
+        <p>カスタムフィールドのコンピュートシェーダ実装を行う関数です。デフォルトでは空の実装が定義されています。<br /><code>outPos</code>, <code>outVec</code> にそれぞれ、基本機能のフィールドによる位置／速度の計算結果が入ったベクトルが格納されていますので、その値を更新することで独自の挙動を付加することができます。</p>
+        <p>カスタムフィールドの詳細については、 <a href="../Pages/Page_86606325.html">カスタムフィールド</a> のページを参照してください。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div>
+  <p>
+    <br />
+    <br />
+  </p>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

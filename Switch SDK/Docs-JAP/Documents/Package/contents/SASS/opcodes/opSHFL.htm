@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SHFL</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SHFL : Warp Wide Register Shuffle<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Warp Wide Register Shuffle" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Movement Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SHFL", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>SHFL</b>.mode</code>   <code>Pu, Rd, Ra, Sb, Sc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SHFL" } -->
+
+ .mode:      { .IDX, .UP, .DOWN, .BFLY }
+
+  Sb may be either a register or a 5-bit immediate. 
+  Sc may be either a register or a 13-bit immediate.
+  Sb contains absolute or relative address of the thread from which current thread reads data from.
+  Sc contains the limit thread and mask value for range check. 
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+This instruction allows threads in a warp to exchange data. Each thread in the
+warp computes a source lane (<b>j</b>) from which to read a register Ra. The
+computation of source lane is a function of the lane id (<b>i</b>), .mode, and
+the operands Sb/Sc.
+<pre>
+ If <b>j</b> is in range:
+    The value of register Ra in lane <b>j</b> is read and written into Rd for the current thread (in lane <b>i</b>).
+ If the value of <b>j</b> is out-of-range 
+      Thread's own lane <b>i</b> would be used as the source lane. So, in effect Ra value is written into Rd.
+ If thread corresponding to lane <b>j</b> is inactive, the data read is UNPREDICTABLE 
+</pre>
+
+<p> In either case, predicate register Pu indicates whether <b>j</b> was in
+range.  The operands Sb and Sc control the computation of <b>j</b> and the
+determination of whether it is in range, respectively. </p>
+
+<p> The Sb/Sc operands contain the following parameters: Sb[4:0] is the
+<b>index</b> of the source thread id, Sc[12:8] is the warp segmentation
+<b>mask</b> and Sc[4:0] is the <b>clamp</b> value.</p> The value of  <b>j</b>,
+is computed using <b>i</b>, <b>index</b>, <b>clamp</b>
+and the segmentation <b>mask</b>.</p>
+
+<p>If the mask value is <b>00000</b>, then the warp is segmented into one warp
+segment (i.e., threads 0-31).  If the mask value is <b>10000</b>, then the warp
+is segmented into two warp segments (i.e., threads 0-15 and threads 16-31).  If
+the mask value is <b>11000</b>, then the warp is segmented into four warp
+segments (i.e., threads 0-7,8-15,16-23, and 24-31).</p>
+
+<p>First the <b>minLane</b> and  <b>maxLane</b> are computed from the above
+parameters, where <b>minLane</b> is the least thread id of the warp segment in
+which <b>i</b> falls.  and <b>maxLane</b> is obtained by adding appropriate
+least significant bits of the <b>clamp</b> value to the <b>minLane</b>.  If the
+warp is segmented into one warp segments, then all the 5 bits of the
+<b>clamp</b> value is used.  If the warp is segmented into two (resp. four)
+warp segments, then only the 4 (resp. 3) least significant bits of the
+<b>clamp</b> value is used.</p>
+
+<p>If the mode is .IDX, <b>j</b> is equal to the <b>minlane</b> plus the
+appropriate least significant bits of the <b>index</b>.  If the warp is
+segmented into one warp segments, then all the 5 bits of the <b>index</b> is
+used.  If the warp is segmented into two (resp. four) warp segments, then only
+the 4 (resp. 3) least significant bits of the <b>index</b> is used.</p>
+
+<p>If the mode is .UP (resp. .DOWN), then <b>j</b> is <b>i</b> minus (resp.
+plus) the <b>index</b>.</p>
+
+<p>If the mode is .BFLY, then <b>j</b> is the  <b>i</b> xor the <b>index</b>.</p> 
+
+Pu indicates source lane for a given lane is "in range" or valid. 
+<p>For DOWN/IDX/BFLY modes, if the resulting <b>j</b> value exceeds the <b>maxLane</b>, then <b>j</b> is
+set to <b>i</b> and the predicate Pu is set to false. Otherwise, it is set to true.</p>
+
+<p>For UP mode, <b>maxlane</b> and <b>minlane</b> are expected to be same (becuase the clamp/Sc[4:0] is expected to be 0).
+For up mode if the  resulting <b>j</b> value is smaller than  the <b>minLane</b>, then <b>j</b> is
+set to <b>i</b> and the predicate Pu is set to false. Otherwise, it is set to true. </p>
+
+<p>
+Addressing mode .UP mode is useful for prefix sum up where higher numbered threads source from a lower numbered thread a fixed distance apart.
+Similarly .DOWN mode is used for prefix sum down use cases where lower numbered threads source from a higher numbered thread. 
+.BFLY mode implements the butterfly addressing pattern such as in tree reduction and broadcast.</p>
+<p>
+Addressing mode .IDX  (indexed) implies addressing mode where the value of source lane is explicitly specified.
+.IDX mode is for any addressing patterns that dont fit the above three modes. It is also handy for the broadcast operations.
+</p>
+<p>
+Modifier .mode must be specified. There is no default.</p>
+</p>
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<h4> Warp-level INCLUSIVE PLUS SCAN:</h4>
+<pre>
+    // Assumes input in following registers:
+    //     - Rx  = sequence value for this thread
+    <b>SHFL</b>.UP     P1, Ry, Rx, 1,  0
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.UP     P1, Ry, Rx, 2,  0
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.UP     P1, Ry, Rx, 4,  0
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.UP     P1, Ry, Rx, 8,  0
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.UP     P1, Ry, Rx, 16, 0
+@P1 <b>FADD</b>        Rx, Ry, Rx
+</pre>
+<h4>Warp-level EXCLUSIVE PLUS SCAN:</h4>
+<pre>
+    //Perform INCLUSIVE scan as above here//
+    <b>SHFL</b>.UP     P1, Rx, Rx, 1, 0
+    SEL         Rx, Rx, 0, P1     // Use appropriate identity for 0 with other operators
+</pre>
+
+<h4>Warp-level INCLUSIVE PLUS REVERSE-SCAN:</h4>
+<pre>
+    // Assumes input in following registers:
+    //     - Rx  = sequence value for this thread
+    //
+    <b>SHFL</b>.DOWN   P1, Ry, Rx, 1,  31
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.DOWN   P1, Ry, Rx, 2,  31
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.DOWN   P1, Ry, Rx, 4,  31
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.DOWN   P1, Ry, Rx, 8,  31
+@P1 <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.DOWN   P1, Ry, Rx, 16, 31
+@P1 <b>FADD</b>        Rx, Ry, Rx
+</pre>
+
+<h4>BUTTERFLY REDUCTION:</h4>
+<pre>
+    // Assumes input in following registers:
+    //     - Rx  = sequence value for this thread
+    <b>SHFL</b>.BFLY   __, Ry, Rx, 16,  31   // We never use the predicate
+    <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.BFLY   __, Ry, Rx, 8,   31
+    <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.BFLY   __, Ry, Rx, 4,   31
+    <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.BFLY   __, Ry, Rx, 2,   31
+    <b>FADD</b>        Rx, Ry, Rx
+    <b>SHFL</b>.BFLY   __, Ry, Rx, 1,   31
+    <b>FADD</b>        Rx, Ry, Rx
+    // All threads now hold sum in Rx
+</pre>
+
+<h4>FSWZ emulation modes:</h4>
+<pre>
+    //0000: TXD quad expansion (smear 0)
+    <b>SHFL</b>.IDX   PT, Ry, Rx, 0,  0x1C03;  // broadcast = 0, Mask = 5'b11100, Max = 3 (within quad) 
+    //.1111: TXD quad expansion (smear 1)
+    <b>SHFL</b>.IDX   PT, Ry, Rx, 1,  0x1C03;  // broadcast = 1, Mask = 5'b11100, Max = 3 (within quad) 
+    //.2222: TXD quad expansion (smear 2)
+    <b>SHFL</b>.IDX   PT, Ry, Rx, 2,  0x1C03;  // broadcast = 2, Mask = 5'b11100, Max = 3 (within quad) 
+    //.3333: TXD quad expansion (smear 3)
+    <b>SHFL</b>.IDX   PT, Ry, Rx, 3,  0x1C03;  // broadcast = 3, Mask = 5'b11100, Max = 3 (within quad) 
+    //.1032: DDX
+    <b>SHFL</b>.BFLY  PT, Ry, Rx, 1,  0x1C03;  // exchange with tid^1, Mask = 5'b11100, Max = 3 (within quad) 
+    //.2301: DDY
+    <b>SHFL</b>.BFLY  PT, Ry, Rx, 2,  0x1C03;  // exchange with tid^1, Mask = 5'b11100, Max = 3 (within quad) 
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

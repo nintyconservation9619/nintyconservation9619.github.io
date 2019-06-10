@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>イベント</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- イベント -->
+<div class="pagetitle" id="PageId_83955790">イベント</div>
+<div class="text_separate">
+<p>&nbsp;</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955790_h1_1">イベント機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955790_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955790_h3_1">自動クリアモード</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955790_h3_2">手動クリアモード</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955790_h2_2">イベントの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955790_h2_3">イベントの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955790_h2_4">イベントの関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955790_h2_5">イベント使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955790_h3_3">イベントを多重待ちする時の注意点</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955790_h3_4">自動クリアモードについて</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955790_h3_5">手動クリアモードについて</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955790_h1_1">イベント機能</h1>
+<h2 id="Anchor_83955790_h2_1">機能概要</h2>
+<p>イベントは、1bit （二値）のシグナル状態／非シグナル状態によって<a href="../Pages/Page_83955697.html">スレッド</a>間で同期を行なうための機能です。</p>
+<p>イベントは初期状態を、シグナル状態／非シグナル状態のいずれにするかを指定することが出来ます。また、イベントを待機していた<a href="../Pages/Page_83955697.html">スレッド</a>が起床した場合に、イベントを自動的に非シグナル状態にクリアするかどうかを選ぶことが可能です。</p>
+<h3 id="Anchor_83955790_h3_1">自動クリアモード</h3>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af07abef747ac6b51112b9e800ba9632c">nn::os::InitializeEvent()</a>&nbsp;時に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452a31f6133098296b3ddb7e14da3dc695cc">nn::os::EventClearMode_AutoClear</a> を指定すると、そのイベントは自動クリアモードになります。</p>
+<p>自動クリアモードでは、対象イベントがシグナル状態の場合に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::WaitEvent()</a> を発行すると、その<a href="../Pages/Page_83955697.html">スレッド</a>はイベント待ちには入らずに実行を継続します。この時、イベントは非シグナル状態にクリアされます。対象イベントが非シグナル状態の場合には <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::</a><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">WaitEvent()</a> はイベント待ちに入ります。</p>
+<p>対象イベントに待機<a href="../Pages/Page_83955697.html">スレッド</a>がある状態で <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::</a><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b959a51c1d28b76894597695fd3d081">SignalEvent()</a> を発行すると、待機していた<a href="../Pages/Page_83955697.html">スレッド</a>のうち１つのスレッドのみが起床し、同時にイベントは非シグナル状態に自動的にクリアされます。待機スレッドがない場合は、イベントはシグナル状態となります。</p>
+<p>どのような場合でも、自動クリアモードでは複数のスレッドが同時に待ち解除されることはありません。</p>
+<p>&nbsp;</p>
+<h3 id="Anchor_83955790_h3_2">手動クリアモード</h3>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af07abef747ac6b51112b9e800ba9632c">nn::os::InitializeEvent()</a> 時に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452a8b702480f5120eeeb01e7102227285da">nn::os::EventClearMode_ManualClear</a> を指定すると、そのイベントは手動クリアモードになります。</p>
+<p>手動クリアモードでは、対象イベントがシグナル状態の場合に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::WaitEvent()</a> を発行すると、その<a href="../Pages/Page_83955697.html">スレッド</a>はイベント待ちに入らずに実行を継続します。この時も、イベントはシグナル状態を維持します。対象イベントが非シグナル状態の場合には <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::</a><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">WaitEvent()</a> はイベント待ちに入ります。</p>
+<p>対象イベントを待機しているスレッドがある状態で <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b959a51c1d28b76894597695fd3d081">nn::os::SignalEvent()</a> を発行すると、待機していた全てのスレッドが起床します。また、その直後もイベントはシグナル状態を維持します。</p>
+<p>対象イベントを非シグナル状態にクリアしたい場合は、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent()</a> を発行します。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955790_h2_2">イベントの使用方法</h2>
+<p>イベントを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_event_type.html">nn::os::EventType</a> 構造体オブジェクトを用意します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">EventType</span>    <span class="n">g_Event</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>イベントを使用する前に、予め初期化します。<br />第２引数にはイベントの初期状態、第３引数にはイベントのクリアモードを指定します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Event</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">EventClearMode_AutoClear</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、イベントを待機します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">WaitEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Event</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、イベントをセット（シグナル通知）します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">SignalEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Event</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>イベントを使用し終わったら、破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeEvent</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Event</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955790_h2_3">イベントの具体的な使用例</h2>
+<p>具体的な使用例は、   <a href="../../../Api/HtmlNX/_page_sample_os_event.html">イベント機能サンプルプログラム</a>    を参照して下さい。</p>
+<h2 id="Anchor_83955790_h2_4">イベントの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af07abef747ac6b51112b9e800ba9632c">nn::os::InitializeEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#adae3d14bd5e37dd1feee56bbf1717e37">nn::os::FinalizeEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::WaitEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a679439764fa7d9544094a0246ab6eebb">nn::os::TryWaitEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9fba39baba3e475cae08127a632cab07">nn::os::TimedWaitEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b959a51c1d28b76894597695fd3d081">nn::os::SignalEvent</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent</a>
+  </li>
+</ul>
+<h2 id="Anchor_83955790_h2_5">イベント使用上の注意事項</h2>
+<h3 id="Anchor_83955790_h3_3">イベントを多重待ちする時の注意点</h3>
+<p>イベントを多重待ち（<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">nn::os::WaitAny</a>）対象の１つとして待機し、そのイベントのシグナル化によって待ちが解除された場合、たとえイベントが自動クリアモード（<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452">nn::os::EventClearMode_AutoClear</a>）であっても自動的にクリアはされません。</p>
+<p>多重待ち機能はシグナル化されたオブジェクトの状態を変化させません。そのため、シグナル化された <span class="ApiLink_nn__os__MultiWaitHolderType">nn::os::MultiWaitHolderType</span> を取得した後に、必ず <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a679439764fa7d9544094a0246ab6eebb">nn::os::TryWaitEvent()</a> などを使って対象イベントに対する待機処理を行なって下さい。これにより、対象イベントの自動クリアが行なわれます。その間に、対象イベントが既に他のスレッドによって <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a679439764fa7d9544094a0246ab6eebb">nn::os::TryWaitEvent()</a> 等が行なわれている可能性がある場合には、その返値を確認して再度多重待ちを行なうなどの対応が必要になります。</p>
+<h3 id="Anchor_83955790_h3_4">自動クリアモードについて</h3>
+<p>通常、自動クリアモード（<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452">nn::os::EventClearMode_AutoClear</a>）使用時はその同期制御に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent()</a> を必要以上に使用しないように注意して下さい。</p>
+<p>自動クリアモード時に、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b959a51c1d28b76894597695fd3d081">nn::os::SignalEvent()</a> によって一旦スレッドが起床された際、そのスレッドに CPU の実行権が移る前に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent()</a> が発行されると、対象イベントは非シグナル状態になっているため、前述のスレッドが動作可能になった時には再度シグナル待ちに入ってしまいます。自動クリアモードでは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::WaitEvent()</a> などでスレッドが起床する際に自動的にイベントがクリアされますので、通常は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent()</a> を発行する必要はありません。</p>
+<h3 id="Anchor_83955790_h3_5">手動クリアモードについて</h3>
+<p>手動クリアモード（<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452a8b702480f5120eeeb01e7102227285da">nn::os::EventClearMode_ManualClear</a>）において、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent()</a> の使用には注意が必要です。</p>
+<p>具体的には、他スレッドで <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aabdcb2de0b5dbdd64a0ec3d7e65c72f4">nn::os::WaitEvent()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b959a51c1d28b76894597695fd3d081">nn::os::SignalEvent()</a> が発行されるタイミングで <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent()</a> をほぼ同時に発行するような状況があってはなりません。そのような状況ではスレッドの動作順序が不確定であるため、イベントの待機／セット／クリアといった順番も保障されません。</p>
+<p>このような状況が発生しうる場合は、イベント機能の使い方含めて設計の見直しを行なって下さい。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__MultiWaitHolderType', '../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

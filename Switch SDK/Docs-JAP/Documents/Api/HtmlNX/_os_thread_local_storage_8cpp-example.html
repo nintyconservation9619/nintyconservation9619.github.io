@@ -1,0 +1,210 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: OsThreadLocalStorage.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">OsThreadLocalStorage.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_os_thread_local_storage.html">ThreadLocalStorage</a> および <a class="el" href="_os_thread_local_storage_8cpp.html" title="スレッド固有領域（TLS）機能のサンプルプログラム ">OsThreadLocalStorage.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___macro_8h.html">nn/nn_Macro.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span>            ThreadStackSize = 8192;             <span class="comment">// スレッド操作スレッドのスタックサイズ</span></div>
+<div class="line"><a name="a0"></a><a class="code" href="os___thread_common_8h.html#a5ce0c3c0aaceb976178a60a18d90f470">NN_OS_ALIGNAS_THREAD_STACK</a> <span class="keywordtype">char</span>   g_ThreadStack1[ ThreadStackSize ];  <span class="comment">// 1つ目のスレッドのスタック</span></div>
+<div class="line"><a class="code" href="os___thread_common_8h.html#a5ce0c3c0aaceb976178a60a18d90f470">NN_OS_ALIGNAS_THREAD_STACK</a> <span class="keywordtype">char</span>   g_ThreadStack2[ ThreadStackSize ];  <span class="comment">// 2つ目のスレッドのスタック</span></div>
+<div class="line"><a class="code" href="os___thread_common_8h.html#a5ce0c3c0aaceb976178a60a18d90f470">NN_OS_ALIGNAS_THREAD_STACK</a> <span class="keywordtype">char</span>   g_ThreadStack3[ ThreadStackSize ];  <span class="comment">// 3つ目のスレッドのスタック</span></div>
+<div class="line"></div>
+<div class="line"><a name="_a1"></a><a class="code" href="structnn_1_1os_1_1_tls_slot.html">nn::os::TlsSlot</a>         g_tlsSlot;</div>
+<div class="line"></div>
+<div class="line">}   <span class="comment">// namespace</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  スレッド固有領域（TLS）へのアクセス</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span>    CommonFunction()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// TLS のパラメータを取得</span></div>
+<div class="line">    <span class="keyword">auto</span> name = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>( <a name="a2"></a><a class="code" href="namespacenn_1_1os.html#a452445507fba4dc49cb9cfb77b4c88c1">nn::os::GetTlsValue</a>( g_tlsSlot ) );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 得られた TLS 値はスレッドごとに異なる</span></div>
+<div class="line">    <a name="a3"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%s: Succeeded in getting a TLS value\n&quot;</span>, name);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  スレッド関数（共通実装）</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> ThreadSample(<span class="keywordtype">void</span> *arg)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">auto</span> name = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>( arg );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// TLS に arg パラメータを設定</span></div>
+<div class="line">    <a name="a4"></a><a class="code" href="namespacenn_1_1os.html#a8f54d6581f3380bc9b6b7d92c9855acd">nn::os::SetTlsValue</a>( g_tlsSlot, reinterpret_cast&lt;uintptr_t&gt;( arg ) );</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%s: Succeeded in setting a TLS value\n&quot;</span>, name );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 共通関数を呼出す（全てのスレッドで同じ処理を行なう）</span></div>
+<div class="line">    CommonFunction();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッド終了前にメッセージを表示</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%s: End of thread\n&quot;</span>, name );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  TLS デストラクタ関数</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span>    TlsDestructFunction(uintptr_t value)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">char</span>* name = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>( value );</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%s: TLS destructor function is called back.\n&quot;</span>, name);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  メイン関数です。</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a5"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a6"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a>      result;</div>
+<div class="line">    <a name="_a7"></a><a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>  thread1;</div>
+<div class="line">    <a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>  thread2;</div>
+<div class="line">    <a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>  thread3;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// TLS スロットを 1 つ確保</span></div>
+<div class="line">    result = <a name="a8"></a><a class="code" href="namespacenn_1_1os.html#a2a67ebeb78e5d624b45ec27d66bdf0b2">nn::os::AllocateTlsSlot</a>( &amp;g_tlsSlot, TlsDestructFunction );</div>
+<div class="line">    <a name="a9"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.<a name="a10"></a><a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>(), <span class="stringliteral">&quot;Cannot allocate TLS slot.&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドを生成する</span></div>
+<div class="line">    result = <a name="a11"></a><a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread</a>( &amp;thread1, ThreadSample, const_cast&lt;char*&gt;(<span class="stringliteral">&quot;Thread1&quot;</span>), g_ThreadStack1, ThreadStackSize, <a name="a12"></a><a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a> );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.IsSuccess(), <span class="stringliteral">&quot;Cannot create thread1.&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread</a>( &amp;thread2, ThreadSample, const_cast&lt;char*&gt;(<span class="stringliteral">&quot;Thread2&quot;</span>), g_ThreadStack2, ThreadStackSize, <a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a> );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.IsSuccess(), <span class="stringliteral">&quot;Cannot create thread2.&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread</a>( &amp;thread3, ThreadSample, const_cast&lt;char*&gt;(<span class="stringliteral">&quot;Thread3&quot;</span>), g_ThreadStack3, ThreadStackSize, <a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a> );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.IsSuccess(), <span class="stringliteral">&quot;Cannot create thread3.&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドの実行を開始する</span></div>
+<div class="line">    <a name="a13"></a><a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>( &amp;thread1 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>( &amp;thread2 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>( &amp;thread3 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドが終了するのを待つ</span></div>
+<div class="line">    <a name="a14"></a><a class="code" href="namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>( &amp;thread1 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>( &amp;thread2 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>( &amp;thread3 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドを破棄する</span></div>
+<div class="line">    <a name="a15"></a><a class="code" href="namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>( &amp;thread1 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>( &amp;thread2 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>( &amp;thread3 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// TLS スロットを開放</span></div>
+<div class="line">    <a name="a16"></a><a class="code" href="namespacenn_1_1os.html#afded66e76230ba96acc86ba3d48d76c4">nn::os::FreeTlsSlot</a>( g_tlsSlot );</div>
+<div class="line">}</div>
+<div class="line"></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

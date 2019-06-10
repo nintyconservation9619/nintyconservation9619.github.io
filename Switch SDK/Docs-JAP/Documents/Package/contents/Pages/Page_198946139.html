@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>無操作状態の制御</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 無操作状態の制御 -->
+<div class="pagetitle" id="PageId_198946139">無操作状態の制御</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_198946139_h1_1">無操作状態を検出したときに自動的に発動する機能について</a>
+    </li>
+    <li>
+      <a href="#Anchor_198946139_h1_2">無操作状態の制御に関する開発支援機能</a>
+    </li>
+    <ul>
+      <ul>
+        <li>
+          <a href="#Anchor_198946139_h3_1">無操作状態検出モードの制御</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_198946139_h1_3">無操作状態の制御に関するアプリケーション向けの機能</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_198946139_h1_1">無操作状態を検出したときに自動的に発動する機能について</h1>
+<p>NX では、ユーザが操作していない状態で一定時間以上放置した場合に、TV 画面の保護や電力の節約を目的として自動的に発動させる機能があります。</p>
+<p>無操作状態で発動する機能には以下があります。</p>
+<ol>
+  <li>画面焼け軽減（画面の低輝度化）<ul><li>TV 画面の保護のため表示画素の明度を下げ、画面を暗くします。</li><li>本体画面表示中は画面焼けが発生すること自体原理的にありませんが、本機能と連動してバックライトの明るさも低下させます。</li></ul></li>
+  <li>自動スリープ<ul><li>システムをスリープ状態にします。</li></ul></li>
+</ol>
+<p>これらの機能が発動するまでの時間は、本体設定や動作モードなどによって変わります。詳細は、「本体機能ガイド」内の、「システムアプリ &gt; 本体設定」ページの「自動スリープ」の項を参照してください。</p>
+<h1 id="Anchor_198946139_h1_2">無操作状態の制御に関する開発支援機能</h1>
+<h3 id="Anchor_198946139_h3_1">無操作状態検出モードの制御</h3>
+<p>開発環境では、本体設定に関わらず、自動スリープや画面焼け軽減機能はデフォルトで<strong>無効</strong>となっています。（<a href="../Pages/Page_186060673.html">開発機のファームウェア を PROD MODE で初期化した</a>場合は、デフォルトで<strong>有効</strong>になります。）</p>
+<p>無操作状態検出モードの有効／無効は、<a href="../Pages/Page_107328771.html#Anchor_107328771_%E9%96%8B%E7%99%BA%E6%A9%9F%E3%81%AE%E5%88%B6%E5%BE%A1%EF%BC%8FDevMenu-IdleTimeDetection"> DevMenu</a> の Device &gt; Idle Time Detection の項目で確認・変更ができます。（HomeMenu 上では見えないため、ご注意ください。）</p>
+<p>
+  <a href="../Pages/Page_107328760.html">DevMenuCommand</a> からも取得・変更ができます。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>$ Tools\CommandLineTools\RunOnTarget.exe TargetTools\NX-NXFP2-a64\DevMenuCommand\Release\DevMenuCommand.nsp -- debug set-idle-time-detect-mode off
+[SUCCESS]</pre>
+  </div>
+</div>
+<h1 id="Anchor_198946139_h1_3">無操作状態の制御に関するアプリケーション向けの機能</h1>
+<p>oe ライブラリでは、上記の諸機能の開始時間について、アプリケーション側からある程度制御するための機能を提供しています。</p>
+<p>以下はそのような機能の一覧です。</p>
+<p>利用にあたって注意が必要な API がありますので、注意事項を必ず確認してください。</p>
+<p>各 API の仕様の詳細については oe ライブラリの API リファレンスを参照してください。</p>
+<table class="table">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>API 名</th>
+      <th>機能・用途</th>
+      <th>注意事項</th>
+    </tr>
+    <tr>
+      <th>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#a7c22abba7b05db494231a2893edfcf91">nn::oe::SetUserInactivityDetectionTimeExtended()</a>
+      </th>
+      <td>スタッフロール中など、ユーザがしばらく無操作の状態になることを予期したシーン向けに、一時的に開始時間をある程度まで遅延させることができます。</td>
+      <td>特にありません</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#ad3513ab7afd7048df84376b4f684fdf1">nn::oe::SetUserInactivityDetectionTimeExtendedUnsafe()</a>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__oe__SetUserInactivityDetectionTimeExtended">nn::oe::SetUserInactivityDetectionTimeExtended</span>() で遅延できる長さでは十分でない場合、こちらの API によってより長い時間遅延させることができます。</p>
+      </td>
+      <td>
+        <p>
+          <strong>本機能を使用すると画面焼け軽減が無効化されるため、追加で対応の必要なガイドライン項目があります。</strong>
+        </p>
+        <ul>
+          <li>TV の画面焼けをアプリケーション自身で回避するため、本機能の使用中は画面上の要素が固定表示されないようにする必要があります。</li>
+          <li>エラーやポーズ機能などにより画面上の変化を停止させる際には、本機能を解除する必要がある点にも注意が必要です。</li>
+          <li>ガイドライン項目の詳細については、「Nintendo Switch ガイドライン」を参照してください。</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#a42c00e7bc82aa57851ad3ac1af529c69">nn::oe::ReportUserIsActive()</a>
+      </th>
+      <td>
+        <p>任意のタイミングで無操作状態の継続時間のカウントをリセットすることができます。</p>
+        <p>
+          <br />
+        </p>
+        <p>専用の周辺機器を使用するなど、システム自身では操作として検出できない特殊な操作形態を利用するアプリケーションが使用することを想定しています。</p>
+      </td>
+      <td>
+        <p>
+          <strong>使用時には特別な注意が必要なため、製品での使用は許可制としています。</strong>
+        </p>
+        <p>
+          <strong>また使用する場合は追加で対応の必要なガイドライン項目があります。</strong>
+        </p>
+        <p>
+          <br />
+        </p>
+        <p>詳しくは <a href="../Pages/Page_292495029.html">無操作時間カウントリセット機能の使用に関する注意</a> を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#aa8d7caeaf62f2833c9795d42613eea02">nn::oe::BeginAutoSleepDisabledSection()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#a27c0216977d28375878821613332bb6d">nn::oe::EndAutoSleepDisabledSection()</a>
+        </p>
+      </th>
+      <td>
+        <p>一時的に自動スリープだけを無効化します。画面焼け軽減機能には影響しません。</p>
+        <p>
+          <br />
+        </p>
+        <p>ユーザが本体を操作しないまま長時間動作させつづける可能性がある場面（例：音楽再生モード）で使用することを想定しています。</p>
+      </td>
+      <td>
+        <p>
+          <strong>使用時には特別な注意が必要なため、製品での使用は許可制としています。</strong>
+        </p>
+        <p>
+          <strong>また使用する場合は追加で対応の必要なガイドライン項目があります。</strong>
+        </p>
+        <p>
+          <br />
+        </p>
+        <p>詳しくは <a href="../Pages/Page_292494778.html">自動スリープ一時無効化機能の使用に関する注意</a> を参照してください。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe__SetUserInactivityDetectionTimeExtended', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a7c22abba7b05db494231a2893edfcf91' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

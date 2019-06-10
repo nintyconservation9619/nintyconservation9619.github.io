@@ -1,0 +1,832 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アプリ開発環境の違い (NX Addon)</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アプリ開発環境の違い (NX Addon) -->
+<div class="pagetitle" id="PageId_106339384">アプリ開発環境の違い (NX Addon)</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_106339384_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_106339384_h1_2">機能の違い</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106339384_h2_1">全般</a>
+      </li>
+      <li>
+        <a href="#Anchor_106339384_h2_2">ライブラリ</a>
+      </li>
+      <li>
+        <a href="#Anchor_106339384_h2_3">ホスト側ツール用ライブラリ</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_106339384_h1_1">概要</h1>
+<p>NintendoSDK NX Addon 0.4.0 以降では、「PC 上での NX アプリ開発環境 (以下、「PC 環境」と略します)」 と 「SDEV を利用した NX アプリ開発環境 (以下、「 SDEV 環境」と略します)」 の 2 つの環境で NX アプリケーションを開発することができます。</p>
+<p>このページでは、両者の違いを明らかにし、アプリケーション実装時の注意点を網羅的に解説します。</p>
+<h1 id="Anchor_106339384_h1_2">機能の違い</h1>
+<!--Remove-->
+<h2 id="Anchor_106339384_h2_1">全般</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>PC 環境</th>
+      <th>SDEV 環境</th>
+      <th>環境移行時の注意点</th>
+    </tr>
+    <tr>
+      <td>パフォーマンス</td>
+      <td>
+        <ul>
+          <li>実行する PC の CPU / GPU、メモリーに依存します</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>NX 本来のパフォーマンスが出ます</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>パフォーマンスチューニングには、必ず SDEV をご利用ください</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>ビルドシステム</td>
+      <td>
+        <ul>
+          <li>Visual Studio の Win32 / x64 プラットフォームを対象としてビルドします</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li style="text-align: left;">Visual Studio に NX VSI のインストールが必要です</li>
+          <li style="text-align: left;">NX VSI によって追加される NX32 / NX64 プラットフォームを対象としてビルドします</li>
+        </ul>
+      </td>
+      <td>
+        <p style="text-align: left;">
+          <br />
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>コンパイラ・リンカ</td>
+      <td>
+        <ul>
+          <li>お使いの Visual C++ が利用されます</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>NX 向け Clang が利用されます</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Visual C++ と Clang とで、ビルド時の警告・エラーなどが異なります</li>
+          <li>PC 環境メインで作業される場合も、定期的に NX 向け Clang でビルドされることを推奨します。</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>ライブラリの提供形態と利用方法</td>
+      <td>
+        <ul>
+          <li>ライブラリファイルは基本的に機能ごとの静的ライブラリ (.lib) として提供されます。</li>
+          <li>アプリケーションは、必要とする各ライブラリを静的リンクして利用します。<ul><li>詳しくは <a href="../Pages/Page_95685382.html">ライブラリファイルの指定方法</a> を参照してください。</li></ul></li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>ライブラリファイルは基本的に SDK DLL (nnSdk.nso) として提供され、アプリケーションに自動的に動的リンクされます。</li>
+          <li>ただし、ライブラリ仕様ならび利用目的に応じて SDK DLL に含まれず、アプリケーションが明示的にリンクして使用する必要のあるライブラリが存在します。<ul><li>詳しくは <a href="../Pages/Page_95685382.html">ライブラリファイルの指定方法</a> を参照してください。</li></ul></li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>メモリーサイズ</td>
+      <td>
+        <div class="content-wrapper">
+          <ul>
+            <li>SDK ライブラリ内で new が呼ばれ、アプリケーションのメモリーから最大 200MB ほど確保されます。&nbsp;</li>
+          </ul>
+          <div class="warn_new">
+            <div class="warn_new_left">警告：</div>
+            <div class="warn_new_right">
+              <p>アロケータをセットする各種 API (<span class="ApiLink_nn__fs__SetAllocator">nn::fs::SetAllocator</span> など) を利用していても、SDK ライブラリ内で new が呼び出されることがあります。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <ul>
+          <li>SDK ライブラリ内で new は呼ばれません。</li>
+        </ul>
+      </td>
+      <td>
+        <p>
+          <br />
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>アプリケーションの実行</td>
+      <td>
+        <p>次のいずれかの方法が利用可能です：</p>
+        <ul>
+          <li>Visual Studio 上で「デバッグなしで開始」</li>
+          <li>アプリケーションの exe を直接実行します</li>
+        </ul>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>次のいずれかの方法が利用可能です：</p>
+          <ul>
+            <li>Visual Studio 上で「デバッグなしで開始」</li>
+            <li>Target Manager (GUI ツール) で nsp ファイルを指定して実行</li>
+            <li>RunOnTarget (CUI ツール) で nsp ファイルを指定して実行</li>
+          </ul>
+          <p>
+            <br />
+          </p>
+          <div class="warn_new">
+            <div class="warn_new_left">警告：</div>
+            <div class="warn_new_right">
+              <p>Visual Studio での実行には VSI のインストールが必要です。</p>
+              <p>また、3 つすべての手順において、あらかじめ Target Manager をインストールしておく必要があります。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>デバッグ</td>
+      <td>
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+          <li>Visual Studio 上で「デバッグ開始」で利用できます</li>
+        </ul>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <ul>
+            <li>Visual Studio 上で「デバッグ開始」で利用できます</li>
+          </ul>
+          <div class="warn_new">
+            <div class="warn_new_left">警告：</div>
+            <div class="warn_new_right">
+              <p>VSI および Target Manager をあらかじめインストールしておく必要があります。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_93359711.html">Target Manager</a>
+      </td>
+      <td>
+        <p>下記を利用しない場合は、インストール不要です</p>
+        <ul>
+          <li>ホスト PC 上のファイルシステム操作</li>
+          <li>HTC / HTCS</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>インストール必須です</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_106339384_h2_2">ライブラリ</h2>
+<table class="wrapped">
+  <colgroup>
+    <col style="width: 80.0px;" />
+    <col style="width: 532.0px;" />
+    <col style="width: 549.0px;" />
+    <col style="width: 629.0px;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>PC 環境</th>
+      <th>SDEV 環境</th>
+      <th>環境移行時の注意点</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_89098335.html">AUDIO</a>
+      </td>
+      <td>
+        <ul>
+          <li>CPU でレンダリングされます</li>
+          <li>PC のスピーカーに出力されます</li>
+        </ul>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <ul>
+            <li>SoC 上の Audio DSP でレンダリングされます</li>
+            <li>SDEV 上に搭載された本体ヘッドホンマイク端子、もしくはスピーカーから出力されます</li>
+            <li>HDMI 接続時はテレビから出力されます</li>
+          </ul>
+          <p>
+            <br />
+          </p>
+        </div>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_99804830.html">CODEC</a>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <ul>
+            <li>圧縮音声は CPU で展開処理されます</li>
+          </ul>
+          <p>
+            <br />
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <ul>
+            <li>圧縮音声は SoC 上の Audio DSP 、または CPU で展開処理されます</li>
+            <li>Audio DSP、CPU のどちらで展開処理を行うかはデコーダによって異なります。詳細は「<a href="../Pages/Page_99804990.html">CODEC ライブラリ／マニュアル／機能説明</a>」をご参照ください</li>
+          </ul>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <br />
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107780810.html">CRYPTO</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_99782769.html">CURL</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107325197.html">DIAG</a>
+      </td>
+      <td>
+        <ul>
+          <li>ログは標準出力（コマンドプロンプト）に出力されます。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>ログは Target Manager のログウィンドウに出力されます。</li>
+        </ul>
+      </td>
+      <td>
+        <p>ログ文字列のエンコーディングは PC、SDEV 環境ともに UTF-8 を要求します。</p>
+        <p>ただし、PC 環境における文字リテラルの既定エンコーディングは、Windows のロケールに依存するため、コンパイラに対して明示的にエンコーディングを指定して、UTF-8 を使用してください。</p>
+        <p>SDEV 環境では、既定で UTF-8 が使用されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107779618.html">FONTLL</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_83956192.html">FS</a>
+      </td>
+      <td>
+        <ul>
+          <li>セーブデータは exe と同じディレクトリ上の save ディレクトリ内に作成されます</li>
+          <li>リソースデータは exe と同じディレクトリ上の data ディレクトリ内のデータが参照されます</li>
+          <li>fs ライブラリに設定したアロケータから確保されるサイズが SDEV 環境より大きいです</li>
+        </ul>
+      </td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>セーブデータは 本体内蔵 NAND 上に作成されます</li>
+          <li>リソースデータは nca にアーカイブしたデータが参照されます</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_83956134.html">GFX</a>
+      </td>
+      <td>
+        <ul>
+          <li>（NVN の項目に準拠します）</li>
+          <li>ディスプレイ機能に Windows API を使用します</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>（NVN の項目に準拠します）</li>
+          <li>ディスプレイ機能に VI を使用します</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_83955661.html">HID</a>
+      </td>
+      <td>
+        <ul>
+          <li>ゲームパッド操作には XInput 対応ゲームパッドかキーボードを使用します。</li>
+          <li>タッチスクリーン操作にはタッチメッセージ対応デバイスかマウスを使用します。</li>
+          <li>デバッグ用ゲームパッド操作には ELECOM JC-W01UWH/JC-W02UWH かキーボードを使用します。</li>
+          <li>キーボードにはキーボードを使用します。</li>
+          <li>マウスにはマウスを使用します。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>ゲームパッド操作には <a href="../Pages/Page_107320681.html">Input Director</a> を使用します。</li>
+          <li>タッチスクリーン操作にはタッチスクリーンを使用します。<ul><li>同時に検出されるタッチ数の上限は 10 点です。</li><li>外周部の 15pixel は内側にクランプされた座標値が返されます。</li></ul></li>
+          <li>デバッグ用ゲームパッド操作にはデバッグコントローラを使用します。</li>
+          <li>キーボードには USB キーボードか&nbsp;<a href="../Pages/Page_107320681.html">Input Director</a> を使用します。<br /></li>
+          <li>マウスには USB マウスか&nbsp;<a href="../Pages/Page_107320681.html">Input Director</a>&nbsp;を使用します。<br /></li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_95685000.html">HTC</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_83956008.html">HTCS</a>
+      </td>
+      <td>
+        <ul>
+          <li>同時に動作可能な API 数に制限はありません</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>
+            <span class="ApiLink_nn__htcs__Send">nn::htcs::Send</span>(), <span class="ApiLink_nn__htcs__Recv">nn::htcs::Recv</span>() に指定するバッファのサイズが 57313 バイトを超える場合にはスタック領域のメモリに確保されたバッファが使用できません</li>
+        </ul>
+      </td>
+      <td>現在のバージョンでは PC 環境では、シリアルナンバーによる識別は未サポートとなります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107780149.html">INIT</a>
+      </td>
+      <td>
+        <ul>
+          <li>Windows のメモリ容量やメモリ空間については「<a href="../Pages/Page_93357496.html">アプリケーションの動作環境（Windows 環境）</a>」を参照して下さい。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>開発機のメモリ容量やメモリ空間については「<a href="../Pages/Page_107776143.html">アプリケーションの動作環境（開発機環境）</a>」を参照して下さい。</li>
+        </ul>
+      </td>
+      <td>
+        <p>それぞれのメモリ容量やメモリ空間の大きさに合わせて、メモリヒープの確保やメモリアロケータの初期化が必要です。</p>
+        <p>メモリ容量等については左記に示したページを参照し、初期化方法については「<a href="../Pages/Page_92310396.html">プログラムの起動と初期化</a>」を参照して下さい。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_83955994.html">JPEG</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_89096920.html">MEM</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_165042993.html">NGC</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境は未対応です</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>NG ワードチェックに関する機能が利用可能です。</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_104465190.html">NIFM</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境におけるネットワーク接続がそのまま維持されます</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>必要に応じてネットワーク接続が切り替えられます</li>
+        </ul>
+      </td>
+      <td>
+        <p>現在のバージョンでは、SDEV 環境の無線インフラ接続は「オープン認証、暗号化なし」の AP のみをサポートします。</p>
+        <p>PC 環境においては、現在のネットワーク接続がそのまま維持されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_87937845.html">NVN</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境と SDEV 環境で API に違いはありません</li>
+          <li>PC 環境では WGL に依存します</li>
+          <li>対応するグラフィックスボードと専用のグラフィックスドライバーが必要です<br /><ul><li>GPU の世代によって、一部の機能がサポートされません</li></ul></li>
+          <li>パフォーマンスは搭載 GPU に依存します</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>すべての機能が利用可能です</li>
+          <li>NX 本来のパフォーマンスで利用することができます</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107339118.html">OE</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境は未対応です</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>NX で提供されている性能を選択できます</li>
+          <li>NX におけるプログラムの状態遷移を制御できます</li>
+        </ul>
+      </td>
+      <td>現在のバージョンでは PC、SDEV 両環境で同じソースファイルを使用する場合、プリプロセッサによる実装分岐が必要です。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_83955869.html">OS</a>
+      </td>
+      <td>
+        <ul>
+          <li>スレッドの優先度は無視されます。</li>
+          <li>スレッドの優先コア番号は無視されます。</li>
+          <li>
+            <span class="ApiLink_nn__os__CreateThread">nn::os::CreateThread</span>() で指定するスタック領域は使用されず、Windows が用意した領域が使用されます。</li>
+          <li>
+            <span class="ApiLink_nn__os__InitializeFiber">nn::os::InitializeFiber</span>() で指定するスタック領域は使用されず、Windows が用意した領域が使用されます。</li>
+          <li>ユーザ例外ハンドラ機能は未サポートです。</li>
+          <li>
+            <span class="ApiLink_nn__os__QueryMemoryInfo">nn::os::QueryMemoryInfo</span>() では PC 上での実測値ではない値を返すものがあります。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>スレッドの優先度は 0～31 が利用できます。</li>
+          <li>スレッドの優先コア番号は 0～2 が利用できます。</li>
+          <li>
+            <span class="ApiLink_nn__os__CreateThread">nn::os::CreateThread</span>() で指定するスタック領域はミラーリングされ、ガード空間が隣接された状態で使用されます。</li>
+          <li>
+            <span class="ApiLink_nn__os__InitializeFiber">nn::os::InitializeFiber</span>() では上記のようなスタックガードの有無を選択できます。</li>
+          <li>ユーザ例外ハンドラ機能が利用できます。</li>
+        </ul>
+      </td>
+      <td>
+        <p>左記に記載した以外にも細かな仕様の差異があります。詳細は各 API リファレンスを参照して下さい。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_165352576.html">PCTL</a>
+      </td>
+      <td colspan="2">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません。<ul><li>現時点で設定変更はサポートされていませんが、将来サポートする場合は PC 環境と SDEV 環境で変更方法が異なるものになる、または SDEV 環境でのみサポートする予定です。</li></ul></li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_165032140.html">PL</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境に未対応の機能があります。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>実機環境に特化した機能が利用できます。</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_89980935.html">Settings</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_99782750.html">SOCKET</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境と SDEV 環境で API に違いはありません</li>
+          <li>PC 環境ではバックエンドに WinSock を利用します。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>SDEV 環境ではバックエンドに独自のプロトコルスタックを利用します。</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107324677.html">TIME</a>
+      </td>
+      <td>
+        <ul>
+          <li>経過時間の計測に PC の時計を利用しています。よって PC の時計が操作された場合には、時刻ライブラリを通して得られる時刻がその操作の分だけずれます。</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+      <td>PC 環境と SDEV 環境とで、時刻ライブラリを通して得られる時刻の値が異なる可能性があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_99806705.html">UTIL</a>
+      </td>
+      <td colspan="2">
+        <ul>
+          <li>
+            <p>行列、ベクトル関連APIに関して、SDEV環境ではARM NEON を利用した実装が自動的に選択され、高速に動作します。</p>
+          </li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_107780604.html">VI</a>
+      </td>
+      <td>
+        <ul>
+          <li>PC 環境は未対応です</li>
+          <li>PC 環境では Windows API を使用してディスプレイにアクセスします</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>すべての機能が利用可能です</li>
+        </ul>
+      </td>
+      <td>現在のバージョンでは両環境で同じソースファイルを使用する場合、プリプロセッサによる分岐が必要です。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_97489914.html">ZLIB</a>
+      </td>
+      <td colspan="3">
+        <ul>
+          <li>PC 環境と SDEV 環境で違いはありません</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>ライブラリアプレット</td>
+      <td>
+        <ul>
+          <li>ライブラリアプレットは利用できません</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>ライブラリアプレットが利用できます</li>
+        </ul>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!--Remove-->
+<h2 id="Anchor_106339384_h2_3">ホスト側ツール用ライブラリ</h2>
+<p>NX Addon ではアプリ用ライブラリの他に、ホスト側で動作するツールのためのライブラリも提供されます。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>機能</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_242387866.html">TM</a>
+      </td>
+      <td>
+        <ul>
+          <li>Target Manager の各種機能をコントロールする</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__fs__SetAllocator', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ac021c163ba94a44a2b53cb848c462930' )
+SetUrl( 'ApiLink_nn__htcs__Send', '../../../Api/HtmlNX/namespacenn_1_1htcs.html#a5a757ea251cb631538cbcf041dbe3459' )
+SetUrl( 'ApiLink_nn__htcs__Recv', '../../../Api/HtmlNX/namespacenn_1_1htcs.html#abf26e0229f6c91180f1fe024f2e4c869' )
+SetUrl( 'ApiLink_nn__os__CreateThread', '../../../Api/HtmlNX/namespacenn_1_1os.html#a1e7db66d31e254873b613d4eadd0d716' )
+SetUrl( 'ApiLink_nn__os__InitializeFiber', '../../../Api/HtmlNX/namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816' )
+SetUrl( 'ApiLink_nn__os__QueryMemoryInfo', '../../../Api/HtmlNX/namespacenn_1_1os.html#a79f2a489da0a124ebdc8130595c70b94' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

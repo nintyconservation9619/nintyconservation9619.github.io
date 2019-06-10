@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NFP ライブラリ利用時の注意</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NFP ライブラリ利用時の注意 -->
+<div class="pagetitle" id="PageId_165042715">NFP ライブラリ利用時の注意</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_165042715_h1_1">NFP ライブラリ利用時の注意</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_165042715_h1_1">NFP ライブラリ利用時の注意</h1>
+<p>NFP ライブラリをアプリケーションで利用する際には、以下の点に注意して実装してください。</p>
+<ul>
+  <li>NFP ライブラリで提供されている関数には、完了までに時間を要するものが多くあります。特に NFP タグへの書き込みは 1 ～ 2 秒程度の時間が必要です。そのため NFP ライブラリの関数は、メインループとは別のスレッドから呼び出すことを推奨します。</li>
+  <li>NFP ライブラリはアプリ側の動作だけではなく、ユーザーによるアクションによってもステートが変化します。ユーザーが行う動作についても配慮が必要です。</li>
+  <li>タグを検知したあと、タグが通信可能範囲内から離れるなど、タグとの通信が行えない状態になるとタグ喪失通知がアプリケーションに通知されます。この時点で NFC デバイスのステートは DeviceState_Deactive に遷移します。タグがマウントされていた場合はアンマウントされます。</li>
+  <li>アプリケーションはタグ検知通知のハンドリングを必ず行い、タグにアクセスできる状態にあるか確認するようにしてください。タグを喪失した状態で NFP タグアクセスする関数を呼び出すと、ほとんどの関数は <span class="ApiLink_nn__nfp__ResultNeedRestart">nn::nfp::ResultNeedRestart</span> を返します。</li>
+  <li>
+    <span class="ApiLink_nn__nfp__ResultNfcDeviceNotFound">nn::nfp::ResultNfcDeviceNotFound</span> や <span class="ApiLink_nn__nfp__ResultNeedRestart">nn::nfp::ResultNeedRestart</span> などのエラーが発生した場合、デバイスハンドルリストの取得、またはタグの検知からやり直す必要があります。この時、エラーの原因が解消されないために API の呼び出しが繰り返してしまうような、API のやり直しが高頻度なループに陥らないようご注意ください。実装の目安としてはゲームフレーム程度の時間を待って API を呼び出すようにしてください。</li>
+  <li>NFP ライブラリの関数にはバックアップデータへのアクセスや NFP タグへのアクセスを行うものがあり、それらの関数を過度に呼び出すことはハードウェアや NFP タグの寿命を縮める原因となります。そのため、ユーザーが意図的に操作を繰り返した場合を除いて、以下の関数を呼び出す頻度が過剰にならないように実装してください。</li>
+</ul>
+<!--table001-->
+<div class="table">
+  <a name="AutoAnchor_165042715_table001"></a>表 8. バックアップデータまたは NFP タグへのアクセスを行う関数</div>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>関数</th>
+      <th>バックアップデータへの書き込み</th>
+      <th>NFP タグへの書き込み</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__nfp__Mount">nn::nfp::Mount</span>()</td>
+      <td>初めてマウントするタグ、または別の機器で書き換えられたタグをマウントした場合</td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__nfp__Restore">nn::nfp::Restore</span>()</td>
+      <td>なし</td>
+      <td>常時</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__nfp__Flush">nn::nfp::Flush</span>()</td>
+      <td>常時</td>
+      <td>常時</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__nfp__CreateApplicationArea">nn::nfp::CreateApplicationArea</span>()</td>
+      <td>常時</td>
+      <td>常時</td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>Switch Pro コントローラーを有線 USB 通信で使用している場合、そのコントローラーは NFP ライブラリで使用できなくなります。<span class="ApiLink_nn__nfp__ListDevices">nn::nfp::ListDevices</span> を呼び出しても、デバイスハンドルは取得できません。</li>
+</ul>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__nfp__ResultNeedRestart', '../../../Api/HtmlNX/classnn_1_1nfp_1_1_result_need_restart.html' )
+SetUrl( 'ApiLink_nn__nfp__ResultNfcDeviceNotFound', '../../../Api/HtmlNX/classnn_1_1nfp_1_1_result_nfc_device_not_found.html' )
+SetUrl( 'ApiLink_nn__nfp__Mount', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#abdc7133c665e6a2414af658d4aed6b9a' )
+SetUrl( 'ApiLink_nn__nfp__Restore', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#a7292375a9a80f936d505ddb20cb74d5e' )
+SetUrl( 'ApiLink_nn__nfp__Flush', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#ade408175b18f37cc322c863e0d3c2129' )
+SetUrl( 'ApiLink_nn__nfp__CreateApplicationArea', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#adf02884c6bcd5dc0b8cc7d55309f2903' )
+SetUrl( 'ApiLink_nn__nfp__ListDevices', '../../../Api/HtmlNX/namespacenn_1_1nfp.html#a8e7488fa2c37e3b7b3c8624699c8ce7e' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

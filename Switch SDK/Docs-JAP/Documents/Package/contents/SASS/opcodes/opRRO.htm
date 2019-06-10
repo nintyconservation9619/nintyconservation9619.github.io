@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>RRO</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    RRO : Range Reduction Operator FP<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Range Reduction Operator FP" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "RRO", subsection => 1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>RRO</b>.mode</code>   <code>Rd,{-}{|}Sb{|}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "RRO" } -->
+
+ .mode:      { <b>.SINCOS, .EX2</b> } 
+             .mode controls SIN/COS or EX2 encoding:
+               SINCOS(0): for SIN or COS
+               EX2(1):    for EX2.
+
+The following source Sb is allowed:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20&lt;&lt;12)
+</pre>
+
+<p>
+Denorm input Sb is flushed to sign preserving 0.0. The source has optional neg/abs.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Range reduction operator.</p>
+<p>
+RRO must be called to reduce the range and encode the source value before
+calling <b>MUFU.SIN</b>/<b>MUFU.COS</b> or <b>MUFU.EX2</b>. Input for SIN/COS is in radians.</p>
+<p>
+<b>SIN/COS</b> Destination encoding:</p>
+<table border=1 summary="SIN/COS Destination Encoding">
+ <tr>
+  <td width="10%"> S:U01</td>
+  <td width="4%"> 0</td>
+  <td width=200> UNUSED:U05</td>
+  <td colspan=2> Quadrant:U02</td>
+  <td width="52%"> Fraction:U23 (of quadrant)</td>
+ </tr>
+ <tr>
+  <td width="10%">  S:U01</td>
+  <td width="4%">  1 </td>
+  <td width=200> UNUSED:U05</td>
+  <td colspan=2>  00:NaN</td>
+  <td width="52%">UNUSED:U23 </td>
+ </tr>
+ <tr>
+  <td width="10%">  S:U01</td>
+  <td width="4%">  1 </td>
+  <td width=200> UNUSED:U05</td>
+  <td colspan=2>  01:Inf</td>
+  <td width="52%"> UNUSED:U23</td>
+ </tr>
+</table>
+
+<ul><li>Sign applies to quadrant and fraction</li>
+    <li>Quadrant is unsigned  2b (CCW from +x,y=0, if positive)</li>
+    <li>Fraction is unsigned 23b (CCW if positive) of the quadrant.</li>
+</ul>
+
+<p>
+<b>EX2</b>:</p>
+<table border=1 summary="EX2 Destination Encoding">
+ <tr>
+  <td width="10%">  S:U01</td>
+  <td width="4%">  0</td>
+  <td colspan=2>   Integer:U07</td>
+  <td width="52%"> Fraction:U23 (of integer)</td>
+ </tr>
+ <tr>
+  <td width="10%">  S:U01</td>
+  <td width="4%">  1</td>
+  <td>             UNUSED:U05</td>
+  <td width="16%"> 00:NaN</td>
+  <td width="52%"> UNUSED:U23</td>
+ </tr>
+ <tr>
+  <td width="10%">  S:U01</td>
+  <td width="4%">  1</td>
+  <td>             UNUSED:U05</td>
+  <td width="16%"> 01:Inf</td>
+  <td width="52%"> UNUSED:U23</td>
+ </tr>
+</table>
+
+<ul><li>Sign applies to integer and fraction</li>
+    <li>Integer  is unsigned  7b (0-127)</li>
+    <li>Fraction is unsigned 23b</li>
+</ul>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>RRO.EX2</b>    R0, R1;
+<b>RRO.SINCOS</b> R1, -c[3][4560];
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

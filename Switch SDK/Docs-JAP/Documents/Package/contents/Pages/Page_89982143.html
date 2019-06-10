@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>既存の Visual C++ プロジェクトで NintendoSDK を使用する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 既存の Visual C++ プロジェクトで NintendoSDK を使用する -->
+<div class="pagetitle" id="PageId_89982143">既存の Visual C++ プロジェクトで NintendoSDK を使用する</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_89982143_h1_1">はじめに</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_89982143_h2_1">このページについて</a>
+      </li>
+      <li>
+        <a href="#Anchor_89982143_h2_2">制限事項</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_89982143_h1_2">プロジェクト構成の設定方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_89982143_h2_3">プロパティ NintendoSdkRoot の定義</a>
+      </li>
+      <li>
+        <a href="#Anchor_89982143_h2_4">プロパティ NintendoSdkSpec の定義</a>
+      </li>
+      <li>
+        <a href="#Anchor_89982143_h2_5">プロパティ NintendoSdkBuildType の定義</a>
+      </li>
+      <li>
+        <a href="#Anchor_89982143_h2_6">プロパティシート Build\Vc\NintendoSdkVcProjectSettings.props のインポート </a>
+      </li>
+      <li>
+        <a href="#Anchor_89982143_h2_7">設定例</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_89982143_h1_3">Windows 用のプロジェクトに NX 開発機用のプロジェクト構成を追加する方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_89982143_h1_4">プロジェクト設定を行うユーティリティ</a>
+    </li>
+    <li>
+      <a href="#Anchor_89982143_h1_5">注意事項</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_89982143_h1_1">はじめに</h1>
+<h2 id="Anchor_89982143_h2_1">このページについて</h2>
+<p>このページでは、既存の Visual C++ プロジェクトにおいて NintendoSDK を使用したアプリケーションやライブラリをビルドするための構成設定の方法について説明します。</p>
+<h2 id="Anchor_89982143_h2_2">制限事項</h2>
+<p>本ページに記載された方法が適用可能な Visual C++ プロジェクトのプロジェクト構成は次の条件をすべて満たしている必要があります。条件を満たさないプロジェクト構成からの NintendoSDK の使用はサポートされていませんのでご注意ください。</p>
+<ul>
+  <li>プラットフォームが以下のいずれかである。<ul><li>Win32</li><li>x64</li></ul></li>
+  <li>構成の種類が以下のいずれかである。<ul><li>アプリケーション (.exe)</li><li>スタティック ライブラリ (.lib)</li></ul></li>
+  <li>プラットフォーム ツールセットが以下のいずれかである。<br /><ul><li>Visual Studio 2015 (v140)</li><li>Visual Studio 2017 (v141)</li></ul></li>
+</ul>
+<h1 id="Anchor_89982143_h1_2">プロジェクト構成の設定方法</h1>
+<p>既存の Visual C++ プロジェクトで NintendoSDK を使用するためには、プロジェクト構成ごとに下記の 4 つの設定が必要です。</p>
+<ol>
+  <li>プロパティ NintendoSdkRoot の定義</li>
+  <li>プロパティ NintendoSdkSpec の定義</li>
+  <li>プロパティ NintendoSdkBuildType の定義</li>
+  <li>プロパティシート Build\Vc\NintendoSdkVcProjectSettings.props のインポート</li>
+</ol>
+<h2 id="Anchor_89982143_h2_3">プロパティ NintendoSdkRoot の定義</h2>
+<p>NintendoSdkRoot は、プロジェクトで使用する NintendoSDK のパスを指定するためのプロパティです。 NintendoSdkRoot の値に NintendoSDK ディレクトリのパスを設定してください。</p>
+<h2 id="Anchor_89982143_h2_4">プロパティ NintendoSdkSpec の定義</h2>
+<p>NintendoSdkSpec は、プロジェクトで使用する NintendoSDK の API セットを指定するためのプロパティです。</p>
+<p>共通パッケージを使用している場合、このプロパティの値は汎用 API セットを意味する <em>Generic</em> でなければなりません。</p>
+<div class="platform_nx">
+  <p>NX Addon パッケージを使用している場合、プロパティの値として NX API セットを意味する <em>NX</em> を使用することができます。NX 開発機環境、またはその Windows 互換環境向けにビルドを行う場合は <em>NX</em> を選択してください。</p>
+</div>
+<!--Remove-->
+<h2 id="Anchor_89982143_h2_5">プロパティ NintendoSdkBuildType の定義</h2>
+<p>NintendoSdkBuildType は、プロジェクトで使用する NintendoSDK のビルドタイプを指定するためのプロパティです。詳細は <a href="../Pages/Page_106361459.html">ビルドターゲットとビルドタイプ</a> を参照してください。</p>
+<p>使用可能な値は以下のいずれかです。</p>
+<ul>
+  <li>Debug</li>
+  <li>Develop</li>
+  <li>Release</li>
+</ul>
+<h2 id="Anchor_89982143_h2_6">プロパティシート Build\Vc\NintendoSdkVcProjectSettings.props のインポート <a name="Anchor_89982143_NintendoSdkVcProjectSettings"></a></h2>
+<p>NintendoSdkVcProjectSettings.props は、NintendoSDK を使用するために必要な各種ビルド設定を定義するプロパティシートです。このプロパティシートは、NintendoSDK パッケージ内の下記のディレクトリに配置されています。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>Build\Vc\NintendoSdkVcProjectSettings.props</pre>
+  </div>
+</div>
+<p>プロパティ NintendoSdkRoot, NintendoSdkSpec, NintendoSdkBuildType を定義したうえで、このプロパティシートをプロジェクトファイルからインポートしてください。</p>
+<h2 id="Anchor_89982143_h2_7">設定例</h2>
+<p>プロパティの定義例、及びプロパティシートのインポート例を以下に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;Project</span> <span class="na">ToolsVersion=</span><span class="s">&quot;4.0&quot;</span> <span class="na">xmlns=</span><span class="s">&quot;http://schemas.microsoft.com/developer/msbuild/2003&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;PropertyGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;NintendoSdkRoot&gt;</span>$(NINTENDO_SDK_ROOT)<span class="nt">&lt;/NintendoSdkRoot&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;NintendoSdkSpec&gt;</span>Generic<span class="nt">&lt;/NintendoSdkSpec&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;NintendoSdkBuildType</span> <span class="na">Condition=</span><span class="s">&quot;'$(Configuration)'=='Debug'&quot;</span><span class="nt">&gt;</span>Debug<span class="nt">&lt;/NintendoSdkBuildType&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;NintendoSdkBuildType</span> <span class="na">Condition=</span><span class="s">&quot;'$(Configuration)'=='Release'&quot;</span><span class="nt">&gt;</span>Release<span class="nt">&lt;/NintendoSdkBuildType&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/PropertyGroup&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;Import</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">Project=</span><span class="s">&quot;$(NintendoSdkRoot)\Build\Vc\NintendoSdkVcProjectSettings.props&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">Condition=</span><span class="s">&quot;('$(NintendoSdkRoot)' != '') and Exists('$(NintendoSdkRoot)\Build\Vc\NintendoSdkVcProjectSettings.props')&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Project&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="platform_nx">
+  <h1 id="Anchor_89982143_h1_3">Windows 用のプロジェクトに NX 開発機用のプロジェクト構成を追加する方法</h1>
+  <p>NintendoSDK VSI for NX をインストールした Visual Studio では、プロジェクトプラットフォームとして NX32 及び NX64 という値が選択できるようになります。これらはそれぞれ NX 開発機用の 32bit バイナリ及び 64bit バイナリをビルドするためのプラットフォームです。</p>
+  <p>既存の Visual C++ プロジェクトに NX 開発機用のプロジェクト構成を追加するには、Visual Studio の構成マネージャーを使用して NX32 及び NX64 プラットフォームをプロジェクトに追加してください。NintendoSDK のビルドシステムを使用してこれらのプラットフォームのビルドを行うための設定方法は、前章の設定方法と同じです。すなわち、プロジェクト構成ごとに以下の 4 つの設定が必要です。</p>
+  <ol>
+    <li>プロパティ NintendoSdkRoot の定義</li>
+    <li>プロパティ NintendoSdkSpec の定義</li>
+    <li>プロパティ NintendoSdkBuildType の定義</li>
+    <li>プロパティシート Build\Vc\NintendoSdkVcProjectSettings.props のインポート</li>
+  </ol>
+  <p>ただし、NintendoSdkSpec の値としては必ず <em>NX</em> を選択してください。</p>
+  <p>より具体的な設定方法を <a href="../Pages/Page_107781939.html">既存の Visual C++ プロジェクトに NX 開発機用のプラットフォームを追加する</a> のページにチュートリアル形式で掲載していますので、あわせてお読みください。</p>
+  <div class="info_new">
+    <div class="info_new_left">参考：</div>
+    <div class="info_new_right">
+      <p>NX 開発機用のプロジェクト構成で正常にビルドが行えない場合は、プロジェクト構成に Windows 環境用のビルド設定が含まれていないことを確認してください。特に、下記のような点に注意が必要です。</p>
+      <ul>
+        <li>プリプロセッサマクロ、インクルードディレクトリ、ライブラリディレクトリ等が NX 開発機用の設定になっていることを確認してください。</li>
+        <li>NintendoSDK が提供するライブラリファイルの構成は Windows 環境と開発機環境とで異なっています。両環境で提供されるライブラリについては <a href="../Pages/Page_95685382.html">ライブラリの提供形態と利用方法</a> を参照してください。</li>
+        <li>NX 開発機環境用の静的ライブラリファイルの拡張子は .a です。Windows 環境用の .lib とは異なりますのでご注意ください。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<h1 id="Anchor_89982143_h1_4">プロジェクト設定を行うユーティリティ</h1>
+<p>NintendoSDK のビルドシステムでは、前述のプロジェクト設定を行うユーティリティとして NintendoSDK 構成マネージャを提供しています。</p>
+<p>NintendoSDK 構成マネージャは、前述のプロジェクト設定を行うための Visual Studio 拡張機能です。</p>
+<p>導入方法や使い方については&nbsp;<a href="../Pages/Page_126573838.html">NintendoSDK 構成マネージャ</a>&nbsp;を参照してください。また&nbsp;<a href="../Pages/Page_107783427.html">既存の Visual C++ プロジェクトに NintendoSDK 用の構成を追加する</a>&nbsp;に具体的な操作手順をチュートリアル形式で掲載していますので、あわせてお読みください。</p>
+<h1 id="Anchor_89982143_h1_5">注意事項</h1>
+<p>NintendoSDK が使用する Visual C++ ランタイムは <a href="../Pages/Page_106361459.html">ビルドターゲットとビルドタイプ</a> に記載しています。使用する Visual C++ ランタイムを一致させるようにしてください。また、デバッグバージョンの Visual C++ ランタイムを使用する場合は _DEBUG マクロを定義する必要があります。リリースバージョンの Visual C++ ランタイムを使用する場合には _DEBUG マクロを定義してはなりません。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

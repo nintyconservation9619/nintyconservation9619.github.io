@@ -1,0 +1,315 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>GPU が参照するメモリの管理について</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- GPU が参照するメモリの管理について -->
+<div class="pagetitle" id="PageId_107345117">GPU が参照するメモリの管理について</div>
+<div class="text_separate">
+<h1 id="Anchor_107345117_h1_1">GPU が参照するメモリの管理について</h1>
+<p>font / layout ライブラリで GPU から参照される頂点バッファやコンスタントバッファのメモリ(<strong>GPU バッファ</strong>)の管理について説明します。</p>
+<h2 id="Anchor_107345117_h2_1">GPU バッファ管理のための仕組み</h2>
+<p>font / layout ライブラリで GPU バッファを管理するために <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> クラスを使用します。<br />このクラスは <span class="ApiLink_nn__gfx__Buffer">nn::gfx::Buffer</span> を内包しており、<span class="ApiLink_nn__gfx__Buffer">nn::gfx::Buffer</span> 内での使用領域の管理や <span class="ApiLink_nn__gfx__Buffer">nn::gfx::Buffer</span> を切り替えることによるマルチバッファリングというような機能をもっています。</p>
+<h4 id="Anchor_107345117_h4_1">nn::font::GpuBuffer の処理の流れ</h4>
+<ol>
+  <li>
+    <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> が管理する <span class="ApiLink_nn__gfx__MemoryPool">nn::gfx::MemoryPool</span> を作成します。</li>
+  <li>
+    <span class="ApiLink_nn__font__GpuBuffer__Initialize">nn::font::GpuBuffer::Initialize</span> へ <span class="ApiLink_nn__gfx__MemoryPool">nn::gfx::MemoryPool</span> を渡して初期化します。<ul><li>このときメモリプールオフセットを指定する事でひとつの <span class="ApiLink_nn__gfx__MemoryPool">nn::gfx::MemoryPool</span> を複数の GpuBuffer で使用することができます。</li></ul></li>
+  <li>(ここからメインループ中の処理)</li>
+  <li>
+    <span class="ApiLink_nn__font__GpuBuffer__Map">nn::font::GpuBuffer::Map</span> で書き込み準備を行います。<ul><li>引数のバッファインデックスでデータを更新するバッファを指定することが出来ます。</li></ul></li>
+  <li>GpuBuffer を更新するための API を呼び出します。<ul><li>font であれば BuildConstantBuffer で&nbsp;<span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> からメモリを確保して必要なデータを書き込みます。</li><li>ui2d であれば CalculateMtx 呼び出しで <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> からメモリを確保してデータを書き込みます。</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__font__GpuBuffer__Unmap">nn::font::GpuBuffer::Unmap</span> で書き込み処理を終了します。</li>
+  <li>
+    <span class="ApiLink_nn__font__GpuBuffer__SetGpuAccessIndex">nn::font::GpuBuffer::SetGpuAccessIndex</span> で描画時に GPU が参照するバッファのインデックスを指定します。</li>
+  <li>描画処理を行います。</li>
+  <li>(ここまでメインループ中の処理)</li>
+  <li>
+    <span class="ApiLink_nn__font__GpuBuffer__Finalize">nn::font::GpuBuffer::Finalize</span> で終了処理を行います。</li>
+  <li>
+    <span class="ApiLink_nn__gfx__MemoryPool">nn::gfx::MemoryPool</span> を破棄します。</li>
+</ol>
+<p>バッファの Map/Unmap やバッファの切り替え処理はアプリケーションの都合に応じて任意の実装にすることが出来るため、バッファの更新タイミングを柔軟にコントロールすることが出来ます。</p>
+<h4 id="Anchor_107345117_h4_2">
+  <span style="color: rgb(51,51,51);">Font ライブラリ</span>
+</h4>
+<p>Font ライブラリではコンスタントバッファのために GPU バッファを使用します。<br />ライブラリが使用する GPU バッファ用の <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> はアプリケーションが作成・管理する必要があります。</p>
+<h3 id="Anchor_107345117_h3_1">コンスタントバッファの運用方法</h3>
+<p>font ライブラリでは <span class="ApiLink_nn__font__DispStringBuffer__BuildConstantBuffer">nn::font::DispStringBuffer::BuildConstantBuffer</span> で必要な値をコンスタントバッファに書き込みます。</p>
+<p>更新処理の一連の流れを下記に疑似コードで示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// コンスタントバッファを更新するために Map する。
+// 下記のコードではマルチバッファリングのために Map するバッファをフレームによって切り替えている。
+</span><span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">Map</span><span class="p">(</span><span class="n">g_FrameCount</span> <span class="o">%</span> <span class="n">g_ConstantBufferCount</span><span class="p">);</span>
+ 
+<span class="c1">// コンスタントバッファへ値を書き込む。
+</span><span class="n">g_DispStringBuffer</span><span class="p">.</span><span class="n">BuildConstantBuffer</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Projection</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">additionalContent</span><span class="p">);</span>
+ 
+<span class="c1">// コンスタントバッファの更新が終了したので Unmap する。
+</span><span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">Unmap</span><span class="p">();</span>
+ 
+<span class="c1">// GPU が描画の際に参照するバッファのインデックスを設定する。
+// 下記のコードではこのフレームで書き込んだバッファを参照するように設定しています。
+</span><span class="n">g_ConstantBuffer</span><span class="p">.</span><span class="n">SetGpuAccessBufferIndex</span><span class="p">(</span><span class="n">g_FrameCount</span> <span class="o">%</span> <span class="n">g_ConstantBufferCount</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__font__DispStringBuffer__BuildConstantBuffer">nn::font::DispStringBuffer::BuildConstantBuffer</span> の呼び出し前に <span class="ApiLink_nn__font__GpuBuffer__Map">nn::font::GpuBuffer::Map</span> を呼び出してバッファを書き込み可能な状態にしておく必要があります。</p>
+<h3 id="Anchor_107345117_h3_2">ライブラリが必要とするバッファサイズの計算方法</h3>
+<p>ライブラリが必要とするバッファは以下のメソッドにて取得することができます。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__font__DispStringBuffer__GetRequiredConstantBufferSize">nn::font::DispStringBuffer::GetRequiredConstantBufferSize</span>
+  </li>
+</ul>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::font::DispStringBuffer::</span><span class="n">InitializeArg</span> <span class="n">initializeArg</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 以下の設定がコンスタントバッファの必要サイズに影響します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">initializeArg</span><span class="p">.</span><span class="n">SetCharCountMax</span><span class="p">(</span> <span class="n">CharCount</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">initializeArg</span><span class="p">.</span><span class="n">SetShadowEnabled</span><span class="p">(</span> <span class="nb">false</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">initializeArg</span><span class="p">.</span><span class="n">SetPerCharacterTransformEnabled</span><span class="p">(</span> <span class="nb">false</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">initializeArg</span><span class="p">.</span><span class="n">SetDoubleDrawnBorder</span><span class="p">(</span> <span class="nb">false</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">size_t</span> <span class="n">constantBufferSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="nn">nn::font::DispStringBuffer::</span><span class="n">GetRequiredConstantBufferSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">initializeArg</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらのメソッドから取得した値とマルチバッファリングの数(ダブルバッファリングであれば 2、トリプルバッファリングであれば 3)をかけた値が必要なバッファサイズとなります。&nbsp;</p>
+<p>
+  <span class="ApiLink_nn__gfx__MemoryPool">nn::gfx::MemoryPool</span> を作成する際はこれら情報に基づいて、必要なサイズを確保するようにしてください。<br /><br /></p>
+<h2 id="Anchor_107345117_h2_2">Layout ライブラリ</h2>
+<p>Layout ライブラリでは以下の 2 つの種類のデータのために GPU バッファを使用します。</p>
+<ul>
+  <li>Layout ライブラリ用コンスタントバッファ</li>
+  <li>font ライブラリ用コンスタントバッファ</li>
+</ul>
+<p>これらの GPU バッファ用の <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span>&nbsp;はライブラリを使用するアプリケーションが作成して <span class="ApiLink_nn__ui2d__DrawInfo">nn::ui2d::DrawInfo</span>&nbsp;へ設定する必要があります。</p>
+<h3 id="Anchor_107345117_h3_3">各種バッファの運用方法</h3>
+<p>
+  <br />
+</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_107345117/125193448.png" width="500" alt="GpuBfferUsage" title="GpuBfferUsage" class="embedded-image" />
+  </span>
+</p>
+<p>Layout ライブラリは <span class="ApiLink_nn__ui2d__CalculateMtx">nn::ui2d::CalculateMtx</span> を呼び出した際に、そのレイアウトデータを描画するために使用するコンスタントバッファを <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> から確保してデータを書き込みます。（上図）<br />これには ui2d 内で使用されている font 用のコンスタントバッファも含まれます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 各種バッファを更新するために DrawInfo が保持している GpuBuffer を Map する。
+</span><span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">Map</span><span class="p">(</span><span class="n">g_Ui2dConstantBufferIndex</span><span class="p">);</span>
+<span class="c1">// g_pLayout に設定されているデータを描画するための更新処理を行う。
+// この処理の中で GpuBuffer からメモリを確保してコンスタントバッファのデータを書き込みます。
+</span><span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">CalculateMtx</span><span class="p">(</span><span class="n">g_DrawInfo</span><span class="p">);</span>
+<span class="c1">// バッファの更新が完了したため GpuBuffer を Unmap する。
+</span><span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">Unmap</span><span class="p">();</span>
+<span class="c1">// 描画時に GPU が参照するバッファのインデックスをこのフレームで更新したバッファに設定する。
+</span><span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">SetGpuAccessBufferIndex</span><span class="p">(</span><span class="n">g_Ui2dConstantBufferIndex</span><span class="p">);</span>
+<span class="c1">// 描画コマンドをコマンドバッファへ設定する。
+</span><span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="n">g_DrawInfo</span><span class="p">,</span> <span class="n">g_CommandBuffer</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+  <span class="ApiLink_nn__ui2d__CalculateMtx">nn::ui2d::CalculateMtx</span> の呼び出し前に <span class="ApiLink_nn__ui2d__DrawInfo__Map">nn::ui2d::DrawInfo::Map</span> を呼び出してバッファを書き込み可能な状態にしておく必要があります。</p>
+<h3 id="Anchor_107345117_h3_4">各種バッファ用 GPU メモリの必要量の計算方法</h3>
+<p>１つのレイアウトデータを描画するために必要なコンスタントバッファ用の GPU バッファの必要量を取得するには <span class="ApiLink_nn__ui2d__Layout__Build">nn::ui2d::Layout::Build</span> メソッドで収集される <span class="ApiLink_nn__ui2d__BuildResultInfomation">nn::ui2d::BuildResultInfomation</span> を参照します。<br />この構造体に&nbsp;<span class="ApiLink_nn__ui2d__Layout__Build">nn::ui2d::Layout::Build</span> メソッドを呼び出したデータを表示するために必要な各種バッファのサイズが含まれています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// レイアウトデータをセットアップして、必要なバッファサイズを収集します。
+</span><span class="nn">nn::ui2d::</span><span class="n">BuildResultInfomation</span>   <span class="n">buildResultInfomation</span><span class="p">;</span>
+<span class="n">buildResultInfomation</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+
+<span class="n">pLayout</span><span class="o">-&gt;</span><span class="n">BuildWithName</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">buildResultInfomation</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResourceAccessor</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">NULL</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">NULL</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">option</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">&quot;simple.bflyt&quot;</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記はひとつのデータを表示するために必要なサイズのため、同時に複数のレイアウトデータを表示したい場合はそれらで使用するサイズをすべて合計した大きさのバッファを作成する必要があります。<br />ただし <span class="ApiLink_nn__font__GpuBuffer">nn::font::GpuBuffer</span> からメモリを確保するのはあくまで<strong>&nbsp;<span class="ApiLink_nn__ui2d__CalculateMtx">nn::ui2d::CalculateMtx</span> を呼び出されたレイアウトデータのみ</strong>です。<br />同一フレームの処理で表示されるレイアウトデータの組み合わせにより変動しますのでアプリケーションの都合によりサイズを調整してください。</p>
+<h4 id="Anchor_107345117_h4_3">動的にペインを追加した場合の GPU メモリ必要量</h4>
+<p>上記の「各種バッファ用 GPU メモリの必要量の計算方法」で説明した必要 GPU バッファのサイズはレイアウトデータをそのまま表示する際に必要なバッファのサイズです。<br /><strong>動的に追加や変更されたペインを表示するために必要な GPU メモリのサイズは含まれていないためご注意ください。</strong>&nbsp;</p>
+<p>以下のケースが該当します。</p>
+<ul>
+  <li>ユーザーが独自に Picture ペインを作成しレイアウトデータに親子関係をつけるなど関連付けた。</li>
+  <li>ユーザーが独自に Window ペインを作成しレイアウトデータに親子関係をつけるなど関連付けた。</li>
+  <li>ユーザーが独自に TextBox ペインを作成しレイアウトデータに親子関係をつけるなど関連付けた。</li>
+  <li>TextBox でデータに含まれる文字列とは違う文字列を表示するために <span class="ApiLink_nn__ui2d__TextBox__AllocateStringBuffer">nn::ui2d::TextBox::AllocateStringBuffer</span> を呼び出して表示可能な文字数を変更した。</li>
+</ul>
+<p>以下にそれぞれのペインが消費するコンスタントバッファのサイズを表します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th>コンスタントバッファ</th>
+    </tr>
+    <tr>
+      <th>nn::ui2d::Picture</th>
+      <td>
+        <ul>
+          <li>基本マテリアル<ul><li>sizeof(<span class="ApiLink_nn__ui2d__Material__ConstantBufferForVertexShader">nn::ui2d::Material::ConstantBufferForVertexShader</span>)</li><li>sizeof(<span class="ApiLink_nn__ui2d__">nn::ui2d::</span>Material::ConstantBufferForPixelShader)</li><li><span class="ApiLink_nn__ui2d__Picture__CalculateMtx">nn::ui2d::Picture::CalculateMtx</span> で <span class="ApiLink_nn__ui2d__Material__AllocateConstantBuffer">nn::ui2d::Material::AllocateConstantBuffer</span> がメモリ確保のためのコードです。</li></ul></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>nn::ui2d::Window</th>
+      <td>
+        <ul>
+          <li>基本マテリアル<ul><li>sizeof(<span class="ApiLink_nn__ui2d__">nn::ui2d::</span>Material::ConstantBufferForVertexShader)</li><li>sizeof(<span class="ApiLink_nn__ui2d__">nn::ui2d::</span>Material::ConstantBufferForPixelShader)</li><li><span class="ApiLink_nn__ui2d__Window__CalculateMtx">nn::ui2d::Window::CalculateMtx</span> で <span class="ApiLink_nn__ui2d__Material__AllocateConstantBuffer">nn::ui2d::Material::AllocateConstantBuffer</span> がメモリ確保のためのコードです。</li></ul></li>
+          <li>フレーム用マテリアル<ul><li>フレームがある場合は上記のセットが追加でフレーム数分必要です。</li></ul></li>
+          <li>ウインドウ左上マテリアル共有エミュレーション<ul><li>sizeof(<span class="ApiLink_nn__ui2d__">nn::ui2d::</span>Material::ConstantBufferForVertexShader) をフレームモードに応じて 1 つか 3 つ必要です。</li><li><span class="ApiLink_nn__ui2d__Window__InitializeUseLeftTopMaterialEmulation">nn::ui2d::Window::InitializeUseLeftTopMaterialEmulation</span> に関連コードが存在します。</li></ul></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>nn::ui2d::TextBox</th>
+      <td>
+        <ul>
+          <li>基本情報<br /><ul><li>通常は sizeof(<span class="ApiLink_nn__font__DispStringBuffer__ShaderParam">nn::font::DispStringBuffer::ShaderParam</span>) ですが、フチ描画を使用すると倍のサイズが必要です。</li></ul></li>
+          <li>文字単位情報<ul><li>通常文字列は sizeof(<span class="ApiLink_nn__font__detail__VertexShaderCharAttribute">nn::font::detail::VertexShaderCharAttribute</span>)<br />文字単位の行列変換を行う場合は sizeof(<span class="ApiLink_nn__font__detail__VertexShaderCharAttributeWithTransform">nn::font::detail::VertexShaderCharAttributeWithTransform</span>)。<br />上記のサイズに表示する文字数をかけたサイズが必要です。&nbsp;</li></ul></li>
+          <li>
+            <span class="ApiLink_nn__font__DispStringBuffer__GetRequiredConstantBufferSize">nn::font::DispStringBuffer::GetRequiredConstantBufferSize</span>() に計算コードが存在します。</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>なお、アライメントを揃える必要があるため、上記の表のサイズをコンスタントバッファのアライメントで調整した値が必要サイズとなります。</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__font__GpuBuffer', '../../../Api/HtmlNX/classnn_1_1font_1_1_gpu_buffer.html' )
+SetUrl( 'ApiLink_nn__gfx__Buffer', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85' )
+SetUrl( 'ApiLink_nn__gfx__MemoryPool', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5' )
+SetUrl( 'ApiLink_nn__font__GpuBuffer__Initialize', '../../../Api/HtmlNX/classnn_1_1font_1_1_gpu_buffer.html#afad85cf1e04cf213745a9ebac5ad0dbb' )
+SetUrl( 'ApiLink_nn__font__GpuBuffer__Map', '../../../Api/HtmlNX/classnn_1_1font_1_1_gpu_buffer.html#a27323229b032ac7bfe206e047527bbf3' )
+SetUrl( 'ApiLink_nn__font__GpuBuffer__Unmap', '../../../Api/HtmlNX/classnn_1_1font_1_1_gpu_buffer.html#aae5d4be63b373546581015fc92adfaf7' )
+// ApiLink_nn__font__GpuBuffer__SetGpuAccessIndex
+SetUrl( 'ApiLink_nn__font__GpuBuffer__Finalize', '../../../Api/HtmlNX/classnn_1_1font_1_1_gpu_buffer.html#afe03d966c5c9692a07e2369225881af9' )
+SetUrl( 'ApiLink_nn__font__DispStringBuffer__BuildConstantBuffer', '../../../Api/HtmlNX/classnn_1_1font_1_1_disp_string_buffer.html#a8dc1f9538299401654a2d834c33fbbe3' )
+SetUrl( 'ApiLink_nn__font__DispStringBuffer__GetRequiredConstantBufferSize', '../../../Api/HtmlNX/classnn_1_1font_1_1_disp_string_buffer.html#a8942fef997ae2ca87ed0c71f1d1b3e8c' )
+SetUrl( 'ApiLink_nn__ui2d__DrawInfo', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_draw_info.html' )
+// ApiLink_nn__ui2d__CalculateMtx
+SetUrl( 'ApiLink_nn__ui2d__DrawInfo__Map', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_draw_info.html#a766bb7a246a224021e2121f0c223c3ad' )
+SetUrl( 'ApiLink_nn__ui2d__Layout__Build', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_layout.html#a9425160676571060fde40546763213c3' )
+// ApiLink_nn__ui2d__BuildResultInfomation
+SetUrl( 'ApiLink_nn__ui2d__TextBox__AllocateStringBuffer', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_text_box.html#a62100f4aca4a2f7f3492b247608aa74d' )
+// ApiLink_nn__ui2d__Material__ConstantBufferForVertexShader
+SetUrl( 'ApiLink_nn__ui2d__', '../../../Api/HtmlNX/namespacenn_1_1ui2d.html' )
+// ApiLink_nn__ui2d__Picture__CalculateMtx
+SetUrl( 'ApiLink_nn__ui2d__Material__AllocateConstantBuffer', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_material.html#a8b05c7207ff75558d49ddb5beb0ea2b1' )
+// ApiLink_nn__ui2d__Window__CalculateMtx
+// ApiLink_nn__ui2d__Window__InitializeUseLeftTopMaterialEmulation
+// ApiLink_nn__font__DispStringBuffer__ShaderParam
+SetUrl( 'ApiLink_nn__font__detail__VertexShaderCharAttribute', '../../../Api/HtmlNX/structnn_1_1font_1_1detail_1_1_vertex_shader_char_attribute.html' )
+SetUrl( 'ApiLink_nn__font__detail__VertexShaderCharAttributeWithTransform', '../../../Api/HtmlNX/structnn_1_1font_1_1detail_1_1_vertex_shader_char_attribute_with_transform.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

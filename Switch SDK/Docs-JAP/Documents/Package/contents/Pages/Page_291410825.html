@@ -1,0 +1,509 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ボーン圧縮</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ボーン圧縮 -->
+<div class="pagetitle" id="PageId_291410825">ボーン圧縮</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_291410825_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_291410825_h1_2">Cull ボーン圧縮</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_291410825_h2_1">アルゴリズム</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_2">特定のボーンを削除したくない場合</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_291410825_h1_3">Merge ボーン圧縮</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_291410825_h2_3">アルゴリズム</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_4">ボーンを残したい場合</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_5">注意事項</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_291410825_h1_4">Unite Child ボーン圧縮</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_291410825_h2_6">アルゴリズム</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_7">注意事項</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_291410825_h1_5">Unite ボーン圧縮</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_291410825_h2_8">アルゴリズム</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_9">注意事項</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_291410825_h1_6">Unite All ボーン圧縮</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_291410825_h2_10">アルゴリズム</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_11">注意事項</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_291410825_h1_7">ボーン圧縮方式選択のヒント</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_291410825_h2_12">各方式の特徴一覧</a>
+      </li>
+      <li>
+        <a href="#Anchor_291410825_h2_13">圧縮方式選択のフローチャート</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_291410825_h1_1">概要</h1>
+<p>ボーン圧縮は描画に不必要なボーンを削除、または結合を行う最適化です。この最適化により、バイナリーサイズを小さくして消費メモリーを節約、または描画時の演算コストを軽減できます。中間ファイルオプティマイザーを使ってモデル中間ファイルに対してボーン圧縮を適用できます。詳しい利用方法は<a href="../Pages/Page_83955705.html">中間ファイルオプティマイザー</a>を参照してください。</p>
+<p>このページでは各ボーン圧縮方式のアルゴリズムや注意点について解説します。</p>
+<h1 id="Anchor_291410825_h1_2">Cull ボーン圧縮</h1>
+<p>ボーン構造の末端に位置して、モデルの描画に関係の無いボーンを間引く圧縮です。Cull ボーン圧縮は、不均等スケール(x, y, z が同じ値ではないスケール)を設定するキャラクターモデルに使用します。</p>
+<h2 id="Anchor_291410825_h2_1">アルゴリズム</h2>
+<p>末端ボーンから親ボーンへ向かって、以下の条件に当てはまるボーンを削除します。</p>
+<ul>
+  <li>子ボーンを持たない</li>
+  <li>ボーンが削減可能 (compress_enable=&quot;true&quot;)</li>
+  <li>ボーンの行列をモデルの描画に使用していない(rigid_body=&quot;false&quot; かつ matrix_index=&quot;-1 -1&quot;)</li>
+</ul>
+<p>削除するボーンを参照しているシェイプは、ルートボーンを参照するように変更します。削除できるボーンがなくなるまで、繰り返し末端ボーンを削除します。最後に、ルートボーンの名称が DCC プラグインによりつけられた nw4f_root という名前であり、かつ nw4f_root が子ボーンをひとつしか持たない場合、nw4f_root を削除します。その際、nw4f_root を参照しているシェイプは、子ボーンを参照するように変更します。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_1.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_2.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_291410825_h2_2">特定のボーンを削除したくない場合</h2>
+<p>モデルの描画に使用しないが削除したくないボーンは、DCC ツール上でボーンの compress_enable を false にします。設定方法については、各 DCC プラグインのヘルプを参照してください。</p>
+<p>Cull ボーン圧縮を行うには fmd, fsk, fvb ファイルに対して、--compress-bone-cull オプションを指定してください。</p>
+<h1 id="Anchor_291410825_h1_3">Merge ボーン圧縮</h1>
+<p>Cull ボーン圧縮の処理に加え、ボーン構成の中で描画に不要なボーンをその親もしくは子ボーンと合成してひとつのボーンにまとめ、Cull ボーン圧縮よりもさらにボーン数を少なくします。ただし、モデルによっては、アニメーションデータが大きくなる場合もあります。Merge ボーン圧縮は、均等スケール(x, y, z が同じ値のスケール)のみを設定するキャラクターモデルに使用します。</p>
+<h2 id="Anchor_291410825_h2_3">アルゴリズム</h2>
+<p>Cull ボーン圧縮の処理を行い、不要な末端ボーンを削除します。ルートボーンから順にボーン構成をたどり、以下の条件に該当する二つのボーンがあればひとつにまとめます。</p>
+<ul>
+  <li>親と子の関係にある</li>
+  <li>親ボーンが削減可能 （compress_enable=&quot;true&quot;）</li>
+  <li>親ボーンの行列がモデルの描画に使われていない（rigid_body=&quot;false&quot; かつ matrix_index=&quot;-1 -1&quot;）</li>
+</ul>
+<p>ボーンをひとつにする際、二つのボーンの行列を乗算した行列から、新たに Scale, Rotate, Translate を算出します。 親ボーンが複数の子ボーンを持っている場合、それぞれの子ボーンに対して同様の処理を行います。削除できるボーンがなくなるまで、上記の処理を繰り返し行います。最後に、ルートとなるボーンが子ボーンをひとつしか持たず、削減可能で行列がモデルの描画に使われていない場合、そのボーンを削除します。 その際、ボーンを参照していたシェイプは子ボーンを参照するように変更します。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_3.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_4.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_291410825_h2_4">ボーンを残したい場合</h2>
+<p>モデルの描画には使われないものの削除してほしくないボーンに対しては、compress_enable を false にしてください。</p>
+<h2 id="Anchor_291410825_h2_5">注意事項</h2>
+<p>この最適化で合成されるボーンは以下の制限を守らなければなりません。この制限が守られていないとモデルが正しく表示されない場合があります。</p>
+<ul>
+  <li>子を持つボーンに非均一な（スケール x, y, z が同じ値になっていない）スケールを設定してはいけません。</li>
+  <li>まとめられるボーンは scale_compensate が false でなければなりません。scale_compensate が true の場合には、統合後の値は false に変更します。</li>
+  <li>fsk ファイルの圧縮で binarize_scale、binarize_rotate、binarize_translate 属性が false の &lt;bone_anim&gt; を圧縮するとエラーになり動作を中断します。</li>
+</ul>
+<p>Merge ボーン圧縮を行うには fmd, fsk, fvb ファイルに対して、--compress-bone-merge オプションを指定してください。</p>
+<h1 id="Anchor_291410825_h1_4">Unite Child ボーン圧縮</h1>
+<p>末端に位置するポリゴンを保持したボーンをひとつにまとめる方法です。 Cull ボーン圧縮もしくは Merge ボーン圧縮と併用することもできます。Unite Child ボーン圧縮は、リジッドボディーのパーツを持つキャラクターモデルに使用します。</p>
+<h2 id="Anchor_291410825_h2_6">アルゴリズム</h2>
+<p>末端ボーンから親ボーンへ向かって compress_enable が false になっているボーンを探索します。 compress_enable が false のボーン（ボーンＡとします）が見つかり、かつボーンＡより子階層に位置するすべてのボーンが以下の条件に当てはまれば、ボーンＡより下のすべてのボーンを削除します。</p>
+<ul>
+  <li>ボーンを削除することが可能 （compress_enable=&quot;true&quot;）。</li>
+  <li>ボーンにスキニングのウェイトが付けられていない （matrix_index=&quot;-1 -1&quot;）。</li>
+</ul>
+<p>削除されるボーンを参照しているシェイプがあれば、そのシェイプがボーンＡを参照するように変更します。 その際、座標系が変わるため、頂点位置座標や法線ベクトルが変化します。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_5.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_6.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_291410825_h3_1">Cull ボーン圧縮と併用した場合</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_7.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_8.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_291410825_h3_2">Merge ボーン圧縮と併用した場合</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_9.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_10.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_291410825_h2_7">注意事項</h2>
+<ul>
+  <li>fsk ファイルの圧縮で binarize_scale、binarize_rotate、binarize_translate 属性が false の &lt;bone_anim&gt; を圧縮するとエラーになり動作を中断します。</li>
+</ul>
+<p>Unite Child ボーン圧縮を行うには fmd, fsk, fvb ファイルに対して、--compress-bone-unite-child オプションを指定してください。</p>
+<h1 id="Anchor_291410825_h1_5">Unite ボーン圧縮</h1>
+<p>圧縮可能なボーンをまとめる方法です。<br />圧縮可能なボーンは上位階層の圧縮禁止のボーンにまとめられます。圧縮禁止のボーンは削除されずに残り、スケルタルアニメーション、ボーンビジビリティーアニメーションを維持します。ただし、スキニングとの併用はできません。</p>
+<p class="note">Unite ボーン圧縮は、スケルタルアニメーションを一部に適用する地形データに使用します。</p>
+<h2 id="Anchor_291410825_h2_8">アルゴリズム</h2>
+<ul>
+  <li>ボーン圧縮後はルートボーンと圧縮禁止（compress_enable = &quot;false&quot;）が設定されたボーンだけが残ります。</li>
+  <li>圧縮可能（compress_enable = &quot;true&quot;）なボーンを参照しているシェイプは、ボーン階層の上位にある圧縮禁止のボーンを参照するように変更します。 上位に圧縮禁止のボーンが無い場合はルートボーンを参照するように変更します。</li>
+  <li>圧縮可能なボーンの座標変換とキャラクタアニメーションは下位階層の圧縮禁止のボーンに合成します(Merge ボーン圧縮と同様の処理を行います)。</li>
+  <li>圧縮禁止のボーンを参照しているシェイプは変更されません。</li>
+</ul>
+<p>
+  <br />
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_11.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_12.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_291410825_h2_9">注意事項</h2>
+<ul>
+  <li>本最適化はスキニングモデルと併用できません。<ul><li>スキニングモデルはバインドポーズで固定されたリジッドボディーに変換し、ルートボーンを参照するように変更します。 これには圧縮禁止なボーンを参照していたスキニングモデルも含まれます。</li></ul></li>
+  <li>ルートボーンの座標変換は元のまま維持します（Unite All ボーン圧縮と異なり、単位行列化しません）。</li>
+  <li>シェイプを上位階層のボーンを参照するように変更するとき、頂点座標と法線ベクトルを移動先のボーンの座標系に変換します。 このため複数のシェイプが頂点配列を共有していると、頂点配列のサイズが増加する場合があります。<br />頂点配列に適用される座標変換が各シェイプで同じになるように圧縮禁止のボーンを設定することで、サイズの増加を避けることができます。</li>
+  <li>fsk ファイルの圧縮で binarize_scale、binarize_rotate、binarize_translate 属性が false の &lt;bone_anim&gt; を圧縮するとエラーになり動作を中断します。</li>
+</ul>
+<p>Unite ボーン圧縮を行うには fmd, fsk, fvb ファイルに対して、--compress-bone-unite オプションを指定してください。</p>
+<p class="note">
+  <br />
+</p>
+<h1 id="Anchor_291410825_h1_6">Unite All ボーン圧縮</h1>
+<p>モデルを構成するすべてのボーンをひとつにまとめる方法です。</p>
+<p class="note">Unite All ボーン圧縮は、スケルタルアニメーションの無い地形データに使用します。</p>
+<h2 id="Anchor_291410825_h2_10">アルゴリズム</h2>
+<p>compress_enable や rigid_body, matrix_index の設定に関わらず、ボーンはルートボーンひとつになります。<br />さらに、ルートボーンの行列は単位行列となります。すべてのシェイプはルートボーンを参照するように変更され、頂点位置座標と法線ベクトルをグローバル座標系に変換します。</p>
+<p>
+  <br />
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_13.svg" />
+          </div>
+          <p>
+            <br />
+          </p>
+          <p style="text-align: right;">
+            <span style="color: rgb(255,0,0);">赤色のボーン</span>が削除対象</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_291410825/flowchart_14.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">圧縮前</th>
+      <th style="text-align: center;">圧縮後</th>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_291410825_h2_11">注意事項</h2>
+<ul>
+  <li>スキニングモデルはバインドポーズで固定されたリジッドボディーに変換します。</li>
+  <li>fsk ファイルの圧縮で binarize_scale、binarize_rotate、binarize_translate 属性が false の &lt;bone_anim&gt; を圧縮するとエラーになり動作を中断します。</li>
+</ul>
+<p>Unite All ボーン圧縮を行うには fmd, fsk, fvb ファイルに対して、--compress-bone-unite-all オプションを指定してください。</p>
+<h1 id="Anchor_291410825_h1_7">ボーン圧縮方式選択のヒント</h1>
+<h2 id="Anchor_291410825_h2_12">各方式の特徴一覧</h2>
+<table class="wrapped relative-table" style="margin-left: 1.5em; width: 86.9591%;">
+  <colgroup> <col style="width: 10.8345%;" /> <col /> <col style="width: 5.65276%;" /> <col style="width: 10.2961%;" /> <col style="width: 13.0552%;" /> <col style="width: 10.0269%;" /> <col style="width: 22.0054%;" /> <col style="width: 14.5357%;" /> </colgroup>
+  <tbody>
+    <tr>
+      <th>ボーン圧縮方式</th>
+      <th>簡易説明</th>
+      <th>スキニング</th>
+      <th>
+        <p>非スキニングボーンの不均等スケール</p>
+      </th>
+      <th>
+        <p>非スキニングボーンのスケルタルアニメーション</p>
+      </th>
+      <th>
+        <p>ボーンビジビリティーアニメーション</p>
+      </th>
+      <th>圧縮対象ボーン</th>
+      <th>主な適用対象</th>
+    </tr>
+    <tr>
+      <th>Cull</th>
+      <td>細かな設定が不要だが圧縮率は低い</td>
+      <td style="text-align: center;">可</td>
+      <td style="text-align: center;">可</td>
+      <td style="text-align: center;">可</td>
+      <td style="text-align: center;">一部要手動設定</td>
+      <td style="text-align: center;">末端のみ</td>
+      <td>キャラクターモデル</td>
+    </tr>
+    <tr>
+      <th>Merge</th>
+      <td>少し細かな設定が必要だが、概ね不要なボーンを圧縮可能</td>
+      <td style="text-align: center;">可</td>
+      <td style="text-align: center;">一部要手動設定</td>
+      <td style="text-align: center;">可</td>
+      <td style="text-align: center;">
+        <p>一部要手動設定</p>
+      </td>
+      <td style="text-align: center;">
+        <p>末端＋中間</p>
+      </td>
+      <td>キャラクターモデル</td>
+    </tr>
+    <tr>
+      <th>
+        <p>Unite Child</p>
+        <p>(Cull, Merge と併用可)</p>
+      </th>
+      <td>細かな設定が必要だが、うまく使えば無駄なボーンを最大限に圧縮可能</td>
+      <td style="text-align: center;">可</td>
+      <td style="text-align: center;">要手動設定</td>
+      <td style="text-align: center;">要手動設定</td>
+      <td style="text-align: center;">要手動設定</td>
+      <td style="text-align: center;">圧縮不可ボーン以下すべて</td>
+      <td>キャラクターモデル</td>
+    </tr>
+    <tr>
+      <th>Unite</th>
+      <td>動的な地形モデル用</td>
+      <td style="text-align: center;">不可</td>
+      <td style="text-align: center;">要手動設定</td>
+      <td style="text-align: center;">要手動設定</td>
+      <td style="text-align: center;">要手動設定</td>
+      <td style="text-align: center;">圧縮不可ボーンを除くすべて</td>
+      <td>アニメーションする地形モデル</td>
+    </tr>
+    <tr>
+      <th>Unite All</th>
+      <td>静的な地形モデル用</td>
+      <td style="text-align: center;">不可</td>
+      <td style="text-align: center;">不可</td>
+      <td style="text-align: center;">不可</td>
+      <td style="text-align: center;">不可</td>
+      <td style="text-align: center;">ルートボーン以外すべて</td>
+      <td>アニメーションしない地形モデル</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_291410825_h2_13">圧縮方式選択のフローチャート</h2>
+<p>以下は入門者向けの圧縮方式選択のフローチャートです。データによる最適な方式の選び方はこの限りではありませんので、特徴一覧とあわせて参考情報として参照してください。</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_291410825/flowchart_15.svg" />
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

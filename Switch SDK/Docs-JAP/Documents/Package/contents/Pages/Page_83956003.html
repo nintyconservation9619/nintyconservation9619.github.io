@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NintendoWare Effect の NintendoSDK 移行ガイド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NintendoWare Effect の NintendoSDK 移行ガイド -->
+<div class="pagetitle" id="PageId_83956003">NintendoWare Effect の NintendoSDK 移行ガイド</div>
+<div class="text_separate">
+<h1 id="Anchor_83956003_h1_1"> NintendoWare Effect ランタイム移行ガイド</h1>
+<p>NintendoSDK NintendoWare Effect は、NintendoWare for Cafe と異なり、ランタイム、ツールが一新されています。<br />このページでは、NintendoWare for Cafe から&nbsp;NintendoSDK NintendoWare Effect への移行手順を以下の項目に沿って説明します。</p>
+<ol>
+  <li>中間ファイルのアップデート</li>
+  <li>エフェクトバイナリの生成</li>
+  <li>再生処理</li>
+</ol>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>説明上、NintendoSDK に含まれる EffectMaker を NintendoSDK EffectMaker、NintendoWare for Cafe に含まれる EffectMaker を NintendoWare EffectMaker とします。</p>
+  </div>
+</div>
+<h2 id="Anchor_83956003_h2_1">中間ファイルのアップデート</h2>
+<p>NintendoSDK NintendoWare Effect&nbsp;では中間ファイル( *.eset ) のフォーマットが変更されており、新しい中間ファイルフォーマットへのアップデートが必要です。<br />中間ファイルフォーマットのアップデートは、　NintendoSDK\Tools\Graphics\EffectMaker\FE1Updater\FE1Updater.exe を利用します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK NintendoWare Effect の EffectMaker で　古いフォーマットの中間ファイルを読み込むこともできます。</p>
+  </div>
+</div>
+<h3 id="Anchor_83956003_h3_1">アップデート方法</h3>
+<p>以下のように -u2 オプション でコンバートリストファイルを指定し実行することで、<br />NintendoWare for Cafe 用中間ファイルを NintendoSDK NintendoWare Effect 用中間ファイルへアップデートできます。<br />コンバートリストファイルは&nbsp;NintendoWare for Cafe のバイナリコンバートリストファイルを流用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>FE1Updater.exe -u2 [コンバートリストファイルのパス] [出力先フォルダパス]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83956003_h4_1">カスタムシェーダ/アクションを利用している中間ファイルをアップデート時の注意点</h4>
+<ul>
+  <li>
+    <span style="color: rgb(255,0,0);">
+      <strong>カスタムシェーダ/アクション定義ファイルを指定せずにアップデートした場合、カスタムシェーダ/アクションのデータは失われてしまいます。</strong>
+    </span>
+    <br />カスタムシェーダやカスタムアクションを利用している中間ファイルをアップデータする場合は、利用している USD/UDD 定義ファイルをアップデート時に指定する必要があります。</li>
+</ul>
+<p>
+  <br />
+</p>
+<ul>
+  <li>
+    <span style="color: rgb(255,0,0);">
+      <strong>正常にアップデートされている中間ファイルでもカスタムシェーダ・カスタムアクションのデータが失われることがあります。</strong>
+    </span>
+    <br />アップデートされた中間ファイルを NintendoSDK EffectMaker で読み込む際に、アップデート時に指定されたものと同一のカスタムシェーダ/アクション定義ファイルを NintendoSDK EffectMaker にプロジェクトコンフィグファイル経由で設定しておく必要があります。<br /></li>
+</ul>
+<h4 id="Anchor_83956003_h4_2">カスタムシェーダ利用の中間ファイルアップデートについて</h4>
+<p>-us オプションでカスタムシェーダ定義ファイルの <strong>絶対パス </strong>を指定します。-ua オプションとの併用が可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>FE1Updater.exe -us [利用するカスタムシェーダUI定義リストファイルの絶対パス] -u2 [コンバートリストファイルのパス] [出力先フォルダパス]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83956003_h4_3">カスタムアクション利用の中間ファイルアップデートについて</h4>
+<p>-u2 オプションでのコンバートリスト指定に加えて、-ua オプションでUDD定義ファイルが入っているフォルダの<strong>絶対パス</strong>を指定します。-us オプションとの併用が可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>FE1Updater.exe -ua [利用するUDDファイルが入ったフォルダの絶対パス] -u2 [コンバートリストファイルのパス] [出力先フォルダパス]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956003_h3_2">NintendoSDK EffectMaker上でカスタムシェーダを設定する</h3>
+<p>カスタムシェーダ定義ファイルは、NintendoWare EffectMaker 用の設定ファイルを流用できます。<br />カスタムシェーダ定義ファイルは、プロジェクトコンフィグファイルに記述して、NintendoSDK EffectMaker に設定します。<br />詳しくはエフェクトプログラミングガイドをご覧ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;CustomShaderUIDefList&gt;
+&nbsp;&nbsp;&lt;GeneralShaders&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;VertexShaderPaths&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ShaderPath&gt;UsrShader_General.vsh&lt;/ShaderPath&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/VertexShaderPaths&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FragmentShaderPaths&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ShaderPath&gt;UsrShader_General.fsh&lt;/ShaderPath&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/FragmentShaderPaths&gt;
+&nbsp;&nbsp;&lt;/GeneralShaders&gt;
+&nbsp;&nbsp;&lt;CustomShaderUIDefLinkData CallbackId=&quot;1&quot;&gt;CustomShader_Sample1.usd&lt;/CustomShaderUIDefLinkData&gt;
+&nbsp;&nbsp;&lt;CustomShaderUIDefLinkData CallbackId=&quot;2&quot;&gt;CustomShader_Sample2.usd&lt;/CustomShaderUIDefLinkData&gt;
+&nbsp;&nbsp;&lt;CustomShaderUIDefLinkData CallbackId=&quot;3&quot;&gt;CustomShader_Sample3.usd&lt;/CustomShaderUIDefLinkData&gt;
+&lt;/CustomShaderUIDefList&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956003_h3_3">NintendoSDK EffectMaker上でカスタムアクションを設定する</h3>
+<p>NintendoSDK EffectMaker に入力するカスタムアクション定義ファイル上では、DataModelName と UddPath で指定する udd ファイル名を同じにする必要があります。<br /> <span style="color: rgb(255,0,0);"> <strong>CallbackId で指定するIDは1番始まりで、udd ファイル名で指定するインデックスとは異なります。<br />この定義ファイル上では、FE1で利用していたIDに+1した値を指定してください。エディタやランタイム上では0番始まり扱いに戻ります。</strong> </span> <br />カスタムアクション定義ファイルは、プロジェクトコンフィグファイルに記述して、NintendoSDK EffectMaker に設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;ArrayOfCustomActionSettingInfo xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;1&quot; DataModelName=&quot;EmitterUserDataDefinition_0&quot; UddPath=&quot;EmitterUserDataDefinition_0.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;2&quot; DataModelName=&quot;EmitterUserDataDefinition_1&quot; UddPath=&quot;EmitterUserDataDefinition_1.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;3&quot; DataModelName=&quot;EmitterUserDataDefinition_2&quot; UddPath=&quot;EmitterUserDataDefinition_2.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;4&quot; DataModelName=&quot;EmitterUserDataDefinition_3&quot; UddPath=&quot;EmitterUserDataDefinition_3.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;5&quot; DataModelName=&quot;EmitterUserDataDefinition_4&quot; UddPath=&quot;EmitterUserDataDefinition_4.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;6&quot; DataModelName=&quot;EmitterUserDataDefinition_5&quot; UddPath=&quot;EmitterUserDataDefinition_5.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;7&quot; DataModelName=&quot;EmitterUserDataDefinition_6&quot; UddPath=&quot;EmitterUserDataDefinition_6.udd&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;CustomActionUddInfo CallbackId=&quot;8&quot; DataModelName=&quot;EmitterUserDataDefinition_7&quot; UddPath=&quot;EmitterUserDataDefinition_7.udd&quot; /&gt;
+&lt;/ArrayOfCustomActionSettingInfo&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956003_h2_2">エフェクトバイナリの生成</h2>
+<p>次にエフェクトバイナリ生成について説明します。</p>
+<h3 id="Anchor_83956003_h3_4">コマンドラインコンバート引数について</h3>
+<p>記述したプロジェクトコンフィグをコマンドラインバイナリコンバートの引数として与え、エフェクトバイナリを生成します。</p>
+<div>
+  <div class="syntaxhighlighter bash">
+    <p>コンバートリストはフォーマットが変更されています。<a href="../Pages/Page_83955581.html">バイナリコンバータ </a>を参考に記述をお願いします。</p>
+  </div>
+</div>
+<h3 id="Anchor_83956003_h3_5">プロジェクトコンフィグファイルの準備</h3>
+<p>NintendoSDK EffectMaker&nbsp;では、カスタムシェーダやカスタムアクション、リニア設定など、プロジェクトごとの設定を プロジェクトコンフィグファイル に記述するようになりました。<br />カスタムシェーダやカスタムアクションの設定を反映させバイナリコンバートを行う場合は、プロジェクトコンフィグファイルが必要になります。<br /> <a href="../Pages/Page_83955992.html">プロジェクトコンフィグファイル</a> を参考に記述をお願いします。</p>
+<h2 id="Anchor_83956003_h2_3">再生処理</h2>
+<p>nw::eft2::System クラスの生成やエフェクトバイナリの登録に関しては大きい変更点はありません。</p>
+<p>
+  <a href="../Pages/Page_83955666.html">エフェクト再生チュートリアル</a>
+</p>
+<h3 id="Anchor_83956003_h3_6">計算処理について</h3>
+<p>シンプルな計算処理を記述したコードを元に説明します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// フレーム開始処理
+</span><span class="nn">nw::eft2::System::</span><span class="n">BeginFrame</span><span class="p">();</span>
+&nbsp;
+<span class="c1">// 計算処理
+</span><span class="nn">nw::eft2::System::</span><span class="n">Calc</span><span class="p">(</span> <span class="n">group</span><span class="p">,</span> <span class="n">frameRate</span><span class="p">,</span> <span class="n">swapUbo</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="expand-content">
+  <br />
+  <p>計算処理での変更点は３点あります。</p>
+  <ul>
+    <li>nw::eft2::System::Calc の引数に&nbsp;swapUbo フラグが追加されました。<br />これまでCalc内部では エミッタのUniformBlock(Ubo) を DoubleBuffer から取得していましたが、システム初期化時に ダブルバッファを確保しそれらをスワップし運用するようになりました。<br />swapUbo フラグは、エミッタのUboをスワップするフラグになります。通常利用の場合、<strong>true</strong> を指定してください。</li>
+  </ul>
+  <ul>
+    <li>nw::eft2::System::Calc の引数から cacheFlush が削除されました。<br />nw::eft2::Config にキャッシュフラッシュに関する設定が追加された為、cacheFlush フラグが削除されています。</li>
+  </ul>
+  <ul>
+    <li>nw::eft2::System::Calc の引数から forwardFrameフラグが削除されました。</li>
+  </ul>
+  <h3 id="Anchor_83956003_h3_7">描画処理について</h3>
+  <p>シンプルな描画処理を記述したコードを元に説明します。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// バッファスワップ
+</span><span class="nn">nw::eft2::System::</span><span class="n">SwapBuffer</span><span class="p">();</span>
+&nbsp;
+<span class="c1">// ビューの設定
+</span><span class="nn">nw::eft2::</span><span class="n">ViewParam</span> <span class="n">view</span><span class="p">;</span>
+<span class="n">view</span><span class="p">.</span><span class="n">Set</span><span class="p">(</span> <span class="n">viewMtx</span><span class="p">,</span> <span class="n">projMtx</span><span class="p">,</span> <span class="n">cameraPos</span><span class="p">,</span> <span class="n">nearZ</span><span class="p">,</span> <span class="n">farZ</span> <span class="p">);</span>
+<span class="nn">nw::eft2::System::</span><span class="n">SetViewParam</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">view</span> <span class="p">);</span>
+&nbsp;
+<span class="c1">// グループの描画処理
+</span><span class="nn">nw::eft2::System::</span><span class="n">Draw</span><span class="p">(</span> <span class="n">group</span> <span class="p">);</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="expand-content">
+    <div>
+      <div class="syntaxhighlighter nogutter cpp">
+        <p>&nbsp;</p>
+      </div>
+    </div>
+    <p>描画処理での変更点は２点あります。</p>
+    <ul>
+      <li>SwapDoubleBuffer メソッドが SwapBuffer にメソッド名変更になり、呼び出しタイミングが SetViewParam より前になりました。</li>
+      <li>Systen::BeginRender メソッドが無くなり、それに代わるビュー設定メソッドとして System::SetViewParam が追加されました。</li>
+    </ul>
+  </div>
+</div>
+<h2 id="Anchor_83956003_h2_4">NintendoWare for Cafe から NintendoSDK NintendoWare で仕様の変更がある機能</h2>
+<p>NintendoSDK NintendoWare Effect の仕様変更により、一部の機能を使用したエフェクトデータは修正が必要な場合があります。</p>
+<p class="expand-control">
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>&nbsp;NintendoWare for Cafe　から NintendoSDK NintendoWare で仕様の変更がある機能については、<strong><a href="../Pages/Page_175837873.html">こちら</a></strong> のページで一覧できます。 <br />また、データ修正が必要な機能については、<strong><a href="../Pages/Page_175837873.html#Anchor_175837873_correction">こちら</a></strong> の表を参考にしてください。<br /> </p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

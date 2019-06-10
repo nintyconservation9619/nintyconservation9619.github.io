@@ -1,0 +1,2210 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>SOCKET Library</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- SOCKET Library -->
+<div class="pagetitle" id="PageId_99782750">SOCKET Library</div>
+<div class="text_separate">
+<div class="layout-root">
+  <div class="layout-base">
+    <div class="layout-section two_right_sidebar">
+      <div class="layout-cell">
+        <h1 id="Anchor_99782750_h1_1">Introduction</h1>
+        <p>Nintendo provides a customized Berkeley socket API for use by developers that wish to incorporate network TCP/IP functionality in their application. Core Internet socket functionality is based upon FreeBSD version <strong>10.1</strong>.</p>
+        <p>In addition to Nintendo supplied documentation,&nbsp;<a href="http://www.FreeBSD.org">FreeBSD.org</a> also provides a <a href="https://www.freebsd.org/doc/en_US.ISO8859-1/books/developers-handbook/sockets.html">socket developer handbook</a> and <a href="https://www.freebsd.org/cgi/man.cgi?query=socket&amp;apropos=0&amp;sektion=2&amp;manpath=FreeBSD+10.1-RELEASE&amp;arch=default&amp;format=html">socket API man pages</a>. However since the development hardware is proprietary gaming system , there are some minor API implementation differences relative to FreeBSD.</p>
+      </div>
+      <div class="layout-cell">
+        <table class="wrapped">
+          <colgroup>
+            <col />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>Table of Contents</th>
+            </tr>
+            <tr>
+              <td>
+                <div class="content-wrapper">
+                  <p>
+                    <ul class="macro_toc">
+                      <li>
+                        <a href="#Anchor_99782750_h1_1">Introduction</a>
+                      </li>
+                      <li>
+                        <a href="#Anchor_99782750_h1_2">Supported Functionality</a>
+                      </li>
+                      <ul>
+                        <li>
+                          <a href="#Anchor_99782750_h2_1">Maximum Number of Sockets</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_2">Socket Domains</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_3">Socket Types</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_4">Socket Type Flags</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_5">Socket Options</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_6">Ioctl Commands</a>
+                        </li>
+                      </ul>
+                      <li>
+                        <a href="#Anchor_99782750_h1_3">Socket Buffer</a>
+                      </li>
+                      <ul>
+                        <li>
+                          <a href="#Anchor_99782750_h2_7">User-Supplied Memory</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_8">FreeBSD TCP Buffer Autotune</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_9">Socket Memory Utilization</a>
+                        </li>
+                      </ul>
+                      <li>
+                        <a href="#Anchor_99782750_h1_4">DNS Resolver Cache</a>
+                      </li>
+                      <li>
+                        <a href="#Anchor_99782750_h1_5">Windows Platform Support</a>
+                      </li>
+                      <ul>
+                        <li>
+                          <a href="#Anchor_99782750_h2_10"> Unsupported Methods</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_11">Limitations</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_12"> Socket Descriptors</a>
+                        </li>
+                      </ul>
+                      <li>
+                        <a href="#Anchor_99782750_h1_6"> Network Interface</a>
+                      </li>
+                      <ul>
+                        <li>
+                          <a href="#Anchor_99782750_h2_13">NIFM Library</a>
+                        </li>
+                        <li>
+                          <a href="#Anchor_99782750_h2_14">Loss of Network Connectivity</a>
+                        </li>
+                      </ul>
+                    </ul>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="layout-base">
+    <div class="layout-section single">
+      <div class="layout-cell">
+        <h1 id="Anchor_99782750_h1_2">
+          <span class="url">Supported Functionality</span>
+        </h1>
+        <p>The primary purpose of Nintendo socket library is to provide&nbsp;fundamental&nbsp;Internet socket functionality. Not all aspects of FreeBSD socket API are supported.</p>
+        <h2 id="Anchor_99782750_h2_1">Maximum Number of Sockets</h2>
+        <p>An application can create maximum up to 32 sockets concurrently.</p>
+        <h2 id="Anchor_99782750_h2_2">Socket Domains</h2>
+        <p>The domain of a socket refers to the underlying protocol which will be used to facilitate communication. The following table summarizes which socket domains are supported.</p>
+        <table class="wrapped relative-table" style="width: 53.1856%;">
+          <colgroup>
+            <col style="width: 46.2609%;" />
+            <col style="width: 35.8261%;" />
+            <col style="width: 17.913%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>
+                <p>Socket domain</p>
+                <p>(<span class="ApiLink_nn__socket__Family">nn::socket::Family</span> namespace)</p>
+              </th>
+              <th>
+                <p>Description&nbsp;</p>
+              </th>
+              <th>
+                <p>Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <p>Af_Inet / Pf_Inet</p>
+              </td>
+              <td>
+                <p>Internet version 4 protocols.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong>Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Af_Route / Pf_Route</p>
+              </td>
+              <td>
+                <p>Internal Routing protocol.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong>Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Af_Link / Pf_Link</p>
+              </td>
+              <td>
+                <p>Link layer interface.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong>
+                        <span style="color: rgb(255,153,0);">Prohibited</span>
+                        <br />
+                      </strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Af_Inet6 / Pf_Inet6</p>
+              </td>
+              <td>
+                <p>Internet version 6 protocols.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Any socket domains not listed here are unsupported.</p>
+        <h2 id="Anchor_99782750_h2_3">Socket Types</h2>
+        <p>The socket type specifies semantics of communication through a particular domain. The following table summarizes supported socket types.</p>
+        <table class="wrapped relative-table" style="width: 72.6012%;">
+          <colgroup>
+            <col style="width: 29.052%;" />
+            <col style="width: 12.6911%;" />
+            <col style="width: 45.6422%;" />
+            <col style="width: 12.6147%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>
+                <p>Socket type</p>
+                <p>(<span class="ApiLink_nn__socket__Type">nn::socket::Type</span> namespace)</p>
+              </th>
+              <th>
+                <p>Protocol</p>
+                <p>(<span class="ApiLink_nn__socket_Protocol">nn::socket:Protocol</span> namespace)</p>
+              </th>
+              <th>
+                <p>Description&nbsp;</p>
+              </th>
+              <th>
+                <p>Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <p>Sock_Stream</p>
+              </td>
+              <td>
+                <p>IpProto_Tcp</p>
+              </td>
+              <td>
+                <p>Stream sockets provide a reliable connection via TCP.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Sock_Dgram</p>
+              </td>
+              <td>
+                <p>IpProto_Udp</p>
+              </td>
+              <td>
+                <p>Datagram sockets are used as a conduit for sending and receiving UDP packets.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="5">
+                <p>Sock_Raw</p>
+              </td>
+              <td>IpProto_Ip</td>
+              <td rowspan="5">
+                <p>Raw-protocol interface.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>IpProto_Icmp</td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>IpProto_Tcp</td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>IpProto_Udp</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>IpProto_Raw</td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Sock_SeqPacket</p>
+              </td>
+              <td>IpProto_Ip</td>
+              <td>
+                <p>Sequenced packet stream.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Any socket types not listed here are unsupported.</p>
+        <h2 id="Anchor_99782750_h2_4">Socket Type Flags</h2>
+        <p>Socket type flags are bitwise ORed along with a specified socket type, to modify the behavior of the socket.</p>
+        <table class="wrapped relative-table" style="width: 60.0185%;">
+          <colgroup>
+            <col style="width: 40.0616%;" />
+            <col style="width: 44.0678%;" />
+            <col style="width: 15.8706%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>
+                <p>Socket type flag</p>
+                <p>
+                  <span style="color: rgb(51,51,51);">(<span class="ApiLink_nn__socket__Type">nn::socket::Type</span> namespace</span>
+                  <span style="color: rgb(51,51,51);">)</span>
+                </p>
+              </th>
+              <th>
+                <p>Description&nbsp;</p>
+              </th>
+              <th>
+                <p>Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <p>Sock_NonBlock</p>
+              </td>
+              <td>
+                <p>Set non-blocking mode on the new socket.</p>
+              </td>
+              <td>
+                <div class="content-wrapper">
+                  <p style="text-align: center;">
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Any socket type flags not listed here are unsupported.</p>
+        <h2 id="Anchor_99782750_h2_5">Socket Options</h2>
+        <p>The behavior of a socket can be modified by applying options, as described&nbsp;by the&nbsp;<a href="https://www.freebsd.org/cgi/man.cgi?query=setsockopt&amp;sektion=2&amp;apropos=0&amp;manpath=FreeBSD+10.1-RELEASE">FreeBSD socket option man page</a>. As some of these options have implications on system implementation, not all options are supported.</p>
+        <h3 id="Anchor_99782750_h3_1">General Options</h3>
+        <table class="wrapped relative-table" style="width: 96.1219%;">
+          <colgroup>
+            <col style="width: 24.7115%;" />
+            <col style="width: 56.0577%;" />
+            <col style="width: 11.0577%;" />
+            <col style="width: 8.17308%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th rowspan="2">
+                <p>Option name</p>
+                <p>
+                  <span style="color: rgb(51,51,51);">(<span class="ApiLink_nn__socket__Option">nn::socket::Option</span> namespace</span>
+                  <span style="color: rgb(51,51,51);">)</span>
+                </p>
+              </th>
+              <th rowspan="2">
+                <p>Description&nbsp;</p>
+              </th>
+              <th colspan="2">
+                <p style="text-align: center;">Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <td class="highlight-grey">
+                <p>
+                  <strong>Development</strong>
+                </p>
+                <p>
+                  <strong>Hardware</strong>
+                </p>
+              </td>
+              <td class="highlight-grey">
+                <strong>Windows</strong>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Debug</p>
+              </td>
+              <td>
+                <p>Enables recording&nbsp;of debugging information.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited<br /></strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited<br /></strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_ReuseAddr</p>
+              </td>
+              <td>
+                <p>Enables local address reuse.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_ReusePort</p>
+              </td>
+              <td>
+                <p>Enables duplicate&nbsp;address&nbsp;and port bindings.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <span style="color: rgb(51,153,102);">
+                    <strong style="text-align: center;">Yes</strong>
+                  </span>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_KeepAlive</p>
+              </td>
+              <td>
+                <p>Enables keep connections alive.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_DontRoute</p>
+              </td>
+              <td>
+                <p>Enables routing bypass for outgoing messages.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Linger</p>
+              </td>
+              <td>
+                <p>This option,&nbsp;which applies only to sockets of type <span class="ApiLink_nn__socket__Type__Sock_Stream">nn::socket::Type::Sock_Stream</span>, provides a way to synchronize with completion or cancellation of previously initiated send operations. The synchronization happens relative to completion of <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>(). The behavior of this option, which is consistent with standard FreeBSD, is summarized below.</p>
+                <p>
+                  <br />
+                </p>
+                <p style="margin-left: 60.0px;">For l_linger timeout of zero:</p>
+                <ul>
+                  <li style="list-style-type: none; background-image: none;">
+                    <ul>
+                      <li>Any pending send data is cancelled and discarded.</li>
+                      <li>The TCP connection is immediately dropped.</li>
+                    </ul>
+                  </li>
+                </ul>
+                <p>
+                  <br />
+                </p>
+                <p style="margin-left: 60.0px;">For non-zero l_linger timeout with blocking socket:</p>
+                <ul>
+                  <li style="list-style-type: none; background-image: none;">
+                    <ul>
+                      <li>
+                        <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() blocks for up to l_linger seconds, waiting for pending send data to be transferred.</li>
+                      <li>For case of timeout, pending send data continues to be transferred even after <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() returns.</li>
+                      <li>After send operations complete, normal TCP disconnect processing is performed, including wait states such as FIN-WAIT2, TIME-WAIT, etc.</li>
+                    </ul>
+                  </li>
+                </ul>
+                <p>
+                  <br />
+                </p>
+                <p style="margin-left: 60.0px;">For non-zero l_linger timeout with non-blocking socket:</p>
+                <ul>
+                  <li style="list-style-type: none; background-image: none;">
+                    <ul>
+                      <li>The effect of the <span class="ApiLink_nn__socket__Option__So_Linger">nn::socket::Option::So_Linger</span> option is defeated entirely.</li>
+                      <li>
+                        <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() does not block, and pending send data continues to be transferred even after <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() returns.</li>
+                      <li>After send operations complete, normal TCP disconnect processing is performed, including wait states such as FIN-WAIT2, TIME-WAIT, etc.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>So_Nn_Linger</td>
+              <td>
+                <p>This non-standard socket option was created by Nintendo for the purpose of minimizing memory use. Specifically, this option provides a way to guarantee that all memory utilized by a <span class="ApiLink_nn__socket__Type__Sock_Stream">nn::socket::Type::Sock_Stream</span> socket is released upon completion of <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() .</p>
+                <p>
+                  <br />
+                </p>
+                <p>Typical application developers will not require the functionality provided by this option, since the amount of memory which could be used by a socket is relatively small.</p>
+                <p>
+                  <br />
+                </p>
+                <p>The behavior of <span class="ApiLink_nn__socket__Option__So_Nn_Linger">nn::socket::Option::So_Nn_Linger</span> is different from <span class="ApiLink_nn__socket__Option__So_">nn::socket::Option::So_</span>Linger only when non-zero l_linger timeout is specified.</p>
+                <p>
+                  <br />
+                </p>
+                <p style="margin-left: 60.0px;">For non-zero l_linger timeout:</p>
+                <ul>
+                  <li style="list-style-type: none; background-image: none;">
+                    <ul>
+                      <li>
+                        <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() blocks for up to l_linger seconds, waiting for pending send data to be transferred. This happens even if socket is configured for non-blocking operation. The reason is because it is desirable to always allow time for pending send operations to complete, reflecting on the fact that the connection will be dropped immediately upon return from <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>().</li>
+                      <li>For case of timeout, pending send data is cancelled and discarded.</li>
+                      <li>The TCP connection is dropped upon return from <span class="ApiLink_nn__socket__Close">nn::socket::Close</span>().</li>
+                    </ul>
+                  </li>
+                </ul>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Broadcast</p>
+              </td>
+              <td>
+                <p>Enables permission to transmit broadcast messages.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_OobInline</p>
+              </td>
+              <td>
+                <p>Enables reception&nbsp;of out-of-band data in band.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_SndBuf</p>
+              </td>
+              <td>
+                <p>Set buffer size for output.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_RcvBuf</p>
+              </td>
+              <td>
+                <p>Set buffer size for input.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_SndLoWat</p>
+              </td>
+              <td>
+                <p>Set minimum count&nbsp;for output.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong>Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong>No</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_RcvLoWat</p>
+              </td>
+              <td>
+                <p>Set minimum count&nbsp;for input.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong>Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong style="text-align: center;">No</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_SndTimeo</p>
+              </td>
+              <td>
+                <p>Set timeout value&nbsp;for output.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong>Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_RcvTimeo</p>
+              </td>
+              <td>
+                <p>Set timeout value&nbsp;for input.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong>Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_AcceptConn</p>
+              </td>
+              <td>
+                <p>Get listening status of the socket (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong>Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong style="text-align: center;">No</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Type</p>
+              </td>
+              <td>
+                <p>Get the type of the socket (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong style="text-align: center;">No</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Protocol</p>
+              </td>
+              <td>
+                <p>Get the protocol number for the socket (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Error</p>
+              </td>
+              <td>
+                <p>Get and clear error on the socket&nbsp;(get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_SetFib</p>
+              </td>
+              <td>
+                <p>Set the associated FIB (routing table) for the socket (set only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited<br /></strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_Label</p>
+              </td>
+              <td>
+                <p>Get MAC label of&nbsp;the socket (get&nbsp;only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_PeerLabel</p>
+              </td>
+              <td>
+                <p>Get socket's peer's MAC label (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_ListenQLimit</p>
+              </td>
+              <td>
+                <p>Get backlog limit of the&nbsp;socket (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_ListenQLen</p>
+              </td>
+              <td>
+                <p>Get complete queue length of the&nbsp;socket (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <span style="color: rgb(51,153,102);">
+                    <strong style="text-align: center;">Yes</strong>
+                  </span>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_ListenIncQLen</p>
+              </td>
+              <td>
+                <p>Get incomplete queue length of the socket (get only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>So_User_Cookie</p>
+              </td>
+              <td>
+                <p>Set the 'so_user_cookie'&nbsp;value for the socket (uint32_t, set only).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="Anchor_99782750_h3_2">Internet Protocol (IP) Options</h3>
+        <p>The following options apply to any socket using IP, as described by the <a href="https://www.freebsd.org/cgi/man.cgi?query=ip&amp;apropos=0&amp;sektion=0&amp;manpath=FreeBSD+10.1-RELEASE&amp;arch=default&amp;format=html">FreeBSD IP man page</a>.</p>
+        <table class="wrapped relative-table" style="width: 96.4912%;">
+          <colgroup>
+            <col style="width: 25.0%;" />
+            <col style="width: 65.1341%;" />
+            <col style="width: 9.8659%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>
+                <p>Option name</p>
+                <p>
+                  <span style="color: rgb(51,51,51);">(<span class="ApiLink_nn__socket__Option">nn::socket::Option</span> namespace</span>
+                  <span style="color: rgb(51,51,51);">)</span>
+                </p>
+              </th>
+              <th style="text-align: left;">
+                <p>Description&nbsp;</p>
+              </th>
+              <th>
+                <p>Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Options</p>
+              </td>
+              <td style="text-align: left;">
+                <p>Used to provide IP options to be transmitted in the IP header of each outgoing packet or to examine the header options on incoming packets.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_HdrIncl</p>
+              </td>
+              <td style="text-align: left;">
+                <p>Indicates the complete IP header is included with the data and may be used only with the <span class="ApiLink_nn__socket__Type__Sock_Raw">nn::socket::Type::Sock_Raw</span> type.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Tos</p>
+              </td>
+              <td style="text-align: left;">
+                <p>May be used to set the type-of-service and time-to-live fields in the IP header for <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Stream, <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Dgram, and certain types of <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Raw sockets.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Ttl</p>
+              </td>
+              <td style="text-align: left;">
+                <p>May be used to set the type-of-service and time-to-live fields in the IP header for <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Stream, <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Dgram, and certain types of <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Raw sockets.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_RecvOpts</p>
+              </td>
+              <td style="text-align: left;">
+                <p>Pass all incoming IP options to the user in a IP_OPTIONS control message. The routing header and other options are already filled in for the local host. Not supported for <span class="ApiLink_nn__socket__Type__Sock_">nn::socket::Type::Sock_</span>Stream sockets.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Multicast_If</p>
+              </td>
+              <td style="text-align: left;">
+                <p>Used to override the default network interface, when an interface has not been specified for a multicast group membership.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Multicast_Ttl</p>
+              </td>
+              <td style="text-align: left;">
+                <p>Changes the time-to-live (TTL) for outgoing multicast datagrams in order to control the scope of the multicasts.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Multicast_Loop</p>
+              </td>
+              <td>
+                <p>For case where mutlicast datagram is sent to group to which sending host belongs, this option gives send explicit control over whether or not datagrams should be looped back.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Add_Membership</p>
+              </td>
+              <td>
+                <p>Used to add an IP multicast group.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Drop_Membership</p>
+              </td>
+              <td>
+                <p>Used to drop an IP multicast group.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Multicast_Vif</p>
+              </td>
+              <td>
+                <p>Select a multicast VIF for transmission.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Rsvp_On</p>
+              </td>
+              <td>
+                <p>Enable Resource Reservation Protocol (RSVP).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Rsvp_Off</p>
+              </td>
+              <td>
+                <p>Disable Resource Reservation Protocol (RSVP).</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Rsvp_Vif_On</p>
+              </td>
+              <td>
+                <p>Set RSVP per-vif socket.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Rsvp_Vif_Off</p>
+              </td>
+              <td>
+                <p>Unset RSVP per-vif socket.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_PortRange</p>
+              </td>
+              <td>
+                <p>Used to set the port range used for selecting a local port number on a socket with an unspecified (zero) port number.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_Faith</p>
+              </td>
+              <td>
+                <p>Accept FAITH'ed connections.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_OnesBcast</p>
+              </td>
+              <td>
+                <p>Send all-ones broadcast.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Ip_BindAny</p>
+              </td>
+              <td>
+                <p>When enabled on a <span class="ApiLink_nn__socket__Type__Sock_Stream">nn::socket::Type::Sock_Stream</span>, <span class="ApiLink_nn__socket__Type__Sock_Dgram">nn::socket::Type::Sock_Dgram</span> or a <span class="ApiLink_nn__socket__Type__Sock_Raw">nn::socket::Type::Sock_Raw</span> socket, one can bind to any address, even one not bound to any available network interface in the system.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="Anchor_99782750_h3_3">Internet Transmission Control Protocol (TCP) Options</h3>
+        <p>The following options apply to any socket using IP, as described by the <a href="https://www.freebsd.org/cgi/man.cgi?query=tcp&amp;apropos=0&amp;sektion=0&amp;manpath=FreeBSD+10.1-RELEASE&amp;arch=default&amp;format=html">FreeBSD TCP man page</a>.</p>
+        <table class="wrapped relative-table" style="width: 94.0905%;">
+          <colgroup>
+            <col style="width: 25.835%;" />
+            <col style="width: 64.0472%;" />
+            <col style="width: 10.1179%;" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>
+                <p>Option name</p>
+                <p>
+                  <span style="color: rgb(51,51,51);">(<span class="ApiLink_nn__socket__Option">nn::socket::Option</span> namespace</span>
+                  <span style="color: rgb(51,51,51);">)</span>
+                </p>
+              </th>
+              <th style="text-align: left;">
+                <p>Description&nbsp;</p>
+              </th>
+              <th>
+                <p>Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_Info</p>
+              </td>
+              <td style="text-align: left;">
+                <p>Information about a socket's underlying TCP session may be retrieved by passing this read-only option to <a href="https://www.freebsd.org/cgi/man.cgi?query=getsockopt&amp;sektion=2&amp;apropos=0&amp;manpath=FreeBSD+10.1-RELEASE">getsockopt()</a>.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_Congestion</p>
+              </td>
+              <td>
+                <p>Select or query the congestion control algorithm that TCP will use for the connection.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_KeepInit</p>
+              </td>
+              <td>
+                <p>Set per-socket timeout for new, non-established TCP connections.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_KeepIdle</p>
+              </td>
+              <td>
+                <p>Sets amount of time that the connection must be idle before keepalive probes (if enabled) are sent for the connection of this socket.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_KeepIntvl</p>
+              </td>
+              <td>
+                <p>Sets amount of time between sent keepalive probes.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_KeepCnt</p>
+              </td>
+              <td>
+                <p>Sets per-socket tuning of the number of probes sent, with no response, before the connection will be dropped.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_NoDelay</p>
+              </td>
+              <td>
+                <p>Enables mode of operation where TCP sends data immediately, even if outstanding data has not yet been acknowledged. Setting this option to '1' disables the Nagle algorithm, while setting it to '0' enables Nagle algorithm.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_MaxSeg</p>
+              </td>
+              <td>
+                <p>Sets the maximum TCP segment size sent on the network.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_NoOpt</p>
+              </td>
+              <td>
+                <p>Disables TCP option use on a per-connection basis.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_NoPush</p>
+              </td>
+              <td>
+                <p>Causes TCP to delay sending data until socket is closed, or internal send buffer is filled.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(51,153,102);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Tcp_Md5Sig</p>
+              </td>
+              <td>
+                <p>This option enables the use of MD5 digests (also known as TCP-MD5) on writes to the specified socket.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,153,0);">
+                      <strong style="text-align: center;">Prohibited</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 id="Anchor_99782750_h2_6">Ioctl Commands</h2>
+        <p>Various socket parameters can be set and retrieved, as described by the&nbsp;<a href="https://www.freebsd.org/cgi/man.cgi?query=ioctl&amp;sektion=2&amp;apropos=0&amp;manpath=FreeBSD+10.1-RELEASE">FreeBSD ioctl man page</a>. Summarized below are all supported ioctl commands.</p>
+        <table class="wrapped">
+          <colgroup>
+            <col />
+            <col />
+            <col />
+            <col />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th rowspan="2">
+                <p>Command</p>
+                <p>
+                  <span style="color: rgb(51,51,51);">(<span class="ApiLink_nn__socket__IoctlCommand">nn::socket::IoctlCommand</span> namespace</span>
+                  <span style="color: rgb(51,51,51);">)</span>
+                </p>
+              </th>
+              <th rowspan="2">
+                <p>Description&nbsp;</p>
+              </th>
+              <th colspan="2">
+                <p style="text-align: center;">Supported?</p>
+              </th>
+            </tr>
+            <tr>
+              <th>
+                <p>Development</p>
+                <p>Hardware</p>
+              </th>
+              <th>Windows</th>
+            </tr>
+            <tr>
+              <td>
+                <p>FionRead</p>
+              </td>
+              <td>
+                <p>Get the number of bytes that are immediately available to be read.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(0,128,0);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(0,128,0);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>FionWrite</p>
+              </td>
+              <td>
+                <p>Get the number of bytes in the descriptor's send queue.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(0,128,0);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong style="text-align: center;">No</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>FionSpace</p>
+              </td>
+              <td>
+                <p>Get the free space in the descriptor's send queue.</p>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(0,128,0);">
+                      <strong style="text-align: center;">Yes</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <div class="content-wrapper">
+                  <p>
+                    <span style="color: rgb(255,0,0);">
+                      <strong style="text-align: center;">No</strong>
+                    </span>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Any ioctl commands not listed here are unsupported.</p>
+        <h1 id="Anchor_99782750_h1_3">Socket Buffer</h1>
+        <p>This section describes socket buffer behaviors and considerations.&nbsp;</p>
+        <h2 id="Anchor_99782750_h2_7">User-Supplied Memory</h2>
+        <p>In order to provide better system scalability, socket library users are required to supply memory to support the needs of their own networking use case. This memory is provided to the system upon calling <span class="ApiLink_nn__socket__Initialize">nn::socket::Initialize</span>(), and released back to the user upon calling <span class="ApiLink_nn__socket__Finalize">nn::socket::Finalize</span>(). The amount of memory which must be supplied by the user is a function of the specific use case.</p>
+        <p>There are two different <span class="ApiLink_nn__socket__Initialize">nn::socket::Initialize</span>() prototypes, both of which allow the user to supply memory.</p>
+        <h3 id="Anchor_99782750_h3_4">nn::socket::Initialize(const nn::socket::Config&amp; config)</h3>
+        <p>This initialization method allows the user to pass reference to a configuration object, providing both configuration and memory to the socket library.</p>
+        <p>The header file socket_Config.h contains multiple classes available for this purpose, each providing varying levels of flexibility.</p>
+        <h4 id="Anchor_99782750_h4_1">nn::socket::ConfigDefaultWithMemory</h4>
+        <p>This class provides default configuration adequate for typical applications. Socket library behaviors and the amount of program memory statically allocated are fixed. This class must be instantiated globally or statically, creating an object consuming several megabytes of memory. See the example below for code syntax.</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>// Use default configuration
+nn::socket::ConfigDefaultWithMemory g_SocketConfigWithMemory;
+
+void MyApplicationInitialization()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::Initialize(g_SocketConfigWithMemory);
+}</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h4 id="Anchor_99782750_h4_2">nn::socket::ConfigDefaultWithConstrainedMemory</h4>
+        <p>This class provides default configuration with fixed socket library behaviors. However the amount of program memory which is statically allocated varies as a function of the specified socket counts. There are two scenarios where an application may want to use this class.</p>
+        <ul>
+          <li>The developer wants to conserve memory, specifying the exact number of sockets which could be simultaneously in use.</li>
+          <li>The developer is creating an application which makes extensive use of the socket library, using several sockets simultaneously, and wants to ensure optimal performance.</li>
+        </ul>
+        <p>See the example below for code syntax.</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>// Use default configuration with constrained memory allocation
+nn::socket::ConfigDefaultWithConstrainedMemory
+&lt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8,    // maximum number of SOCK_STREAM (TCP) sockets that application may use
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3     // maximum number of SOCK_DGRAM (UDP) sockets that application may use
+&gt;g_SocketConfigWithMemory;
+
+void MyApplicationInitialization()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::Initialize(g_SocketConfigWithMemory);
+}</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h4 id="Anchor_99782750_h4_3">nn::socket::ConfigWithMemory&lt; &gt;</h4>
+        <p>This template class provides a fully configurable socket library configuration. The amount of program memory which is statically allocated varies as a function of several of the specified parameters. Applications may want to try using this class if it is believed that default values provided by other configuration classes are insufficient for their particular use case.</p>
+        <p>The following code example populates configurable parameters with typical default values. It is recommended that applications start with these values as a point of reference, adjusting specific parameters as needed.</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>nn::socket::ConfigWithMemory
+&lt;
+&nbsp;&nbsp;&nbsp;&nbsp;4,                                                             // tcpSocketCountMax - How many SOCK_STREAM sockets will you use?
+&nbsp;&nbsp;&nbsp;&nbsp;4,                                                             // udpSocketCountMax - How many SOCK_DGRAM sockets will you use?
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultTcpInitialSendBufferSize,    // tcpInitialSendBufferSize
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultTcpInitialReceiveBufferSize, // tcpInitialReceiveBufferSize
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultTcpAutoSendBufferSizeMax,    // tcpAutoSendBufferSizeMax
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultTcpAutoReceiveBufferSizeMax, // tcpAutoReceiveBufferSizeMax
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultUdpSendBufferSize,           // udpSendBufferSize
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultUdpReceiveBufferSize,        // udpReceiveBufferSize
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::ConfigDefault::DefaultSocketBufferEfficiency,      // socketBufferEfficiency
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::DefaultSocketAllocatorSize                         // allocatorPoolSize - Used primary by resolver API
+&gt;g_SocketConfigWithMemory(nn::socket::DefaultConcurrencyLimit);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="Anchor_99782750_h3_5">nn::socket::Initialize(void* memoryPool, size_t memoryPoolSize, size_t allocatorPoolSize, int concurrencyLimit)</h3>
+        <p>Use of this older API is discouraged due to implicit limitations and the potential for future compatibility issues. If this API is used, it should be called only as follows.</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>NN_ALIGNAS(4096) uint8_t g_SocketMemoryPoolBuffer[nn::socket::DefaultSocketMemoryPoolSize];
+
+void MyApplicationInitialization()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::Initialize(reinterpret_cast&lt;void*&gt;(g_SocketMemoryPoolBuffer),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::DefaultSocketMemoryPoolSize,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::DefaultSocketAllocatorSize,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::socket::DefaultConcurrencyLimit);
+}</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 id="Anchor_99782750_h2_8">FreeBSD TCP Buffer Autotune</h2>
+        <p>FreeBSD provides a feature which automatically scales the operating socket buffer size, so to maximize network throughput. The feature operates through use of TCP timestamps, dynamically computing the bandwidth-delay product and increasing socket buffer sizes. This functionality is particularly important when network round trip times are high.</p>
+        <p>Both <span class="ApiLink_nn__socket__ConfigDefaultWithMemory">nn::socket::ConfigDefaultWithMemory</span> and <span class="ApiLink_nn__socket__ConfigDefaultWithConstrainedMemory">nn::socket::ConfigDefaultWithConstrainedMemory</span> socket library configurations enable TCP Buffer Autotune by default.</p>
+        <p>Note that manually settings socket buffer sizes via <span class="ApiLink_nn__socket__Option__So_RcvBuf">nn::socket::Option::So_RcvBuf</span> or <span class="ApiLink_nn__socket__Option__So_SndBuf">nn::socket::Option::So_SndBuf</span> socket options will disable the TCP buffer autotune feature on that socket.</p>
+        <h2 id="Anchor_99782750_h2_9">Socket Memory Utilization</h2>
+        <p>The amount of user supplied memory which is utilized per socket depends upon a number of factors. NintendoSDK users are protected from these details through use of configuration classes such as <span class="ApiLink_nn__socket__ConfigDefaultWithMemory">nn::socket::ConfigDefaultWithMemory</span> and <span class="ApiLink_nn__socket__ConfigDefaultWithConstrainedMemory">nn::socket::ConfigDefaultWithConstrainedMemory</span>.</p>
+        <p>The following information is presented for users that wish to understand underlying factors affecting socket memory utilization.</p>
+        <h3 id="Anchor_99782750_h3_6">Socket Buffer Efficiency</h3>
+        <p>The network stack internally manages memory through use of fixed size buffers. Depending upon operating conditions, such as packet size, allocated buffers may not always utilize the full buffer. This internal fragmentation may create a situation where additional buffers are needed to store the same amount of information, increasing utilization of user supplied memory.</p>
+        <p>The socket buffer efficiency configuration parameter controls the amount of additional memory which is reserved.</p>
+        <ul>
+          <li>A value of '1' provides no redundant buffering capacity, and will likely impact throughput.</li>
+          <li>The current default value of '4' provides sufficient margin to maximize throughput.</li>
+        </ul>
+        <h3 id="Anchor_99782750_h3_7">Maximum TCP Socket Memory Utilization</h3>
+        <p>Assuming default parameters, the worst case per TCP socket memory utilization is 2 MB.</p>
+        <h3 id="Anchor_99782750_h3_8">Maximum UDP Socket Memory Utilization</h3>
+        <p>Assuming default parameters, the worst case per UDP socket memory utilization is 212 kB.</p>
+        <h1 id="Anchor_99782750_h1_4">DNS Resolver Cache</h1>
+        <p>The DNS cache on the development hardware is cleared in by two different methods. First the entire DNS cache is cleared when a network change is detected. Second a DNS cache entry, which is based on the response messages and often contains multiple answers, is cleared when the record with the lowest time-to-live value expires.&nbsp;</p>
+        <h1 id="Anchor_99782750_h1_5">Windows Platform Support</h1>
+        <p>Nintendo socket API is the same regardless of build platform. However when Windows is targeted, the utilized underlying TCP/IP stack is actually Winsock, as opposed to FreeBSD. Some notable behavior differences may be observed.</p>
+        <h2 id="Anchor_99782750_h2_10">&nbsp;Unsupported Methods</h2>
+        <ul>
+          <li>RecvMsg()</li>
+          <li>SendMsg()</li>
+          <li>Open()</li>
+          <li>Sysctl()</li>
+        </ul>
+        <h2 id="Anchor_99782750_h2_11">Limitations</h2>
+        <h3 id="Anchor_99782750_h3_9">nn::socket::RecvFrom()</h3>
+        <p>Flag option <span class="ApiLink_nn__socket__MsgFlag__Msg_DontWait">nn::socket::MsgFlag::Msg_DontWait</span> is not directly supported by Winsock. When this flag is specified, the underlying implementation of <span class="ApiLink_nn__socket__RecvFrom">nn::socket::RecvFrom</span>() temporarily sets the underlying Windows socket to non-blocking mode, restoring its prior state upon completion. For the duration of the call the behavior of that specific socket is changed as follows.</p>
+        <ul>
+          <li>Other concurrent operations performed on the same socket, such as <span class="ApiLink_nn__socket__Send">nn::socket::Send</span>(), will also exhibit non-blocking behavior.</li>
+          <li>Calls to <span class="ApiLink_nn__socket__Fcntl">nn::socket::Fcntl</span>() will block.</li>
+        </ul>
+        <h3 id="Anchor_99782750_h3_10">nn::socket::SendTo()</h3>
+        <p>Flag option <span class="ApiLink_nn__socket__MsgFlag__Msg_DontWait">nn::socket::MsgFlag::Msg_DontWait</span>&nbsp;is not supported.</p>
+        <h3 id="Anchor_99782750_h3_11">nn::socket::Poll()</h3>
+        <p>The <span class="ApiLink_nn__socket__PollEvent__PollPri">nn::socket::PollEvent::PollPri</span> events mask, which could be specified in pollfd structure, is unsupported.</p>
+        <h3 id="Anchor_99782750_h3_12">nn::socket::GetAddrInfo()</h3>
+        <p>When &quot;service&quot; is specified as a (port number == (unsigned 16 bit) using the <span class="ApiLink_nn__socket__AddrInfoFlag__Ai_NumericServ">nn::socket::AddrInfoFlag::Ai_NumericServ</span> flag, the <span class="ApiLink_nn__socket__GetAddrInfo">nn::socket::GetAddrInfo</span>() call is not properly converting the port number from values that are outside of the unsigned 16 bit port number range.&nbsp; As such illegal values for port number can be specified. This eventually leads to the wrong port number being assigned to the output (socket address).&nbsp; Be sure port numbers assigned this way are defined between 1 and 65,534.</p>
+        <h2 id="Anchor_99782750_h2_12">&nbsp;Socket Descriptors</h2>
+        <p>Note that socket descriptors returned by <span class="ApiLink_nn__socket__Open">nn::socket::Open</span>() are not numerically equivalent to those returned by Windows WSASocket(). It is not possible to use Windows API in combination with Nintendo socket library API, operating on the same socket descriptor.</p>
+        <h1 id="Anchor_99782750_h1_6">
+          <span style="color: rgb(51,51,51);">&nbsp;</span>Network Interface</h1>
+        <h2 id="Anchor_99782750_h2_13">NIFM Library</h2>
+        <p>Prior to using the socket library it is necessary to activate the network interface. This is done by submitting a network usage request via the <a href="../Pages/Page_104465190.html">NIFM library</a>. It is also through the NIFM library that various network settings are applied, such as wireless configuration, IP settings and optional proxy configuration.</p>
+        <h2 id="Anchor_99782750_h2_14">Loss of Network Connectivity</h2>
+        <p>Nintendo has implemented custom network stack behaviors related to the scenario where the network interface transitions to a disconnected state.</p>
+        <p>Upon network interface disconnect all existing sockets are automatically shutdown by the system, causing current and future socket API calls made against them to immediately complete with error. The following table summarizes the specific behaviors of relevant socket API for a network interface disconnect situation.</p>
+        <table class="wrapped">
+          <colgroup>
+            <col />
+            <col />
+            <col />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>Socket API</th>
+              <th>Socket Type Sock_Stream (TCP)</th>
+              <th>Socket Type Sock_Dgram (UDP)</th>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__Send">nn::socket::Send</span>()</td>
+              <td>
+                <p>
+                  <span class="ApiLink_nn__socket__Errno__EPipe">nn::socket::Errno::EPipe</span>
+                </p>
+              </td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__EPipe">nn::socket::Errno::EPipe</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__SendTo">nn::socket::SendTo</span>()</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__EPipe">nn::socket::Errno::EPipe</span>
+              </td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__EPipe">nn::socket::Errno::EPipe</span>
+              </td>
+            </tr>
+            <tr>
+              <td>nn::socket::Write()</td>
+              <td>nn::socket::Errno::EPipe</td>
+              <td>nn::socket::Errno::EPipe</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__Recv">nn::socket::Recv</span>()</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>ENetDown</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>ENetDown</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__RecvFrom">nn::socket::RecvFrom</span>()</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>ENetDown</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>ENetDown</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__Read">nn::socket::Read</span>()</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>ENetDown</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>ENetDown</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__Accept">nn::socket::Accept</span>()</td>
+              <td>
+                <span class="ApiLink_nn__socket__Errno__">nn::socket::Errno::</span>EConnAborted</td>
+              <td>not applicable</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__Select">nn::socket::Select</span>()</td>
+              <td>Unblocks indicating that sockets are ready for both read and write I/O</td>
+              <td>Unblocks indicating that sockets are ready for both read and write I/O</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="ApiLink_nn__socket__Poll">nn::socket::Poll</span>()</td>
+              <td>Unblocks with flags (<span class="ApiLink_nn__socket__PollEvent__PollIn">nn::socket::PollEvent::PollIn</span> | <span class="ApiLink_nn__socket__PollEvent__Poll">nn::socket::PollEvent::Poll</span>RdNorm)</td>
+              <td>Unblocks with flags (<span class="ApiLink_nn__socket__PollEvent__PollIn">nn::socket::PollEvent::PollIn</span> | <span class="ApiLink_nn__socket__PollEvent__Poll">nn::socket::PollEvent::Poll</span>RdNorm)</td>
+            </tr>
+            <tr>
+              <td>nn::socket::GetSockOpt(..., nn::socket::Option::So_Error, ...)</td>
+              <td>nn::socket::Errno::ENetDown</td>
+              <td>nn::socket::Errno::ENetDown</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__socket__Family', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a057d985148e23267303e6d00d7ed205d' )
+SetUrl( 'ApiLink_nn__socket__Type', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a1db675083dcccec6500d1435c5dfeaea' )
+// ApiLink_nn__socket_Protocol
+SetUrl( 'ApiLink_nn__socket__Option', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a9706518d71ec37371e9aa3ae9a2fa92c' )
+// ApiLink_nn__socket__Type__Sock_Stream
+SetUrl( 'ApiLink_nn__socket__Close', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ae01110d228e2148d830b1ecfb9aaa425' )
+// ApiLink_nn__socket__Option__So_Linger
+// ApiLink_nn__socket__Option__So_Nn_Linger
+// ApiLink_nn__socket__Option__So_
+// ApiLink_nn__socket__Type__Sock_Raw
+// ApiLink_nn__socket__Type__Sock_
+// ApiLink_nn__socket__Type__Sock_Dgram
+SetUrl( 'ApiLink_nn__socket__IoctlCommand', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a047cb0e8a33ab75269a940a59ac7f62a' )
+SetUrl( 'ApiLink_nn__socket__Initialize', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a170b50fa1256bc0ed9d5176ecc2d9a09' )
+SetUrl( 'ApiLink_nn__socket__Finalize', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a28a801f086aadf0b731a721567f3e4b2' )
+SetUrl( 'ApiLink_nn__socket__ConfigDefaultWithMemory', '../../../Api/HtmlNX/classnn_1_1socket_1_1_config_default_with_memory.html' )
+SetUrl( 'ApiLink_nn__socket__ConfigDefaultWithConstrainedMemory', '../../../Api/HtmlNX/classnn_1_1socket_1_1_config_default_with_constrained_memory.html' )
+// ApiLink_nn__socket__Option__So_RcvBuf
+// ApiLink_nn__socket__Option__So_SndBuf
+// ApiLink_nn__socket__MsgFlag__Msg_DontWait
+SetUrl( 'ApiLink_nn__socket__RecvFrom', '../../../Api/HtmlNX/namespacenn_1_1socket.html#adab268741c66f0996683c31b1bcd05dc' )
+SetUrl( 'ApiLink_nn__socket__Send', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ae5a4c9f486b94e6b19e563ef97a2e412' )
+SetUrl( 'ApiLink_nn__socket__Fcntl', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ad646fa3b59d55042faa555f9fbd4d501' )
+// ApiLink_nn__socket__PollEvent__PollPri
+// ApiLink_nn__socket__AddrInfoFlag__Ai_NumericServ
+SetUrl( 'ApiLink_nn__socket__GetAddrInfo', '../../../Api/HtmlNX/namespacenn_1_1socket.html#aba7c9ca6a33baa3c3216c2de2c320f60' )
+SetUrl( 'ApiLink_nn__socket__Open', '../../../Api/HtmlNX/namespacenn_1_1socket.html#aba25bf75426cccb61a32efa1f70792ad' )
+// ApiLink_nn__socket__Errno__EPipe
+SetUrl( 'ApiLink_nn__socket__SendTo', '../../../Api/HtmlNX/namespacenn_1_1socket.html#aacd6b8da24d25e5e4f299b833258826f' )
+SetUrl( 'ApiLink_nn__socket__Recv', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a86ab796296ba9d510ebad6eb52a40489' )
+SetUrl( 'ApiLink_nn__socket__Errno__', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ad1ade4838b158c7aaf9c9a78338e06ae' )
+SetUrl( 'ApiLink_nn__socket__Read', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ae1fd34e9d084e5bb0f17a6c2361896c2' )
+SetUrl( 'ApiLink_nn__socket__Accept', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a56b1fbede96c61d4c94ba51a3cc563b3' )
+SetUrl( 'ApiLink_nn__socket__Select', '../../../Api/HtmlNX/namespacenn_1_1socket.html#aa523b16a6004b8748cc0116f9ed65dd2' )
+SetUrl( 'ApiLink_nn__socket__Poll', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ad9e109d18fb43f275742d74d74d06cde' )
+// ApiLink_nn__socket__PollEvent__PollIn
+// ApiLink_nn__socket__PollEvent__Poll
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

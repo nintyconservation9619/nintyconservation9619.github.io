@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アニメーション区間タグでのアニメーション衝突問題とその対策について</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アニメーション区間タグでのアニメーション衝突問題とその対策について -->
+<div class="pagetitle" id="PageId_249522540">アニメーション区間タグでのアニメーション衝突問題とその対策について</div>
+<div class="text_separate">
+<h1 id="Anchor_249522540_h1_1">アニメーション区間タグでのアニメーション衝突問題とは</h1>
+<h2 id="Anchor_249522540_h2_1">区間タグでのキーフレームの自動生成</h2>
+<p>アニメーション区間タグを利用すると、LayoutConverter でキーフレームが自動生成されます。</p>
+<p>たとえば、自らの区間にキーフレームが一つも無くても、前後の区間にキーフレームがあり、自区間においてアニメーションカーブに変異がある場合、そのカーブを再現するようにキーフレームを挿入します。</p>
+<h2 id="Anchor_249522540_h2_2">自動生成アニメーションが衝突する</h2>
+<p>このように、自動生成されたアニメーション（デザイナーが付けたつもりがないアニメーション）が再生されることでペインの状態が意図せず変化されてしまい、複数の区間タグ間でアニメーション再生を切り替えた際に意図しない結果となることがあります。</p>
+<p>複数のアニメーションの再生が衝突して問題を起こすので、これを「アニメーション衝突問題」とよびます。</p>
+<h1 id="Anchor_249522540_h1_2">対策</h1>
+<h2 id="Anchor_249522540_h2_3">LayoutConverter で --omit-nokey-all オプションを使う</h2>
+<p>LayoutConverter で&nbsp;<strong>--omit-nokey-all</strong> オプションを指定すると、前述の「キーフレームの自動生成」を抑止することができます。<a href="../Pages/Page_83955930.html">（参考：レイアウトバイナリコンバータ)</a></p>
+<p>このオプションを指定した場合、デザイナーが LayoutEditor で明示的にキーフレームを打った区間タグ以外はアニメーションしないので、挙動をコントロールしやすくなります。</p>
+<p>他にも、自動生成 を制御するオプションに「<strong>--omit-samekey</strong>」や「<strong><span class="option">--omit-samekey-all</span></strong>」 がありますが、<strong>--omit-nokey-all</strong> が一番抑止条件が明確なのでおすすめのオプションです。</p>
+<h2 id="Anchor_249522540_h2_4">アニメーション区間タグの「分割モード」を使う</h2>
+<p>アニメーション区間タグの「分割モード」は、前後の区間に影響を受けずにアニメーションを作成することができます。</p>
+<p>「分割モード」を使って作られた、アニメーション(flan)は、<strong>--omit-nokey-all </strong>を指定した場合と同じように扱うことができます。</p>
+<p>詳細は、「<a href="../Pages/Page_249519882.html">アニメーションの分割モードを利用する</a>」を参照してください。</p>
+<h2 id="Anchor_249522540_h2_5">注意</h2>
+<h3 id="Anchor_249522540_h3_1">出力結果の変化</h3>
+<p>--omit-nokey-all を使う方法も、「分割モード」を使う方法も、「キーフレームの自動生成」が行われなくなることで、再生結果が変化してしまいます。制作途中で運用を切り替える場合は注意してください。</p>
+<p>対策としては、キーフレームが存在しない区間に対して、明示的にキーフレームを挿入するようにしてください。</p>
+<h3 id="Anchor_249522540_h3_2">対象グループを指定を使う</h3>
+<p>前提として、アニメーション区間タグの「対象グループ」を指定してアニメーションするペインを絞り込んでください。<br />デフォルトで、対象グループは省略できなくなっているので通常気にすることはないのですが、移植作品など過去データの移行のために、LayoutConverter に、--allow-nogroup-animtag（対象グループを省略することを許可する）、--cvtr-all-anim-content（すべてのアニメーションを出力する）を指定している場合は注意してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

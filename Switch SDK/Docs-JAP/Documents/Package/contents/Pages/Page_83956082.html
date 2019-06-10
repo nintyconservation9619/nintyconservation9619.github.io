@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>コマンドバッファー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- コマンドバッファー -->
+<div class="pagetitle" id="PageId_83956082">コマンドバッファー</div>
+<div class="text_separate">
+<h1 id="Anchor_83956082_h1_1">コマンドバッファー</h1>
+<h2 id="Anchor_83956082_h2_1">概要</h2>
+<p>コマンドバッファーは、GPU へのコマンドを記録し、後に再生するための機能を提供します。</p>
+<p>コマンドバッファーにコマンドを追加する前に、まずコマンドメモリーとコントロールメモリーを追加する必要があります。コマンドメモリーはメモリープールから、コントロールメモリーは CPU 上のポインターからそれぞれ追加します。</p>
+<p>コマンドバッファーへのコマンドの追加を開始すると、コマンドバッファーに任意のコマンドを追加できるようになります。このとき、コマンドメモリーとコントロールメモリーは、前回にコマンドの追加を終了させたときに使われていたすぐ次の位置から使われ始めます。これらのメモリーは、コマンドの追加中にも追加することができます。一度使ったメモリーを使いまわすためには、GPU がそのメモリーの利用を完了していることを確実にした後、メモリーをリセットし、使い回したいメモリーを再度追加します。<br />また、コマンドバッファーにイベントコールバックが登録されていると、現在使用可能なメモリーを使い切った際に、登録されているコールバックが呼び出されます。</p>
+<p>コマンドを追加し終わったあと、もはやコマンドを追加する必要がなくなったときにコマンドの追加を終了させます。コマンドの追加が開始されていない状態でコマンドバッファーにコマンドをセットする試みはエラーを引き起こします。コマンド追加の開始と終了は必ず対になって交互に現れる必要があります。</p>
+<p>コマンドの追加が完了されたコマンドバッファーは、キューに提出することで、最新の開始から終了までに含まれるコマンドすべてを実行することができます。一度コマンドの追加が完了したコマンドバッファーは、何度でもキューに提出することができます。</p>
+<p>マルチスレッドにおいて、それぞれ別のコマンドバッファーに並列にコマンド追加することが可能です。</p>
+<p>コマンドバッファーの間で GPU のステートは継承されません。以前に実行されたコマンドバッファーによりセットされたステートを期待して別のコマンドバッファーを実行することは、予期しない動作を引き起こします。それぞれのコマンドバッファーにおいて必要なステートをすべてセットするようにしてください。</p>
+<p>コマンドバッファーは別のコマンドバッファーをネストして呼び出すことができます。これらのコマンドバッファーの間では特筆されていないかぎり設定した GPU のステートは継承されます。また、別のコマンドバッファーのコマンドをコピーして含めることも可能です。</p>
+<p>コマンドバッファーの実行は、<a href="../Pages/Page_83955552.html">フェンス</a>を利用することによって CPU と GPU の間で同期をとることができます。また、<a href="../Pages/Page_83955565.html">セマフォ</a>を利用することによって、コマンドバッファーを実行するキューの間で同期をとることができます。</p>
+<h2 id="Anchor_83956082_h2_2">情報</h2>
+<p>コマンドバッファーの情報は <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_command_buffer_info.html">nn::gfx::CommandBufferInfo</a>&nbsp;として定義されています。</p>
+<h3 id="Anchor_83956082_h3_1">コマンドバッファーの種類</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_command_buffer_info.html#affdb1dd59216cccf0da0fc7ed80a6846">SetCommandBufferType</a>&nbsp;により、キューに直接的に提出されるコマンドバッファーかもしくは別のコマンドバッファーからネストされるコマンドバッファーかを指定します。</p>
+<h3 id="Anchor_83956082_h3_2">キューの機能性</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_command_buffer_info.html#aa788cee16d24985e58b5649b3fde9bf9">SetQueueCapability</a>&nbsp;により、提出する予定のキューの機能性を指定します。</p>
+<h2 id="Anchor_83956082_h2_3">オブジェクト</h2>
+<p>コマンドバッファーのオブジェクトは <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#af719859a76c249a182d878f0cffd47c5">nn::gfx::CommandBuffer</a>&nbsp;として定義されています。</p>
+<p>それぞれのリソースやステートをコマンドバッファーにセットする方法については、対応するそれぞれのマニュアルページを参照してください。</p>
+<h3 id="Anchor_83956082_h3_3">初期化と破棄</h3>
+<p>コマンドバッファーの初期化と破棄は<a href="../Pages/Page_83955654.html">オブジェクト</a>の規則に従います。</p>
+<h3 id="Anchor_83956082_h3_4">コマンドメモリーの追加</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#acdb687c47bf13d8d1e65a499a5d8a4a9">AddCommandMemory</a>&nbsp;によりコマンドメモリーを追加することができます。コマンドメモリーはコマンドを格納するためのメモリであり、メモリープールから確保されます。コマンドメモリーの追加は、コマンドの追加の開始前、コマンドの追加中、イベントコールバックの中、のいずれの状態からでも可能です。コマンドの追加を開始するには、コマンドメモリーが追加されている必要があります。</p>
+<p>GPU による利用が完了しているコマンドメモリーは使い回すことができます。メモリーを使い回すには、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a6232e70a4abb4bfbf1e4e94ce6726f58">Reset</a>&nbsp;を呼び、再度使い回すメモリーを <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#acdb687c47bf13d8d1e65a499a5d8a4a9">AddCommandMemory</a>&nbsp;により追加します。&nbsp;</p>
+<p>追加するコマンドメモリーを指定する際のメモリープールへのオフセットにはアライメント制限があり、その値は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a83c6570a8bf3ad63a2c88604fdb64660">nn::gfx::CommandBuffer::GetCommandMemoryAlignment</a> により取得できます。</p>
+<h3 id="Anchor_83956082_h3_5">コントロールメモリーの追加</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a5803f064362d4af367f7fd061cf10f39">AddControlMemory</a>&nbsp;によりコントロールメモリーを追加することができます。コントロールメモリーはコマンド提出のための制御情報を格納するメモリーであり、通常の CPU メモリーから確保されます。コントロールメモリーの追加は、コマンドの追加の開始前、コマンドの追加中、イベントコールバックの中、のいずれの状態からでも可能です。コマンドの追加を開始するには、コントロールメモリーが追加されている必要があります。</p>
+<p>GPU への提出が完了しているコントロールメモリーは使い回すことができます。メモリーを使い回すには、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a6232e70a4abb4bfbf1e4e94ce6726f58">Reset</a>&nbsp;を呼び、再度使い回すメモリーを <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a5803f064362d4af367f7fd061cf10f39">AddControlMemory</a>&nbsp;により追加します。</p>
+<p>追加するコントロールメモリーのアドレスにはアライメント制限があり、その値は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a2a74828d24db1eec34e72d3f088a5803">nn::gfx::CommandBuffer::GetControlMemoryAlignment</a> により取得できます。</p>
+<h3 id="Anchor_83956082_h3_6">コマンド追加の開始と終了</h3>
+<p>コマンド追加の開始と終了はそれぞれ <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#ab22bb14832e8fca483b977dcb18d5286">Begin</a>&nbsp;と <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a3b4d64880cd75e66c314bdbac29c04f0">End</a>&nbsp;により行います。<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#ab22bb14832e8fca483b977dcb18d5286">Begin</a>&nbsp;によりコマンド追加を開始したあと、さまざまなコマンドを追加し、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a3b4d64880cd75e66c314bdbac29c04f0">End</a>&nbsp;でコマンドの追加を終了します。コマンドの追加を終了していないコマンドバッファーをキューに提出することはエラーを引き起こします。<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#ab22bb14832e8fca483b977dcb18d5286">Begin</a>&nbsp;と <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a3b4d64880cd75e66c314bdbac29c04f0">End</a>&nbsp;だけを呼び、実質的になにもコマンドを追加していないコマンドバッファーを実行することは許可されます。</p>
+<p>コマンドバッファーへのコマンドの追加を終了したあと、ふたたびコマンドの追加を開始することが可能です。この場合、以前に終了したところから続けてコマンドが追加されるのではなく、もう一度はじめからコマンドが追加されていきます。</p>
+<h3 id="Anchor_83956082_h3_7">イベントコールバック</h3>
+<p>コマンドメモリーまたはコントロールメモリーを使い切ったことを通知として受けとるには、それぞれ <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a4ed672bd30534da1157e6db1e934ff9c">SetOutOfCommandMemoryCallback</a>&nbsp;と <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#af62031e416ae376fdb07c3cecac651b6">SetOutOfControlMemoryCallback</a>&nbsp;によりコールバック関数を設定します。コマンドメモリーまたはコントロールメモリーを使い切った際に呼び出されるコールバック関数から、コマンドメモリーまたはコントロールメモリーの追加を行うことで、そのままコマンドの追加を続けることができます。</p>
+<h3 id="Anchor_83956082_h3_8">ドローコール</h3>
+<p>GPU にグラフィックス処理を行わせるには、ドローコールコマンドを追加する必要があります。インデックスバッファーを使わないドローコールを行うには Draw 関数を、インデックスバッファーを使ったインデックス化されたドローコールを行うには <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#af9cfb2a18747ed8eafad571a4e1bb20c">DrawIndexed</a>&nbsp;を呼び出します。このとき、インスタンス化されたドローコールを行うことも可能で、それぞれ、いくつかの追加の引数をとるオーバーロード関数によって行われます。</p>
+<p>ドローコールに使われるパラメーターをバッファーからとる、間接ドローコールも可能です。インデックスバッファーを使わない間接ドローコールを行うには <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a1fbaa67de90c238d2102224b3191dbde">DrawIndirect</a>&nbsp;を、インデックスバッファーを使ったインデックス化されたドローコールを行うには <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a2d81ee6865a605d7ac0abb3408b2d3d2">DrawIndexedIndirect</a>&nbsp;を呼び出します。間接ドローコールは、低レベルグラフィックス API のバリエーションによっては対応していないためにエラーを引き起こします。また、バッファー内のパラメーターの型や並びついては、低レベルグラフィックス API のマニュアルを参照してください。</p>
+<h3 id="Anchor_83956082_h3_9">ディスパッチコール</h3>
+<p>GPU に演算処理を行わせるには、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#aea6ca6c590f78c2c94c9eeba63171b64">Dispatch</a>&nbsp;によりディスパッチコールコマンドを追加する必要があります。また、パラメーターをバッファーからとる、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#ad9ed7f9c6fc6849c1d78106b3f76c7ac">DispatchIndirect</a>&nbsp;による間接ディスパッチコールも利用可能です。バッファー内のパラメーターの型や並びについては、低レベルグラフィックス API のマニュアルを参照してください。</p>
+<h3 id="Anchor_83956082_h3_10">コマンドバッファーのコール・コピー</h3>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a0e171a31353ada1910b428cd08e7d2d3a6009481892695c8b4bcfca4ab86d9313">nn::gfx::CommandBuffer_Direct</a>&nbsp;の設定で作成されたコマンドバッファーは、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a0e171a31353ada1910b428cd08e7d2d3a334e30250c695f8bfed86fc89b3dc49e">nn::gfx::CommandBufferType_Nested</a> の設定で作成されたコマンドバッファーをコールまたはコピーすることができます。コマンドバッファーのコールは、対象のコマンドバッファーをネスト呼び出しすることを意味し、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a41c75c6bf8f1ef0f723480ac1b93e52b">CallCommandBuffer</a>&nbsp;により行われます。コマンドバッファーのコピーは、対象のコマンドバッファーのコマンドメモリーの内容を現在書き込んでいるコマンドメモリーに挿入することを意味し、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#ab5fa4106a304bd64c103f06b0bebef84">CopyCommandBuffer</a>&nbsp;により行われます。</p>
+<p>ネスト関係にあるコマンドバッファーは、特筆されない限り、また低レベルグラフィックス API において制限されていない限り、設定されるステートを継承します。</p>
+<h3 id="Anchor_83956082_h3_11">キャッシュ操作</h3>
+<p>GPU の読み込みキャッシュ、書き込みキャッシュは、必要であればそれぞれアプリケーションによって明示的に無効化、フラッシュされることを要求します。読み込みキャッシュは <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a7e5cade7802122a5272657dfaec5d1f1">InvalidateMemory</a>&nbsp;を呼び出すことによって無効化され、書き込みキャッシュは <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a3b43b17e57f564190229a914370bfb9b">FlushMemory</a>&nbsp;を呼び出すことによってフラッシュされます。どちらも引数として、無効化したいメモリの内容を組み合わせで指定します。すべてのビットを組み合わせることで、すべてのメモリー種類のキャッシュを無効化またはフラッシュすることが可能です。</p>
+<h3 id="Anchor_83956082_h3_12">ステート操作</h3>
+<p>ほとんどのステートはステートオブジェクトを通してセットされる一方、以下のいくつかのステートはコマンドバッファに直接的にセットします。</p>
+<h4 id="Anchor_83956082_h4_1">深度境界テストの範囲</h4>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a4d0b72716d43461e047b336aed3ebf31">SetDepthBounds</a> により、深度境界テストに使われる範囲の最小値と最大値をセットします。</p>
+<h4 id="Anchor_83956082_h4_2">線の幅</h4>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#ad1bebc2d99727fefa4b8ddfe2f02c01d">SetLineWidth</a> により、線プリミティブの幅をセットします。</p>
+<h4 id="Anchor_83956082_h4_3">ビューポート</h4>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a41e679f5189f3daa7818504b5585bbd4">SetViewport</a> により、ビューポートをセットします。</p>
+<h4 id="Anchor_83956082_h4_4">シザー</h4>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#a732469837b969d305ef752b257c0fc6f">SetScissor</a> により、シザーをセットします。</p>
+<h3 id="Anchor_83956082_h3_13">GL4 特有の操作</h3>
+<p>GL4 バリエーションでは、低レベルグラフィックス API がコマンドバッファに相当する機能をもたないため、GFX ライブラリ内でエミュレーションされます。そのとき、低レベルグラフィックス API を直接使う場合と併用するために、任意の位置にユーザ定義のコマンドコールバックを差し込むための <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_command_buffer.html#adf046ccaeada2834e769085dbbc4445e">Gl4SetUserCommand</a>&nbsp;を利用可能です。後の <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#afceb1f20a49ed58f99e33f2324312e1b">nn::gfx::Queue</a>&nbsp;クラスの <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#a3513accbae08380417a92fb51043f1e8">ExecuteCommand</a>&nbsp;の実行時に、このコマンドの場所まで到達した際、ユーザ定義のコールバック関数に処理が移ります。</p>
+<h2 id="Anchor_83956082_h2_4">コマンドバッファの実行</h2>
+<p>コマンドの追加を終了したコマンドバッファについて、コマンドバッファに含まれるすべてのコマンドは、キューに提出することによって何度でも実行できます。これは <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#afceb1f20a49ed58f99e33f2324312e1b">nn::gfx::Queue</a>&nbsp;クラスの <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#a3513accbae08380417a92fb51043f1e8" style="text-decoration: underline;">ExecuteCommand</a>&nbsp;によって行われます。詳細は<a href="../Pages/Page_83956110.html">キュー</a>を参照してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

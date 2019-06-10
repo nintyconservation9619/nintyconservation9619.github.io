@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エラーハンドリング</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エラーハンドリング -->
+<div class="pagetitle" id="PageId_172900706">エラーハンドリング</div>
+<div class="text_separate">
+<h1 id="Anchor_172900706_h1_1">アプリケーションで区別可能なエラー</h1>
+<p>ACCOUNT ライブラリが定義するエラー Result のうち、アプリケーションで区別可能なものは次の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>Result (名前空間&nbsp;<span class="ApiLink_nn__account">nn::account</span> に含まれる)</th>
+      <th>内容</th>
+    </tr>
+    <tr>
+      <td>ResultCancelled</td>
+      <td>プログラムの要求によって処理が中断された場合に返ります。<br />nn::account::AsyncContext::Cancel() 関数等を実行すると返ります。&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ResultCancelledByUser</td>
+      <td>
+        <p>ユーザーの要求によって処理が中断された場合に返ります。</p>
+        <p>本体システムが提供する UI を呼び出すと返る場合があります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultUserNotExist</td>
+      <td>
+        <p>指定したユーザーアカウントが存在しない場合に返ります。</p>
+        <p>過去のアプリケーション実行時に取得した Uid 等を指定すると返る場合があります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultNetworkServiceAccountUnavailable</td>
+      <td>
+        <p>ネットワークサービスアカウントが種々の要因で利用不可能な場合に返ります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultTokenCacheUnavailable</td>
+      <td>
+        <p>ネットワークサービスアカウントなどの認証トークンのキャッシュを取得する際に、キャッシュが失効していると返ります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultNetworkCommunicationError</td>
+      <td>
+        <p>ネットワーク通信中に問題が発生した場合に返ります。</p>
+        <p>このエラーコードは ACCOUNT ライブラリが定義するネットワーク通信に関するエラーを包含します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また API によっては、 ACCOUNT ライブラリ以外が定義する次のエラー Result が返り得ます。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>Result</th>
+      <th>内容</th>
+    </tr>
+    <tr>
+      <td>nn::ssl::ResultSslService</td>
+      <td>
+        <p>ネットワーク通信中に問題が発生した場合に返ります。</p>
+        <p>このエラーコードは ACCOUNT ライブラリの通信中に発生し得る SSL 接続に関するエラーを包含します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_172900706_h1_2">アプリケーションに期待するエラーハンドリング</h1>
+<p>ACCOUNT ライブラリが返却するエラーに対してプログラムに期待するハンドリングを説明します。</p>
+<h2 id="Anchor_172900706_h2_1">ユーザーに表示すべきでないエラー</h2>
+<p>この節に挙げるエラーはユーザーにエラーとして表示せず、正常系の一部として扱うべきエラーです。&nbsp;</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>Result (名前空間&nbsp;<span class="ApiLink_nn__account">nn::account</span> に含まれる)</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>ResultCancelled</td>
+      <td>
+        <p>次のいずれの場合もユーザーに通知すべき状況ではないため。</p>
+        <ul style="list-style-type: square;">
+          <li>正常系の一環であるユーザーによる UI 操作など、ユーザーの意思に基づく中断</li>
+          <li>ユーザーに対して暗黙的に行っていた処理に対する、シーン遷移等で行う暗黙的な中断</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultCancelledByUser</td>
+      <td>
+        <p>このエラーが返却されるのは本体システムの UI 上、ユーザーの意思に基づく中断であることが明らかな場合のみであるため。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultUserNotExist</td>
+      <td>
+        <p>アプリケーションがセーブデータ等に記録した Uid を ACCOUNT ライブラリに指定した場合に返ります。<br />この場合アプリケーションは、当該 Uid に関連する情報を速やかに現状に即した状態にする必要があります。</p>
+        <p>（削除や演出上の無効化などによって、 Uid が存在しなくなった現状と不整合を生じないようにしてください。）</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_172900706_h2_2">解消可能なエラー</h2>
+<p>この節に挙げるエラーは ACCOUNT ライブラリがプログラムの期待しない状態になっている場合に返りますが、プログラムの処理によって解消することができます。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>Result (名前空間&nbsp;<span class="ApiLink_nn__account">nn::account</span> に含まれる)</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>ResultNetworkServiceAccountUnavailable</td>
+      <td>
+        <p>ネットワークサービスアカウントが次の理由で使用できない状態です。</p>
+        <ul style="list-style-type: square;">
+          <li>
+            <a href="../Pages/Page_159246422.html">ネットワークサービスアカウントの利用ポリシー</a> を満たしていない</li>
+          <li>EULA への再同意やユーザーの再認可が必要である</li>
+          <li>データに異常があり修復が必要である</li>
+        </ul>
+        <p>この状態は <span class="ApiLink_nn__account__EnsureNetworkServiceAccountAvailable">nn::account::EnsureNetworkServiceAccountAvailable</span>() 関数を実行することで解消することができます。<br />この関数を呼ぶと本体システムの UI によってエラーの内容がユーザーに通知され、状態を回復するためのシーケンスが開始します。</p>
+        <p>状態が回復されると、このエラーを返した API を再度実行しプログラムを継続することができます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ResultTokenCacheUnavailable</td>
+      <td>
+        <p>ネットワークサービスアカウントなどの認証トークンのキャッシュを取得する際に、キャッシュが失効していると返ります。</p>
+        <p>nn::account::EnsureNetworkServiceAccountAvailable() 関数など、キャッシュを確保する API の呼び出しでエラーを解消できます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_172900706_h3_1">エラー解消の原則と例外</h3>
+<h4 id="Anchor_172900706_h4_1">ResultNetworkServiceAccountUnavailable</h4>
+<p>原則的に、プログラムがこのエラーに対して解消処理を行うことを必須とします。<br />これは解消処理を行わずに処理を中断した場合などに、ユーザーが意図する操作を継続できない状態に陥ることがあるためです。</p>
+<p>このエラーについて、ガイドライン検査ではその解消処理が行われているかを試験します。<br />詳細はガイドライン「ネットワークサービスアカウントを利用できない場合の処理の実装」を参照してください。&nbsp;</p>
+<p>ただし次のような場合に限り例外的に、エラー解消を遅延することが可能です。</p>
+<ul style="list-style-type: square;">
+  <li>シーンのバックグラウンド処理の結果として上記のエラーが返り、エラー解消の UI が表示されるとユーザーに違和感を与える場合<ul style="list-style-type: square;"><li>例：チュートリアルシーンのバックグラウンドで認証処理を先行して行う場合<ul style="list-style-type: square;"><li>チュートリアルの途中でエラーが生じた旨が表示されるとユーザーに違和感を与える懸念があるため、遅延できる。</li><li>この場合、チュートリアル完了後に速やかにエラー解消処理を行うことが望ましい。</li></ul></li></ul></li>
+</ul>
+<h4 id="Anchor_172900706_h4_2">ResultTokenCacheUnavailable</h4>
+<p>プログラムはこのエラーに対して解消処理を行うことを原則的に必須とします。</p>
+<h2 id="Anchor_172900706_h2_3">エラービューアで表示すべきエラー</h2>
+<p>この節に挙げるエラーは次の理由からエラービューアに表示すべきエラーです。</p>
+<ul style="list-style-type: square;">
+  <li>ユーザーに具体的な対処を求める必要がある場合がある。</li>
+  <li>アプリケーションや本体システムの外部の要因や、不確定性の高い要因で生じたエラーである。</li>
+</ul>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>Result</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__account__ResultNetworkCommunicationError">nn::account::ResultNetworkCommunicationError</span>
+      </td>
+      <td>
+        <p>ネットワークサービス利用のための認証に失敗した場合や、通信中のエラーが含まれます。</p>
+        <p>ネットワーク通信に関するエラーについて、エラーの分類やユーザーへの対応方法の案内等は、必要に応じてエラービューアを介して行われます。&nbsp;</p>
+      </td>
+    </tr>
+    <tr>
+      <td>nn::ssl::ResultSslService</td>
+      <td>通信中のエラーが含まれます。<br />ネットワーク通信に関するエラーについて、エラーの分類やユーザーへの対応方法の案内等は、必要に応じてエラービューアを介して行われます。&nbsp;&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__account', '../../../Api/HtmlNX/namespacenn_1_1account.html' )
+SetUrl( 'ApiLink_nn__account__EnsureNetworkServiceAccountAvailable', '../../../Api/HtmlNX/namespacenn_1_1account.html#a3f6aca5d7fd762684b1ee408a35d99f6' )
+SetUrl( 'ApiLink_nn__account__ResultNetworkCommunicationError', '../../../Api/HtmlNX/classnn_1_1account_1_1_result_network_communication_error.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

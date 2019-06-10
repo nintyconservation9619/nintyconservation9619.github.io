@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>EXIT/PEXIT</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    EXIT : Exit Program<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "EXIT", description => "Exit Program" } -->
+    PEXIT : Pre-Exit<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "PEXIT", description => "Pre-Exit" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "EXIT", subsection => 11.4 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "PEXIT", subsection => 11.4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+<pre>
+SPA 5.0:
+<code>        <code></code>           <code><b>PEXIT</b></code>                 <code>#OffsetS24</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MIO_NOSCBD") --></code>           <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "PEXIT" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>EXIT</b>{.KEEPREFCOUNT}</code>   <code>{CC.test}</code>    <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "EXIT" } -->
+
+  .test:  { <b>.F,      .LT,     .EQ,     .LE,      .GT,      .NE,      .GE,   .NUM, </b>    Signed numeric tests
+            <b>.NAN,    .LTU,    .EQU,    .LEU,     .GTU,     .NEU,     .GEU,  .T,   </b>    Signed or Unordered tests 
+            <b>.OFF,    .LO,     .SFF,    .LS,      .HI,      .SFT,     .HS,   .OFT, </b>    Unsigned integer tests
+            <b>.CSM_TA, .CSM_TR, .CSM_MX, .FCSM_TA, .FCSM_TR, .FCSM_MX, .RLE,  .RGT  </b>}   Clip State Machine tests
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<dl>
+<dt>PEXIT:</dt>
+<dd>
+<p>
+   Setup post exit synchronization  point.</p>
+<p>
+This instruction is used before an EXIT to specify the target address of a post warp exit routine. The target address is relative to the program counter of the instruction following the PEXIT instruction and is a signed byte address with the three lsbs being 0. The PEXIT instruction results in a token (which includes the target address) being pushed onto the CallReturnStack (CRS) but does not alter the program flow; execution continues normally to the next sequential instruction. This token is used to steer the program execution when CallReturnStack unwinds (say when EXIT is executed). 
+</p>
+
+</dd>
+</dl>
+
+<dl>
+<dt>EXIT:</dt>
+<dd>
+
+<p> Exit normal shader program and transfer control to post exit synchronization point. 
+Includes guard predicate and conditional test.  
+</p>
+<p>
+Conditional test is evaluated for active threads with TRUE guard predicate, and if TRUE, these
+threads are marked as completed. When all the threads of the warp are completed, the program transfers to 
+post exit synchronization point. </p>
+
+
+<p> After transferring to syncpoint specified by PEXIT, the warp continues execution without
+releasing any of it resources. When it executes one more EXIT at the end of the "post-amble" code, that's when
+the warp terminates, and releases its resources. </p>
+
+<p> As the threads  execute the final EXIT,  barriers waiting on "all threads" must be checked to see if
+the exiting threads are the only threads that have not yet made it to a barrier
+for all threads in the CTA.  If the exiting threads are holding up the barrier,
+    the barrier is released.</p>
+
+<p> <b>.KEEPREFCOUNT</b>.
+This enables new programming models where software allocated resources like
+memory pools are protected by CWD by tracking  software allocated reference
+counters and throttling  CTA launches when necessary resources are unavailable.
+Normally, in CTA grid based programming models, when all the warps of CTA exit,
+all the  resources owned by the CTA are released by default. But for new
+programming modes like GWC, software may need to maintain ownership of
+resources  (such as global memory pool) even after CTA exit.  An example
+scenario arises with CTA continuations where a parent CTA exits but wants
+to keep its state alive in continuation buffer till all its child CTAs
+are completed and then get launched back to finish the processing.  The
+<b>.KEEPREFCOUNT</b> option prevents a CTA exit from releasing its
+CWD-tracked resources upon exit.  It is legal to mix EXIT and
+EXIT.<b>KEEPREFCOUNT</b> thread exits in the same CTA, but the CTA will
+maintain ownership of its CWD-tracked resource, if <em>at least</em> one of
+its thread exits with EXIT.<b>KEEPREFCOUNT</b>. </p>
+
+<p> <b>Note:</b> Behavior of the <b>EXIT</b> instruction if used inside of the
+trap handler is undefined.  If a warp inside the trap handler needs to be
+stopped, the warp-wide <b><a href="opRTT.htm">RTT</a>.TERMINATE</b> instruction
+should be used instead of <b>EXIT</b>.</p>
+
+<p> <b>Note:</b> SW should not use synchronizing barriers in post-emble code between PEXIT and EXIT.
+The user code could be depending on threads exiting contributing to arrival count and using another barrier
+in post-emble code could lead to deadlock.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+
+# Here is an example of At-exit code implemented with PEXIT
+LAUNCH_PC: 
+         PEXIT LABEL_B;    # Stack = [[PEXIT, LABEL_B]]
+         PRET  LABEL_A;    # Stack = [[PEXIT, LABEL_B] , [PRET, LABEL_A]]
+
+        [ shader code goes here... no 'fallthrough' to A allowed ]
+
+LABEL_A: 
+         EXIT; # converts 'ret' threads to 'exit' threads. 
+               # if the code has balanced CALL/RET tokens, PRET gets skipped over during unwind.
+               # if code has RET without matching call (allowed in DX) then
+               # [PRET, LABEL_A] catches it, and steers it to LABEL_A.
+               # Then the EXIT will search for [PEXIT, LABEL_B] token during unwind.
+
+LABEL_B: 
+
+        [ exit handling code goes here... ]
+
+         EXIT; // final exit to terminate warp
+
+</pre>
+
+
+<pre>
+<b>EXIT</b>;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

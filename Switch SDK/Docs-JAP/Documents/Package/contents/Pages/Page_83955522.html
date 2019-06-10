@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ピクセルシェーダについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ピクセルシェーダについて -->
+<div class="pagetitle" id="PageId_83955522">ピクセルシェーダについて</div>
+<div class="text_separate">
+<p>NintendoWare エフェクトのピクセルシェーダ処理について説明します。</p>
+<h1 id="Anchor_83955522_h1_1">処理の流れ</h1>
+<p>以下の図はエフェクトのピクセルシェーダの処理の流れを図にしたものです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <td>
+        <a href="#Anchor_83955522_input">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83956195/161442130.png" class="embedded-image" />
+          </span>
+        </a>
+      </td>
+      <td>
+        <p>
+          <strong>
+            <a href="#Anchor_83955522_input">頂点シェーダから入力される値</a>
+          </strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <strong>
+            <a href="#Anchor_83955522_combiner">
+              <span class="embedded-file-wrapper ">
+                <img src="../Attachments/Attach_83956195/161442131.png" class="embedded-image" />
+              </span>
+            </a>
+          </strong>
+        </p>
+      </td>
+      <td>
+        <p>
+          <strong>
+            <a href="#Anchor_83955522_combiner">カラー値、アルファ値の合成</a>
+          </strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_83955522_alpha_process">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83956195/161442132.png" class="embedded-image" />
+          </span>
+        </a>
+      </td>
+      <td>
+        <strong>
+          <a href="#Anchor_83955522_alpha_process">アルファ処理</a>
+        </strong>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>
+          <a href="#Anchor_83955522_custom_shader">
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_83956195/161442133.png" class="embedded-image" />
+            </span>
+          </a>
+        </strong>
+      </td>
+      <td>
+        <strong>
+          <a href="#Anchor_83955522_custom_shader">カスタムシェーダ</a>
+        </strong>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_83955522_input"></a>
+</p>
+<h2 id="Anchor_83955522_h2_1">1.頂点シェーダから入力される値</h2>
+<p>頂点シェーダからのカラー値、アルファ値などが入力されます。<br />頂点シェーダから入力される主な値は以下の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_96050485.html">カラー 0,1</a>
+      </th>
+      <td>
+        <p>固定 / ランダム / アニメ から挙動が選択できそれらの計算は頂点シェーダで行われます。</p>
+        <p>エミッタカラーは頂点シェーダ上で乗算され、その結果がピクセルシェーダに入力されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955685.html">テクスチャ 0,1,2</a>
+        <br />
+      </th>
+      <td>
+        <p>テクスチャ座標の 初期値やランダム、アニメーションは頂点シェーダ上で計算され、</p>
+        <p>ピクセルシェーダ上でそれをもとにテクスチャカラーを取得します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_94754686.html">プリミティブ頂点カラー</a>
+        <br />
+      </th>
+      <td>プリミティブ利用時に入力されます。<strong> <br /> </strong></td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_83955522_combiner"></a>
+</p>
+<h2 id="Anchor_83955522_h2_2">2.カラー値、アルファ値の合成</h2>
+<p>入力されたカラー値、アルファ値を EffectMaker「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> コンバイナタブ」で指定するコンバイナ式に基づいて合成します。<br />以下はコンバイナ設定におけるカラーとアルファの合成方法をまとめた図です。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956195/161440220.png" class="embedded-image" />
+  </span>
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>カスタムシェーダを利用することで、前段の カラー値、アルファ値の合成 を独自の合成式に置き換えることができます。</p>
+  </div>
+</div>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>&nbsp;以下は関連ページへのリンクです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955680.html">コンバイナ</a>
+        </span>
+      </th>
+      <td>パーティクルのカラーやアルファの合成設定を行う「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> コンバイナタブ」について説明します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_83955522_alpha_process"></a>
+</p>
+<h2 id="Anchor_83955522_h2_3">3.アルファ処理</h2>
+<p>合成されたアルファ値に対し、 EffectMaker「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> カラータブ」の「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/91326320.png" class="embedded-image" /></span> アルファ処理」でソフトパーティクルなどのアルファ処理を施します。<br />以下はアルファ処理の種類です。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">
+        <a href="../Pages/Page_96060096.html">ソフトパーティクル</a>
+      </th>
+      <th style="text-align: center;">&nbsp;<a href="../Pages/Page_96061548.html">近距離アルファ</a><br /><a href="../Pages/Page_96061697.html">遠距離アルファ</a></th>
+      <th style="text-align: center;">
+        <a href="../Pages/Page_96061894.html">フレネルアルファ</a>
+      </th>
+      <th style="text-align: center;">
+        <a href="../Pages/Page_96062033.html">デカール</a>
+      </th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83955557/161440581.gif" width="150" class="embedded-image" />
+          </span>
+        </p>
+      </td>
+      <td style="text-align: center;">
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83955557/161440584.gif" width="150" class="embedded-image" />
+          </span>
+        </p>
+      </td>
+      <td style="text-align: center;">
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83955557/161440594.gif" width="150" class="embedded-image" />
+          </span>
+        </p>
+      </td>
+      <td style="text-align: center;">
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83955557/161440595.gif" width="150" class="embedded-image" />
+          </span>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>&nbsp;以下は関連ページへのリンクです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955684.html">カラー</a>
+        </span>
+      </th>
+      <td>エフェクトのカラーやアルファに関する設定を行う「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> カラータブ」について説明します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_83955522_custom_shader"></a>
+</p>
+<h2 id="Anchor_83955522_h2_4">4.カスタムシェーダ</h2>
+<p>計算済みカラー値、アルファ値に対して、 EffectMaker「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span><span style="color: rgb(0,51,102);"> Cstm タブ</span>」でアプリケーション固有の処理を行います。<br />カスタムシェーダが適用されているシェーダでは、これまでに計算されたカラー値、アルファ値に対してアプリケーション固有のライティング処理を行います。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>&nbsp;以下は関連ページへのリンクです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955731.html">カスタムシェーダの例</a>
+      </th>
+      <td>いろんな表現をカスタムシェーダを利用して実装する例を紹介します。</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83955555/83080715.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_100908035.html">Cstm シェーダ</a>
+      </th>
+      <td>ゲームアプリで用意したプログラマブルシェーダの設定を行う「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> Cstm タブ」について説明します。</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83955555/83080721.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_106364557.html#Anchor_106364557_shader">カスタムシェーダとは</a>
+      </th>
+      <td>標準で提供する機能をカスタマイズできる「カスタムシェーダ」について紹介します。</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83955555/83080723.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955512.html">カスタムシェーダ</a>
+      </th>
+      <td>エフェクト標準シェーダをカスタマイズすることでアプリ固有のシェーダ表現が実装できるカスタムシェーダについて説明します。</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83955555/83080723.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: ProfilerSimple.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">ProfilerSimple.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_profiler_simple.html">Nintendo NX CPU Profiler Sample</a> および <a class="el" href="_profiler_simple_8cpp.html" title="Sample application showing how to use functions in the nn::profiler namespace. ">ProfilerSimple.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nn_Common.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___time_span_8h.html">nn/nn_TimeSpan.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="profiler_8h.html">nn/profiler.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace</span></div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// Waits for the profiler to be in the ProfilerStatus_Active or ProfilerStatus_Offline state</span></div>
+<div class="line">    <span class="comment">// before returning. This ensures that if profiling or transferring is in progress that the</span></div>
+<div class="line">    <span class="comment">// data can be obtained in the PC before the application continues.</span></div>
+<div class="line">    <span class="keywordtype">void</span> WaitForProfileTransferred()</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="namespacenn_1_1profiler.html#a7fea676000503cc4f931e0d93d51f5f2">nn::profiler::ProfilerStatus</a> status = <a name="a0"></a><a class="code" href="namespacenn_1_1profiler.html#a6188c8828050128b52e98bf5fc953b05">nn::profiler::GetProfilerStatus</a>();</div>
+<div class="line">        <span class="keywordflow">while</span> (status == <a name="a1"></a><a class="code" href="namespacenn_1_1profiler.html#a7fea676000503cc4f931e0d93d51f5f2aee16006157055d994c7694213ee3be42">nn::profiler::ProfilerStatus_Profiling</a> ||</div>
+<div class="line">               status == <a name="a2"></a><a class="code" href="namespacenn_1_1profiler.html#a7fea676000503cc4f931e0d93d51f5f2ab2d31e18bc33aa3304cb0e14eed05911">nn::profiler::ProfilerStatus_Transferring</a>)</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a3"></a><a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a name="a4"></a><a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(1));</div>
+<div class="line">            status = <a class="code" href="namespacenn_1_1profiler.html#a6188c8828050128b52e98bf5fc953b05">nn::profiler::GetProfilerStatus</a>();</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> RandomLoop()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">int</span> loopCount = (rand() &amp; 0xFFFF);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Example of recording data with a string literal.</span></div>
+<div class="line">        <a name="a5"></a><a class="code" href="namespacenn_1_1profiler.html#a9bcc0188395af2ef6c82c28465693edd">nn::profiler::RecordData</a>(u8<span class="stringliteral">&quot;RandomLoop: Loop Count&quot;</span>, static_cast&lt;uint64_t&gt;(loopCount));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Example of using a scope code block with a string literal.</span></div>
+<div class="line">        <span class="comment">// The code block will automatically exit when the variable falls out of scope.</span></div>
+<div class="line">        <span class="comment">// The string literal is built using the preprocessor to show __FILE__:__LINE__.</span></div>
+<div class="line">        <a name="_a6"></a><a class="code" href="classnn_1_1profiler_1_1_scoped_code_block.html">nn::profiler::ScopedCodeBlock</a> codeBlock(__FILE__ <span class="stringliteral">&quot;:&quot;</span> <a name="a7"></a><a class="code" href="nn___macro_8h.html#ad752e23348021cdb2cafabb4d054b7bc">NN_MACRO_STRINGIZE</a>(__LINE__));</div>
+<div class="line">        <span class="keywordflow">while</span> (loopCount &gt; 0)</div>
+<div class="line">        {</div>
+<div class="line">            --loopCount;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    int64_t CalculateFibonacci(<span class="keywordtype">int</span> n)</div>
+<div class="line">    {</div>
+<div class="line">        int64_t retVal = n;</div>
+<div class="line">        <span class="keywordflow">if</span> (n &gt; 1) { retVal = CalculateFibonacci(n - 1) + CalculateFibonacci(n - 2); }</div>
+<div class="line">        <span class="keywordflow">return</span> retVal;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a8"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    srand(0);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Initialize the profiler</span></div>
+<div class="line">    <span class="keywordtype">char</span>* buffer = <span class="keyword">new</span> <span class="keywordtype">char</span>[<a name="a9"></a><a class="code" href="namespacenn_1_1profiler.html#a9bc180dcf49e08d2b3c8f0bb7d8358b6">nn::profiler::MinimumBufferSize</a>];</div>
+<div class="line">    <a name="_a10"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a name="a11"></a><a class="code" href="namespacenn_1_1profiler.html#a1fd4585e5e75647e1cb20bb264f58f6e">nn::profiler::Initialize</a>(buffer, <a class="code" href="namespacenn_1_1profiler.html#a9bc180dcf49e08d2b3c8f0bb7d8358b6">nn::profiler::MinimumBufferSize</a>);</div>
+<div class="line">    <a name="a12"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> totalFrameCount = 120 * 60;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> frame = 0; frame &lt; totalFrameCount; ++frame)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">auto</span> startTime = <a name="a13"></a><a class="code" href="namespacenn_1_1os.html#a79e29821bfb2b0c3a5c222488e90cc89">nn::os::GetSystemTick</a>();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Record the top of our main loop. This is used as the framerate in the GUI.</span></div>
+<div class="line">        <a name="a14"></a><a class="code" href="namespacenn_1_1profiler.html#a90d857e6e5c2a9fe9f8938f1dd8d1829">nn::profiler::RecordHeartbeat</a>(<a name="a15"></a><a class="code" href="namespacenn_1_1profiler.html#a8bd43485bd61fe04afe4b789a73b98c4afef7944828c76c000d169f2d4b0d5ac2">nn::profiler::Heartbeats_Main</a>);</div>
+<div class="line"></div>
+<div class="line">        RandomLoop();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordtype">int</span> fibonacciSeed = (rand() % 20) + 10;</div>
+<div class="line">        int64_t fibonacciResult = CalculateFibonacci(fibonacciSeed);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Example of recording data with a numerical ids.</span></div>
+<div class="line">        <a class="code" href="namespacenn_1_1profiler.html#a9bcc0188395af2ef6c82c28465693edd">nn::profiler::RecordData</a>(1, static_cast&lt;uint64_t&gt;(fibonacciSeed));</div>
+<div class="line">        <a class="code" href="namespacenn_1_1profiler.html#a9bcc0188395af2ef6c82c28465693edd">nn::profiler::RecordData</a>(2, static_cast&lt;double&gt;(fibonacciResult));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Determine how long we have spent on this frame so far.</span></div>
+<div class="line">        <span class="comment">// Set the wait time so that we attempt to maintain a consistent framerate.</span></div>
+<div class="line">        <span class="keyword">auto</span> stopTime = <a class="code" href="namespacenn_1_1os.html#a79e29821bfb2b0c3a5c222488e90cc89">nn::os::GetSystemTick</a>();</div>
+<div class="line">        <span class="keywordtype">int</span> elapsedMicroSeconds = (stopTime - startTime).ToTimeSpan().GetMicroSeconds();</div>
+<div class="line">        <span class="keywordtype">int</span> waitTime = std::max(0, 16667 - elapsedMicroSeconds);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Example of entering and exiting a code block using a string literal.</span></div>
+<div class="line">        <a name="a16"></a><a class="code" href="namespacenn_1_1profiler.html#acd040cd20c33f208f315e60bdd0df745">nn::profiler::EnterCodeBlock</a>(<span class="stringliteral">&quot;Main Thread Sleeping&quot;</span>);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a name="a17"></a><a class="code" href="classnn_1_1_time_span.html#ad68c54c586dc921319b8ef99bee505bf">nn::TimeSpan::FromMicroSeconds</a>(waitTime));</div>
+<div class="line">        <a name="a18"></a><a class="code" href="namespacenn_1_1profiler.html#a40482ccaf3b2a56eb6e8e7aeddfebacb">nn::profiler::ExitCodeBlock</a>(<span class="stringliteral">&quot;Main Thread Sleeping&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    WaitForProfileTransferred();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Finalize the profiler</span></div>
+<div class="line">    result = <a name="a19"></a><a class="code" href="namespacenn_1_1profiler.html#a686d62f2d301026212a1f2f19d32e5e0">nn::profiler::Finalize</a>();</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line">    <span class="keyword">delete</span>[] buffer;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

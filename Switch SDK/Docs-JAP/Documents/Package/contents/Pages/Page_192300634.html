@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>テクスチャバイナリの運用について</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- テクスチャバイナリの運用について -->
+<div class="pagetitle" id="PageId_192300634">テクスチャバイナリの運用について</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_192300634_h1_1">エフェクトバイナリとテクスチャバイナリを分けて運用する</a>
+    </li>
+    <li>
+      <a href="#Anchor_192300634_h1_2">エフェクトバイナリ間でテクスチャを共有する</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_192300634_h1_1">エフェクトバイナリとテクスチャバイナリを分けて運用する</h1>
+<p>エフェクトバイナリ内に含まれるテクスチャバイナリを個別ファイルとして出力し、テクスチャの含まれないエフェクトバイナリと組み合わせて利用することができます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_192300634/198958315.png" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_192300634_h2_1">テクスチャバイナリをファイル出力する</h2>
+<p>テクスチャバイナリを出力するには、エフェクトバイナリ コンバート コマンドライン引数にて <strong>--output-texture-binary </strong>を指定することで行えます。<br />ファイル出力されたテクスチャは、bntx バイナリ形式で出力され、テクスチャバイナリ単体としても利用できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>EffectConverter.exe --output effectBinary.ptcl --convert-list ConvertList.xml --output-texture-binary effectTexture.bntx ...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_192300634_h2_2">エフェクトバイナリとバインドする</h2>
+<p>出力されたテクスチャバイナリは、ランタイム上でエフェクトバイナリとバインドする必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// エフェクトテクスチャバイナリを初期化
+nn::gfx::ResTextureFile* pResTextureFile = nn::gfx::ResTextureFile::ResCast( textureBinary );
+pResTextureFile-&gt;Initialize( pGfxDevice );
+
+int textureCount = pResTextureFile-&gt;GetTextureDic()-&gt;GetCount();
+for (int idxTexture = 0; idxTexture &lt; textureCount; ++idxTexture)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;pResTextureFile-&gt;GetResTexture(idxTexture)-&gt;Initialize( pGfxDevice );
+}
+&nbsp;
+// ディスクリプタスロットを割り当てる
+for (int idxTexture = 0; idxTexture &lt; textureCount; ++idxTexture)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::ResTexture* resTexture = pResTextureFile-&gt;GetResTexture( idxTexture );
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::TextureView&amp; textureView = *(static_cast&lt;nn::gfx::TextureView*&gt;(resTexture-&gt;GetTextureView()));
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::DescriptorSlot slot;
+&nbsp;&nbsp;&nbsp;&nbsp;AllocateDescriptorSlotForTexture(&amp;slot, textureView, &amp;g_GraphicsFramework);
+&nbsp;&nbsp;&nbsp;&nbsp;resTexture-&gt;SetUserDescriptorSlot(slot);
+}
+
+// 登録済みエフェクトリソースとテクスチャをバインドする
+pVfxSystem-&gt;GetResource(resourceId)-&gt;BindExternalResTextureFile( pResTextureFile );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>詳しくは、 VfxBinarySegmentation サンプルを参照ください。</p>
+<h1 id="Anchor_192300634_h1_2">エフェクトバイナリ間でテクスチャを共有する</h1>
+<p>２つエフェクトバイナリ内でテクスチャが重複する含まれる場合、</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_192300634/199793572.png" class="embedded-image" />
+  </span>
+</p>
+<p>重複するテクスチャを単体のテクスチャバイナリとして管理することで、メモリの効率化やロード時間の短縮を行うことができます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_192300634/199793592.png" class="embedded-image" />
+  </span>
+</p>
+<p>この機能を利用する為に必要となる２つのバイナリ生成について説明します。</p>
+<ul>
+  <li>重複するテクスチャを まとめたバイナリ</li>
+  <li>重複するテクスチャが 省かれた状態のエフェクトバイナリ</li>
+</ul>
+<h2 id="Anchor_192300634_h2_3">重複するテクスチャを まとめたバイナリを生成する</h2>
+<p>重複するテクスチャをまとめたバイナリを生成するには、3D テクスチャーコンバーターを利用します。</p>
+<h2 id="Anchor_192300634_h2_4">重複するテクスチャが 省かれた状態のエフェクトバイナリを生成する</h2>
+<p>まずは、重複するテクスチャのリストを生成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Textures/Texture0.ftxb
+Textures/Texture1.ftxb</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>コマンドラインオプション resident-texture-list に 作成したリストをしてして、エフェクトバイナリコンバートすることで、重複するテクスチャが省かれた状態のエフェクトバイナリを生成できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>\EffectConverter.exe --resident-texture-list OverlapTextureList.txt ...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_192300634_h2_5">ランタイム上でバイナリをバインドする</h2>
+<p>出力されたそれぞれのバイナリをランタイム上でバインドします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// エフェクトテクスチャバイナリを初期化
+nn::gfx::ResTextureFile* pResTextureFile = nn::gfx::ResTextureFile::ResCast( overlapTextureBinary );
+pOverlapResTextureFile-&gt;Initialize( pGfxDevice );
+
+int textureCount = pOverlapResTextureFile-&gt;GetTextureDic()-&gt;GetCount();
+for (int idxTexture = 0; idxTexture &lt; textureCount; ++idxTexture)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;pOverlapResTextureFile-&gt;GetResTexture(idxTexture)-&gt;Initialize( pGfxDevice );
+}
+&nbsp;
+// ディスクリプタスロットを割り当てる
+for (int idxTexture = 0; idxTexture &lt; textureCount; ++idxTexture)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::ResTexture* resTexture = pOverlapResTextureFile-&gt;GetResTexture( idxTexture );
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::TextureView&amp; textureView = *(static_cast&lt;nn::gfx::TextureView*&gt;(resTexture-&gt;GetTextureView()));
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::DescriptorSlot slot;
+&nbsp;&nbsp;&nbsp;&nbsp;AllocateDescriptorSlotForTexture(&amp;slot, textureView, &amp;g_GraphicsFramework);
+&nbsp;&nbsp;&nbsp;&nbsp;resTexture-&gt;SetUserDescriptorSlot(slot);
+}
+
+// 登録済みエフェクトリソースとテクスチャをバインドする
+pVfxSystem-&gt;GetResource(resourceId)-&gt;BindExternalResTextureFile( pOverlapResTextureFile );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

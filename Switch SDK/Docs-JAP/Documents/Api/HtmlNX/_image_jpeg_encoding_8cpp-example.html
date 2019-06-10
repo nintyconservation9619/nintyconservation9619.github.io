@@ -1,0 +1,481 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: ImageJpegEncoding.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">ImageJpegEncoding.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_image_jpeg_encoding.html">JPEG エンコードと Exif 情報の設定</a> および <a class="el" href="_image_jpeg_encoding_8cpp.html" title="ピクセルデータにサムネイル画像と Exif 情報を付与して JPEG エンコードするためのサンプルプログラム ...">ImageJpegEncoding.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#define NN_LOG_USE_DEFAULT_LOCALE_CHARSET</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cmath&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="image___exif_builder_8h.html">nn/image/image_ExifBuilder.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="image___jpeg_encoder_8h.html">nn/image/image_JpegEncoder.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;Utilities.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace</span></div>
+<div class="line">{</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> BytesPerPixel = <span class="keyword">sizeof</span>(nn::Bit32); <span class="comment">// 1px あたりのバイト数定義</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">struct </span>MetaData</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// 0th TIFF IFD カテゴリのメタデータ</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2">nn::image::ExifOrientation</a> orientation; <span class="comment">// 画像方向</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *software;   <span class="comment">// ソフトウェア名</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> softwareSize;    <span class="comment">// 終端文字を含めたソフトウェア名のバイト数</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *dateTime;   <span class="comment">// 撮影日時 (主単文字を含め20 バイト)</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 0th Exif IFD カテゴリのメタデータ</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">void</span> *makerNote;  <span class="comment">// メーカーノート</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> makerNoteSize;   <span class="comment">// メーカーノートのバイト数</span></div>
+<div class="line">    <a name="_a0"></a><a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> effectiveDim;  <span class="comment">// 実効画像サイズ</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *uniqueId;   <span class="comment">// 画像のユニーク ID (終端文字を含め 33 バイト)</span></div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> PrintMetaData(<span class="keyword">const</span> MetaData &amp;metaData)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> *orientationStr;</div>
+<div class="line">    <span class="keywordflow">switch</span> (metaData.orientation)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a1"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a41be5f28b7890856154d0793d1b1b993">nn::image::ExifOrientation_Normal</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;正立&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a2"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2ad11332e8eb3a789cc74d521038dee858">nn::image::ExifOrientation_FlipHorizontal</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;水平方向に反転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a3"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2abedcedb9053e2e5a408b847edf129f7b">nn::image::ExifOrientation_Rotate180</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;時計回りに 180 度回転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a4"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a6f7039e3d138a36dcd70d8f5cec9ed29">nn::image::ExifOrientation_FlipVertical</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;垂直方向に反転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a5"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2afce2fd082290fd100f1d26a58558585a">nn::image::ExifOrientation_FlipTopRightToLeftBottom</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;右下がりの対角線を軸に、上辺右端が左辺下端に来るように反転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a6"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a42890a8f9cf4d34622640c2dbd62b336">nn::image::ExifOrientation_Rotate270</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;時計回りに 270 度回転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a7"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a888a63fb98f39988aa56f432f986dfc3">nn::image::ExifOrientation_FlipTopLeftToRightBottom</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;左下がりの対角線を軸に、上辺左端が右辺下端に来るように反転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a8"></a><a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a8cf5d984af068e940b22f1bf334b82a2">nn::image::ExifOrientation_Rotate90</a>:</div>
+<div class="line">        orientationStr = <span class="stringliteral">&quot;時計回りに 90 度回転&quot;</span>;</div>
+<div class="line">        <span class="keywordflow">break</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a name="a9"></a><a class="code" href="nn___macro_8h.html#abfe6f7c5f80ef52b7c0616042aba59b9">NN_UNEXPECTED_DEFAULT</a>;</div>
+<div class="line">    }</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - 画像方向&quot;</span>, orientationStr);</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - ソフトウェア名&quot;</span>, metaData.software);</div>
+<div class="line">    LogIfNotNull(<span class="stringliteral">&quot; - 撮影日時&quot;</span>, metaData.dateTime);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (metaData.makerNote != <span class="keyword">nullptr</span>)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a10"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - メーカーノート: %zu バイト\n&quot;</span>, metaData.makerNoteSize);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> GetDownsampledPixelData(</div>
+<div class="line">    <a name="a11"></a><a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> *pOutPixelData,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> pixelDim,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> &amp;sourceData,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> sourceDim)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// ピクセルデータの縮小 (本来であれば GPU ですべきですが、ここでは CPU で行っています。)</span></div>
+<div class="line">    uint8_t *sourceBuf = <span class="keyword">reinterpret_cast&lt;</span>uint8_t*<span class="keyword">&gt;</span>(sourceData.GetDataPtr());</div>
+<div class="line">    <span class="keywordtype">size_t</span> sourceWidthAligned = sourceData.GetDataSize() / sourceDim.<a name="a12"></a><a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> / BytesPerPixel;</div>
+<div class="line">    uint8_t *pixelBuf = <span class="keyword">reinterpret_cast&lt;</span>uint8_t*<span class="keyword">&gt;</span>(pOutPixelData-&gt;GetDataPtr());</div>
+<div class="line">    <span class="keywordtype">size_t</span> dstWidthAligned = pOutPixelData-&gt;GetDataSize() / pixelDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> / BytesPerPixel;</div>
+<div class="line">    <span class="keywordtype">int</span> scale = sourceDim.<a name="a13"></a><a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> / pixelDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> y = 0; y &lt; pixelDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>; y++)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> x = 0; x &lt; pixelDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>; x++)</div>
+<div class="line">        {</div>
+<div class="line">            uint8_t *source = sourceBuf + (y * scale * sourceWidthAligned + x * scale) * BytesPerPixel;</div>
+<div class="line">            uint8_t *pixel = pixelBuf + (y * dstWidthAligned + x) * BytesPerPixel;</div>
+<div class="line">            <span class="comment">// [入力例]</span></div>
+<div class="line">            <span class="comment">// サムネイルだということを明示するためにチャンネルを変えて作成</span></div>
+<div class="line">            pixel[0] = source[2]; <span class="comment">// R &lt;- B</span></div>
+<div class="line">            pixel[1] = source[0]; <span class="comment">// G &lt;- R</span></div>
+<div class="line">            pixel[2] = source[1]; <span class="comment">// B &lt;- G</span></div>
+<div class="line">            pixel[3] = source[3]; <span class="comment">// A</span></div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">bool</span> TryEncodeWithGivenQuality(</div>
+<div class="line">    <span class="keywordtype">size_t</span> *pOutActualSize,</div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> *pOutJpeg,</div>
+<div class="line">    <a name="_a14"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html">nn::image::JpegEncoder</a> *pEncoder,</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> quality)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// エンコード品質の設定</span></div>
+<div class="line">    pEncoder-&gt;<a name="a15"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#a384908d45afc2cc7a3a31eb91cacc8af">SetQuality</a>(quality);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ピクセルデータの解析</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3">nn::image::JpegStatus</a> jpegStatus = pEncoder-&gt;<a name="a16"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#abc556ad99a578459ea3c9f4822eb5497">Analyze</a>();</div>
+<div class="line">    <a name="a17"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a name="a18"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// エンコード用のワークバッファ。 このワークバッファはサムネイルのエンコードが終われば解放可能です。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> workBuf(pEncoder-&gt;<a name="a19"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#a1c6ef1ee7483972b30cf4bb17d104121">GetAnalyzedWorkBufferSize</a>());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// エンコード処理</span></div>
+<div class="line">    jpegStatus = pEncoder-&gt;<a name="a20"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#ada59b19635ad8dd92a7acd969449d677">Encode</a>(</div>
+<div class="line">        pOutActualSize,</div>
+<div class="line">        pOutJpeg-&gt;GetDataPtr(), pOutJpeg-&gt;GetDataSize(),</div>
+<div class="line">        workBuf.GetDataPtr(), workBuf.GetDataSize());</div>
+<div class="line">    <span class="keywordflow">switch</span> (jpegStatus)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a21"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ae620d8f647aed850da0669fd1da2edc5">nn::image::JpegStatus_ShortOutput</a>:</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラー</span></div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">bool</span> EncodeThumbnailData(</div>
+<div class="line">    <span class="keywordtype">size_t</span> *pOutActualSize,</div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> *pOutJpeg,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> &amp;sourceData,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> &amp;sourceDim,</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> scale,</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> alignmentSize)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// サムネイル画像のサイズを計算</span></div>
+<div class="line">    <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> dim = {sourceDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> / scale, sourceDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> / scale};</div>
+<div class="line">    <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> dimAligned = {</div>
+<div class="line">        dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> % alignmentSize == 0? dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>: dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> - dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> % alignmentSize + alignmentSize,</div>
+<div class="line">        dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>};</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// サムネイル用ピクセルデータ。このワークバッファはサムネイルのエンコードが終われば解放可能です。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> pixelData(dimAligned.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> * dimAligned.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> * BytesPerPixel);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ピクセルデータの縮小</span></div>
+<div class="line">    GetDownsampledPixelData(&amp;pixelData, dim, sourceData, sourceDim);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// エンコーダのインスタンス</span></div>
+<div class="line">    <a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html">nn::image::JpegEncoder</a> encoder;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ピクセルデータの設定</span></div>
+<div class="line">    encoder.<a name="a22"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#a47c9917a740d4569ddd647d6e4ae64cf">SetPixelData</a>(pixelData.GetDataPtr(), dimAligned, alignmentSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 例えば、バッファに収まるまで画質パラメータをいじりながらリトライできます。</span></div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> LowestQuality = 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// 画質設定 (100 からスタート, サンプリング比はデフォルトの 4:2:0 で固定)</span></div>
+<div class="line">    <span class="keywordtype">int</span> lastQuality = 100;</div>
+<div class="line">    <span class="keywordflow">while</span> (!TryEncodeWithGivenQuality(pOutActualSize, pOutJpeg, &amp;encoder, lastQuality))</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (lastQuality &lt;= LowestQuality)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// これ以上品質を下げることができない場合、エラーとします。</span></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;JPEG データを書き込むバッファが不足しました。 サムネイル画像の作成を中止します。\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="comment">// LowestQuality (=1) を下限として、品質を下げてリトライします。</span></div>
+<div class="line">        lastQuality = std::max(lastQuality - 7, LowestQuality);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;JPEG データを書き込むバッファが不足しました。 画質を %d に下げてリトライします。\n&quot;</span>, lastQuality);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="comment">// pixelData はここ以降で解放することができます。</span></div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - サムネイル画像: 幅 %zu px, 高さ %zu px, 画質 %d, %zu バイト\n&quot;</span>, dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>, dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>, lastQuality, *pOutActualSize);</div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> SetupExifBuilder(</div>
+<div class="line">    <a name="_a23"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html">nn::image::ExifBuilder</a> *pOutExifBuilder,</div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> *pThumbnail,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> &amp;sourceData,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> &amp;sourceDim)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Exif 情報を設定します。\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// メタデータを設定します。 文字列やバイナリ列はコピーされずポインタが設定されるだけなので、誤って領域を解放しないよう注意します。</span></div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> software[] = <span class="stringliteral">&quot;Nintendo SDK Sample Program for JPEG library&quot;</span>;</div>
+<div class="line">    <span class="keyword">static</span> <span class="keywordtype">char</span> dateTime[20] = <span class="stringliteral">&quot;2015:08:07 09:00:00&quot;</span>;</div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> nn::Bit8 makerNote[] = {0xBE, 0xEF};</div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> uniqueId[] = <span class="stringliteral">&quot;0123456789ABCDEF0123456789abcdef&quot;</span>;</div>
+<div class="line"></div>
+<div class="line">    MetaData metaData = {};</div>
+<div class="line">    metaData.orientation = <a class="code" href="namespacenn_1_1image.html#ad66e354262142312c35e9d36cbf26cd2a6f7039e3d138a36dcd70d8f5cec9ed29">nn::image::ExifOrientation_FlipVertical</a>; <span class="comment">// 上下反転</span></div>
+<div class="line">    metaData.software = software; <span class="comment">// 撮影ソフトウェア名</span></div>
+<div class="line">    metaData.softwareSize = <span class="keyword">sizeof</span>(software);</div>
+<div class="line">    metaData.dateTime = dateTime; <span class="comment">// 撮影日時</span></div>
+<div class="line">    metaData.makerNote = makerNote; <span class="comment">// メーカーノート</span></div>
+<div class="line">    metaData.makerNoteSize = <span class="keyword">sizeof</span>(makerNote);</div>
+<div class="line">    metaData.uniqueId = uniqueId; <span class="comment">// ユニークID</span></div>
+<div class="line">    PrintMetaData(metaData);</div>
+<div class="line"></div>
+<div class="line">    pOutExifBuilder-&gt;<a name="a24"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#a171af1c48a5b642fc3996c55c2ab6878">SetOrientation</a>(metaData.orientation);</div>
+<div class="line">    pOutExifBuilder-&gt;<a name="a25"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#ad3d9ee2cb239b52b1e3d9bfe68b58d44">SetSoftware</a>(metaData.software, metaData.softwareSize);</div>
+<div class="line">    pOutExifBuilder-&gt;<a name="a26"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#ad5655f666ce430b3879a126a32f3bfdd">SetDateTime</a>(metaData.dateTime, 20);</div>
+<div class="line">    pOutExifBuilder-&gt;<a name="a27"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#ad3af69a67e36f53224eebeee7218385f">SetMakerNote</a>(metaData.makerNote, metaData.makerNoteSize);</div>
+<div class="line">    pOutExifBuilder-&gt;<a name="a28"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#a731f49595650d7a992bff89345be3dcc">SetUniqueId</a>(metaData.uniqueId, 33);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// サムネイル画像の生成 (アラインメントなし (1))</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> thumbSize;</div>
+<div class="line">    <span class="comment">// アプリケーションがサムネイルとして表示するサイズに合わせます。(例として長辺 120 px)</span></div>
+<div class="line">    <span class="keywordtype">int</span> scale = std::max(1, std::max(sourceDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> / 120, sourceDim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> / 120));</div>
+<div class="line">    <span class="keywordflow">if</span> (!EncodeThumbnailData(&amp;thumbSize, pThumbnail, sourceData, sourceDim, scale, 1))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;サムネイル画像を生成できませんでした。省略します。\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pOutExifBuilder-&gt;<a name="a29"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#a5ceb5ebe3035e57ca7c513e85a781ec9">SetThumbnail</a>(pThumbnail-&gt;GetDataPtr(), thumbSize);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// サムネイルピクセルデータの解析</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3">nn::image::JpegStatus</a> exifStatus = pOutExifBuilder-&gt;<a name="a30"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#afd94f161018df99de071ed9d856acb83">Analyze</a>();</div>
+<div class="line">    <span class="keywordflow">switch</span> (exifStatus)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a name="a31"></a><a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a8555609ba8a5e8f6f61e61b15a5db680">nn::image::JpegStatus_OutputOverabounds</a>:</div>
+<div class="line">        <span class="comment">// この場合、ExifBuilder.IsBuildable() が false となります。</span></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;メタデータの設定しすぎで Exif 情報のサイズ上限 (65527 バイト) を超過しています。\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(exifStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラーコード</span></div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> EncodePixelData(</div>
+<div class="line">    <span class="keywordtype">size_t</span> *pOutActualSize,</div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> *pOutJpeg,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> &amp;pixelData,</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> dim,</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> alignmentSize)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        Exif 情報構築フェーズ</span></div>
+<div class="line"><span class="comment">        (メタデータとサムネイルのどちらも使用しない場合は読み飛ばしてください。)</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> thumbJpeg(32 * 1024); <span class="comment">// サムネイル用に適当な大きさのメモリを予約します。 このバッファは、元データの JPEG エンコードが終わるまで解放してはいけません。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> exifWorkBuf(<a name="a32"></a><a class="code" href="classnn_1_1image_1_1_exif_builder.html#ae70032d63b209d68fd1e34b77f87d6e5">nn::image::ExifBuilder::GetWorkBufferSize</a>()); <span class="comment">// このバッファは、元データの JPEG エンコードが終わるまで解放してはいけません。</span></div>
+<div class="line">    <a class="code" href="classnn_1_1image_1_1_exif_builder.html">nn::image::ExifBuilder</a> builder(exifWorkBuf.GetDataPtr(), exifWorkBuf.GetDataSize());</div>
+<div class="line">    <span class="comment">// ExifBuilder を適当なメタデータでセットアップします。</span></div>
+<div class="line">    SetupExifBuilder(&amp;builder, &amp;thumbJpeg, pixelData, dim);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        エンコード設定フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <span class="comment">// エンコーダのインスタンス</span></div>
+<div class="line">    <a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html">nn::image::JpegEncoder</a> encoder;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ピクセルデータを設定します。</span></div>
+<div class="line">    encoder.<a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#a47c9917a740d4569ddd647d6e4ae64cf">SetPixelData</a>(pixelData.GetDataPtr(), dim, alignmentSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// [入力例]</span></div>
+<div class="line">    <span class="comment">// 画質関係を設定します。(最高画質 100, サンプリング比 4:4:4)</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;エンコード設定\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - 画質パラメータ: 100\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - YCbCrサンプリング比: 4:4:4\n&quot;</span>);</div>
+<div class="line">    encoder.<a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#a384908d45afc2cc7a3a31eb91cacc8af">SetQuality</a>(100);</div>
+<div class="line">    encoder.<a name="a33"></a><a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#ac8266ce81652ed78005e63e68f1b066a">SetSamplingRatio</a>(<a name="a34"></a><a class="code" href="namespacenn_1_1image.html#ac9106d5a0df8b9453f48ec618cf0850ea5ff0e6b73867b9eb10cdbdf083374664">nn::image::JpegSamplingRatio_444</a>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        ピクセルデータ解析フェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <span class="comment">// ピクセルデータを解析します。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3">nn::image::JpegStatus</a> jpegStatus = encoder.<a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#abc556ad99a578459ea3c9f4822eb5497">Analyze</a>();</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 現時点では OK のみ返ります。</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">/* ----------------------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">        JPEG エンコードフェーズ</span></div>
+<div class="line"><span class="comment">     */</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;JPEG データにエンコードします。\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// エンコード用のワークバッファの確保。このバッファは JPEG エンコードが終われば解放可能です。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> workBuf(encoder.<a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#a1c6ef1ee7483972b30cf4bb17d104121">GetAnalyzedWorkBufferSize</a>());</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; - 必要な作業メモリ量: %zu bytes\n&quot;</span>, workBuf.GetDataSize());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// エンコード処理</span></div>
+<div class="line">    <span class="keywordflow">if</span> (builder.IsBuildable())</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// もし IsBuildable() == true な ExifBuilder があれば、Exif 情報を設定してエンコードします。</span></div>
+<div class="line">        jpegStatus = encoder.<a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#ada59b19635ad8dd92a7acd969449d677">Encode</a>(</div>
+<div class="line">            pOutActualSize,</div>
+<div class="line">            pOutJpeg-&gt;GetDataPtr(), pOutJpeg-&gt;GetDataSize(),</div>
+<div class="line">            workBuf.GetDataPtr(), workBuf.GetDataSize(),</div>
+<div class="line">            &amp;builder); <span class="comment">// Exif 情報を設定</span></div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// Exif 情報構築フェーズでエラーが起きていれば、 IsBuildable() は false となります。</span></div>
+<div class="line">        <span class="comment">// その場合は Exif 情報を設定せずエンコードします。</span></div>
+<div class="line">        jpegStatus = encoder.<a class="code" href="classnn_1_1image_1_1_jpeg_encoder.html#ada59b19635ad8dd92a7acd969449d677">Encode</a>(</div>
+<div class="line">            pOutActualSize,</div>
+<div class="line">            pOutJpeg-&gt;GetDataPtr(), pOutJpeg-&gt;GetDataSize(),</div>
+<div class="line">            workBuf.GetDataPtr(), workBuf.GetDataSize());</div>
+<div class="line">    }</div>
+<div class="line">    <span class="comment">// サムネイルと ExifBuilder 用のワークメモリ、 JpegEncoder 用のワークメモリはここで解放できます。</span></div>
+<div class="line">    <span class="keywordflow">switch</span> (jpegStatus)</div>
+<div class="line">    {</div>
+<div class="line">    <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ae620d8f647aed850da0669fd1da2edc5">nn::image::JpegStatus_ShortOutput</a>:</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;JPEG データを書き込むバッファが不足しました。\n&quot;</span>);</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    <span class="keywordflow">default</span>:</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(jpegStatus == <a class="code" href="namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc">nn::image::JpegStatus_Ok</a>); <span class="comment">// 未知のエラー</span></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;出力された JPEG データ: 幅 %zu px, 高さ %zu px, %zu バイト\n&quot;</span>, dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>, dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>, *pOutActualSize);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a35"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// ファイルシステムの初期化</span></div>
+<div class="line">    <a name="a36"></a><a class="code" href="namespacenn_1_1fs.html#ac021c163ba94a44a2b53cb848c462930">nn::fs::SetAllocator</a>(Allocate, Deallocate);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// PC 上のファイルシステムをマウント</span></div>
+<div class="line">    <span class="comment">// NOTE: host としてマウントするディレクトリは適宜設定してください。</span></div>
+<div class="line">    <a name="a37"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a38"></a><a class="code" href="namespacenn_1_1fs.html#a1b85bf3f3cf038cb67a991a3e3304751">nn::fs::MountHost</a>(<span class="stringliteral">&quot;Asset&quot;</span>, <span class="stringliteral">&quot;C:\\JpegInputDir&quot;</span>));</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 例: 幅の 4 byte アラインが必要なテクスチャをエンコードする場合</span></div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> AlignmentSize = 4; <span class="comment">// アラインメント</span></div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> dim = {639, 480}; <span class="comment">// パディングの発生のためにキリの悪い 639 にしています。</span></div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnn_1_1image_1_1_dimension.html">nn::image::Dimension</a> dimAligned = {</div>
+<div class="line">        (dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> % AlignmentSize == 0)? dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>: dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> - dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> % AlignmentSize + AlignmentSize,</div>
+<div class="line">        dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>}; <span class="comment">// アライン済みサイズ</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// このバッファは Jpeg エンコードが終われば解放可能。</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> pixelData(dimAligned.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> * dimAligned.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> * BytesPerPixel);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カラーバッファの初期化</span></div>
+<div class="line">    uint8_t *pixelBuf = <span class="keyword">reinterpret_cast&lt;</span>uint8_t*<span class="keyword">&gt;</span>(pixelData.GetDataPtr());</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> y = 0; y &lt; dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>; y++)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> uint8_t R = <span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(((float)y / dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> * 0xFF) + 0.5f);</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> x = 0; x &lt; dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>; x++)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">const</span> uint8_t G = <span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(((float)x / dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>) * 0xFF + 0.5f);</div>
+<div class="line">            <span class="keyword">const</span> uint8_t B = <span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(</div>
+<div class="line">                (std::sqrt(x * x + y * y) / sqrt(dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> * dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a> + dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a> * dim.<a class="code" href="structnn_1_1image_1_1_dimension.html#a66ca932bdd1a155f05b51572c0d88f75">height</a>))</div>
+<div class="line">                * 0xFF + 0.5f);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// エンディアンに関係なく、R, G, B, A で並んでいること。</span></div>
+<div class="line">            uint8_t *pixel = pixelBuf + (x + y * dimAligned.<a class="code" href="structnn_1_1image_1_1_dimension.html#a22d3774aefe021c9b1712995e911cb6b">width</a>) * BytesPerPixel;</div>
+<div class="line">            pixel[0] = R;</div>
+<div class="line">            pixel[1] = G;</div>
+<div class="line">            pixel[2] = B;</div>
+<div class="line">            pixel[3] = 0xFF; <span class="comment">// A</span></div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// JPEG エンコード処理の実体</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> actualSize;</div>
+<div class="line">    <a class="code" href="namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85">Buffer</a> jpegData(1024 * 1024); <span class="comment">// JPEG データ用に (適当に) 1 MiB 予約する。</span></div>
+<div class="line">    EncodePixelData(&amp;actualSize, &amp;jpegData, pixelData, dim, AlignmentSize);</div>
+<div class="line">    pixelData.Release(); <span class="comment">// サンプルのため明示的に解放。</span></div>
+<div class="line"></div>
+<div class="line">    FileData::Save(<span class="stringliteral">&quot;Asset:/output.jpg&quot;</span>, jpegData.GetDataPtr(), actualSize);</div>
+<div class="line">    jpegData.Release(); <span class="comment">// サンプルのため明示的に解放。</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// FS 終了処理</span></div>
+<div class="line">    <a name="a39"></a><a class="code" href="namespacenn_1_1fs.html#ac8a95249afd4a87a55d319dfecb0466c">nn::fs::Unmount</a>(<span class="stringliteral">&quot;Asset&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">return</span>;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

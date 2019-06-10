@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>ISET</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    ISET : Integer Compare And Set<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Compare And Set" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ISET", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>ISET</b>{.bval}.cmp{.fmt}{.X}</code>       <code>Rd{.CC}, Ra, Sb</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ISET" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ISET</b>{.bval}.cmp{.fmt}{.X}.bop</code>   <code>Rd{.CC}, Ra, Sb, {!}Pp</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ISET" } -->
+
+.bval:  { <b>.BM*, .BF</b> }        
+        Boolean mask or Boolean float value set in Rd, default is .BM
+
+.cmp:   { <b>.F, .LT, .EQ, .LE, .GT, .NE, .GE, .T </b>}   Unsigned and signed comparisons
+        { <b>    .LO,      .LS, .HI,      .HS,    </b>}   Unsigned comparisons only
+
+.fmt:   { <b>.U32, .S32* </b>}      
+        Default compare format is signed .S32, except unsigned .LO,
+        .LS, .HI, .HS where the default compare format is .U32. The
+        assembler throws a syntax error if signed format <b>.S32</b>
+        is explicitly combined with an unsigned comparison test.   
+
+.X      Extended precision compare 
+
+.bop:   { <b>.AND, .OR, .XOR</b> }  Boolean op with predicate {!}Pp
+
+.CC:    Write condition codes
+
+<b>ISET</b> allows for source operand Sb:
+    Rb                         32-bit register
+    c[ImmU05][ImmU16]          32-bit constant with immediate slot and byte address
+    ImmS20                     32-bit sign-extended 20-bit immediate
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p><b>ISET</b>{.bval}.cmp.bop compares register Ra and source operand Sb with integer comparison 
+operation .cmp, combines the Boolean comparison result with predicate operand {!}Pp using 
+Boolean operation .bop, and sets destination register Rd to integer ~0x0 or floating point 1.0f 
+if the comparison is true, otherwise it sets Rd to 0.  The Boolean operation .bop may be 
+<b>.AND, .OR</b>, or <b>.XOR</b>, corresponding to C Boolean operations <b>&amp;, |</b>, and <b>^</b>.</p>
+<pre>
+    if (<b>.BM</b>) Rd =  ( (Ra .cmp Sb) .bop {!}Pp )? 0xFFFF_FFFF: 0;     // SET Boolean mask all 1s or all 0s
+    if (<b>.BF</b>) Rd =  ( (Ra .cmp Sb) .bop {!}Pp )? 0x3F80_0000: 0;     // SET Boolean float FP32 1.0f or 0.0f
+</pre>
+
+<p>
+One potential usage is for nested conditions, with an inner comparison of Ra vs. Sb, conditioned on an outer predicate Pp.</p>
+<p>
+The simple instruction format without .bop {!}Pp assembles as <b>.AND
+PT</b>, effectively creating the following behavior:  </p>
+<pre>
+    if (.BM) Rd =  (Ra .cmp Sb)? 0xFFFF_FFFF: 0;     // Set Boolean mask all 1s or all 0s
+    if (.BF) Rd =  (Ra .cmp Sb)? 0x3F80_0000: 0;     // Set Boolean float FP32 1.0f or 0.0f
+</pre>
+
+<p>
+Extended integer compare suffix .cmp{.fmt}<b>.X</b> compares Ra and Sb by subtracting Ra - Sb with a borrow from 
+the condition code carry flag CC.CF, i.e. by computing Ra + ~Sb + CC.CF, comparing that with zero, and 
+considering the condition code zero flag CC.ZF set by a prior subtraction. 
+</p>
+<p>
+for a table of the extended precision comparison modes. ISET.cmp.X may follow a 
+sequence of IADD and IADD.X instructions that perform an extended-precision (multi-word) subtraction, 
+thereby completing the most-significant word of an extended-precision comparison.  ISET.cmp.X determines 
+whether the extended .cmp.X comparison test is zero by ANDing the extended compare difference zero-ness 
+with the prior condition code zero flag CC.ZF.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>ISET.LT</b>          R8, R1, R2;         // R8 = (R1.S32 &lt; R2.S32)? ~0x0: 0;  // default .BM format, .S32 format
+<b>ISET.BM.LT.S32</b>   R8, R1, R2;         // identical instruction with explicit Boolean mask and signed format
+
+<b>ISET.LO</b>          R8, R1, R2;         // R8 = (R1.U32 &lt; R2.U32)? ~0x0: 0;  .LO =&gt; default unsigned format
+<b>ISET.LT.U32</b>      R8, R1, R2;         // identical instruction with explicit unsigned format
+
+<b>ISET.BM.LT</b>       RZ.CC, R1, R2;      // CC.SF = (R1.S32 &lt; R2.S32); CC.ZF = !(R1.S32 &lt; R2.S32); CC.OF = CC.CF = 0;
+<b>ISET.EQ</b>          R8, R1, c[1][0x44]; // R8 = (R1 == c[1][0x44])? ~0x0: 0;
+
+<b>ISET.LT.AND</b>      R8, R1, R2, !P3;    // R8 = ((R1.S32 &lt; R2.S32) &amp; !P3)? ~0x0: 0;
+
+// compare extended 64-bit signed integers [R1,R0].S64 &lt;= [R3,R2].S64
+<b>IADD</b>             RZ.CC, R0, -R2;     // subtract low word R0 - R2, CC.CF = carry-out, CC.ZF = zero-sum
+<b>ISET.LE.S32.X</b>    R8, R1, R3;         // high word extended compare (R1 &lt;=.X R3) does extended subtract: 
+                                            // diff = (R1 + ~R3 + CC.CF); 
+                                            // R8 = ((diff &lt; 0) || ((diff == 0) &amp;&amp; CC.ZF))? ~0x0: 0;
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

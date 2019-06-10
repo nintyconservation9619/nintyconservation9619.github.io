@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ログ・アサートの文字コードに関する注意点</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ログ・アサートの文字コードに関する注意点 -->
+<div class="pagetitle" id="PageId_104486226">ログ・アサートの文字コードに関する注意点</div>
+<div class="text_separate">
+<h1 id="Anchor_104486226_h1_1">ログ・アサートの文字コードに関する注意点</h1>
+<h2 id="Anchor_104486226_h2_1">概要</h2>
+<p>NintendoSDK では、ログ・アサートマクロが使用する標準文字エンコーディングは UTF-8 です。</p>
+<p>そのため、<span class="ApiLink_NN_LOG">NN_LOG</span> などのログ・アサートマクロの入力文字列も UTF-8 であることを前提としています。</p>
+<p>UTF-8 以外の文字列をログ・アサートマクロに渡すと文字化けが発生することがあります。</p>
+<p>&nbsp;</p>
+<p>ただし、Windows 向けのビルドを行った場合、ソースコードを UTF-8 で記述しても文字列リテラルの文字コードは UTF-8 になりません。</p>
+<p>文字列リテラルの文字コードはロケール依存であり、日本語環境では CP932 となります。</p>
+<p>このため、以下のコードは Windows 向けビルドにおいて文字化けの原因となります。</p>
+<!--Remove-->
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#include &lt;nn/nn_Log.h&gt;
+
+void nnMain() {
+&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;こんにちは&quot;); // 文字化けする
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>本稿では、この問題の回避方法として、以下の2つを紹介します。</p>
+<ul>
+  <li>Windows 向けビルドで UTF-8 の文字列リテラルを使用する方法</li>
+  <li>
+    <span class="ApiLink_NN_LOG_USE_DEFAULT_LOCALE_CHARSET">NN_LOG_USE_DEFAULT_LOCALE_CHARSET</span> マクロを使って、<span class="ApiLink_NN_LOG">NN_LOG</span> の入力文字列の文字コードを変更する方法</li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_104486226_h2_2">Windows 向けビルドで UTF-8 の文字列リテラルを使用する</h2>
+<p>Windows 向けビルドで UTF-8 文字列リテラルを使用する方法は、Visual Studio のバージョンによって異なります。</p>
+<h3 id="Anchor_104486226_h3_1">Visual Studio 2012 の場合</h3>
+<p>UTF-8 文字列リテラルを使用する方法はありません。</p>
+<h3 id="Anchor_104486226_h3_2">execution_character_set プラグマを記述する (Visual Studio 2013 / Visual Studio 2015 の場合)</h3>
+<p>エンコーディングを UTF-8 に変換するソースファイルに以下の pragma を記述します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#pragma execution_character_set(&quot;utf-8&quot;)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>Visual Studio 2012 でも上記 pragma の対応が謳われていますが、不具合により利用することができません。</p>
+  </div>
+</div>
+<h3 id="Anchor_104486226_h3_3">u8 プレフィックスを使用する (Visual Studio 2015 の場合)</h3>
+<p>文字列リテラルに u8 プレフィックスを付加します。u8 プレフィックスは実機でも対応しており、Windows と実機で共通のコードを利用できるため、こちらの方法を推奨します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>auto str = u8&quot;こんにちは&quot;;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_104486226_h2_3">NN_LOG_USE_DEFAULT_LOCALE_CHARSET マクロ</h2>
+<p>NintendoSDK のヘッダファイルをインクルードする前に、<span class="ApiLink_NN_LOG_USE_DEFAULT_LOCALE_CHARSET">NN_LOG_USE_DEFAULT_LOCALE_CHARSET</span> マクロを定義することで、ログ・アサートマクロの入力文字コードを Windows のロケールのデフォルト（日本語の場合、CP932）に変更できます。</p>
+<h3 id="Anchor_104486226_h3_4">使用例</h3>
+<!--Remove-->
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#define NN_LOG_USE_DEFAULT_LOCALE_CHARSET
+#include &lt;nn/nn_Log.h&gt;
+
+void nnMain() {
+&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;こんにちは&quot;); // 文字化けしない
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h3 id="Anchor_104486226_h3_5">対象</h3>
+<p>
+  <span class="ApiLink_NN_LOG_USE_DEFAULT_LOCALE_CHARSET">NN_LOG_USE_DEFAULT_LOCALE_CHARSET</span> マクロの有無で扱う文字コードが変わるマクロは以下の通りです。</p>
+<ul>
+  <li>
+    <span class="ApiLink_NN_LOG">NN_LOG</span>
+  </li>
+  <li>
+    <span class="ApiLink_NN_VLOG">NN_VLOG</span>
+  </li>
+  <li>
+    <span class="ApiLink_NN_PUT">NN_PUT</span>
+  </li>
+  <li>
+    <span class="ApiLink_NN_ABORT">NN_ABORT</span>
+  </li>
+  <li>
+    <span class="ApiLink_NN_ABORT_UNLESS">NN_ABORT_UNLESS</span>
+  </li>
+  <li>
+    <span class="ApiLink_NN_ASSERT">NN_ASSERT</span>
+  </li>
+</ul>
+<h2 id="Anchor_104486226_h2_4">NintendoSDK 0.8.0 までの不具合</h2>
+<p>NintendoSDK 0.8.0 までは、<span class="ApiLink_NN_LOG">NN_LOG</span> に UTF-8 文字列を与えると文字化けする不具合がありました。ただし、Windows のロケールのデフォルト文字コードの文字列は正しく表示出来ていました。</p>
+<p>すなわち、NintendoSDK 0.9.0 以降において <span class="ApiLink_NN_LOG_USE_DEFAULT_LOCALE_CHARSET">NN_LOG_USE_DEFAULT_LOCALE_CHARSET</span> マクロを定義した場合と同じ挙動となっていました。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_NN_LOG', '../../../Api/HtmlNX/nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61' )
+// ApiLink_NN_LOG_USE_DEFAULT_LOCALE_CHARSET
+SetUrl( 'ApiLink_NN_VLOG', '../../../Api/HtmlNX/nn___log_8h.html#a1961fda441d636e4002421a1dc6b7bd0' )
+SetUrl( 'ApiLink_NN_PUT', '../../../Api/HtmlNX/nn___log_8h.html#af4cf95f308f30e841343080c6f121602' )
+SetUrl( 'ApiLink_NN_ABORT', '../../../Api/HtmlNX/nn___abort_8h.html#a205eaac89c47d49cb982bf136e113de2' )
+SetUrl( 'ApiLink_NN_ABORT_UNLESS', '../../../Api/HtmlNX/nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4' )
+SetUrl( 'ApiLink_NN_ASSERT', '../../../Api/HtmlNX/nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

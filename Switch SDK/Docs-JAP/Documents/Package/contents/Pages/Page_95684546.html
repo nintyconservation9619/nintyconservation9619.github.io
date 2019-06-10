@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NX 環境向け GFX ガイド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NX 環境向け GFX ガイド -->
+<div class="pagetitle" id="PageId_95684546">NX 環境向け GFX ガイド</div>
+<div class="text_separate">
+<p>NX 環境用のアプリケーションを作成するために必要な GFX に関する情報を記載します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_95684546_h1_1">ライブラリ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_95684546_h2_1">低レベルグラフィックス API</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_2">機能と動作環境</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_3">デスクリプタープールにおける予約領域</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_4">デスクリプタープールのメモリー特性</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_5">シェーダーのスクラッチメモリー</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_6">オンラインコンパイル</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_7">gfx の関数について</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_95684546_h3_1">nn::gfx::TextureInfo::SetSwizzle</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_95684546_h2_8">実機上での NVNGD の使用</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_9">Windows 版でのテクスチャーの初期化</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_95684546_h1_2">ツール</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_95684546_h2_10">テクスチャーコンバーター</a>
+      </li>
+      <li>
+        <a href="#Anchor_95684546_h2_11">シェーダーコンバーター</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_95684546_h3_2">glslc へのオプションフラグの指定</a>
+        </li>
+        <li>
+          <a href="#Anchor_95684546_h3_3">ダンプ出力情報</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_95684546_h1_1">ライブラリ</h1>
+<h2 id="Anchor_95684546_h2_1">低レベルグラフィックス API</h2>
+<p>NX においては、GFX の低レベルグラフィックス API として nvn がデフォルトで選択されます。nvn についての詳細は&nbsp;<a href="../Pages/Page_87937845.html">NVN ライブラリー</a>&nbsp;を参照してください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>GFX は、使用する低レベルグラフィックス API の仕様に準じた制限を受けます。それぞれの低レベルグラフィックス API の詳細については、各ドキュメントを参照してください。 </p>
+  </div>
+</div>
+<h2 id="Anchor_95684546_h2_2">機能と動作環境</h2>
+<p>
+  <span style="background-color: rgb(255,255,255);">低レベルグラフィックス API として nvn を使う場合は、OpenGL の場合と異なり、メモリープール、デスクリプタープール（テクスチャー）、デスクリプタープール（サンプラー）の使用が要求されます。</span> メモリープールに NULL を渡すことや、テクスチャーやサンプラーを直接的にセットすることはできません。</p>
+<p>&nbsp; 以下は <a href="../Pages/Page_83955628.html">機能説明</a> における新機能の方式について、nvn で要求されるかどうかの一覧です。</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>機能</th>
+      <th>nvn で必要かどうか</th>
+    </tr>
+    <tr>
+      <td>メモリープール</td>
+      <td>必要</td>
+    </tr>
+    <tr>
+      <td>デスクリプタープール（テクスチャー）</td>
+      <td>必要</td>
+    </tr>
+    <tr>
+      <td>デスクリプタープール（サンプラー）</td>
+      <td>必要</td>
+    </tr>
+    <tr>
+      <td>デスクリプタープール（バッファー）</td>
+      <td>不要</td>
+    </tr>
+    <tr>
+      <td>リソースステート</td>
+      <td>不要</td>
+    </tr>
+    <tr>
+      <td>パイプライン</td>
+      <td>不要</td>
+    </tr>
+    <tr>
+      <td>ルートシグネチャー</td>
+      <td>不要</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_95684546_h2_3">デスクリプタープールにおける予約領域</h2>
+<p>デスクリプタープールにおけるいくつかのスロットはシステムに予約されているため、利用前にその数を問い合わせる必要があります。これは NVN_DEVICE_INFO_RESERVED_TEXTURE_DESCRIPTORS のパラメーターとともに nvnDeviceGetInteger() を呼ぶことで取得できます。詳細は nvn のドキュメントを参照してください。</p>
+<h2 id="Anchor_95684546_h2_4">デスクリプタープールのメモリー特性</h2>
+<p>実機においては、デスクリプタープールを初期化する際に指定するメモリープールは、CPU がアクセス可能な特性（<span class="ApiLink_nn__gfx__MemoryPoolProperty_CpuCached">nn::gfx::MemoryPoolProperty_CpuCached</span> または <span class="ApiLink_nn__gfx__MemoryPoolProperty_CpuUncached">nn::gfx::MemoryPoolProperty_CpuUncached</span>）をもっている必要があります。特に、<span class="ApiLink_nn__gfx__MemoryPoolProperty_CpuUncached">nn::gfx::MemoryPoolProperty_CpuUncached</span> が推奨されます。<br />一方、Windows 上で動作させる場合は、<span class="ApiLink_nn__gfx__MemoryPoolProperty_CpuInvisible">nn::gfx::MemoryPoolProperty_CpuInvisible</span> を指定することがもっともよいパフォーマンスをもちます。</p>
+<h2 id="Anchor_95684546_h2_5">シェーダーのスクラッチメモリー</h2>
+<p>シェーダーを動作させるためにスクラッチメモリーが要求される可能性があります。これは nvnCommandBufferSetShaderScratchMemory() により設定できます。スクラッチメモリーは、動作させるための最低限のサイズと、最大のパフォーマンスを得るための推奨サイズの 2 種類のサイズがあります。スクラッチメモリーは通常、ワープごとの要求サイズから計算することによって必要なサイズを決定します。また、スクラッチメモリーにはアライメントやサイズの制限があることに注意してください。詳細は nvn のドキュメントを参照してください。</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_program.html">nn::gfx::ResShaderProgram</a> からは <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_program.html#a0aede4dec38cdd5e138a53a1718bb58c">NvnGetRecommendedScratchMemorySize</a>&nbsp;によりその推奨サイズを取得できます。</p>
+<h2 id="Anchor_95684546_h2_6">オンラインコンパイル</h2>
+<p>シェーダーをソースコードから初期化する場合は、実機版では、glslc.nso を追加する必要があります。PC 版では、32bit 版では NvnGlslc32.dll、64bit 版では NvnGlslc.dll がアプリケーションの実行ファイルと同じフォルダーに配置されていることを要求します。また、実機版では、オンラインコンパイルの機能を使う前に一度 glslcSetAllocator() を呼び出す必要があります。</p>
+<h2 id="Anchor_95684546_h2_7">gfx の関数について</h2>
+<h3 id="Anchor_95684546_h3_1">
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_texture_info.html#a7e0bdbcb011d1f9a47bbddb77c38c62a">nn::gfx::TextureInfo::SetSwizzle</a>
+</h3>
+<p>nvn で動作させる場合、この関数を呼ぶことは影響をもたず、設定された値はテクスチャーの初期化において無視されます。</p>
+<h2 id="Anchor_95684546_h2_8">実機上での NVNGD の使用</h2>
+<p>実機上でバージョン 3.0.0 以下の NVNGD を使用する場合は、<span class="ApiLink_NN_GFX_USE_NVN_GRAPHICS_DEBUGGER">NN_GFX_USE_NVN_GRAPHICS_DEBUGGER</span> プリプロセッサを定義して gfx をリビルドしてください。バージョン 3.1.0 以上の NVNGD を使用する場合にはこの手順は不要です。</p>
+<h2 id="Anchor_95684546_h2_9">Windows 版でのテクスチャーの初期化</h2>
+<p>Windows 版でのテクスチャーの初期化時、タイリングモードが <span class="ApiLink_nn__gfx__TileMode_Optimal">nn::gfx::TileMode_Optimal</span> で GPU アクセスフラグが <span class="ApiLink_nn__gfx__GpuAccess_Texture">nn::gfx::GpuAccess_Texture</span> を含む場合、指定されたメモリープールの内容を動作している環境向けにタイリングし直します。このとき、CPU キャッシュ上の内容は反映されない可能性があるため、必要に応じてテクスチャーの初期化前にメモリープール内の CPU キャッシュをフラッシュしておいてください。</p>
+<h1 id="Anchor_95684546_h1_2">ツール</h1>
+<h2 id="Anchor_95684546_h2_10">テクスチャーコンバーター</h2>
+<ul>
+  <li>
+    <p>NX 向けのテクスチャーバイナリーファイル （.bntx) を出力する際は --tile-mode オプションで NX を指定してください（<strong>--tile-mode=NX</strong>）。</p>
+  </li>
+  <li>
+    <p>
+      <strong>--tile-optimize</strong>、<strong>--tile-size-threshold</strong> オプションで、タイリングの最適化モードを指定できます。</p>
+  </li>
+  <li>
+    <p>スパーステクスチャー向けのタイリング変換をするなら&nbsp;--sparse-tiled オプションで&nbsp;true&nbsp;を指定してください（<strong>--sparse-tiled=true</strong>）。<br />--sparse-tiled=true を指定した場合、--tile-optimize オプションの指定は無視されます。</p>
+  </li>
+  <li>
+    <p>NX の astc フォーマットは HDR 画像に対応していません。テクスチャーコンバーターで変換すると&nbsp;0～1 の範囲にクランプされます。</p>
+  </li>
+  <li>
+    <p>GPU によるエンコーディングには NVIDIA&nbsp;Kepler 世代以降のビデオカードが必要です。</p>
+  </li>
+  <li>
+    <p>NX 向けのテクスチャーバイナリーファイルでは、unorm_4_4 /&nbsp;ETC / EAC / PVRTC フォーマットを使用できません。<br />テクスチャーバイナリーファイルを出力する際にエラーになります。</p>
+  </li>
+  <li>NX Addon 5.0.0 で bc1 / bc2 / bc3 フォーマットに変換する際のエンコーダーが変更されました。<br />以前のエンコーダーを使用したい場合は、環境変数 <strong>NINTENDO_TEXTURE_CONVERTER_NVTT_BC123</strong> を値 0 で定義した状態で、テクスチャーコンバーターを使用してください。</li>
+  <li>
+    <p>NX 向けのテクスチャーバイナリーファイルでは、配列テクスチャーおよびキューブマップの実データは次の順に格納されます。</p>
+    <table class="wrapped">
+      <tbody>
+        <tr>
+          <td>0 枚目のレベル 0</td>
+        </tr>
+        <tr>
+          <td>0 枚目のレベル 1</td>
+        </tr>
+        <tr>
+          <td>...</td>
+        </tr>
+        <tr>
+          <td>1 枚目のレベル 0</td>
+        </tr>
+        <tr>
+          <td>1 枚目のレベル 1</td>
+        </tr>
+        <tr>
+          <td>...</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>配列テクスチャーおよびキューブマップの場合、<a href="../../../Api/HtmlNX/structnn_1_1gfx_1_1_res_texture_data.html#a8487cf826f8bbc8346c03f99c8c96594">nn::gfx::ResTextureData::pMipPtrArray</a> は 0 枚目の各レベルのテクスチャーデータへのポインタ配列へのポインタとなります。</p>
+  </li>
+</ul>
+<h2 id="Anchor_95684546_h2_11">シェーダーコンバーター</h2>
+<p>
+  <span style="background-color: rgb(255,255,255);">API バリエーションが NVN 向けのシェーダーバイナリーファイル (.bnsh) を出力する際は --api-type オプションに Nvn を指定してください (--api-type=Nvn)。このとき、--source-format オプションには Glsl または SpirV を指定することができます。</span>
+</p>
+<p>また、ランタイム側で <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_shader.html#a40f2b7445a7507aa747549259ce13a86">nn::gfx::Shader::GetInterfaceSlot</a>&nbsp;を使用する予定の場合は、--reflection オプションも指定してある必要があります。</p>
+<p>Windows 上でも動作させる必要のあるバイナリを出力する場合は --code-type オプションに Binary_Ir を指定してください。Binary_Ir を指定したバイナリーは NX プラットフォーム上でも動作可能ですが、Windows で動作させる必要がない場合は Binary を指定でき、それは Binary_Ir と比べて小さなバイナリーを出力します。</p>
+<p>Windows 向けに Binary_Ir の --code-type を指定しており、バリエーション定数により多くのバリエーションを生成している場合、--decompose-binary オプションを指定することによって、リソースサイズを小さくできる可能性があります。このオプションはバイナリーを複数の部分に分解することによってバリエーション間で共通する部分を高めようとしますが、そのかわりにランタイム上でシェーダーをセットアップする際に分解されたバイナリーを再構築するためのコストが発生します。</p>
+<p>バリエーション定数によって作られるバリエーションについては、まとめてコンパイルが行われるため、バリエーションの数が多くなるにつれて、プリプロセッサーバリエーションを使うよりも高速にコンパイルできるようになります。<br />--shader-cache-directory オプションによって作成されるキャッシュも、バリエーション定数によって作られるバリエーションについては、バリエーションそれぞれについてひとつではなく、まとめてひとつのキャッシュとなります。これはキャッシュの適用される粒度が粗くなることを意味し、また巨大なキャッシュがコンバート中のメモリ不足を招く可能性があるため、バリエーションの作成にバリエーション定数を主に使っている場合は、--shader-cache-directory オプションの使用はあまり推奨されません。<br />プリプロセッサーバリエーションにより生成されるまとめられないバリエーションについては、&ndash;jobs オプションに 1 を指定しない限り、並列にコンパイルが行われます。ただし、現在の glslc の制約から、--dump-directory オプションを指定している際は並列にコンパイルが行われないため注意してください。</p>
+<h3 id="Anchor_95684546_h3_2">glslc へのオプションフラグの指定</h3>
+<p>nvn 向けにシェーダーをコンパイルしている際は低レベルコンパイラーとして glslc を利用します。この glslc に渡すオプションフラグを指定するための --glslc-option-flags オプションがあります。オプションの中では同じオプションの記法でサブオプションとして GLSLCoptionFlags のメンバーを指定します。現在指定できるサブオプションは以下です。</p>
+<ul>
+  <li>--spillControl</li>
+  <li>--tessellationAndPassthroughGS</li>
+  <li>--enableFastMathMask</li>
+  <li>--optLevel</li>
+  <li>--unrollControl</li>
+  <li>--errorOnScratchMemUsage</li>
+  <li>--enableCBFOptimization</li>
+  <li>--enableWarpCulling</li>
+  <li>--warnUninitControl</li>
+</ul>
+<p>値には、メンバーが列挙型である場合は列挙子を、数値型である場合には数値を指定します。<br />以下が指定例です。</p>
+<p>&nbsp;<span style="color: rgb(51,51,51);">--glslc-option-flags=&quot;--optLevel=GLSLC_OPTLEVEL_NONE --errorOnScratchMemUsage=1 --spillControl=NO_SPILL --unrollControl=GLSLC_LOOP_UNROLL_NONE&quot;</span></p>
+<h3 id="Anchor_95684546_h3_3">ダンプ出力情報</h3>
+<p>nvn 向けにシェーダーをコンパイルしている際は、--dump-directory オプションを指定すると、それぞれのバリエーションについて以下の情報が出力されます。</p>
+<ul>
+  <li>リフレクション情報</li>
+  <li>スクラッチメモリー使用量などのシェーダー情報</li>
+  <li>シェーダー統計情報</li>
+  <li>コンパイルした最終的なソースコード</li>
+  <li>コンパイル結果のアセンブリー</li>
+  <li>glslc に渡されたオプションフラグ</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__MemoryPoolProperty_CpuCached', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a663a11b1bc56170998d3ca281574e1f1' )
+SetUrl( 'ApiLink_nn__gfx__MemoryPoolProperty_CpuUncached', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a52c9ef53497763d967da50e415056a2e' )
+SetUrl( 'ApiLink_nn__gfx__MemoryPoolProperty_CpuInvisible', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623ab3cc70e30a942511e9a19ff7a222ce80' )
+// ApiLink_NN_GFX_USE_NVN_GRAPHICS_DEBUGGER
+SetUrl( 'ApiLink_nn__gfx__TileMode_Optimal', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a35d6955da6f9f2af739d26025bce7502aee2025e5d379e35eff8063fb7bedf3e0' )
+SetUrl( 'ApiLink_nn__gfx__GpuAccess_Texture', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a24dbcd6d86531138895622b5a854e4f5a4a531ae2d7e145f647300ea67bc76ccc' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

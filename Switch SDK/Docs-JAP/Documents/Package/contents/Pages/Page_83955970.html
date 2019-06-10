@@ -1,0 +1,578 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>中間ファイルフィルター</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 中間ファイルフィルター -->
+<div class="pagetitle" id="PageId_83955970">中間ファイルフィルター</div>
+<div class="text_separate">
+<p>中間ファイルフィルターの使用方法と注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955970_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955970_h1_2">コマンドラインオプション</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955970_h1_3">サンプルの説明</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955970_h1_4">フィルタースクリプトの記述ルール</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83955970_h1_1">概要</h1>
+<p>中間ファイルをスクリプトで処理します。</p>
+<p>中間ファイルの内容の確認や変更を行うフィルター処理を、IronPython で記述したフィルタースクリプトにより簡単に作成できます。<br /> フィルタースクリプトの記述方法については、<a href="#Anchor_83955970_filter_script">フィルタースクリプトの記述ルール</a> を参照してください。</p>
+<p>実行ファイル (3dIntermediateFileFilter.exe) やショートカットに、スクリプト、中間ファイル、フォルダーをドラッグ＆ドロップすると、中間ファイルに対してスクリプトを実行します。 <br /> スクリプトと中間ファイル以外のファイルは無視します。</p>
+<p>Windows のバッチファイルと組み合わせることにより、ドラッグ＆ドロップした中間ファイルに対して、特定のフィルタースクリプトを実行することができます。<br /> 実際の記述方法については、サンプルを参考にしてください。</p>
+<h1 id="Anchor_83955970_h1_2">コマンドラインオプション</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dIntermediateFileFilter.exe [--args-file &quot;&quot;] [--version] [-h] [-s] [-j &quot;&quot;] [--disable-xsd-check]
+[--enable-extension &quot;&quot;] [--disable-extension &quot;&quot;] [--disable-file-info] [--script &quot;&quot;] [-a &quot;&quot;]
+[中間ファイル|スクリプトファイル|フォルダ]...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>中間ファイルをスクリプトで処理します。</p>
+<p>
+  <strong>--args-file &quot;&quot;</strong>
+</p>
+<p>引数ファイルを指定します。<br />引数ファイルに記述した内容を、引数として指定できます。<br />引数ファイルは複数行に渡って各オプションを記述できます。<br />行頭に # がある行はコメントとして扱います。<br />オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<p>
+  <strong>--version</strong>
+</p>
+<p>バージョン情報を表示します。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプを表示します。</p>
+<p>
+  <strong>-s --silent</strong>
+</p>
+<p>処理中のメッセージ表示を抑制します。</p>
+<p>
+  <strong>-j &quot;&quot; --jobs &quot;&quot;</strong>
+</p>
+<p>実行ジョブ数を指定します。</p>
+<p>
+  <strong>--disable-xsd-check</strong>
+</p>
+<p>スキーマ (.xsd) による中間ファイルのフォーマットチェックを無効化します。<br />本オプション有効時は、最新版の中間ファイルしか処理できなくなります。</p>
+<p>
+  <strong>--enable-extension &quot;&quot;</strong>
+</p>
+<p>中間ファイルの中で、処理する拡張子を指定します。 　<br />複数記述する際は , で区切ります。 　<br />例）--enable-extension &quot;fmdb,ftxb&quot;</p>
+<p>
+  <strong>--disable-extension &quot;&quot;</strong>
+</p>
+<p>中間ファイルの中で、処理しない拡張子を指定します。 　<br />複数記述する際は , で区切ります。 　<br />例）--disable-extension &quot;fmdb,ftxb&quot;</p>
+<p>
+  <strong>--disable-file-info</strong>
+</p>
+<p>中間ファイルを保存する際に &lt;file_info&gt; を更新しません。</p>
+<p>
+  <strong>--script &quot;&quot;</strong>
+</p>
+<p>IronPython でフィルター処理を記述したフィルタースクリプトを指定します。</p>
+<p>
+  <strong>-a &quot;&quot; --argument &quot;&quot;</strong>
+</p>
+<p>フィルタースクリプトに対して引数を指定します。<br />引数で与えた文字列は Python スクリプトからそれぞれ ScriptArgument から参照できます。</p>
+<p>例）--script &quot;filter.py&quot; -a &quot;ScriptArgument&quot; cube.fmda</p>
+<p>この場合、Python スクリプト内では下記のように引数の文字列を参照できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>def Filter(target)
+&nbsp;&nbsp;&nbsp;&nbsp;print(ScriptArgument) # &quot;ScriptArgument&quot;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>中間ファイル|フォルダー</strong>
+</p>
+<p>処理対象の中間ファイルやフォルダーを指定します。<br />フォルダーを指定した場合、指定フォルダー以下のファイルを再帰的に処理します。<br />中間ファイルとフィルタースクリプト以外は無視します。</p>
+<p>ワイルドカード（?: 一文字、*: 複数文字）に対応しています。<br />例) &quot;a?b*&quot;<br />一文字目が a で三文字目が b のファイルを変換します。</p>
+<h1 id="Anchor_83955970_h1_3">サンプルの説明</h1>
+<p>中間ファイルフィルターのサンプルは Samples/Sources/Tools/3dTools/3dIntermediateFileFilter/ 以下にあります。</p>
+<h2 id="Anchor_83955970_h2_1">ストリームの追加 (AddStream)</h2>
+<p>中間ファイルに &lt;stream&gt; を追加します。</p>
+<h2 id="Anchor_83955970_h2_2">名前一覧表の生成 (DumpNameCsv)</h2>
+<p>DumpNameCsv.bat に中間ファイルやフォルダーをドラッグ＆ドロップすると、中間ファイルに含まれる固有の名前を .csv の表形式で保存します。</p>
+<p>Name.csv にはすべての名前の一覧表を出力し、UniqueName.csv には重複を取り除いた名前の一覧表を出力します。</p>
+<p>ファイルの保存に .Net の System.IO.File を利用しています。</p>
+<h2 id="Anchor_83955970_h2_3">マテリアル名の変更 (EditMaterialName)</h2>
+<p>EditMaterialName.bat に human.fmdb をドラッグ &amp; ドロップすると、human_all という名前のマテリアルを human_all_edited という名前に変更します。</p>
+<p>バッチを書き換えることで任意の名前のマテリアルを任意の名前に変更することができます。</p>
+<h2 id="Anchor_83955970_h2_4">ミップマップチェック一覧表の生成 (MipmapCheckCsv)</h2>
+<p>MipmapCheckCsv.bat にテクスチャー中間ファイルやフォルダーをドラッグ＆ドロップすると、ミップマップレベルが 1 のテクスチャー中間ファイルを .csv の表形式で保存します。</p>
+<h2 id="Anchor_83955970_h2_5">モデル情報一覧表の生成 (ModelCsv)</h2>
+<p>ModelCsv.bat にモデル中間ファイルやフォルダーをドラッグ＆ドロップすると、以下のモデルの情報を .csv の表形式で保存します。</p>
+<ul>
+  <li>モデルファイルの名前</li>
+  <li>頂点数</li>
+  <li>ポリゴン数</li>
+  <li>レンダーセット数</li>
+  <li>マテリアル数</li>
+  <li>ボーン数</li>
+  <li>シェイプ数</li>
+  <li>モデルファイルのフルパス</li>
+</ul>
+<p>ファイルの保存に .Net の System.IO.File を利用しています。</p>
+<h2 id="Anchor_83955970_h2_6">モデルの最適化ログ一覧表の生成 (ModelOptimizeLogCsv)</h2>
+<p>ModelOptimizeLogCsv.bat にモデル中間ファイルやフォルダーをドラッグ＆ドロップすると、以下の最適化ログを .csv の表形式で保存します。<br /> 該当する最適化ログが無かった場合には、空欄になります。</p>
+<ul>
+  <li>モデルファイルの名前</li>
+  <li>マテリアル圧縮</li>
+  <li>ボーン圧縮</li>
+  <li>シェイプ圧縮</li>
+  <li>マージ</li>
+  <li>プリミティブ最適化</li>
+  <li>量子化分析</li>
+  <li>モデルファイルのフルパス</li>
+</ul>
+<p>ファイルの保存に .Net の System.IO.File を利用しています。</p>
+<h2 id="Anchor_83955970_h2_7">プリミティブ最適化のチェック表の生成 (OptimizePrimitiveCheckCsv)</h2>
+<p>OptimizePrimitiveCheckCsv.bat にモデル中間ファイルやフォルダーをドラッグ＆ドロップすると、force 以上のプリミティブ最適化が行われていないモデルを .csv の表形式で保存します。</p>
+<p>ファイルの保存に .Net の System.IO.File を利用しています。</p>
+<h2 id="Anchor_83955970_h2_8">要素の削除 (RemoveElement)</h2>
+<p>RemoveElement.bat に中間ファイルやフォルダーをドラッグ＆ドロップすると、--argument=&quot;&quot; で指定した要素を削除します。</p>
+<h2 id="Anchor_83955970_h2_9">
+  <a name="Anchor_83955970_remove_cache"></a>プリミティブ最適化キャッシュの削除 (RemoveOptimizePrimitiveCache)</h2>
+<p>RemoveOptimizePrimitiveCache.bat にモデル中間ファイルやフォルダーをドラッグ＆ドロップすると、プリミティブ最適化済みのモデルファイルを、再度最適化を実行できる状態にします。</p>
+<h2 id="Anchor_83955970_h2_10">私的なデータの削除 (RemovePrivateData)</h2>
+<p>RemovePrivateData.bat に中間ファイルやフォルダーをドラッグ＆ドロップすると、ユーザー名、ホスト名、日時、パス情報といった私的なデータを削除します。</p>
+<h2 id="Anchor_83955970_h2_11">
+  <a name="Anchor_83955970_remove_quantize"></a>量子化設定の削除 (RemoveQuantizeType)</h2>
+<p>RemoveQuantizeType.bat に中間ファイルやフォルダーをドラッグ＆ドロップすると、モデルやアニメーションの量子化設定を削除します。</p>
+<h2 id="Anchor_83955970_h2_12">シェーダー割り当てチェック表の生成 (ShaderAssignCheckCsv)</h2>
+<p>ShaderAssignCheckCsv.bat にモデル中間ファイルやフォルダーをドラッグ＆ドロップすると、シェーダーの割り当てが行われていないモデルを .csv の表形式で保存します。<br /> 対象となるモデルが存在した場合のみ、ダイアログを表示します。</p>
+<h2 id="Anchor_83955970_h2_13">モーションの共有化 (SharedMotion)</h2>
+<p>SharedMotion.bat にスケルタルアニメ中間ファイルやフォルダーをドラッグ＆ドロップすると、モーションを共有化して保存します。</p>
+<p>&lt;bone_anim&gt; binarize_translate を false にすることにより、体型の違うモデルに対して、共通のスケルタルアニメを割り当てられるようになります。</p>
+<p>移動アニメを別途指定したいノードがある場合は、スクリプト引数にノードの名前を指定すると、名前を指定したノードのみ binarize_translate が true になります。</p>
+<h2 id="Anchor_83955970_h2_14">テクスチャー情報一覧表の生成 (TextureCsv)</h2>
+<p>TextureCsv.bat にテクスチャ中間ファイルやフォルダーをドラッグ＆ドロップすると、以下のテクスチャーの情報を .csv の表形式で保存します。</p>
+<ul>
+  <li>テクスチャーファイルの名前</li>
+  <li>次元</li>
+  <li>フォーマット</li>
+  <li>幅</li>
+  <li>高さ</li>
+  <li>奥行き</li>
+  <li>ミップマップレベル</li>
+  <li>データサイズ</li>
+  <li>テクスチャーファイルのフルパス</li>
+</ul>
+<p>ファイルの保存に .Net の System.IO.File を利用しています。</p>
+<h2 id="Anchor_83955970_h2_15">テクスチャー情報の JSON 生成 (TextureJson)</h2>
+<p>TextureJson.bat にテクスチャー中間ファイルやフォルダーをドラッグ＆ドロップすると、以下のテクスチャーの情報を JSON 形式でテキストに保存します。</p>
+<ul>
+  <li>テクスチャーファイルの名前</li>
+  <li>次元</li>
+  <li>フォーマット</li>
+  <li>幅</li>
+  <li>高さ</li>
+  <li>奥行き</li>
+  <li>ミップマップレベル</li>
+  <li>データサイズ</li>
+  <li>テクスチャーファイルのフルパス</li>
+</ul>
+<p>JSON 形式の変換に Python 標準ライブラリーの JSON モジュールを利用しています。</p>
+<h2 id="Anchor_83955970_h2_16">テクスチャーサイズの合計表示 (TotalTextureSize)</h2>
+<p>TextureCsv.bat にテクスチャー中間ファイルやフォルダーをドラッグ＆ドロップすると、テクスチャーサイズの合計をダイアログで表示します。</p>
+<p>ダイアログの表示に .Net の System.Windows.Forms.MessageBox を利用しています。</p>
+<h2 id="Anchor_83955970_h2_17">未使用テクスチャー表の生成 (UnusedTextureCsv)</h2>
+<p>UnusedTextureCsv.bat にフォルダーをドラッグ＆ドロップすると、使用されていないテクスチャーファイルパスを .csv の表形式で保存します。</p>
+<p>スクリプト引数にテクスチャーパターンアニメからパターン用テクスチャーがあるフォルダーへの相対パスを指定する必要があります。</p>
+<h2 id="Anchor_83955970_h2_18">バージョンチェック表の生成 (VersionCheckCsv)</h2>
+<p>VersionCheckCsv.bat に中間ファイルやフォルダーをドラッグ＆ドロップすると、最新バージョンでない中間ファイルを .csv の表形式で保存します。</p>
+<p>ファイルの保存に .Net の System.IO.File を利用しています。</p>
+<h1 id="Anchor_83955970_h1_4">
+  <a name="Anchor_83955970_filter_script"></a>フィルタースクリプトの記述ルール</h1>
+<p>フィルタースクリプトは、決められたフィルター関数を Python 言語で定義し、フィルター関数の引数であるフィルター対象を処理することにより動作します。</p>
+<p>フィルター関数には PreFilter、Filter、PostFilter の三種類があり、フィルター対象は IfFilterTarget クラスとして実装しています。</p>
+<p>また、各フィルター関数で共通して利用できる、グローバル変数があります。</p>
+<p>フィルタースクリプトは IronPython 2.7 上で動作しています。</p>
+<h2 id="Anchor_83955970_h2_19">フィルター関数</h2>
+<p>以下の表記における List&lt;&gt; は、.Net の System.Collections.Generic.List&lt;&gt; です。</p>
+<h3 id="Anchor_83955970_h3_1">PreFilter</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;void PreFilter(List&lt;IfFilterTarget&gt; targets) { }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;PreFilter(targets):</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;フィルター対象全体に対して前処理をします。</p>
+<p>フィルター処理をする前に、フィルター対象全体から情報を収集する必要がある場合等に利用します。</p>
+<h3 id="Anchor_83955970_h3_2">Filter</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;void Filter(IfFilterTarget target) { }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;Filter(target):</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;フィルター対象となる単一の中間ファイルにフィルター処理をします。</p>
+<p>フィルター対象が複数ある場合は、複数スレッドにより並列処理します。</p>
+<h3 id="Anchor_83955970_h3_3">PostFilter</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;void PostFilter(List&lt;IfFilterTarget&gt; targets) { }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;PostFilter(targets):</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;フィルター対象全体に対して後処理をします。</p>
+<p>フィルター処理結果の集計等に利用します。</p>
+<h2 id="Anchor_83955970_h2_20">フィルター対象 (IfFilterTarget)</h2>
+<p>フィルター対象は単一の中間ファイルに対する読み込み、変更、保存等の機能を提供します。<br /> フィルター対象である nw.g3d.iflib.IfFilterTarget クラスのメンバーについて説明します。</p>
+<h3 id="Anchor_83955970_h3_4">中間ファイルの XML ドキュメント</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;public System.Xml.XmlDocument Document { get; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;target.Document</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>中間ファイルの XML ドキュメントオブジェクトを取得します。</p>
+<p>中間ファイルを DOM で扱う場合に利用します。</p>
+<p>System.Xml.XmlDocument については .Net のリファレンスを参照してください。</p>
+<p>中間ファイルの仕様については、<a href="../external.html?file=../../Package/contents/IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;を参照してください。</p>
+<h3 id="Anchor_83955970_h3_5">中間ファイルのシリアライズオブジェクト</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;public nw.g3d.iflib.nw4f_IfType nw4f_If { get; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;target.nw4f_If</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>中間ファイルのシリアライズオブジェクトを取得します。</p>
+<p>中間ファイルをオブジェクトで扱う場合に利用します。</p>
+<p>nw4f_IfType については、Tools/Graphics/3dTools/3dIntermediateFileSerializer を参照してください。</p>
+<p>中間ファイルの仕様については、<a href="../external.html?file=../../Package/contents/IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;を参照してください。</p>
+<h3 id="Anchor_83955970_h3_6">中間ファイルのストリーム列</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+public List&lt;nw.g3d.nw4f_If.G3dStream&gt; Streams { get; }
+Python:
+target.Streams</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>&nbsp;中間ファイルのストリーム列を取得します。</p>
+<p>中間ファイルの &lt;stream_array&gt; を扱う場合に利用します。</p>
+<p>G3dStream は以下のメンバを持ちます。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>メンバ</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>public nw.g3d.nw4f_3dif.stream_typeType type { get; set; }</td>
+      <td>ストリームの型を指定する stream_typeType 型の列挙値です。<br />float, int, byte, string, wstring のいずれかです。</td>
+    </tr>
+    <tr>
+      <td>public List&lt;float&gt; FloatData { get; }</td>
+      <td>type が stream_typeType.float の場合のデータ列です。</td>
+    </tr>
+    <tr>
+      <td>public List&lt;int&gt; IntData { get; }</td>
+      <td>type が stream_typeType.int の場合のデータ列です。</td>
+    </tr>
+    <tr>
+      <td>public List&lt;byte&gt; ByteData { get; }</td>
+      <td>type が stream_typeType.byte の場合のデータ列です。</td>
+    </tr>
+    <tr>
+      <td>public string StringData { get; set; }</td>
+      <td>type が stream_typeType.string, stream_typeType.wstring の場合のデータです。</td>
+    </tr>
+    <tr>
+      <td>public int column { get; set; }</td>
+      <td>テキスト中間ファイルでデータ列を整形する際のカラム数です。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955970_h3_7">中間ファイルのパス</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;public string FilePath { get; }
+&nbsp;&nbsp;&nbsp;&nbsp;public string FileName { get; }
+&nbsp;&nbsp;&nbsp;&nbsp;public string FileNameWithoutExtension { get; }
+&nbsp;&nbsp;&nbsp;&nbsp;public string Extension { get; }
+&nbsp;&nbsp;&nbsp;&nbsp;public string FullPath { get; }
+&nbsp;&nbsp;&nbsp;&nbsp;public string DirectoryName { get; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;target.FilePath
+&nbsp;&nbsp;&nbsp;&nbsp;target.FileName
+&nbsp;&nbsp;&nbsp;&nbsp;target.FileNameWithoutExtension
+&nbsp;&nbsp;&nbsp;&nbsp;target.Extension
+&nbsp;&nbsp;&nbsp;&nbsp;target.FullPath
+&nbsp;&nbsp;&nbsp;&nbsp;target.DirectoryName</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>&nbsp;フィルター対象である中間ファイルの各種パス情報を取得します。</p>
+<h3 id="Anchor_83955970_h3_8">中間ファイルの引数</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;public string Argument { get; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;target.Argument</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>&nbsp;3dIntermediateFileFilter.exe の起動時オプションで、中間ファイルに対して -a=&quot;&quot; --argument=&quot;&quot; オプションで指定した文字列です。</p>
+<h3 id="Anchor_83955970_h3_9">フィルター結果</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+public object Result { get; set; }
+Python:
+target.Result</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;利用者がフィルター結果を格納するためのプロパティーです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">def</span> <span class="nf">PreFilter</span><span class="p">(</span><span class="n">targets</span><span class="p">):</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">args</span> <span class="o">=</span> <span class="n">ScriptArgument</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">print</span><span class="p">(</span><span class="s2">&quot;fsv のテンプレートファイルを --argument に指定してください。&quot;</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Result</span> <span class="o">=</span> <span class="bp">False</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955970_h3_10">中間ファイルの保存</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;public void Write(string filePath)
+&nbsp;&nbsp;&nbsp;&nbsp;public void Write()
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;target.Write(filePath)
+&nbsp;&nbsp;&nbsp;&nbsp;target.Write()</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;フィルター対象の中間ファイルを保存します。</p>
+<p>引数で保存先のファイルパスを指定し、省略した場合は上書き保存します。</p>
+<h2 id="Anchor_83955970_h2_21">グローバル変数</h2>
+<p>PreFilter、Filter、PostFilter のいずれの関数でも利用できる、グローバル変数です。</p>
+<h3 id="Anchor_83955970_h3_11">スクリプト引数</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;string ScriptArgument { get; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;ScriptArgument</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;3dIntermediateFileFilter.exe の起動時オプションで、スクリプトに対して -a=&quot;&quot; --argument=&quot;&quot; オプションで指定した文字列です。</p>
+<h3 id="Anchor_83955970_h3_12">スクリプト辞書</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;PythonDictionary ScriptDictionary { get; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;ScriptDictionary</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;PreFilter、Filter、PostFilter のいずれの関数からも参照できる辞書です。</p>
+<p>ただし、Filter は並列に実行されますので、アクセスする際には注意する必要があります。</p>
+<p>-j --jobs オプションにより、直列に実行させることもできます。</p>
+<h3 id="Anchor_83955970_h3_13">実行結果</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>C#:
+&nbsp;&nbsp;&nbsp;&nbsp;bool Result { get; set; }
+Python:
+&nbsp;&nbsp;&nbsp;&nbsp;Result</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;実行結果を設定します。</p>
+<p>デフォルト値は true です。</p>
+<p>代入時には global Result と宣言する必要があります。</p>
+<p>false を設定するとフィルター処理を中断し、3dIntermediateFileFilter.exe が終了コード 1 で終了します（正常終了時は 0 ）。</p>
+<h2 id="Anchor_83955970_h2_22">Python ライブラリーの利用</h2>
+<p>Tools/Graphics/3dTools/Lib/ に *.py ファイルを配置することにより、モジュールとして import 文で読み込むことができます。<br /> 各 Lib フォルダーには IronPython に付属する、Python 標準ライブラリを配置しています。</p>
+<p>以下の例では、Python 標準ライブラリーに含まれる json モジュールを利用しています。</p>
+<p>
+  <em>TextureJson.py</em>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>import json
+target.Result = json.dumps(obj, indent=4, separators=(',',': ')) + &quot;\n&quot;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955970_h2_23">.Net ライブラリーの利用</h2>
+<p>IronPython では .Net ライブラリーを透過的に扱うことができます。</p>
+<p>
+  <em>TextureCsv.py</em>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>from System.IO import *
+# System.IO.File
+File.WriteAllText( ... );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>厳密に利用するクラスを定義するのであれば、次のようにも記述できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>from System.IO import File
+# System.IO.File
+File.WriteAllText( ... );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>参照する DLL を追加する場合は、clr モジュールを利用します。</p>
+<p>
+  <em>TotalTextureSize.py</em>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>import clr
+clr.AddReference(&quot;System.Windows.Forms&quot;)
+from System.Windows.Forms import *
+# System.Windows.Forms.MessageBox
+MessageBox.Show( ... )</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

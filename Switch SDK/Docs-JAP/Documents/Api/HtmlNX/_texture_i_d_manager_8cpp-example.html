@@ -1,0 +1,255 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: TextureIDManager.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">TextureIDManager.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_texture_i_d_manager_8cpp.html" title="This file defines a class that wraps the texture and sampler registering process. ...">TextureIDManager.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nvn___func_ptr_inline_8h.html">nvn/nvn_FuncPtrInline.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_texture_i_d_manager_8h.html">nvntutorial/TextureIDManager.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> g_NumPublicTextures = 8192;</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> g_NumPublicSamplers = 2048;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * TextureIDManager Constructor</span></div>
+<div class="line"><span class="comment"> * ----------------------------</span></div>
+<div class="line"><span class="comment"> * Sets up the texture pool and sampler pool for</span></div>
+<div class="line"><span class="comment"> * registering textures/samplers with the device.</span></div>
+<div class="line"><span class="comment"> * Before being used by a shader, a texture/sampler</span></div>
+<div class="line"><span class="comment"> * needs to be bound to the command buffer.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">TextureIDManager::TextureIDManager(<a name="_a0"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice) : m_pDevice(pDevice),</div>
+<div class="line">                                                         m_CurrentSamplerID(0),</div>
+<div class="line">                                                         m_CurrentTextureID(0)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">int</span> textureSize = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> samplerSize = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> numReservedTextures = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> numReservedSamplers = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> maxTextures = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> maxSamplers = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> totalNumSamplers = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> totalNumTextures = 0;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Queries the size of a single texture/sampler descriptor. */</span></div>
+<div class="line">    <a name="a1"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a2"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a72e50333aa53ce4a4d9dbd00c2af3db9">NVN_DEVICE_INFO_TEXTURE_DESCRIPTOR_SIZE</a>, &amp;textureSize);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a3"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ad6c9e8c2fd664c8ce50eddcf7563dbff">NVN_DEVICE_INFO_SAMPLER_DESCRIPTOR_SIZE</a>, &amp;samplerSize);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Grabs the number of texture/sampler entries that</span></div>
+<div class="line"><span class="comment">         * are reserved for internal use by NVN.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a4"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a513596e8b2dc04714d6478aed173a891">NVN_DEVICE_INFO_RESERVED_TEXTURE_DESCRIPTORS</a>, &amp;numReservedTextures);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a5"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a5b9a26a5aadab05c4a9f8a286718fbc7">NVN_DEVICE_INFO_RESERVED_SAMPLER_DESCRIPTORS</a>, &amp;numReservedSamplers);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Grabs maximum number of texture/sampler entries</span></div>
+<div class="line"><span class="comment">         * allowed (including reserved entries)</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a6"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a3e1b65743283fca466db252241b5dd87">NVN_DEVICE_INFO_MAX_TEXTURE_POOL_SIZE</a>, &amp;maxTextures);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a7"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ae2d3753921fc35e9af1b1ae2b0cae57f">NVN_DEVICE_INFO_MAX_SAMPLER_POOL_SIZE</a>, &amp;maxSamplers);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * The texture pool supports a max of 1048576 and the</span></div>
+<div class="line"><span class="comment">         * sampler pool supports a max of 4096 descriptors.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    totalNumTextures = std::min(maxTextures, numReservedTextures + g_NumPublicTextures);</div>
+<div class="line">    totalNumSamplers = std::min(maxSamplers, numReservedSamplers + g_NumPublicSamplers);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Create a memory pool with enough space for the</span></div>
+<div class="line"><span class="comment">         * reserved texture/sampler descriptors as well as</span></div>
+<div class="line"><span class="comment">         * the amount of descriptors that need to be supported</span></div>
+<div class="line"><span class="comment">         * for the application.</span></div>
+<div class="line"><span class="comment">         * The CPU_UNCACHED flag is necessary as the CPU writes</span></div>
+<div class="line"><span class="comment">         * the descriptors to memory itself.  CPU_CACHED would</span></div>
+<div class="line"><span class="comment">         * additionally work but would require manual flushing</span></div>
+<div class="line"><span class="comment">         * of the needed descriptors to gpu memory.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    m_DescriptorPool.Init(NULL,</div>
+<div class="line">                          totalNumSamplers * samplerSize + totalNumTextures * textureSize,</div>
+<div class="line">                          <a name="a8"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a name="a9"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">                          m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the sampler pool. */</span></div>
+<div class="line">    ptrdiff_t samplerPoolOffset = m_DescriptorPool.GetNewMemoryChunkOffset(totalNumSamplers * samplerSize, samplerSize);</div>
+<div class="line">    NVNboolean samplerPoolSuccess = <a name="a10"></a><a class="code" href="group__nvn__c__functions.html#gac78aeeebf55a677fa61bdceebc46ef5b">nvnSamplerPoolInitialize</a>(&amp;m_SamplerPool, m_DescriptorPool.GetMemoryPool(), samplerPoolOffset, totalNumSamplers);</div>
+<div class="line">    <a name="a11"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(samplerPoolSuccess, <span class="stringliteral">&quot;Failed to initialize Sampler descriptor pool\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the texture pool. */</span></div>
+<div class="line">    ptrdiff_t texturePoolOffset = m_DescriptorPool.GetNewMemoryChunkOffset(totalNumTextures * textureSize, textureSize);</div>
+<div class="line">    NVNboolean texturePoolSuccess = <a name="a12"></a><a class="code" href="group__nvn__c__functions.html#gaf3b22a7104a3c1cb6c0ab5c46e753587">nvnTexturePoolInitialize</a>(&amp;m_TexturePool, m_DescriptorPool.GetMemoryPool(), texturePoolOffset, totalNumTextures);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(texturePoolSuccess, <span class="stringliteral">&quot;Failed to initialize Texture descriptor pool\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab the starting sampler and texture ID&#39;s. */</span></div>
+<div class="line">    m_CurrentSamplerID = numReservedSamplers;</div>
+<div class="line">    m_CurrentTextureID = numReservedTextures;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * TextureIDManager Destructor</span></div>
+<div class="line"><span class="comment"> * ---------------------------</span></div>
+<div class="line"><span class="comment"> * Clean up the memory pool and reset member values.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">TextureIDManager::~TextureIDManager()</div>
+<div class="line">{</div>
+<div class="line">    m_DescriptorPool.Shutdown();</div>
+<div class="line"></div>
+<div class="line">    m_pDevice = NULL;</div>
+<div class="line"></div>
+<div class="line">    m_CurrentSamplerID = 0;</div>
+<div class="line">    m_CurrentTextureID = 0;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * TextureIDManager::RegisterTexture</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Registers the texture with the texture pool with a</span></div>
+<div class="line"><span class="comment"> * unique ID.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">int</span> TextureIDManager::RegisterTexture(<a name="_a13"></a><a class="code" href="struct_n_v_ntexture.html">NVNtexture</a>* pTexture)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Thread safe increment. */</span></div>
+<div class="line">    <span class="keywordtype">int</span> textureID = m_CurrentTextureID.fetch_add(1);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Register the texture with the texture pool with the new ID. */</span></div>
+<div class="line">    <a name="a14"></a><a class="code" href="group__nvn__c__functions.html#gae68c38ccc4963fcdefa710b993104364">nvnTexturePoolRegisterTexture</a>(&amp;m_TexturePool, textureID, pTexture, NULL);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> textureID;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * TextureIDManager::RegisterSampler</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Registers the sampler with the sampler pool with a</span></div>
+<div class="line"><span class="comment"> * unique ID.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">int</span> TextureIDManager::RegisterSampler(<a name="_a15"></a><a class="code" href="struct_n_v_nsampler.html">NVNsampler</a>* pSampler)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Thread safe increment. */</span></div>
+<div class="line">    <span class="keywordtype">int</span> samplerID = m_CurrentSamplerID.fetch_add(1);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Register the sampler with the sampler pool with the new ID. */</span></div>
+<div class="line">    <a name="a16"></a><a class="code" href="group__nvn__c__functions.html#ga534898b94679ef42198d21f4a3bd966e">nvnSamplerPoolRegisterSampler</a>(&amp;m_SamplerPool, samplerID, pSampler);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> samplerID;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * TextureIDManager::SetSamplerPool</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Binds the sampler pool to the given command buffer.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> TextureIDManager::SetSamplerPool(<a name="_a17"></a><a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a>* pCommandBuffer)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a18"></a><a class="code" href="group__nvn__c__functions.html#ga71cd4e0a83ae73c92c76333d3adc6212">nvnCommandBufferSetSamplerPool</a>(pCommandBuffer, &amp;m_SamplerPool);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * TextureIDManager::SetTexturePool</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Binds the texture pool to the given command buffer.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> TextureIDManager::SetTexturePool(<a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a>* pCommandBuffer)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a19"></a><a class="code" href="group__nvn__c__functions.html#ga43781240fe1741acfa122ad4fd63b802">nvnCommandBufferSetTexturePool</a>(pCommandBuffer, &amp;m_TexturePool);</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

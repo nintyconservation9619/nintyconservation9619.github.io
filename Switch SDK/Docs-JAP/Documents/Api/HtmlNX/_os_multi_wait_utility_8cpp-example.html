@@ -1,0 +1,271 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: OsMultiWaitUtility.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">OsMultiWaitUtility.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_os_multi_wait_utility.html">MultiWaitUtility</a> および <a class="el" href="_os_multi_wait_utility_8cpp.html" title="多重待ち機能のサンプルプログラム ">OsMultiWaitUtility.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cctype&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___macro_8h.html">nn/nn_Macro.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___time_span_8h.html">nn/nn_TimeSpan.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> ThreadStackSize = 8192;              <span class="comment">// スレッドのスタックサイズ</span></div>
+<div class="line"><a name="a0"></a><a class="code" href="os___thread_common_8h.html#a5ce0c3c0aaceb976178a60a18d90f470">NN_OS_ALIGNAS_THREAD_STACK</a> <span class="keywordtype">char</span>  g_MultiWaitThreadStack[ ThreadStackSize ]; <span class="comment">// 多重待ちスレッドのスタック</span></div>
+<div class="line"><a class="code" href="os___thread_common_8h.html#a5ce0c3c0aaceb976178a60a18d90f470">NN_OS_ALIGNAS_THREAD_STACK</a> <span class="keywordtype">char</span>  g_SignalThreadStack[ ThreadStackSize ];    <span class="comment">// シグナルスレッドのスタック</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// セマフォ、イベント、メッセージキュー</span></div>
+<div class="line"><a name="_a1"></a><a class="code" href="structnn_1_1os_1_1_semaphore_type.html">nn::os::SemaphoreType</a>       g_Semaphore;</div>
+<div class="line"><a name="_a2"></a><a class="code" href="structnn_1_1os_1_1_event_type.html">nn::os::EventType</a>           g_Event;</div>
+<div class="line"><a name="_a3"></a><a class="code" href="structnn_1_1os_1_1_message_queue_type.html">nn::os::MessageQueueType</a>    g_MessageQueue;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// メッセージキュー用</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span>    BufferSize = 16;                <span class="comment">// メッセージキューサイズ</span></div>
+<div class="line">uintptr_t       g_messageBuffer[BufferSize];    <span class="comment">// メッセージキューバッファ</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">typedef</span> void (*Callback)();</div>
+<div class="line"></div>
+<div class="line">}   <span class="comment">// namespace</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>    DealWithThreadFinished()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a4"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>( <span class="stringliteral">&quot;SignalThread was finished.\n&quot;</span> );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>    DealWithSemaphoreSignaled()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>( <span class="stringliteral">&quot;Semaphore is releasing.\n&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// セマフォを獲得</span></div>
+<div class="line">    <a name="a5"></a><a class="code" href="namespacenn_1_1os.html#ac9e1d42bdb0279e887dc1caef45fcff1">nn::os::AcquireSemaphore</a>( &amp;g_Semaphore );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>    DealWithEventSignaled()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>( <span class="stringliteral">&quot;Event is signaling.\n&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// イベントをクリア</span></div>
+<div class="line">    <a name="a6"></a><a class="code" href="namespacenn_1_1os.html#a46abbb4e59711874cfec72fe97b58e36">nn::os::ClearEvent</a>( &amp;g_Event );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>    DealWithMessageQueue()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>( <span class="stringliteral">&quot;Message Queue is not empty.\n&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// メッセーキューからメッセージを受信</span></div>
+<div class="line">    uintptr_t data;</div>
+<div class="line">    <a name="a7"></a><a class="code" href="namespacenn_1_1os.html#ace7ad0de1da8fdeeeb01e7de7494dc87">nn::os::ReceiveMessageQueue</a>( &amp;data, &amp;g_MessageQueue);</div>
+<div class="line">    <a name="a8"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(data);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 関数ポインタ配列</span></div>
+<div class="line"><span class="keyword">const</span> Callback callbacks[] =</div>
+<div class="line">{</div>
+<div class="line">    DealWithSemaphoreSignaled,</div>
+<div class="line">    DealWithEventSignaled,</div>
+<div class="line">    DealWithMessageQueue,</div>
+<div class="line">    DealWithThreadFinished</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  多重待ちをするスレッド</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> MultiWaitThreadFunction(<span class="keywordtype">void</span> *arg)</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a9"></a><a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>* pThread = <span class="keyword">reinterpret_cast&lt;</span><a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>*<span class="keyword">&gt;</span>(arg);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">int</span> count = 0;</div>
+<div class="line">    <span class="keywordflow">for</span> (;;)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">int</span> signal = <a name="a10"></a><a class="code" href="namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">nn::os::WaitAny</a>( &amp;g_Semaphore,</div>
+<div class="line">                                      &amp;g_Event,</div>
+<div class="line">                                      &amp;g_MessageQueue &amp; <a name="a11"></a><a class="code" href="namespacenn_1_1os.html#a3271c9fc6c46cffdb076b966f15a80bca40a79a4dabe0233dd5c21d7c4a718eea">nn::os::MessageQueueWaitType_WaitForNotEmpty</a>,</div>
+<div class="line">                                      pThread );</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// シグナルされた番号を添字にしてコールバック関数を呼び出す</span></div>
+<div class="line">        callbacks[signal]();</div>
+<div class="line">        ++count;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// このサンプルでは、４つ目のシグナルを検知したら終了する</span></div>
+<div class="line">        <span class="keywordflow">if</span> ( count &gt;= 4 )</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  各種同期オブジェクトをシグナルするスレッド</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> SignalThreadFunction(<span class="keywordtype">void</span> *arg)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>( arg );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// セマフォを解放</span></div>
+<div class="line">    <a name="a12"></a><a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>( <a name="a13"></a><a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(1000) );</div>
+<div class="line">    <a name="a14"></a><a class="code" href="namespacenn_1_1os.html#acf2cbceb4266858d27387ff2cb29a5ae">nn::os::ReleaseSemaphore</a>( &amp;g_Semaphore );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// イベントをシグナル</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>( <a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(1000) );</div>
+<div class="line">    <a name="a15"></a><a class="code" href="namespacenn_1_1os.html#a9b959a51c1d28b76894597695fd3d081">nn::os::SignalEvent</a>( &amp;g_Event );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// メッセージキューにメッセージを送信</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>( <a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(1000) );</div>
+<div class="line">    uintptr_t data = 0x12345678;</div>
+<div class="line">    <a name="a16"></a><a class="code" href="namespacenn_1_1os.html#afec9c0c3cacf43c7aa82f323da656af5">nn::os::SendMessageQueue</a>( &amp;g_MessageQueue, data );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッド終了</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>( <a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(1000) );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  メイン関数です。</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a17"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>  multiWaitThread;</div>
+<div class="line">    <a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>  signalThread;</div>
+<div class="line">    <a name="_a18"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a>          result;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 各種同期オブジェクトの初期化</span></div>
+<div class="line">    <a name="a19"></a><a class="code" href="namespacenn_1_1os.html#af76bc96a9333f18ed5d7bead209eb4f3">nn::os::InitializeSemaphore</a>( &amp;g_Semaphore, 0, 1 );</div>
+<div class="line">    <a name="a20"></a><a class="code" href="namespacenn_1_1os.html#af07abef747ac6b51112b9e800ba9632c">nn::os::InitializeEvent</a>( &amp;g_Event, <span class="keyword">false</span>, <a name="a21"></a><a class="code" href="namespacenn_1_1os.html#a11ab71d44973a4135958c420e5682452a8b702480f5120eeeb01e7102227285da">nn::os::EventClearMode_ManualClear</a> );</div>
+<div class="line">    <a name="a22"></a><a class="code" href="namespacenn_1_1os.html#ab7baa013ea5d9d4f9e84eb5d1afcec49">nn::os::InitializeMessageQueue</a>( &amp;g_MessageQueue, g_messageBuffer, BufferSize);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// シグナルスレッドを生成する</span></div>
+<div class="line">    result = <a name="a23"></a><a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread</a>( &amp;signalThread, SignalThreadFunction, NULL, g_SignalThreadStack, ThreadStackSize, <a name="a24"></a><a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a> );</div>
+<div class="line">    <a name="a25"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.<a name="a26"></a><a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>(), <span class="stringliteral">&quot;Cannot create signalThread.&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 多重待ちスレッドスレッドを生成する</span></div>
+<div class="line">    <span class="comment">// 引数としてシグナルスレッドのスレッド構造体を渡す</span></div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread</a>( &amp;multiWaitThread, MultiWaitThreadFunction, &amp;signalThread, g_MultiWaitThreadStack, ThreadStackSize, <a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a> );</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( result.IsSuccess(), <span class="stringliteral">&quot;Cannot create multiWaitThread.&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 開始</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>( <span class="stringliteral">&quot;BEGIN\n&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドの実行を開始する</span></div>
+<div class="line">    <a name="a27"></a><a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>( &amp;multiWaitThread );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>( &amp;signalThread );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドが終了するのを待つ</span></div>
+<div class="line">    <a name="a28"></a><a class="code" href="namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>( &amp;multiWaitThread );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>( &amp;signalThread );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 終了</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>( <span class="stringliteral">&quot;END\n&quot;</span> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スレッドを破棄する</span></div>
+<div class="line">    <a name="a29"></a><a class="code" href="namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>( &amp;multiWaitThread );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>( &amp;signalThread );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 各種同期オブジェクトのファイナライズ</span></div>
+<div class="line">    <a name="a30"></a><a class="code" href="namespacenn_1_1os.html#a201a00464d5606e40bef1798cba2ace8">nn::os::FinalizeSemaphore</a>( &amp;g_Semaphore );</div>
+<div class="line">    <a name="a31"></a><a class="code" href="namespacenn_1_1os.html#adae3d14bd5e37dd1feee56bbf1717e37">nn::os::FinalizeEvent</a>( &amp;g_Event );</div>
+<div class="line">    <a name="a32"></a><a class="code" href="namespacenn_1_1os.html#af9c98095075b7ef0570c1a449545e392">nn::os::FinalizeMessageQueue</a>( &amp;g_MessageQueue );</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

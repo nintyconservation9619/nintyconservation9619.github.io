@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ペアフォントおよびマルチスケーラブルフォントについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ペアフォントおよびマルチスケーラブルフォントについて -->
+<div class="pagetitle" id="PageId_111819122">ペアフォントおよびマルチスケーラブルフォントについて</div>
+<div class="text_separate">
+<h1 id="Anchor_111819122_h1_1">はじめに</h1>
+<p>本ページでは、複数のフォントをまとめて 1 つのフォントとして扱う機能である、ペアフォントおよびマルチスケーラブルフォントについて解説します。</p>
+<p>ペアフォントとは、ビットマップフォントやスケーラブルフォントなど 2 つのフォントを組み合わせて 1 つのフォントとして扱える仕組みです。</p>
+<p>マルチスケーラブルフォントとは、複数のスケーラブルフォントを 1 つの FontFace として TextureCache に構築する仕組みです。</p>
+<p>スケーラブルフォントのみを組み合わせる場合はマルチスケーラブルフォントを、スケーラブルフォント以外のフォントも組み合わせる場合はペアフォントをお使いください。</p>
+<h1 id="Anchor_111819122_h1_2">共通の仕様</h1>
+<p>ここでは、ペアフォントとスケーラブルフォントに共通する仕様について解説します。</p>
+<p>ペアフォントとスケーラブルフォントはどちらも、複数のフォントに優先順位を設定して組み合わせます。フォントを描画する際は最も優先順位が高いフォントを参照し、該当の文字が含まれていない場合は以降の優先順位のフォントを順番に参照していきます。したがって、例えば英数字と漢字でフォントを切り替えたい場合は、漢字が含まれていない英数字のみのフォントを第一優先に設定し、漢字が含まれているフォントを第二優先に設定すると良いでしょう。</p>
+<p>Height、Ascent、Descent 等の情報は、最も Height が大きいフォントのものが使用されます。</p>
+<h1 id="Anchor_111819122_h1_3">ペアフォント</h1>
+<p>ペアフォントは、2 つのフォントを組み合わせる機能で、<span class="ApiLink_nn__font__PairFont">nn::font::PairFont</span> クラスを用います。3 つ以上のフォントを組み合わせる場合は、複数のペアフォントをツリー状に構築してください。</p>
+<p>ペアフォントにフォントを登録する SetFont メソッドにおいて、第一引数に設定したフォントが第二引数に設定したフォントよりも優先されて描画されます。</p>
+<h1 id="Anchor_111819122_h1_4">マルチスケーラブルフォント</h1>
+<p>マルチスケーラブルフォントは、2 つ以上のフォントを 1 つのFontFace として TextureCache に構築する機能です。使い方は、TextureCache の初期化時に渡す InitializeArg で複数のフォントを指定するだけとなります。</p>
+<p>TextureCache には、複数のフォントを 1 つの FontFace として登録するほかに、複数の FontFace を登録することもできます。1 つの FontFace に複数のフォントを登録したとき、フォントの優先順位は配列の要素番号の小さい順になります。すなわち、0 番目の要素に設定したフォントが第一優先で描画されます。</p>
+<p>詳細は FontSimple サンプルプログラムに示しています。InitializeArg に渡す値は下記の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>型</th>
+      <th>概要</th>
+      <th>プログラム例</th>
+    </tr>
+    <tr>
+      <td>fontCount</td>
+      <td>uint32_t</td>
+      <td>FontFace の数(最大 32 個まで)</td>
+      <td>
+        <p>// FontFace が 2 つの場合。</p>
+        <p>arg.fontCount = 2;</p>
+      </td>
+    </tr>
+    <tr>
+      <td>fontListCount</td>
+      <td>uint32_t[]</td>
+      <td>各 FontFace ごとのフォントの数(最大 8 個まで)</td>
+      <td>
+        <p>// 1 番目の FontFace に 2 つ、2 番目の FontFace に 1 つのフォントを設定する場合。</p>
+        <p>arg.fontListCount[0] = 2;</p>
+        <p>arg.fontListCount[1] = 1;</p>
+      </td>
+    </tr>
+    <tr>
+      <td>pFontDatas</td>
+      <td>void*[][]</td>
+      <td>フォントバイナリ</td>
+      <td>
+        <p>// 1 番目の FontFace に pFontBinary0、pFontBinary1 を、2 番目の FontFace に pFontBinary2 を設定する場合。</p>
+        <p>arg.pFontDatas[0][0] = pFontBinary0;</p>
+        <p>arg.pFontDatas[0][1] = pFontBinary1;</p>
+        <p>arg.pFontDatas[1][0] = pFontBinary2;</p>
+      </td>
+    </tr>
+    <tr>
+      <td>pFontDataSizes</td>
+      <td>size_t[][]</td>
+      <td>フォントバイナリのサイズ</td>
+      <td>
+        <p>// 1 番目の FontFace に fontBinarySize0、fontBinarySize1 を、2 番目の FontFace に fontBinarySize2 を設定する場合。</p>
+        <p>arg.pFontDataSizes[0][0] = fontBinarySize0;</p>
+        <p>arg.pFontDataSizes[0][1] = fontBinarySize1;</p>
+        <p>arg.pFontDataSizes[1][0] = fontBinarySize2;</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_111819122_h1_5">サンプルプログラム</h1>
+<p>ペアフォントおよびマルチスケーラブルフォントに関するサンプルプログラムは、FontSimple を参照してください。</p>
+<p>「static SampleMode g_SampleMode = SampleMode_Simple;」 の行を 「SampleMode_PairFont」 に設定するとペアフォントのサンプルになり、「SampleMode_ScalableFont」 に設定するとマルチスケーラブルフォントのサンプルになります。</p>
+<p>ペアフォントのサンプルでは、英数字と日本語とで異なるビットマップフォントを切り替えています。グラデーションがかかっているフォントには日本語の文字が含まれていないため、日本語の文字においてはこのフォントをスキップして白いフォントが描画される流れになっています。</p>
+<p>マルチスケーラブルフォントのサンプルに関しては、「static const char* const DemoScalableFontFileName[ScalableFontFileCount] =」 の箇所を、コメントに記載している要件を満たすフォントに差し替えて頂くことで、文字に応じてフォントが切り替わる様子が確認できます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__font__PairFont', '../../../Api/HtmlNX/classnn_1_1font_1_1_pair_font.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

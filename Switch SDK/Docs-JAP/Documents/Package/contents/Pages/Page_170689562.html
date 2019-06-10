@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>言語取得</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 言語取得 -->
+<div class="pagetitle" id="PageId_170689562">言語取得</div>
+<div class="text_separate">
+<h1 id="Anchor_170689562_h1_1">言語取得機能</h1>
+<h2 id="Anchor_170689562_h2_1">機能概要</h2>
+<p>アプリケーションはアプリケーションが対応する言語をアプリケーション管理データで設定します。</p>
+<p>アプリケーション管理データについては <a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a> を参照してください。</p>
+<p>
+  <br />
+</p>
+<p>システムは本体の設定として言語を設定しています。</p>
+<p>アプリケーションはこの本体設定の言語に応じて、アプリケーションの対応をする必要があります。</p>
+<p>アプリケーション管理データの対応言語の中に本体設定の言語が含まれていない場合は、本体設定の言語が持つ優先度に応じて、対応言語を選択する必要があります。</p>
+<p>OE ライブラリは本体設定の言語の優先度とアプリケーションが持つ対応言語の優先度を比較して最適な対応言語を取得する機能を提供します。</p>
+<p>
+  <span class="text-quote">もし本体設定の言語に含まれない言語に対応する場合には、本 API を利用せずに、アプリ側で独自に言語選択の対応を行ってください。</span>
+</p>
+<p>
+  <br />
+</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>OE ライブラリは NX プラットフォームにのみ対応しています。</p>
+    <p>Generic には対応していませんので注意してください。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_170689562_h2_2">言語取得機能の使用方法</h2>
+<ol>
+  <li>
+    <p>OE ライブラリヘッダを include してください。<br /></p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/oe.h&gt;
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>&nbsp;</p>
+  </li>
+  <li>
+    <p>OE ライブラリの言語取得機能を呼び出してください。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::oe::</span><span class="n">GetDesiredLanguage</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h3 id="Anchor_170689562_h3_1">対応言語の判定方法</h3>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>中国語（簡体字）、中国語（繁体字）、韓国語の設定は NintendoSDK Firmware for NX 4.0.0 系より前では本体で設定できません。</p>
+    <p>そのため、 NintendoSDK Firmware for NX 4.0.0 系より前の本体では<span class="ApiLink_nn__oe__GetDesiredLanguage">nn::oe::GetDesiredLanguage</span>で中国語（簡体字）、中国語（繁体字）、韓国語が返ることはありません。</p>
+    <p>中国語（簡体字）、中国語（繁体字）、韓国語の設定を動作確認する際にはNintendoSDK Firmware for NX 4.0.0 系以降を使ってください。</p>
+  </div>
+</div>
+<p>アプリの nmeta ファイルに対応言語に各言語を設定した場合、</p>
+<p>アプリケーションは本体設定言語に応じて言語設定が取得できます。</p>
+<p>取得言語のIETF 言語タグ形式の言語コードは<a href="../Pages/Page_100911958.html">言語設定</a>を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#include &lt;nn/oe/oe_ApplicationControlApis.h&gt;
+#include &lt;nn/util/util_StringUtil.h&gt;
+
+nn::settings::LanguageCode code = nn::oe::GetDesiredLanguage();
+
+if ( ::nn::util::Strncmp( code.string, &quot;ja&quot;, sizeof( code.string ) ) == 0 )
+{
+&nbsp;&nbsp;&nbsp;// 日本語設定
+} 
+...
+else if ( ::nn::util::Strncmp( code.string, &quot;ko&quot;, sizeof( code.string ) ) == 0 )
+{
+&nbsp;&nbsp;&nbsp;// 韓国語設定
+} 
+else if ( ::nn::util::Strncmp( code.string, &quot;zh-Hans&quot;, sizeof( code.string ) ) == 0 )
+{
+&nbsp;&nbsp;&nbsp;// 簡体字中国語設定
+}
+else if ( ::nn::util::Strncmp( code.string, &quot;zh-Hant&quot;, sizeof( code.string ) ) == 0 )
+{
+&nbsp;&nbsp;&nbsp;// 繁体字中国語設定
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_170689562_h2_3">言語取得機能の関数リファレンス</h2>
+<ul style="list-style-type: square;">
+  <li>
+    <span class="ApiLink_nn__oe__GetDesiredLanguage">nn::oe::GetDesiredLanguage</span>()</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe__GetDesiredLanguage', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a93bc6192eee2c79988711b0c99bce8cd' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

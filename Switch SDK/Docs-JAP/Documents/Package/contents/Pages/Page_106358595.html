@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Toolchain for NX</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Toolchain for NX -->
+<div class="pagetitle" id="PageId_106358595">Toolchain for NX</div>
+<div class="text_separate">
+<p>Toolchain for NX は、Nintendo NX プラットフォーム（AArch32 ターゲットと AArch64 ターゲット）を対象としたアプリケーションのコンパイルとビルドに大幅な機能強化と最適化を実現するツールチェーン横断のテクノロジを提供します。</p>
+<p>Toolchain for NX は次の要素に基づいています。</p>
+<ul>
+  <li>コンパイラ、compiler-rt、C++ システムライブラリ向けの <strong><a href="http://llvm.org">LLVM</a></strong> および <strong><a href="http://clang.llvm.org/">Clang</a></strong></li>
+  <li>libc 向けの <strong><a href="http://www.musl-libc.org/">musl</a></strong></li>
+  <li>リンカユーティリティおよびバイナリユーティリティ向けの <strong><a href="https://sourceware.org/binutils/docs/ld/Overview.html#Overview">binutils</a></strong></li>
+</ul>
+<p>ここで使用しているすべてのサードパーティ製ソフトウェアの一覧については、NintendoSDK\Compilers\NX\license にある LICENSE.txt ファイルを参照してください。NDI を使用して Nintendo SDK 開発環境をインストールしたときに使用したパスに応じて、このファイルの正確な場所は異なります。</p>
+<h1 id="Anchor_106358595_h1_1">LLVM および Clang ・・・その概要</h1>
+<p>
+  <strong>LLVM</strong> は、モジュラ形式で再使用可能なコンパイラテクノロジと toolchain テクノロジのコレクションです。クラス最高の各種コンポーネントを活用して、任意のプログラミング言語によるコンパイル、解析、リンクの各処理を最適化します。LLVM は、適切に定義したインターフェースを備えた再使用可能なライブラリ群として設計されており、x86、ARM、MIPS、AArch64をはじめとして広く使用されている多くのプラットフォームでコード生成をサポートします。</p>
+<p>ターゲットに依存しない LLVM のコード生成機能は、再使用可能な各種コンポーネントを提供するフレームワークであり、これらのコンポーネントを使用して LLVM の内部表現（IR）を指定のターゲットのマシンコードに変換できます。変換先のコードとして、アセンブラ形式（静的コンパイラに最適）またはバイナリマシンコードフォーマット（Just-In-Time [JIT] コンパイラで使用可能）のずれかが可能です。LLVM は、GCC などの他のコンパイラ製品に対する数多くの優位点を持ち、現在では多彩な<a href="http://llvm.org/Users.html">商用プロジェクトとオープンソースプロジェクト</a>による本稼働で使用されて広く普及しているツールです。</p>
+<p>LLVM はオープンソースライセンスの下で誰でも入手可能です。LLVM のライセンスの詳細については「<a href="http://llvm.org/docs/DeveloperPolicy.html#license">ライセンス</a>」のページを参照してください。</p>
+<p>LLVM の詳細については以下の Web サイトを参照してください。</p>
+<ul>
+  <li>
+    <a href="http://llvm.org">LLVM のオフィシャル Web サイト</a>：LLVM および目に付きにくい各種コンポーネントを理解する過程で最初に目を通す資料としてお勧めします。</li>
+  <li>
+    <a href="http://blog.llvm.org/">LLVM 関連のブログ</a>：LLVM プロジェクトに関する週次の更新と最新情報を提供しています。</li>
+  <li>
+    <a href="http://www.aosabook.org/en/llvm.html">LLVM/The Architecture of Open Source Applications</a>：LLVM の実装と設計に関する概要情報を提供しています。</li>
+</ul>
+<p>
+  <strong>Clang</strong> は、C ファミリプログラム言語向けのオープンソースコンパイラです。LLVM のフロントエンドとして機能し、C、C++、ObjC によるソースを LVMM の内部表現に変換します。Clang は LLVM の最適化機能とコード生成機能を基盤としているので、多数のターゲットで高品質な最適化とコード生成に対応できます。初めから API として設計されているので、コード生成だけでなく、ソース解析ツール、リファクタリング、統合開発環境（IDE）でも使用できます。</p>
+<p>Clang では、バックエンドとして使用する LLVM から多くの機能を引き継いでいます。この機能として、中間コードのバイトコード表現、プラグ可能な最適化機能、リンク時の最適化のサポート、JIT コンパイル、複数のコード生成機能でのリンク機能などがあります。</p>
+<p>このほか、Clang には以下の利点があります。</p>
+<ul>
+  <li>ほとんどのコンパイラよりもはるかに高速で、はるかに少ないメモリ消費で動作します。</li>
+  <li>統合開発環境（IDE）との統合が容易で、コンパイルの際に IDE でコンパイラ出力にインデックスを割り当てることができます。</li>
+  <li>列番号、キャレット診断、関連する文章範囲の強調表示、問題対応のヒントなど、表現力のある診断機能が用意されています。詳細については「<a href="http://clang.llvm.org/diagnostics.html">Expressive Diagnostics</a>」を参照してください。</li>
+  <li>マルチスレッド処理に幅広く対応しています。</li>
+  <li>スレッドの安全性と拡張したベクトルタイプを確認するための属性を用意しています。</li>
+  <li>診断で typedef を一貫して保持できます。</li>
+  <li>マクロの自動拡張機能を提供します。</li>
+  <li>コンパイルプロセスで得られた豊富な情報を維持し、元のコードの全体的な形式を保全します。エラー発生箇所をソースコード上で容易に特定できます。</li>
+  <li>AST をディスク上にシリアル出力し、他のプログラムで読み込むことができるので、プログラム全体の解析で効果的です。</li>
+</ul>
+<p>Clang の詳細については以下の Web サイトを参照してください。</p>
+<ul>
+  <li>
+    <a href="http://clang.llvm.org">Clang のオフィシャル Web サイト</a>：Clang が提供する各種機能を理解する過程で最初に目を通す資料としてお勧めします。</li>
+  <li>
+    <a href="http://clang.llvm.org/comparison.html">Clang vs Other Open Source Compilers</a>：Clang の機能を、GCC や Elsa などの普及している他のオープンソースコンパイラと比較します。</li>
+  <li>
+    <a href="http://llvm.linuxfoundation.org/index.php/Main_Page">LLVMLinux</a>：プロジェクトの例を挙げ、Clang を使用して Linux カーネルをビルドする方法を紹介します。</li>
+  <li>
+    <a href="http://infocenter.arm.com">ARM ABI に関するドキュメント</a>：ARM アーキテクチャのアプリケーションバイナリインターフェース（ABI）。</li>
+</ul>
+<h2 id="Anchor_106358595_h2_1">Clang と Clang++ の実行可能ファイルの違い</h2>
+<p>簡単にいうと、Clang では C のコードを、Clang++ では C++ のコードをそれぞれコンパイルおよびリンクします。</p>
+<p>これは、2 つの異なるデフォルトのコンパイラフラグとリンカフラグを別の名前で表現したものと考えることができます。それぞれのフラグの組み合わせで、デフォルトの設定を変更するフラグを受け入れることができます。逆にいうと、コンパイラフラグとリンカフラグをすべて明示的に指定すれば、それらのフラグを相互に入れ替えて使用できます。</p>
+<p>技術的には、Clang も Clang++ もコンパイラではなく、どちらも入力の引数を解析するドライバです。この引数として、それらのドライバを呼び出すときにドライバを指定する名前や、ドライバから呼び出す必要のある統合コンパイラなどがあります。 ドライバでは、指定された入力引数を使用して、呼び出すコンパイラ、アセンブラ、およびリンカ、処理対象のファイル、使用するコマンドライン引数を判断します。 ドライバには、フラグ、ライブラリのリストと順序、一時的に配置するオブジェクトなどを指定するヒューリスティックスがあります。 ユーザ側で目的とする処理が明確ではない限り、このヒューリスティックスの下で C のコードには Clang を使用し、C++ のコードには Clang++ を使用するという経験則が適用されます。</p>
+<p>-x=&lt;language&gt; オプションは、ドライバでソースファイル言語を指定するヒューリスティックスを無視し、その指定に関係なく、&lt;language&gt; で指定された言語のコンパイラを呼び出すことをドライバに指示します。</p>
+<p>-std=&lt;dialect&gt; オプションでは、使用する言語として特定の言語の方言を指定します。 例えば、C++ のプログラムを古い C++98 コンパイラに移植できるようにするには、-std=c++98 と指定してコンパイルします。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>
+      <span style="white-space: normal;">-</span>
+      <span style="white-space: normal;">std</span>
+      <span style="white-space: normal;"> フラグはターゲット言語にのみ適用されます。 Java や C++98 などの異なる言語によるプログラムはコンパイルされず、ドライバで確実に C++ であると判断されたソースファイルのみがコンパイルされます。</span>
+    </p>
+  </div>
+</div>
+<p>-x フラグと -std フラグは、ソース言語に対してのみ機能します。リンク先のライブラリや、ソース言語に直接関連付けられていない他の機能をこれらのフラグで指定することはできません。C++ のコンパイルではこれらのフラグの使用が適切な場合がありますが、C++ 標準ライブラリへのリンクで使用することは適切ではありません。</p>
+<h2 id="Anchor_106358595_h2_2">デバッグ情報とそのサイズに関する考慮事項</h2>
+<p>コンパイラからは、実行可能コードとともに、きわめて柔軟にサイズを設定できるデバッグ情報が得られます。後工程でのデバッグやコアダンプの解析で、このデバッグ情報を使用できます。デフォルト設定のコンパイラでは、冗長と考えられるデータを削除することにより、最適なデバッグ情報になるようにそのサイズを縮小します。デバッグ情報のサイズが小さいほどリンクが高速になります。</p>
+<p>この最適化によってデバッグ情報の一部が失われることがあります。例えば、型情報が別のモジュールに出力済みであるとコンパイラが判断する確固とした理由があるものの、そのモジュールでは型情報が削除されている場合です。</p>
+<p>
+  <span style="color: rgb(51,51,51);">ウォッチウィンドウでクラスメンバ変数を参照できない場合、または継承チェーンで一部のクラスが欠落していると思われる場合は、該当のコードをビルドするときに </span>-fstandalone-debug フラグを設定することにより、この問題を解決できることがあります。この処理により、当然のことながらオブジェクトファイルのサイズは大きくなりますが、この措置を講じないと失われるデバッグ情報を確保できます。</p>
+<p>なお、プログラム全体で -fstandalone-debug フラグを設定することはお勧めできません。コードベースのデバッグ情報のサイズが過剰に大きくなると、リンクできなくなることがあるからです。</p>
+<h1 id="Anchor_106358595_h1_2">リンカ</h1>
+<p>Toolchain for NX では次の 2 つのリンカをサポートしています。</p>
+<ul>
+  <li>
+    <strong>ld</strong>（デフォルト）： 十分なテストを経た信頼性のあるリンカです。</li>
+  <li>
+    <strong>gold</strong>： ld ほどのテストを経ていませんが、ld よりもはるかに高速です。 これまでのテストでは、一般的な使用状況で gold リンカは ｌd リンカよりも 3 ～ 4 倍高速であることが示されていますが、リンカスクリプトを使用すると処理速度が低下することがあります。</li>
+</ul>
+<p>ld と gold はどちらも、NX 固有の機能をサポートするように機能強化されています。例えば、--build-id=uuid はどちらのリンカでもサポートしていますが、現時点の gold ではスタック使用量のレポートを扱うことができません。スタック使用量のレポートの詳細については「<a href="#Anchor_106358595_Toolchain_for_NX_Specific_Features">Toolchain for NX 固有の機能</a>」を参照してください。</p>
+<p>ld の代わりに gold リンカを使用するには、次のコマンドラインオプションを使用します。</p>
+<p>
+  <code>-fuse-ld=gold.exe</code>
+</p>
+<h1 id="Anchor_106358595_h1_3">対応プラットフォーム</h1>
+<p>Toolchain for NX は Windows 7、Widows 8.1、および Window 10（すべて 64-bit）で動作し、以下のターゲットをサポートしています。</p>
+<ul>
+  <li>
+    <span style="color: rgb(44,45,48);">armv7l</span>-nintendo-nx-eabihf for ARMv7 および AArch32</li>
+  <li>aarch64-nintendo-nx-elf for AArch64</li>
+</ul>
+<h1 id="Anchor_106358595_h1_4">Toolchain for NX の機能強化</h1>
+<p>Toolchain for NX では、LLVM と Clang で得られる数多くの利点のほか、NX を対象としたアプリケーションのビルドプロセスをこれまで以上に最適化する機能強化を用意しています。</p>
+<ul>
+  <li>NX プラットフォームに対応した target triple を提供します（詳細については「<a href="http://clang.llvm.org/docs/CrossCompilation.html">Cross-Compilation Using Clang </a>」を参照してください）。</li>
+  <li>スタックフレームのレコードサイズ出力（特殊セクション <code>.frame_sizes</code> に配置）に対応し、リンカから利用可能です。</li>
+  <li>以下の組み込み定義を提供しています。<ul><li><code>__NX_TOOLCHAIN_MAJOR__</code>、<code>__NX_TOOLCHAIN_MINOR__</code>、<code>__NX_TOOLCHAIN_PATCHLEVEL__</code>：さまざまな時点でコンパイラのバージョンに発生するレベルを記述します。</li><li><code>__NX_TOOLCHAIN_VERSION__</code>：コンパイラのバージョンを表す文字列全体を記述します。</li></ul></li>
+  <li>すべての浮動小数点演算をハードウェアで実行するハード浮動小数点 ABI を使用し、総合的なパフォーマンスを引き上げます。</li>
+  <li>以下のようにデフォルトのトリプレットを自動的に設定します。<ul><li>ARMv7 = armv7l-nintendo-nx-eabihf</li><li>AArch64 = aarch64-nintendo-nx-elf</li></ul></li>
+  <li>
+    <code>__cxa_atexit</code> の特殊な取り扱いが可能です。静的な <code>ctors</code>/<code>dtors</code> の数をコンパイルの際に認識できるように、コンストラクタとデストラクタの配列が <code>.atexit</code> セクションに出力されます（静的な <code>dtor</code> の登録では、メモリの動的なアロケーションが不要です）。</li>
+  <li>デフォルトでリンカに <code>-build-id=uuid</code> を自動的に渡します。この ID は、後工程のデバッグやコアダンプ解析などの機能で使用します。この ID を自動的に生成することで、該当プロセスの所要時間が短くなります。この自動生成機能はオブジェクトのファイルサイズの影響を受けません。必要に応じ、別のタイプのビルド ID を指定することで、この ID の値を上書きできます。ビルド ID の詳しい使用方法については「<a href="#Anchor_106358595_Utilizing_Build_IDs">ビルド ID の使用</a>」を参照してください。</li>
+  <li>Linux のバイナリから NX ELF のバイナリを区別するために、AArch64/ARMv7 に対する動的ローダとして、仮の文字列 <code>/lib/ld-nx-aarch64.so.1</code> および <code>/lib/ld-nx-armhf.so.3</code> を使用します。Linux や FreeBSD などで ELF に対応している別のプラットフォームに NX ライブラリが読み込まれることを、この機能で防止できます。</li>
+  <li>新しい <code>nx-mangle</code> 属性をサポートして、プライベートの C++ API と C API を保護します。以下に使用方法を示します。<p><code>#define HIDE __attribute__((annotate(&quot;nx-mangle&quot;)))</code><br /><code>...</code><br /><code>HIDE int privateFunc() { ... }</code></p></li>
+</ul>
+<h2 id="Anchor_106358595_h2_3">binutils の変更内容</h2>
+<ul>
+  <li>NX ターゲットの認識機能を提供します。</li>
+  <li>以下の各リンカフラグが用意されています。<ul><li><code>--check-max-stack-size</code>：スタック使用量のレポートを生成し、指定の閾値を超過した関数スタックフレームに関する詳細情報を提供します。詳細については、<a href="#Anchor_106358595_Stack Usage Report">Toolchain for NX</a>を参照してください。</li><li><code>--print-callgraph</code>、<code>--print-direct-callgraph</code>：コールグラフを出力できます。詳細については、<a href="#Anchor_106358595_Stack Usage Report">Toolchain for NX</a>を参照してください。</li><li><code>--build-id=uuid</code>：デフォルトでビルドID を生成します。ビルド ID の詳しい使用方法については「<a href="#Anchor_106358595_Utilizing_Build_IDs">ビルド ID の使用</a>」を参照してください。</li></ul></li>
+</ul>
+<h2 id="Anchor_106358595_h2_4">libc の変更内容</h2>
+<p>Toolchain の各バージョンでサポートされている libc API の一覧については「<a href="Page_106359562.html">C/C++ 標準ライブラリ API</a>」を参照してください。</p>
+<h2 id="Anchor_106358595_h2_5">libc++ の変更内容</h2>
+<ul>
+  <li>
+    <code>&lt;thread&gt;</code>、<code>&lt;mutex&gt;</code>、<code>&lt;future&gt;</code>、および <code>&lt;condition_variable&gt;</code> で、pthread の代わりに  NX ネイティブのスレッド API を必ず使用します。スレッドスタックのサイズはデフォルトで 81,920 Byte です。</li>
+  <li>
+    <code>&lt;chrono&gt;</code> に NX の時間 API 関数群を使用します。</li>
+  <li>標準 API にあるメソッドの一部に対応しています。</li>
+  <li>C のロケールのみをサポートします。</li>
+</ul>
+<p>Toolchain の各バージョンでサポートされていない libc++ API の一覧については「<a href="Page_106359562.html">C/C++ 標準ライブラリ API</a>」を参照してください。</p>
+<p>NX 向け libc++ に存在する制限事項は、該当のプラットフォームと C ライブラリによる制限事項のみで、ほかにはありません。</p>
+<h2 id="Anchor_106358595_h2_6">compiler-rt の変更内容</h2>
+<ul>
+  <li>Thumb や Thumb2 ではなく、必ず ARM です。</li>
+  <li>メインラインにある大半の AArch64 ライブラリ関数に対応しています。</li>
+  <li>仮想ポインタのサニタイザに対応しています。</li>
+  <li>ネイティブの NX API を通じて UBSan をサポートします。現在のところ、他のサニタイザには対応していません。<br /><ul><li>この機能を有効にするには、コンパイラとリンカのフラグとして <code>-fsanitize</code>=undefined を使用します。このツールは不定な動作の存在を確認しますが、この確認作業は実行時の負荷が小さく、アドレス空間のレイアウトや ABI に影響しません。<br />その詳細および詳しい確認を指定するためのフラグの一覧については、<a href="http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation">Controlling code generation</a> を参照してください。</li></ul></li>
+</ul>
+<h2 id="Anchor_106358595_h2_7">libc++abi および libunwind の変更内容</h2>
+<ul>
+  <li>libc++ および libunwind のどちらでも、以下では pthread の代わりに NX のネイティブ API を使用します。<ul><li>ミューテックス/条件変数（<code>__cxa_guard_acquire</code>、<code>__cxa_guard_release</code>、<code>__cxa_guard_abort</code> などの関数の実装で使用）</li><li>TLS スロット（EH グローバル向け）</li></ul></li>
+  <li>ベアメタル構成をサポートします。各ライブラリは静的にリンクしていると想定できるので、特殊なシンボルを使用することにより、例外処理に関連する各セクションを探し出すことができます。この動作は、ベアメタルの ARMv7 では標準のものですが、ベアメタルの AArch64 には存在しません。ベアメタルの ARMv7 では、<code>__exidx_start</code>/<code>__exidx_end</code> が <code>.ARM.exidx</code> セクション周辺に出力されます。ベアメタルの AArch64 では、<code>__eh_frame_hdr_start</code> シンボルと <code>__eh_frame_hdr_end</code> シンボルを使用して <code>.eh_frame_hdr</code> セクションの境界を検出することを想定しています。</li>
+</ul>
+<h1 id="Anchor_106358595_h1_5">Toolchain for NX の内部関数</h1>
+<p>Toolchain for NX は、Nintendo SDK と共に配布されています。多くの場合、開発環境として Visual Studio IDE が使用されると考えられます。</p>
+<p>コマンドラインでプログラムをビルドすることも考えられる場合は「<a href="../Pages/Page_94757421.html">NX ハードウェア環境向けビルドシステムの構築ガイド</a>」を参照してください。</p>
+<p>Toolchain for NX のディレクトリ構造は、およそ以下のとおりです。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>NintendoSDK/Compilers/NX
+     +-- bin&lt;-- nx-clang.exe および nx-clang++.exe の汎用的な実行可能ファイルを収めています。
+     +-- nx &lt;-- NX ターゲット固有のファイルをすべて収めています。
+         +-- aarch64&lt;-- AArch64 ツールチェーンを収めています。
+             +-- aarch64-nintendo-nx-elf
+             +-- bin
+             +-- include
+             +-- lib
+         +-- armv7l &lt;-- ARMv7 ツールチェーンを収めています。
+             +-- armv7l-nintendo-nx-eabihf
+             +-- bin
+             +-- include
+             +-- lib
+     +-- src &lt;-- binutils ソースコードによるアーカイブを収めています。</pre>
+  </div>
+</div>
+<h2 id="Anchor_106358595_h2_8">ARMv7</h2>
+<p>簡単なアプリケーションのコンパイルであれば、次のようなコマンド構文を使用して Clang を呼び出します。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>nx-clang++ -L&lt;path-to-sdk-libs&gt; -o dummy dummy.cpp</pre>
+  </div>
+</div>
+<p>コンパイラではデフォルトで <code>armv7l-nintendo-nx-eabihf</code> を target triple としますが、target triple を明示してコンパイラに渡すこともできます。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>nx-clang++ --target=armv7l-nintendo-nx-eabihf -L&lt;path-to-libs&gt; -o dummy dummy.cpp</pre>
+  </div>
+</div>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>最新バージョンの Toolchain for NX は、C API および C++ API をその一部に限定して提供します。</p>
+  </div>
+</div>
+<h2 id="Anchor_106358595_h2_9">AArch64</h2>
+<p>AArch64 ターゲット向けの簡単なアプリケーションのコンパイルであれば、次のようなコマンド構文を使用して Clang を呼び出します。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>nx-clang++ --target=aarch64-nintendo-nx-elf  -L&lt;path-to-libs&gt; -c hello_world.cpp -o hello_world.o</pre>
+  </div>
+</div>
+<p>
+  <code>--target</code> オプションを使用して <code>aarch64</code> のターゲットに target triple を明示的に指定する必要があります。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>AArch64 のターゲットでは、巻き戻し/デバッグの情報を使用せずに巻き戻しを容易にする目的で、リーフ関数ではない場合でも、必ずフレームポインタが使用されます（詳細については <a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.subset.swdev.abi/index.html">AArch64 のマニュアル</a>を参照してください）。</p>
+  </div>
+</div>
+<p>Clang の詳しい使用方法については <a href="http://clang.llvm.org/docs/UsersManual.html">http://clang.llvm.org/docs/UsersManual.html</a> を参照してください。</p>
+<h1 id="Anchor_106358595_h1_6">
+  <a name="Anchor_106358595_Toolchain_for_NX_Specific_Features"></a>Toolchain for NX 固有の機能</h1>
+<p>ここでは、Toolchain for NX 固有の機能について説明します。</p>
+<h2 id="Anchor_106358595_h2_10">
+  <a name="Anchor_106358595_スタック使用量レポート"></a>スタック使用量レポート</h2>
+<p>スタック使用量レポートでは、指定のバイト数を超えるサイズまでスタックが大きくなる原因となったあらゆる関数について情報を取得し、解析できます。</p>
+<p>スタック使用量レポートを生成するには、リンカフラグ <code>--check-max-stack-size</code> を使用します。</p>
+<p>以下に例を示します。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>nx-clang++ -L&lt;path-to-sdk-libs&gt; -Wl,--check-max-stack-size=&lt;N&gt; -o dummy dummy.cpp</pre>
+  </div>
+</div>
+<p>
+  <code>N</code> はスタックサイズの閾値です（Byte）。</p>
+<p>所定のシンボルのコールグラフを表示することもできます。コールグラフは、各関数とその子関数の実行で費やされた時間を示します。この情報から、関数単独で費やす時間は短くても、その関数が呼び出す他の関数で異常に長い時間を要している状況を把握できます。</p>
+<p>この機能を呼び出すには以下のリンカフラグを使用します。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>--print-callgraph=&lt;symbol&gt;</pre>
+  </div>
+</div>
+<p>
+  <code>&lt;symbol&gt;</code> には、コールグラフの出力対象とするマングルしたシンボルを指定します。</p>
+<p>以下のリンカフラグを使用して、直接コールグラフを出力することもできます。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>--print-direct-callgraph=&lt;symbol&gt;</pre>
+  </div>
+</div>
+<p>このグラフでは直接関数呼び出しのみを識別できます。<code>--print-callgraph</code> を指定した場合とは異なり、ネストした関数呼び出しを扱うことはできません。</p>
+<h2 id="Anchor_106358595_h2_11">
+  <a name="Anchor_106358595_Utilizing_Build_IDs"></a>ビルド ID の使用</h2>
+<p>
+  <code>--build-id</code> では、コンパイルとリンクが完了したバイナリファイル（実行可能ファイルまたはライブラリ）に一意のビルド ID をスタンプすることを要求します。</p>
+<p>ビルドを生成するときは、作成するビルド ID のフォーマットとして、以下のようにいくつかが可能です。</p>
+<ul>
+  <li>
+    <p>
+      <code>--build-id=uuid</code>：無作為に生成した一意の 128-bit 値を作成します。<br />長所：バイナリファイルのサイズに関係なく、高速です。<br />短所：同じファイルを扱う場合でも、毎回異なる ID が生成されます。したがって、後でわかるような場所にビルドのオブジェクトファイルを保存していない場合は、そのオブジェクトのソースコードからオブジェクトファイルを復元できません。<code><br /></code></p>
+  </li>
+  <li>
+    <p>
+      <code>--build-id=md5</code>：MD5 ハッシュを作成します。</p>
+  </li>
+  <li>
+    <p>
+      <code>--build-id=sha1</code>：SHA-1 ハッシュを作成します。</p>
+  </li>
+  <li>
+    <p>
+      <code>--build-id=none</code>：ビルド ID の生成機能を無効にします。</p>
+  </li>
+</ul>
+<p>MD5 ハッシュ値と SHA-1 ハッシュ値はバイナリファイルの内容で決まります。これらのどのビルドオプションを指定した場合でも、同じパラメータを使用してソースコードをリビルドし、後工程でのデバッグやコアダンプ解析などに備えて、欠落しているデバッグ情報を取得できます。</p>
+<p>SHA-1 ハッシュの長さは 160 bit で、128 bit の ND5 ハッシュより長いので、衝突（2 つの異なるオブジェクトファイルに同一のビルド ID が生成される状態）が発生しにくくなっています。一方で、SHA-1 ではビルド ID の生成に長い時間と多くの CPU サイクルを必要とします。この面では MD5 の方が高速です。状況によっては SHA-1 でも十分な速度が得られます。</p>
+<h2 id="Anchor_106358595_h2_12">既知の問題</h2>
+<ul style="margin-left: 28.0px;">
+  <li>C のロケールのみに対応しています。</li>
+  <li>FEnv はサポート対象外です。</li>
+</ul>
+<h2 id="Anchor_106358595_h2_13">Toolchain for NX に用意されていない機能</h2>
+<p>LLVM と Clang に用意されているすべての機能を NX で利用できるわけではありません。設計上適用できないもの、計画にはあるもののまだ実装されていないもの、実装に向けた作業中のものなどがあります。お客様のプロジェクトで希望される機能がある場合は当社までご連絡ください。その内容に応じて開発の優先順位を調整するようにいたします。</p>
+<p>現時点で実装されていない機能は以下のとおりです。</p>
+<ul style="margin-left: 28.0px;">
+  <li>
+    <code>
+      <span class="rpHighlightAllClass rpHighlightSubjectClass" title="">
+        <span class="highlight">thread_local</span>
+      </span>
+    </code> 指定子<em><br /></em></li>
+  <li>プロファイル主導の最適化（PGO）</li>
+  <li>リンク時間最適化（LTO）のサポート</li>
+  <li>Clang の各種プラグイン</li>
+  <li>X 線およびコンパイラで生成されるインスツルメンテーション</li>
+  <li>LLD のサポート</li>
+  <li>SafeStack</li>
+  <li>C++ モジュールのサポート</li>
+  <li>AddressSanitizer</li>
+  <li>MemorySanitizer</li>
+  <li>ThreadSanitizer</li>
+</ul>
+<h1 id="Anchor_106358595_h1_7">ベストプラクティス</h1>
+<p>C++ で広く知られているベストプラクティスは数多く存在しますが、それらはここで取り上げている作業にも適用できます。例えば、「コンパイラの警告をエラーとして扱う」、「可搬性のあるコードを記述する」、「型の自動削減を使用して読みやすいコードにする」、「自動処理で不要なコピーが生成されることを自覚する」、「#include を可能な限り小規模にする」、「内部ヘッダを private に維持する」が挙げられます。LLVM は大規模できわめて動的な C++ コード基盤であり、実用面での各種情報が <a href="http://llvm.org/docs/CodingStandards.html">http://llvm.org/docs/CodingStandards.html</a> で取り上げられています。</p>
+<p>このほか、Toolchain for NX に関連して注目すべき事項がいくつかあります。</p>
+<h2 id="Anchor_106358595_h2_14">リンカを直接呼び出さない</h2>
+<p>リンカを直接呼び出さないでください。<code>nx-clang</code> または <code>nx-clang++</code> を呼び出し、必要なリンカパラメータを <code>-Wl</code> として渡すようにします。Toolchain では、リンカパラメータの組み合わせを正確に判断するために大量の処理が実行されます。その処理は、指定したパラメータ、デフォルトのコンパイラフラグ、ライブラリのリンク順序などに応じて異なります。この処理を改善しようとするよりも、リンカの呼び出しに必要なすべての調整作業をコンパイラで扱うようにします。</p>
+<h2 id="Anchor_106358595_h2_15">内部 Toolchain ディレクトリ構造への依存性を排除する</h2>
+<p>Toolchain for NX は、固定された内部ディレクトリ構造を使用するようには設計されていません。リリースが変わると、ディレクトリ構造が変更されることもあります。内部ディレクトリ構造の中で特定のファイルにアクセスするようなアプリケーションは、Toolchain のリリースが異なると適切に動作しなくなる可能性があります。</p>
+<h1 id="Anchor_106358595_h1_8">ヒント</h1>
+<p>ビルドの設定を統合または簡素化するために使用できるヒントがいくつかあります。</p>
+<h2 id="Anchor_106358595_h2_16">応答ファイル</h2>
+<p>clang は、コマンドライン引数を取得する際に問題なく使用できるパスのスタイルです。<span style="color: rgb(51,51,51);"> ファイルパスに記述したバックスラッシュと通常のスラッシュが透過的に扱われるので、シェルで指定したパスであれば有効に機能します。</span></p>
+<p>
+  <span style="color: rgb(51,51,51);">一方、応答ファイルの場合、扱いは異なります。 さまざまなシェルからコンパイラを呼び出す際にも、同じ応答ファイルを使用できるので、clang のネイティブである POSIX スタイルのパスを使用するか、</span>--rsp-quoting={posix|windows}<span style="color: rgb(51,51,51);"> フラグを使用して応答ファイルのフォーマットを明示的に指定し、コンパイラに対する指定を明確にします。</span></p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

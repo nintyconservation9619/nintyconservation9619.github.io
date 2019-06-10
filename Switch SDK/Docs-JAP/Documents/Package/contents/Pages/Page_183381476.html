@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ネットワークへの接続</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ネットワークへの接続 -->
+<div class="pagetitle" id="PageId_183381476">ネットワークへの接続</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_183381476_h1_1">ネットワークへの接続</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_183381476_h2_1">ステーションの開始</a>
+      </li>
+      <li>
+        <a href="#Anchor_183381476_h2_2">ネットワークへの接続</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_183381476_h3_1">ネットワークのスキャン</a>
+        </li>
+        <li>
+          <a href="#Anchor_183381476_h3_2">セキュリティ設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_183381476_h3_3">ユーザ設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_183381476_h3_4">ネットワークへの接続</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_183381476_h2_3">ネットワークからの切断</a>
+      </li>
+      <li>
+        <a href="#Anchor_183381476_h2_4">ステーションの終了</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_183381476_h1_1">ネットワークへの接続</h1>
+<h2 id="Anchor_183381476_h2_1">ステーションの開始</h2>
+<p>ローカル通信に参加する端末はアクセスポイントとステーションのいずれかの役割を選択しなければなりません。アクセスポイントが構築したネットワークに接続する端末はステーションとして動作する必要があるため、LDN ライブラリを初期化した後、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#ad296900d9a6018c664dc29de81bfcbae">nn::ldn::OpenStation()</a>&nbsp;を使用してアクセスポイントとしての役割を選択したことを表明してください。</p>
+<p>この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a8b39f6b0ef4c69b3cb8475bde8ed8385">nn::ldn::State_Initialized</a>&nbsp;から&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a>&nbsp;に遷移します。</p>
+<h2 id="Anchor_183381476_h2_2">ネットワークへの接続</h2>
+<h3 id="Anchor_183381476_h3_1">ネットワークのスキャン</h3>
+<p>ネットワークに接続する前に、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a> を使用して接続先のネットワークを決定する必要があります。詳細については&nbsp;<a href="../Pages/Page_183381438.html">ネットワークのスキャン</a>&nbsp;を参照してください。</p>
+<h3 id="Anchor_183381476_h3_2">セキュリティ設定</h3>
+<p>通信の暗号化に関する設定は&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_security_config.html">nn::ldn::SecurityConfig</a>&nbsp;構造体に設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/**
+&nbsp;* @brief         アクセスポイントが構築するローカル・ネットワークのセキュリティ情報です。
+&nbsp;*/</span>
+<span class="k">struct</span> <span class="n">SecurityConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ローカル通信のセキュリティ・モードです。 @ref SecurityMode のいずれかを指定します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit16</span>               <span class="n">securityMode</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! アクセスポイントへの接続に必要なパスフレーズのバイト長です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint16_t</span>            <span class="n">passphraseSize</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! アクセスポイントへの接続に必要なパスフレーズです。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">passphrase</span><span class="p">[</span><span class="n">PassphraseSizeMax</span><span class="p">];</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>securityMode は暗号化の設定です。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749eae6158b43aebfcb6a7831d7503615f63c">nn::ldn::SecurityMode_Product</a>&nbsp;を指定すると全ての通信がシステムによって暗号化されます。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749ea747faffa2a737d3e70fcb623d7722e1c">nn::ldn::SecurityMode_Debug</a>&nbsp;を指定すると通信の暗号化が解除されるため、パケットをキャプチャして解析したい場合に使用してください。製品機ではここでの指定によらず通信が必ず暗号化されます。通常、アクセスポイントとステーションの&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749e">nn::ldn::SecurityMode</a> が一致していなければ接続に失敗しますが、ステーションで&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749ea0a2afb0ede377f0a5bafec97c737cdc8">nn::ldn::SecurityMode_Any</a> を使用していればアクセスポイントの設定に自動的に合わせるため、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a6e08a98c905d752202b86cd38a74749e">nn::ldn::SecurityMode</a>&nbsp;の不一致による接続失敗は発生しません。</p>
+<p>passphraseSize は後述する passphrase のバイトサイズです。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a26f3f636c0e7a33d0891f24c7d9f4630">nn::ldn::PassphraseSizeMin</a>&nbsp;以上、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#ae86035508c158189079d47e242d1ee6e">nn::ldn::PassphraseSizeMax</a>&nbsp;以下でなければなりません。</p>
+<p>passphrase は暗号鍵の生成に使用するパスフレーズです。パスフレーズは文字列である必要は無く、任意のバイナリデータを使用できます。十分に長く、予想しにくいパスフレーズを使用してください。なお、製品機と開発機ではパスフレーズが同じでも異なる暗号鍵が生成されます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>LDN ライブラリの暗号化は絶対的な安全を保障するものではありません。機密性の高い情報はローカル通信で送受信しないことを推奨します。</p>
+  </div>
+</div>
+<h3 id="Anchor_183381476_h3_3">ユーザ設定</h3>
+<p>ユーザ情報は&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_user_config.html">nn::ldn::UserConfig</a>&nbsp;構造体に設定します。ここで設定したユーザ情報は <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3d7236430d0f89d87e6b64827ed8fb0c">nn::ldn::GetNetworkInfo()</a> の結果として他の端末から取得することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/**
+&nbsp;* @brief         ネットワークに参加するユーザの設定情報です。
+&nbsp;*/</span>
+<span class="k">struct</span> <span class="n">UserConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ユーザ名です。UTF-8 で指定してください。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span>                <span class="n">userName</span><span class="p">[</span><span class="n">UserNameBytesMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  予約領域です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">_reserved</span><span class="p">[</span><span class="mi">15</span><span class="p">];</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>userName には UTF-8 のユーザ名を指定してください。ユーザ名のサイズは&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a1adb8ab92a9544d368755777cc8777d3">nn::ldn::UserNameBytesMax</a>&nbsp;バイト以下、文字数は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3cb11784180b694e0278ad021e150bb7">nn::ldn::UserNameLengthMax</a>&nbsp;文字以下でなければなりません。この制約はアカウントのニックネームと統一されているため、アカウントのニックネームをローカル通信のユーザ名として使用することができますが、アカウントのニックネーム以外のユーザ名を使用してはならない制限はなく、任意のユーザ名を使用できます。</p>
+<h3 id="Anchor_183381476_h3_4">ネットワークへの接続</h3>
+<p>ネットワークに接続するには、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a>&nbsp;で取得した <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_info.html">nn::ldn::NetworkInfo</a> と <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_security_config.html">nn::ldn::SecurityConfig</a>, <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_user_config.html">nn::ldn::UserConfig</a>, ローカル通信バージョンを引数として <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a5ac64f20634149d3247730228bdbf76b">nn::ldn::Connect()</a> を実行します。この API はネットワークへの接続が完了するまで最大数秒程度処理を返しません。この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a>&nbsp;から&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a4f1ac10f7434907fa2443f84fb5f9233">nn::ldn::State_StationConnected</a>&nbsp;に遷移します。</p>
+<p>以下に&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a5ac64f20634149d3247730228bdbf76b">nn::ldn::Connect()</a>&nbsp;の使用例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::</span><span class="n">Result</span> <span class="n">Connect</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ldn::</span><span class="n">NetworkInfo</span><span class="o">&amp;</span> <span class="n">network</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ldn::</span><span class="n">SecurityConfig</span><span class="o">&amp;</span> <span class="n">security</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ldn::</span><span class="n">UserConfig</span><span class="o">&amp;</span> <span class="n">user</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">retryCountMax</span><span class="p">)</span> <span class="n">NN_NOEXCEPT</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::</span><span class="n">ResultSuccess</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">retryCountMax</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">Connect</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">security</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">localCommunicationVersion</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">ConnectOption_None</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultNodeCountLimitation::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">||</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">||</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ldn::IncompatibleVersion::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultConnectionFailed::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 少し待ってから接続をリトライします。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">SleepThread</span><span class="p">(</span><span class="nn">nn::TimeSpan::</span><span class="n">FromMilliSeconds</span><span class="p">(</span><span class="mi">500</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 想定外の Result です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ABORT_UNLESS_RESULT_SUCCESS</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1ldn_1_1_result_connection_failed.html">
+    <br />nn::ldn::ResultConnectionFailed</a>&nbsp;は電波状況が良くない場合に発生しやすい問題で、一定時間待ってから接続をリトライすれば成功する可能性があります。リトライ回数は少なくとも 3 回以上に設定することを推奨します。アクセスポイント側の接続台数の制限や <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#ada79079a0b492e49f132fddc782d59e8">nn::ldn::AcceptPolicy</a>&nbsp;の設定で接続を拒否されている場合にも同じ <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1_result.html" rel="nofollow">nn::Result</a>&nbsp;が発生するため注意してください。</p>
+<h2 id="Anchor_183381476_h2_3">ネットワークからの切断</h2>
+<p>ネットワークから切断するには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#acd2ba68eeb8308d5be29fdbbd2886c18">nn::ldn::Disconnect()</a> を使用します。この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a4f1ac10f7434907fa2443f84fb5f9233">nn::ldn::State_StationConnected</a>&nbsp;から&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a>&nbsp;に遷移します。</p>
+<p>また、ステーションが&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#acd2ba68eeb8308d5be29fdbbd2886c18">nn::ldn::Disconnect()</a>&nbsp;を実行しなくても、以下のいずれかの条件でネットワークから切断され、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a>&nbsp;状態に遷移することがあります。</p>
+<ul>
+  <li>アクセスポイントがスリープや無線オフ、システムの通信開始によってネットワークを破棄した</li>
+  <li>アクセスポイントが <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a595a376742ed5d2968d24ee4e6158721">nn::ldn::DestroyNetwork()</a> でネットワークを破棄した</li>
+  <li>アクセスポイントが <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a47983a9ca7354e490260848294230eee">nn::ldn::Reject()</a> でステーションを切断した</li>
+  <li>ステーションがスリープや無線オフ、システムの通信開始によってネットワークから切断した</li>
+  <li>アクセスポイントから発信される電波が届かない状態が 10 秒間程度継続した<ul><li>アプリケーションが全く通信を行っていなくてもシステムがキープ・アライブのために通信しています。</li></ul></li>
+</ul>
+<p>切断の詳細を知りたい場合、切断後に <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abcc34a8297a2bd1f5e2e695988c6759f">nn::ldn::GetDisconnectReason()</a> を実行すれば切断理由を取得できます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>ネットワークへの接続直後および切断直後には一時的に無線コントローラとの通信が不安定になる可能性があります。必要以上にネットワークへの接続と切断を繰り返す実装は避けてください。</p>
+  </div>
+</div>
+<h2 id="Anchor_183381476_h2_4">ステーションの終了</h2>
+<p>ステーションとしての役割を終えるには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#af3173a1e4c8f4ddbefec092efb59f1b2">nn::ldn::CloseStation()</a> を使用します。ネットワークに接続した状態であればネットワークからの切断も自動的に処理されます。</p>
+<p>この処理に成功すると、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aa3a87fd89984ca1365ed31e3ebd0d6a5">nn::ldn::GetState()</a>&nbsp;で取得できる状態は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a>&nbsp;から <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a8b39f6b0ef4c69b3cb8475bde8ed8385">nn::ldn::State_Initialized</a>&nbsp;に遷移します。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

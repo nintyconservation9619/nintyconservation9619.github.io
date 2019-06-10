@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>処理フロー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 処理フロー -->
+<div class="pagetitle" id="PageId_199794590">処理フロー</div>
+<div class="text_separate">
+<h1 id="Anchor_199794590_h1_1">処理フロー</h1>
+<p>ここでは、典型的な NintendoWare 3D ランタイムライブラリ（以下、g3d ライブラリ）の処理フローを提示し、NintendoWare 3D ランタイムライブラリの説明します。</p>
+<p>&nbsp;<div class="flowchart-svg-inline"><img src="../Attachments/Attach_199794590/flowchart_1.svg" /></div></p>
+<h2 id="Anchor_199794590_h2_1">
+  <br />初期化</h2>
+<p>
+  <div class="flowchart-svg-inline">
+    <img src="../Attachments/Attach_199794590/flowchart_2.svg" />
+  </div>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>ファイル初期化</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ResFile::ResCast()<br />ResFile::Setup()<br />ResFile::BindTexture()<br />ResShaderFile::ResCast()<br />ResShaderFile::Setup()</td>
+      <td>
+        <p>ファイルから読み込んだリソース( bfres および bfsha ファイル)を初期化します。ResCast() でファイルはアクセス可能な状態になります。Setup() は内部で GFX のオブジェクト作成などを行います。BindTexture() ではリソースが参照するテクスチャを設定します。シェーダアーカイブも同様に初期化を行います。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シェーダーとモデルの関連付け</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ResMaterial::GetShaderAssign()<br />ResMaterial::GetShaderArchiveName()<br />ResShaderAssign::GetShadingModelName()<br />ResMaterial::SetRawParamSize()<br />ResShaderParam::SetOffset()</p>
+        <p>ResShadingModel::GetUniformBlock()</p>
+        <p>ResUniformBlockVar::GetSize()</p>
+        <p>ResUniformVar::GetOffset()</p>
+      </td>
+      <td>
+        <p>モデルリソースからシェーダアーカイブ名、シェーディングモデル名を取得し、モデルリソースに適したシェーディングモデルをシェーダアーカイブから取得します。シェーディングモデルが持つシェーダパラメータの情報(オフセットやサイズなど)をモデルに反映します。シェーダパラメータは SetOffset() で UniformBlock 内のオフセットを、SetRawParamSize()で UniformBlock 全体のサイズを設定します。ShaderUtility::BindShaderParam() を使用し、まとめて設定することも可能です。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>モデルインスタンス構築</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ModelObj::Builder::CalculateMemorySize()<br />ModelObj::Builder::GetWorkMemorySize()</p>
+        <p>ModelObj::Builder::Build()<br />ModelObj::CalculateBlockBufferSize()<br />ModelObj::SetupBlockBuffer()</p>
+      </td>
+      <td>CalculateMemorySize() で ModelObj の構築に必要なメモリサイズを求め、GetWorkMemorySize() でサイズを取得し、アプリケーション側でメモリを確保します。確保したメモリを Build() に渡すことでモデルインスタンスが構築できます。また、UniformBlock として用いるメモリをCalculateBlockBufferSize() で計算し、SetupBlockBuffer() で設定します。このメモリは GPU によって直接参照されます。ModelObj の構築に必要なメモリのアライメントは ModelObj::Alignment_Buffer、UniformBlock として用いるメモリのアライメントは ModelObj::GetBlockBufferAlignment() によって取得できます。</td>
+    </tr>
+    <tr>
+      <th>アニメーションインスタンス構築</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>xxx::Builder::CalculateMemorySize()<br />xxx::Builder::GetWorkMemorySize()</p>
+        <p>xxx::Builder::Build()<br />xxx::SetResource()<br />xxx::Bind()</p>
+        <p>xxxは各アニメーションインスタンスクラスを示しています。</p>
+      </td>
+      <td>
+        <p>CalculateMemorySize() で ModelObj の構築に必要なメモリサイズを求め、GetWorkMemorySize() でサイズを取得し、アプリケーション側でメモリを確保します。確保したメモリを Build() に渡すことでアニメーションインスタンスが構築できます。アニメーションインスタンスの構築に必要なメモリのアライメントは Alignment_Buffer によって取得できます。SetResource() でインスタンスに対して計算を行うリソースを設定します。また、インスタンスに対して Bind() を呼び出すことで ModelObj や SkeletonObj と関連付けます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_199794590_h2_2">nn::gfx オブジェクト初期化</h2>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>RasterizerState初期化</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ResMaterial::GetRenderInfo()</p>
+      </td>
+      <td>nn::gfx::RasterizerState を初期化します。必要であれば、RenderInfo を定義し、それをランタイムで取得し、その情報を元にRasterizerStateを初期化することが出来ます。</td>
+    </tr>
+    <tr>
+      <th>VertexState初期化</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ResModel::GetVertex()</p>
+        <p>ResVertex::FindVertexAttr()</p>
+        <p>ResVertex::GetVertexBufferStride()</p>
+        <p>ResVertexAttr::GetFormat()</p>
+        <p>ResVertexAttr::GetOffset()</p>
+        <p>ResVertexAttr::GetBufferIndex()</p>
+      </td>
+      <td>頂点属性を取得し、nn::gfx::VertexState を初期化します。</td>
+    </tr>
+    <tr>
+      <th>DepthStencilState初期化</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ResMaterial::GetRenderInfo()</td>
+      <td>必要であれば、RenderInfo を定義し、それをランタイムで取得し、その情報を元に DepthStencilState を初期化することが出来ます。</td>
+    </tr>
+    <tr>
+      <th>BlendState初期化</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ResMaterial::GetRenderInfo()</td>
+      <td>必要であれば、RenderInfo を定義し、それをランタイムで取得し、その情報を元に BlendState を初期化することが出来ます。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_199794590_h2_3">アニメーション等の更新</h2>
+<p>
+  <div class="flowchart-svg-inline">
+    <img src="../Attachments/Attach_199794590/flowchart_3.svg" />
+  </div>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>アニメーション計算</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>xxx::GetFrameCtrl()<br />AnimFrameCtrl::UpdateFrame()<br />xxx::Calculate()</p>
+        <p>xxxは各アニメーションインスタンスクラスを示しています。</p>
+      </td>
+      <td>
+        <p>アニメーションインスタンスが保持する AnimFrameCtrl を用いてアニメーションフレームを更新します。更新したフレームでアニメーション計算を行い、アニメーションインスタンスに結果を格納します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>アニメーション適用</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>xxx::ApplyTo()</p>
+        <p>xxxは各アニメーションインスタンスクラスを示しています。</p>
+      </td>
+      <td>アニメーション結果を ModelObj に適用します。SceneAnimObj の場合は GetResult() で結果を取得します</td>
+    </tr>
+    <tr>
+      <th>スケルトン更新</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ModelObj::CalculateWorld()</td>
+      <td>
+        <p>ボーンをルートから更新します。ワールド計算中に事前に登録したコールバック呼び出しを行います。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>カメラ・ライト・フォグ更新</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>CameraAnimObj::GetResult()<br />LightAnimObj ::GetResult()<br />FogAnimObj::GetResult()</td>
+      <td>
+        <p>アプリケーションが管理するカメラ・ライト・フォグを更新します。シーンアニメーションの結果を適用することもできます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_199794590_h2_4">GPU から参照されるバッファの更新</h2>
+<p>GPU から参照されるバッファを書き換えるため、 前回の描画で GPU が参照し終わった後に呼ぶ必要があります。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>行列パレット更新</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ModelObj::CalculateSkeleton()</td>
+      <td>
+        <p>SkeletonObj が保持する行列パレットを更新します。行列パレットにはスムーススキニング及びリジッドスキニング用の行列が格納されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シェイプ関連バッファ更新</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ModelObj::CalculateShape()</td>
+      <td>
+        <p>シェイプ単位で設定する UniformBlock を更新します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>マテリアル関連バッファ更新</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ModelObj::CalculateMaterial()</td>
+      <td>
+        <p>シェーダパラメータを更新します。アニメーション等で変更されたシェーダパラメータには DirtyFlag が設定されて CalculateMaterial() が呼び出されることで UniformBlock に反映されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>ビュー関連リソース更新</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ModelObj::CalculateView()</p>
+      </td>
+      <td>
+        <p>ビューに関連する UniformBlock を更新します。ビルボードの計算が行われます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_199794590_h2_5">描画コマンド作成</h2>
+<p>
+  <div class="flowchart-svg-inline">
+    <img src="../Attachments/Attach_199794590/flowchart_4.svg" />
+  </div>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>ビジビリティ判定</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ModelObj::IsShapeVisible()</td>
+      <td>
+        <p>描画を行うかどうかの判定を行います。ビジビリティアニメーション の結果を反映したり、アプリケーション側でフラスタムカリングを行った結果を反映して処理を中止してください。ライブラリ側では描画の判断は行いません。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シェーダロード</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ResShaderProgram::Load()</td>
+      <td>シェーダプログラムロードのコマンドをコマンドバッファに積みます。ロードするシェーダは必ずしも g3d のシェーダである必要はありません。</td>
+    </tr>
+    <tr>
+      <th>UniformBlock のロード</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>MaterialObj::GetMaterialBlock()</p>
+        <p>ShapeObj::GetShapeBlock()</p>
+        <p>SkeletonObj::GetMtxBlock()</p>
+      </td>
+      <td>Uniform block を取得します。gfx::ComandBuffer::SetConstantBuffer でロードします。</td>
+    </tr>
+    <tr>
+      <th>描画</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ResMesh::Draw()<br />ResMesh::DrawSubMesh()</td>
+      <td>
+        <p>描画コマンドをコマンドバッファに積みます。SubMesh 単位で描画を制御する場合は DrawSubMesh() を用いて描画を行います。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>サンプラー、テクスチャ設定</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>MaterialObj::GetTextureDescriptorSlot()</p>
+        <p>MaterialObj::GetSamplerDescriptorSlot()</p>
+      </td>
+      <td>gfx::CommandBuffer::SetTextureAndSampler でサンプラーおよびテクスチャを設定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_199794590_h2_6">描画コマンド発行</h2>
+<p>
+  <span class="ApiLink_nn__gfx__Queue__ExecuteCommand">nn::gfx::Queue::ExecuteCommand</span>() でコマンドバッファを実行します。</p>
+<h2 id="Anchor_199794590_h2_7">終了処理</h2>
+<p>
+  <div class="flowchart-svg-inline">
+    <img src="../Attachments/Attach_199794590/flowchart_5.svg" />
+  </div>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>インスタンス破棄</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ModelObj::CleanupBlockBuffer()</p>
+      </td>
+      <td>
+        <p>ModelObj, SkeletalAnimObj などインスタンスを破棄します。インスタンス構築時に渡したメモリも合わせて解放します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>ファイルの終了処理</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>
+        <p>ResFile::Cleanup()</p>
+        <p>ResFile::ReleaseTexture()</p>
+        <p>ResShaderFile::Cleanup()</p>
+      </td>
+      <td>
+        <p>Cleanup() は&nbsp;GFX のオブジェクト破棄などを行います。ReleaseTexture() はテクスチャ参照を解除します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__Queue__ExecuteCommand', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#a3513accbae08380417a92fb51043f1e8' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

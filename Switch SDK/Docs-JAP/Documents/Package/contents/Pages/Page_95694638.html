@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>低レベルグラフィックス API との相互運用</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 低レベルグラフィックス API との相互運用 -->
+<div class="pagetitle" id="PageId_95694638">低レベルグラフィックス API との相互運用</div>
+<div class="text_separate">
+<h1 id="Anchor_95694638_h1_1">低レベルグラフィックス API との相互運用</h1>
+<p>ここでは、GFX ライブラリーの API と低レベルグラフィックス API とを併用し、オブジェクトを相互運用する方法について説明します。</p>
+<h2 id="Anchor_95694638_h2_1">概要</h2>
+<p>GFX ライブラリーはさまざまな理由により直接低レベルグラフィックス API を使う場合と併用されるケースを想定しています。<br />以下にこれらのケースの例を示します。</p>
+<ul>
+  <li>GFX ライブラリーがカバーしていない低レベルグラフィックス特有な機能などを利用するケース</li>
+  <li>GFX ライブラリーに移行中であり、移行の途中段階で動作させたいケース</li>
+  <li>パフォーマンスが重要となる箇所で部分的に、GFX ライブラリーのオーバーヘッドを避けるために直接低レベルグラフィックス API を使いたいケース</li>
+  <li>GFX ライブラリーに移行したライブラリーと低レベルグラフィックス API を直接使っているライブラリーを協働させたいケース</li>
+</ul>
+<p>このような GFX ライブラリーと低レベルグラフィックス API を併用したいケースをサポートするために相互運用の機能が提供されます。&nbsp;</p>
+<p>相互運用の機能は、GFX ライブラリーのオブジェクトから低レベルグラフィックス API のオブジェクトへの変換と、その逆の低レベルグラフィックス API のオブジェクトから GFX ライブラリーのオブジェクトへの変換として提供されます。</p>
+<h2 id="Anchor_95694638_h2_2">オブジェクトの所有権について</h2>
+<p>相互運用するオブジェクトは、オブジェクトの作成者が破棄に責任を負います。</p>
+<p>GFX ライブラリーのオブジェクトとして初期化した場合、そのオブジェクトを低レベルグラフィックス API のオブジェクトに変換しても、破棄は GFX ライブラリーのオブジェクトとして行います。低レベルグラフィックス API における破棄の関数を呼んではいけません。</p>
+<p>低レベルグラフィックス API のオブジェクトとして初期化した場合、そのオブジェクトを GFX ライブラリーのオブジェクトに変換しても、破棄は低レベルグラフィックス API により行います。GFX ライブラリーにおける破棄の関数を呼んではいけません。</p>
+<h2 id="Anchor_95694638_h2_3">GFX ライブラリーのオブジェクトから低レベルグラフィックス API のオブジェクトへの変換</h2>
+<p>
+  <a href="../Pages/Page_83955626.html">クラス</a>で説明されている、アクセサーからデータへの変換の機能により達成されます。<br />この機能により GFX ライブラリーのオブジェクトが所持している低レベルグラフィックス API のオブジェクトにアクセスします。</p>
+<h3 id="Anchor_95694638_h3_1">GL4 版サンプラーの例</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::Sampler gfxSampler;
+gfxSampler.Initialize( ... ); // サンプラーの初期化
+ 
+nn::gfx::Sampler::DataType&amp; gfxSamplerData = nn::gfx::AccessorToData( gfxSampler );
+GLuint&amp; gl4Sampler = gfxSamplerData.hSampler;
+... // 変換されたサンプラーを GL4 の API で使用
+ 
+gfxSampler.Finalize( ... ); // gfx で初期化したサンプラーのため gfx で破棄</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_95694638_h2_4">低レベルグラフィックス API のオブジェクトから GFX ライブラリーのオブジェクトへの変換</h2>
+<p>GFX ライブラリーのオブジェクトから低レベルグラフィックス API のオブジェクトへの変換のように、アクセサーからデータに変換し、GFX オブジェクトのメンバーを適切に設定することでも可能ですが、より安全に行うために専用の相互運用 API が提供されます。</p>
+<p>相互運用 API は GFX ライブラリーにおける他の機能と異なり、低レベルグラフィックス API を抽象化することはせず、それぞれの低レベルグラフィックス API 特有のインターフェイスをもっています。相互運用を行うためのクラスは、<span class="ApiLink_nn__gfx__Interoperation">nn::gfx::Interoperation</span> の後ろに低レベルグラフィックス API 特有のサフィックスが付加された名前です。たとえば GL4 版であれば <span class="ApiLink_nn__gfx__InteroperationGl4">nn::gfx::InteroperationGl4</span> というクラス名です。</p>
+<p>変換は実オブジェクトに対して参照として行われます。低レベルグラフィックス API のオブジェクトがもともと参照型である場合はそのポインタをコピーすることにより行われます。低レベルグラフィックス API のオブジェクトが値型である場合は、GFX ライブラリのオブジェクトはその値を参照するように変換されます。</p>
+<h3 id="Anchor_95694638_h3_2">GL4 版サンプラーの例</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>GLuint gl4Sampler;
+glGenSamplers( 1, &amp;gl4Samlper ); // サンプラーの初期化
+... // サンプラーの設定
+ 
+nn::gfx::Sampler gfxSampler;
+nn::gfx::InteroperationGl4::ConvertToGfxSampler( &amp;gfxSampler, gl4Sampler );
+... // 変換されたサンプラーを gfx の API で使用
+ 
+glDeleteSamplers( 1, &amp;gl4Sampler ); // GL4 で初期化したサンプラーのため GL4 で破棄</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__gfx__Interoperation
+SetUrl( 'ApiLink_nn__gfx__InteroperationGl4', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#aec6047a9b4ab4e9f9809373e863f55d8' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

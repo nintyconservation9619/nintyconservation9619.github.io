@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>TLD4S</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TLD4S : Texture Load 4 with scalar/non-vec4 source/destinations<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Load 4 with scalar/non-vec4 source/destinations" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TLD4S", subsection => 4.5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>TLD4S</b>{.F16}.comp{.toff}{.DC}{.NODEP}{.phase}</code>   <code>Rd1, Rd0, Ra, Rb, #tsPtrIdxU13</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TLD4S" } -->
+
+  .comp:   TLD4S will return only a single component of texture.  This field is used to select which component of 
+           a multi-component texture is returned for this texture fetch.  The component selected is the real, 
+           post-swizzle component (example, TLD4.R would return values from the red component, just like a TEX.R
+           instruction).  If the specified component is not present, zeroes will be returned.
+               .R - Select the Red component of the texture
+               .G - Select the Green component of the texture
+               .B - Select the Blue component of the texture
+               .A - Select the Alpha component of the texture
+
+  .toff:   Programmable Texel Offset.
+               &lt; NONE &gt;
+               .AOFFI - _aoffimmi(u,v,w)  [DX10]   // 1 register required
+                   ((w &amp; 0x3f)&lt;&lt;16) | ((v &amp; 0x3f)&lt;&lt;8) | (u &amp; 0x3f)
+                   Each 6b field is a 2's complement integer from -32 to +31.
+                   AOFFI is not supported with CubeMap textures
+
+  .DC:     Depth comparison filter mode using reference value.
+               RefVal                           // 1 register required
+	       Depth Comparison filter is not supported by 3D textures.
+
+  .NODEP:  Indicates that there is no subsequent quad derivatives to be calculated.
+	   Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.
+
+  .phase:  Allows control on the current warps texture hash, used for scheduling.
+               &lt; NONE &gt;
+               .T - postfix increment of the 3 bit texture component of the hash.
+	       .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. 
+
+Immediate Inputs:
+
+  #tsPtrIdxU13:
+    This immediate index (word address) is used to fetch the packed header+sampler pointer entry from constant cache.
+    The bank from which it is fetched is determined by bundle state. The constant bank entry is 32 bit structure of
+    the form "samplerPtr[31:20] | headerPtr[19:0]".
+    In SetSamplerBinding.ViaHeaderBinding (i.e. OGL) mode, the headerPtr would be used as the samplerPtr as well.
+    Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex will be regarded as an "invalid"
+    texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in Fermi).
+    Any sampler pointer greater than one specified in SetSamplerHeaderPoolC.MaximumIndex will be regarded as an
+    "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).
+
+Neither Ra nor Rb can be RZ.
+
+Implied Inputs:
+    TLD4S maps to the TLD4 instruction with
+        #paramA = 2D
+        .wmask  = 0xf (implies all the samples are needed) and
+        .NDV    = FALSE
+
+.F16:  If specified, texture return data is in packed FP16 format. 
+     Otherwise, the return data is in 32 bit format (fp32 or S/UINT32).
+     Partial register writes do no occur: any unused portion of the return 
+     register is written with the value 0.
+     <b>Note:</b> .F16 modifier is not supported for integer textures in SPA 5.2.
+     (return value is UNPREDICTABLE)
+
+Rounding mode is controlled by a PRI: [SM]PRI_SM_TEXIO_CONTROL_FP16_ROUNDING_MODE.  It must be set to the same value
+as PRI_TEX_F_DBG_FP16_ROUNDING_MODE
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Texture fetch of the 4-texel bilerp footprint (but no filter) using a texture coordinate vector.</p>
+<p>
+Bilerp footprint only, done on finest mip-map level (level 0). Texture must be 2D.
+The four texel samples are placed into the Rd0 and Rd1 vectors in counter clockwise order starting at lower left.</p>
+
+<p>
+Legal instruction modifiers for TLD4S and corresponding parameter packing in Ra and Rb is specified below.</p>
+
+<p>
+<ol>
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Legal modifier table</EM></CAPTION>
+<TR>
+    <th> .AOFFI </th>
+    <th> .DC </th>
+    <th> Ra </th>
+    <th> Rb </th>
+</TR>
+<TR>
+    <TD> - </TD>
+    <TD> - </TD>
+    <TD> s (scalar) </TD>
+    <TD> t (scalar) </TD>
+</TR>
+<TR>
+    <TD> - </TD>
+    <TD> .DC </TD>
+    <TD> s,t (vec2) </TD>
+    <TD> dc (scalar) </TD>
+</TR>
+<TR>
+    <TD> .AOFFI </TD>
+    <TD> - </TD>
+    <TD> s,t (vec2) </TD>
+    <TD> toff (scalar) </TD>
+</TR>
+<TR>
+    <TD> .AOFFI </TD>
+    <TD> .DC </TD>
+    <TD> s,t (vec2) </TD>
+    <TD> toff,dc (vec2) </TD>
+</TR>
+</TABLE>
+</ol>
+</p>
+
+<p>
+Ra/Rb must not be specified as RZ.
+</p>
+
+<p>
+The results are written back as two vec2s, starting at Rd0 and Rd1.
+Registers Rd0 and Rd1 must both be aligned to vec2 boundaries.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>TLD4S.R</b> R8, R10, R0, R5, 5;  // {R9, R8, R11, R10 }  = {Sample 3,2,1,0} 
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

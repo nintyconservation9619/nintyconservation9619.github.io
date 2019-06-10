@@ -1,0 +1,415 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>オーバービュー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- オーバービュー -->
+<div class="pagetitle" id="PageId_105384004">オーバービュー</div>
+<div class="text_separate">
+<h1 id="Anchor_105384004_h1_1">
+  <span style="color: rgb(117,117,117);">概要</span>
+</h1>
+<p>NintendoWare 3D ランタイムライブラリ（以下、g3d ライブラリ）では、統合型の描画エンジンを提供するのではなく、個々の機能をモジュールとして提供することにより、ゲーム開発プロジェクトがゲームに最適な描画エンジンを構築することをサポートします。</p>
+<h1 id="Anchor_105384004_h1_2">特徴</h1>
+<h2 id="Anchor_105384004_h2_1">描画機能</h2>
+<p>g3d ライブラリはモデルの粒度では描画機能を持ちません。プログラマブルシェーダーアーキテクチャにおいては様々な描画方法が存在し、ライブラリとしてそれらに対応するとオプションによるオーバーヘッドやデータ構造の冗長化、ライブラリの肥大化を招き、好ましくありません。g3d ライブラリではプログラマブルシェーダーアーキテクチャを最大限に活かすため、小さな粒度で機能を提供し、プロジェクトやチーム毎に最適な描画エンジンを構築することを目指しています。</p>
+<p>描画機能としては、頂点バッファやサンプラーのような低レイヤーのグラフィックスオブジェクトの構築と描画コマンドの発行をサポートしています。最も単純には、モデル内のマテリアルやシェイプを走査して、順にデータを送ることでモデルを描画することができます。より最適化するためには、描画手法に合わせたソート処理やゲームに合わせたカリング処理を組み込むことでパフォーマンスを向上させることができます。</p>
+<h2 id="Anchor_105384004_h2_2">マルチスレッドでの動作</h2>
+<p>g3d ライブラリは内部で同期機構を用いてロックしたり、スレッドを生成しません。マルチスレッドで共通のオブジェクトに対し、内部状態の変更を伴う関数( const でない)をコールする場合は適切にロックする必要があります。</p>
+<h2 id="Anchor_105384004_h2_3">名前による関連付け</h2>
+<p>g3d ライブラリはモデルやシェーダー、アニメーションなどの外部参照をすべて、名前による関連付けで解決します。バイナリ変換時ではなくランタイムで初期化時に関連付けすることで、単体のファイル更新時に関連するすべてのファイルを再変換する必要がなく、ランタイムで再初期化をすることで動的にデータを更新することができます。名前引きによって初期化コストは多少増加しますが、ストレージからの読み込み速度に隠蔽され得るため、ワークフローとしての利便性を重視しています。</p>
+<p>処理コストがかかる名前引きは毎フレーム行わず、初期化時に結果をキャッシュしておくことを強く推奨します。</p>
+<h2 id="Anchor_105384004_h2_4">最小限のオプション・コールバック</h2>
+<p>g3d ライブラリは最小限のオプション・コールバックを提供します。オプションやコールバックが増えるとそれ自体がオーバーヘッドとなってしまいます。オプションやコールバックが必要になる要因として、シーングラフやコンテンツマネージャのような上位の機能が挙げられますが、それらの機能は多くの場合、ゲーム内の管理構造と重複して組み込みの障害となるため、g3d ライブラリでは提供しません。g3d ライブラリは小さな粒度で機能を提供しているため、オプションを用意しなくても機能の取捨選択が容易であり、コールバックを使用しなくても個々の処理の間に介入することができます。</p>
+<h2 id="Anchor_105384004_h2_5">ダブルバッファリング</h2>
+<p>g3d ライブラリはモデル内の GPU が参照するバッファに対して、ダブルバッファリングによる更新処理とダブルバッファリングを用いない更新処理の両方をサポートしています。モデルあるいはマテリアル、スケルトン、シェイプのインスタンスを構築する際にバッファ数を指定することができます。</p>
+<p>ダブルバッファリングを使用しない場合、GPU がモデルを参照しないタイミングに更新処理を行うことで、ダブルバッファリングのためのメモリ使用量やバッファ管理のコストを最小化する事ができます。</p>
+<h2 id="Anchor_105384004_h2_6">メモリアロケーション</h2>
+<p>g3d ライブラリはリアルタイム編集機能を除き、内部でメモリのアロケーションを行いません。メモリリークを起こすことがないだけでなく、必要なメモリをまとめて受け取ることで、細かなメモリの確保・解放に伴うオーバーヘッドや管理領域の無駄を減らすことができます。</p>
+<h2 id="Anchor_105384004_h2_7">シェーダーパラメーター</h2>
+<p>g3d のシェーダーシステムでは、コメント形式のアノテーションによってツールやランタイムで使用する情報を制御します。そのため、アノテーションさえ付加すれば任意のシェーダーオーサリングツールでシェーダーを編集することができます。</p>
+<p>また、アノテーションによって 3DEditor 上のシェーダーパラメーター表示を自由に設計することができ、任意のシェーダーパラメーターに対してアニメーションを作成することが可能です。</p>
+<h2 id="Anchor_105384004_h2_8">リアルタイム編集機能</h2>
+<p>g3d ライブラリでは、3DEditor と通信するリアルタイム編集機能を提供します。3DEditor 連携機能は大きな変更を行うことなくゲームに組み込むことができるため、ゲームの描画エンジンを利用してプレビューしながらリアルタイムにモデルやアニメーションを編集することができます。<a href="../../../Api/HtmlNX/namespacenn_1_1g3d_1_1viewer.html">nn::g3d::viewer</a> 名前空間のクラスが該当します。</p>
+<h1 id="Anchor_105384004_h1_3">提供する機能</h1>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>機能</th>
+      <th>対応状況</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <th>モデル</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>頂点データ</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>頂点データの量子化</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>バウンディングボリューム</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>フラスタムカリング</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>LOD 用シェイプ</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>スケルトン構造（ボーンの階層構造）</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ボーン単位での Scale, Rotate, Translate 制御</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Maya の Segment Scale Compensate</td>
+      <td>○</td>
+      <td>ボーン単位で個別に設定可能。</td>
+    </tr>
+    <tr>
+      <td>Softimage の Hierarchical Scaling</td>
+      <td>○</td>
+      <td>モデル全体で ON/OFF を統一した状態のみ対応。</td>
+    </tr>
+    <tr>
+      <td>クォータニオン形式の Rotate</td>
+      <td>未検証</td>
+      <td>ツールチェーンの対応は未定。</td>
+    </tr>
+    <tr>
+      <td>ボーン単位のコールバック</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>スキニング</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ビルボード</td>
+      <td>○</td>
+      <td>6種類の方式と階層ビルボードに対応。</td>
+    </tr>
+    <tr>
+      <td>スケルトン共有</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>インスタンシング</td>
+      <td>○</td>
+      <td>ランタイムで描画インスタンス数指定と頂点の divisor 指定に対応。</td>
+    </tr>
+    <tr>
+      <td>ビジビリティ</td>
+      <td>○</td>
+      <td>ボーン単位とマテリアル単位。実際の表示と非表示はアプリケーションが制御。</td>
+    </tr>
+    <tr>
+      <td>描画ステート</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>テクスチャー</td>
+      <td>○</td>
+      <td>圧縮1次元配列テクスチャーは PC 版で未対応。</td>
+    </tr>
+    <tr>
+      <td>テクスチャーサンプラー</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>シェーダーパラメーター</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>描画情報</td>
+      <td>○</td>
+      <td>シェーダーパラメーター以外の描画関連設定。</td>
+    </tr>
+    <tr>
+      <td>テクスチャー SRT</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Maya 形式のテクスチャー SRT</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>3dsMax 形式のテクスチャー SRT</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Softimage 形式のテクスチャー SRT</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <th>環境</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ライトセット</td>
+      <td>&times;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>シーングラフ</td>
+      <td>&times;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <th>アニメーション</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>スケルタルアニメーション</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>複数のスケルタルアニメーションのブレンド</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>体型の異なるモデルへのスケルタルアニメーションの適用</td>
+      <td>○</td>
+      <td>中間ファイルのフィルタ処理が必要。</td>
+    </tr>
+    <tr>
+      <td>シェーダーパラメーターアニメーション</td>
+      <td>○</td>
+      <td>カラーとテクスチャー SRT を含む。</td>
+    </tr>
+    <tr>
+      <td>テクスチャーパターンアニメーション</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ビジビリティアニメーション</td>
+      <td>○</td>
+      <td>&nbsp;ボーンビジビリティとマテリアルビジビリティ。</td>
+    </tr>
+    <tr>
+      <td>シーンアニメーション</td>
+      <td>○</td>
+      <td>&nbsp;カメラ、ライト、フォグに対応。</td>
+    </tr>
+    <tr>
+      <td>シェイプアニメーション</td>
+      <td>○</td>
+      <td>キーシェイプのブレンド処理はアプリケーションが制御。</td>
+    </tr>
+    <tr>
+      <td>4種類のアニメーションカーブ形式</td>
+      <td>○</td>
+      <td>エルミート、リニア、整数、真偽値。</td>
+    </tr>
+    <tr>
+      <td>アニメーションカーブの量子化</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>アニメーションカーブのコンテクスト</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>アニメーションカーブのランタイムベイク</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>アニメーションフレーム制御</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <th>リソース</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>複数のリソースを包含するファイル</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>名前による辞書引きアクセス</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>名前による関連付け</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ユーザーデータ</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ディスプレイリスト</td>
+      <td>x</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <th>シェーダー</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>シェーダー</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>シェーダーアーカイブ</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>シェーダーバリエーション</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>コンピュートシェーダー</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ジオメトリシェーダー</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <th>3DEditor 連携によるリアルタイム編集</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <tr>
+      <td>ゲーム内モデルのリアルタイム編集</td>
+      <td>○</td>
+      <td>モデルのプレビュー機能（ボーンバインド、モデルの移動、回転、スケール編集）は無効。</td>
+    </tr>
+    <tr>
+      <td>ゲーム外モデルのリアルタイム編集</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ゲーム内アニメーションのリアルタイム編集</td>
+      <td>&times;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ゲーム外アニメーションのリアルタイム編集</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>マテリアル</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>スケルトン</td>
+      <td>○</td>
+      <td>ビルボードとボーンビジビリティの編集。</td>
+    </tr>
+    <tr>
+      <td>モデルアニメーション</td>
+      <td>○</td>
+      <td>スケルタルアニメーションは再生のみ可能。シェイプアニメーションは未対応。</td>
+    </tr>
+    <tr>
+      <td>シーンアニメーション</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>シェーダー割り当て</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>シェーダーアーカイブ</td>
+      <td>○</td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

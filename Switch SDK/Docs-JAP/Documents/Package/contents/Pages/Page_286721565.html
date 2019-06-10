@@ -1,0 +1,420 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダーバリエーション</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダーバリエーション -->
+<div class="pagetitle" id="PageId_286721565">シェーダーバリエーション</div>
+<div class="text_separate">
+<div>
+  <p>
+    <ul class="macro_toc">
+      <li>
+        <a href="#Anchor_286721565_h1_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_286721565_h1_2">生成方法</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_286721565_h2_1">オプション変数</a>
+        </li>
+        <li>
+          <a href="#Anchor_286721565_h2_2">シェーダー設定ファイル(.fsca, .fscb)</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_286721565_h1_3">バリエーションの種類</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_286721565_h2_3">プリプロセッサー分岐</a>
+        </li>
+        <li>
+          <a href="#Anchor_286721565_h2_4">ユニフォーム変数分岐</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_286721565_h1_4">シェーダーキー</a>
+      </li>
+      <li>
+        <a href="#Anchor_286721565_h1_5">ランタイムでの使用方法</a>
+      </li>
+    </ul>
+  </p>
+  <h1 id="Anchor_286721565_h1_1">概要</h1>
+  <p>シェーダーバリエーションはシェーダーの処理内容の違いを表現します。シェーダー内の条件分岐(if 等)は処理コストが高いため、分岐処理を行う場合はバリエーションとしてあらかじめ別のシェーダーとして展開しておくことで、実行時のパフォーマンスを向上させることができます。g3d ではこの<strong>バリエーションの違いをシェーダープログラム (<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>) として表現</strong>しています。シェーダーバリエーションを利用するには、シェーダーコード内に<strong>オプション変数</strong>を定義する必要があり、さらにシェーダーバリエーションの制御を行うためにアノテーションやシェーダー中間ファイルで適切な設定を行う必要があります。ランタイムでは、モデルに指定されたオプション変数の値等の情報を元に、モデルを描画する際に使用するシェーダープログラムを決定してシェーダーを使用した描画を行います。本ドキュメントではシェーダーバリエーションの仕組みと設定方法を説明します。</p>
+  <h1 id="Anchor_286721565_h1_2">生成方法</h1>
+  <p>シェーダーバリエーションを利用するには「<strong>オプション変数の定義</strong>」と「<strong>シェーダー設定ファイル(.fsca, .fscb)の作成</strong>」が必要です。</p>
+  <h2 id="Anchor_286721565_h2_1">オプション変数</h2>
+  <p>シェーダーソースにオプション変数を定義します。オプション変数は、シェーダーバリエーションを生成するキーとなるプリプロセッサ変数で、マクロに対して<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>を記述することで定義します。以下の例では id が vertex_color の USE_VERTEX_COLOR と id がmulti_tex の MULTI_TEX をオプション変数として定義しています。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// オプション変数の定義
+</span><span class="cp">#define USE_VERTEX_COLOR    ( 0 )       </span><span class="c1">// @@ id=&quot;vertex_color&quot;
+</span><span class="cp">#define MULTI_TEX           ( 0 )       </span><span class="c1">// @@ id=&quot;multi_tex&quot; choice=&quot;0: 無し, 1: 補間, 2: 乗算, 3: 加算&quot;
+</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>ソースコード内ではオプション変数を使用した分岐や処理を記述します。シェーダーをバイナリーにコンバートすると、オプション変数が定数に置き換わって最適化された複数のシェーダープログラムがバリエーションとして得られます。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// オプション変数を使用
+</span><span class="k">if</span><span class="p">(</span><span class="n">USE_VERTEX_COLOR</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 処理 A
+</span><span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 処理 B
+</span><span class="p">}</span>
+<span class="c1">// 処理 C
+</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>例えば上記コードの場合は、USE_VERTEX_COLOR オプション変数によって if 文が展開され、処理が異なる以下の 2 つのバリエーションが得られます。</p>
+  <p>バリエーションA (USE_VERTEX_COLOR=1 のバリエーション)</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre>// 処理 A
+// 処理 C</pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>バリエーションB (USE_VERTEX_COLOR=0 のバリエーション)</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre>// 処理 B
+// 処理 C</pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="Anchor_286721565_h3_1">オプション変数のタイプ</h3>
+  <p>オプション変数には static と dynamic のタイプが存在し、<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>で指定することができます。デフォルト値は static です。これらのタイプは、オプション変数値がモデル中間ファイルの &lt;shader_option&gt; の value 値で静的に決定されるかどうかを示します。</p>
+  <p>static オプションは、モデルのマテリアルの <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html">nn::g3d::ResShaderAssign</a> 値で静的に決まるオプション変数を示します。static オプション変数は、アサインユーティリティでシェーダーをモデル中間ファイルに関連付けた際に、オプション変数の情報がモデル中間ファイルの &lt;shader_option&gt; に追加されます。モデル中間ファイルの &lt;shader_option&gt; の値は 3DEditor でユーザーが編集し、ランタイムでのモデル初期化時に <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html">nn::g3d::ResShaderAssign</a> の &lt;shader_option&gt; の値を元に使用するシェーダープログラムを絞り込みます。</p>
+  <p>dynamic オプションは、ランタイム上でモデルマテリアル以外の要素で動的に決定されるオプション変数を示します。例えば、(モデルのシェイプの粒度で) スキニング数に応じてオプション変数を変えたい場合や、ゲーム中で動的にオプション変数を使用してシェーダーの一部処理を変えたい場合等のオプション変数には dynamic を指定します。</p>
+  <p>ランタイムでは static なオプション変数は <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj</a> で扱われ、dynamic なオプション変数は <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html">nn::g3d::ShaderSelector</a> で扱われます。詳しくは<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>を確認して下さい。</p>
+  <table class="wrapped">
+    <colgroup>
+      <col />
+      <col />
+      <col />
+    </colgroup>
+    <tbody>
+      <tr>
+        <th>type</th>
+        <th>粒度</th>
+        <th>使用例</th>
+      </tr>
+      <tr>
+        <th>static</th>
+        <td>モデル中間ファイル(fmd) の &lt;material&gt; 内の &lt;shader_option&gt; で決定されるオプション値</td>
+        <td>対象のマテリアルが特定のテクスチャーを使用するかどうかのフラグ</td>
+      </tr>
+      <tr>
+        <th>dynamic</th>
+        <td>モデル中間ファイルの &lt;shader_option&gt; 以外で決定されるオプション値。ランタイムで動的に切り替えたい場合</td>
+        <td>
+          <p>シェイプで決定されるスキニング数</p>
+          <p>法線をデバッグ表示するかどうかのフラグ(ランタイムで動的に切り替える)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2 id="Anchor_286721565_h2_2">シェーダー設定ファイル(.fsca, .fscb)</h2>
+  <p>
+    <span style="color: rgb(33,33,33);">シェーダー設定ファイルでは、シェーダーコードに定義された<strong>オプション変数の範囲</strong>や<strong>デフォルト値</strong>、<strong>バリエーションの種類</strong>を指定します。id 属性にはアノテーションで設定されているオプション変数の識別子、choice 属性にはオプション変数が取り得る値の範囲を、default 属性にはデフォルト値を指定します。branch 属性にはバリエーションをプリプロセッサ変数分岐として扱うかユニフォーム変数分岐として扱うかを指定します。プリプロセッサ変数分岐とユニフォーム変数分岐については以下の項目で説明します。</span>
+  </p>
+  <div class="info_new">
+    <div class="info_new_left">参考：</div>
+    <div class="info_new_right">
+      <p>
+        <span style="color: rgb(33,33,33);">アノテーションでもオプション変数の値の範囲やデフォルト値を指定できますが、これはシェーダーコードを複数のプロジェクトで共有して使用するケースを想定したものです。例えば、シェーダーコード内のアノテーションでは、シェーダーコードを使用する全てのプロジェクトに対応した幅広いバリエーション範囲を設定し、シェーダー設定ファイルではアノテーションの設定よりも狭いプロジェクトに適した範囲で設定することを想定しています</span>
+        <span style="color: rgb(33,33,33);">。</span>
+      </p>
+      <p>
+        <span style="color: rgb(33,33,33);">詳しくは「&nbsp;<a href="../IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;」を確認して下さい。</span>
+      </p>
+    </div>
+  </div>
+  <p>
+    <br />以下にシェーダー設定ファイルの例を示します。シェーダーソースで定義した 2 つのオプション変数に対して choice と default 値、branch(後述) を設定します。ここで定義した choice 値の全ての組み合わせ数のバリエーションが生成されます。例えば、例の場合では USE_VERTEX_COLOR が 0,1 の 2 通り、MULTI_TEX が 0,1,2,3 の 4 通りなので、計 2 &times; 4 = 8 個のバリエーションが生成されます。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;nw4f_3dif</span> <span class="na">version=</span><span class="s">&quot;4.0.0&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;shader_config</span> <span class="na">version=</span><span class="s">&quot;4.0.0&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;shader_config_info</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">code_page=</span><span class="s">&quot;65001&quot;</span>
+<span class="nt">/&gt;</span>
+<span class="nt">&lt;include_path_array</span> <span class="na">length=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;include_path</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">path=</span><span class="s">&quot;src&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/include_path_array&gt;</span>&gt;
+<span class="nt">&lt;shader_array</span> <span class="na">length=</span><span class="s">&quot;1&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;shader index=&quot;</span><span class="na">0</span><span class="err">&quot;</span> name=&quot;test&quot; material_shader=&quot;true&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;vertex_shader</span> <span class="na">path=</span><span class="s">&quot;test.glsl&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;fragment_shader</span> <span class="na">path=</span><span class="s">&quot;test.glsl&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation_array</span> <span class="na">length=</span><span class="s">&quot;2&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">id=</span><span class="s">&quot;vertex_color&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;bool&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;1&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;false&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">id=</span><span class="s">&quot;multi_tex&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;[0, 3]&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;0&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;false&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/variation_array&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/shader&gt;</span>
+<span class="nt">&lt;/shader_array&gt;</span>
+<span class="nt">&lt;/shader_config&gt;</span>
+<span class="nt">&lt;/nw4f_3dif&gt;</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h1 id="Anchor_286721565_h1_3">バリエーションの種類</h1>
+  <p>g3d のバリエーションの種類にはプリプロセッサー分岐とユニフォーム変数分岐の 2 種類があります。シェーダー設定ファイル &lt;variation&gt; の branch で指定することが可能です。プリプロセッサー分岐は、条件分岐を展開した個々のシェーダーをバリエーションとして実現するため、ランタイムのパフォーマンスは高いですがコンパイル時間が長くなります。そのため製品環境での使用を想定しています。一方、ユニフォーム変数分岐は条件分岐を展開しないため速度パフォーマンスは低いですが、コンパイル時間が短いため、開発環境で使用することを想定しています。なお、オプション変数別にバリエーションの種類を指定できるため、組み合わせて使用することも可能です。</p>
+  <table class="relative-table wrapped" style="width: 95.0249%;">
+    <colgroup>
+      <col style="width: 9.48778%;" />
+      <col style="width: 12.2235%;" />
+      <col style="width: 26.6007%;" />
+      <col style="width: 28.2887%;" />
+      <col style="width: 23.3993%;" />
+    </colgroup>
+    <tbody>
+      <tr>
+        <th>分岐名</th>
+        <th style="text-align: center;">
+          <p>&lt;variation&gt; の branch</p>
+        </th>
+        <th style="text-align: left;">利点</th>
+        <th>欠点</th>
+        <th>バリエーションの実現方法</th>
+      </tr>
+      <tr>
+        <td>プリプロセッサー分岐</td>
+        <td style="text-align: center;">false</td>
+        <td style="text-align: left;">ランタイムの速度パフォーマンスが高い</td>
+        <td>コンバート時間が長く、シェーダーアーカイブファイルサイズが大きい</td>
+        <td>別のシェーダーとしてバリエーションを実現</td>
+      </tr>
+      <tr>
+        <td>ユニフォーム変数分岐</td>
+        <td style="text-align: center;">true</td>
+        <td style="text-align: left;">コンバート時間が短く、シェーダーアーカイブファイルサイズが小さい</td>
+        <td>ランタイム速度パフォーマンスが低い</td>
+        <td>ユニフォーム変数を使用してバリエーションを疑似的に実現</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>以下に、プリプロセッサー分岐のオプション変数 OPTION1, OPTION3 とユニフォーム変数分岐のオプション変数 OPTION2 を定義した場合の、シェーダーアーカイブの構造を示します。プリプロセッサー分岐の場合は、オプション数が取り得る値の数だけ定数に置き換わるため、別のシェーダープログラムとして実現されています。ユニフォーム変数分岐の場合は、オプション変数がユニフォーム変数に置き換わるだけでなのでシェーダープログラムは増加しません。プリプロセッサー分岐のオプション変数で決定されるバリエーションはシェーダープログラムとして実現されますが、ユニフォーム変数分岐のオプションのバリエーションは、シェーダープログラム内のユニフォーム変数にセットされた値を元にしたシェーダー内の分岐処理で実現されます。</p>
+  <p>
+    <br />
+  </p>
+  <div class="flowchart-svg-inline">
+    <img src="../Attachments/Attach_286721565/flowchart_1.svg" />
+  </div>
+  <h2 id="Anchor_286721565_h2_3">プリプロセッサー分岐</h2>
+  <p>プリプロセッサー分岐は、マクロ値を使用した分岐を行うことで処理の違いを別のシェーダーとして実現する方法で、仕組みは gfx ライブラリーで実現されるバリエーションのと同じです。<span style="color: rgb(33,33,33);">シェーダー設定ファイルで指定された<span style="color: rgb(33,33,33);">オプション変数の取り得る値を元に、シェーダーコード内のオプション変数(マクロ値)を変化させることでシェーダーバリエーションが生成されます</span>。利点として、シェーダーコード上のオプション変数がリテラルに置き換えられ、最適化によって分岐が排除されることにより<strong>速度パフォーマンス面で有利</strong>になります。欠点として、オプション変数が取りうる値の数だけシェーダープログラムがコンパイルされるため、<strong>コンバート時間とシェーダーアーカイブファイルサイズが増加</strong>します。プリプロセッサー分岐を行いたい場合は、<strong>シェーダー設定ファイルの &lt;variation&gt; 要素の branch 属性に false を指定</strong>します。また 3D シェーダーコンバーターのオプションに <strong>--force-variation</strong> を指定した場合は、branch 属性が true のオプション変数を含めて、すべてのオプション変数がプリプロセッサー分岐として扱われます。このオプションを利用することで、シェーダー定義ファイルを書き換えることなく、製品環境向けのシェーダーを生成することが容易になります。プリプロセッサー分岐では、バリエーションを別シェーダーとして実現するため、一つのバリエーションは一つのシェーダープログラム(<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>)と対応し、バリエーション数分のシェーダープログラムが生成されます。</span></p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">id=</span><span class="s">&quot;vertex_color&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;bool&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;1&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;false&quot;</span>
+<span class="nt">/&gt;</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="Anchor_286721565_h3_2">バリエーション定数とプリプロセッサー定義</h3>
+  <p>プリプロセッサー分岐では、「バリエーション定数」と「プリプロセッサー定義」の 2つのコンパイルの仕組みを選択することができます。これらの違いはコンパイル速度やメモリー効率として現れるため、プロジェクトのシェーダー構成に適した仕組みを採用することを推奨します。</p>
+  <p>プリプロセッサー分岐として設定したオプション変数に対応するユニフォーム変数を定義した場合、「バリエーション定数」の仕組みが適用されます。<span style="color: rgb(33,33,33);">ユニフォーム変数を定義しない場合は「プリプロセッサー定義」の仕組みとなります。また、ユニフォーム変数が定義されていても、 3Dシェーダーコンバーターのオプションに&nbsp;--use-preprosessor-variation を指定することで、強制的にプリプロセッサー定義の仕組みでコンパイルすることができます。そのため開発中は、オプション変数に対応したユニフォーム変数の定義をしておき、実際のコンパイル速度に応じて、オプションを使って利用する仕組みを柔軟に変更していくという運用も可能です。「バリエーション定数」と「プリプロセッサー定義」の詳しい情報は</span><a href="../Pages/Page_89981854.html">シェーダーコンパイラー</a>の「バリエーション定数とプリプロセッサー定義」を確認して下さい。</p>
+  <p>バリエーション定数を使用する場合の例を以下に示します。オプションユニフォームブロックの中にオプション変数に対応するユニフォーム変数を定義します。ソースコードの内容は後述するユニフォーム変数分岐の場合の定義と同じになりますが、ここではプロプロセッサー分岐を使用するため、シェーダー定義ファイルの branch に false を指定しています。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// オプション変数の定義
+</span><span class="cp">#define USE_VERTEX_COLOR    ( 0 )       </span><span class="c1">// @@ id=&quot;vertex_color&quot;
+</span><span class="cp">#define MULTI_TEX           ( 0 )       </span><span class="c1">// @@ id=&quot;multi_tex&quot; choice=&quot;0:無し, 1:補間, 2:乗算, 3:加算&quot;
+</span>
+<span class="c1">// オプションユニフォームブロックの定義
+</span><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Option</span> <span class="c1">// @@ id=&quot;opt&quot; type=&quot;option&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">useVtxColor</span><span class="p">;</span>    <span class="c1">// @@ id=&quot;vertex_color&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">multiTex</span><span class="p">;</span>       <span class="c1">// @@ id=&quot;multi_tex&quot;
+</span><span class="p">};</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <br />
+  <div class="info_new">
+    <div class="info_new_left">参考：</div>
+    <div class="info_new_right">
+      <p>バリエーション定数を使用する場合、コンパイル時にオプション変数のマクロが対応するユニフォーム変数に置き換わり、ユニフォーム変数の値をバリエーションで変えつつコンパイルを行います。</p>
+      <p>この際、コンパイル前にプリプロセスが走るため、シェーダーコード内で以下のように 「#if」分岐を使用した場合、適切にバリエーションが生成されません。</p>
+      <table class="codeblock">
+        <tbody>
+          <tr>
+            <td class="code">
+              <div class="codeblock"><pre><span class="cp">#define USE_VERTEX_COLOR    ( 0 )       </span><span class="c1">// @@ id=&quot;vertex_color&quot;
+</span><span class="p">.</span>
+<span class="p">.</span>
+<span class="c1">// NG
+</span><span class="cp">#if USE_VERTEX_COLOR
+# endif
+</span>
+<span class="c1">// OK
+</span><span class="k">if</span><span class="p">(</span><span class="n">USE_VERTEX_COLOR</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span></pre></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <h2 id="Anchor_286721565_h2_4">ユニフォーム変数分岐</h2>
+  <p>ユニフォーム変数分岐は、シェーダーコード内のオプション変数を対応するユニフォーム変数に置き換えることによりシェーダーバリエーションを生成する g3d 独自の方法です。ユニフォーム変数分岐を使用する場合はシェーダーソースに type=&quot;option&quot; のユニフォームブロック ( <strong>オプションユニフォームブロック</strong>) を定義する必要があります。分岐に使用するユニフォーム変数に対して対応するオプション変数の id と同一の id をアノテーションで指定することで、3D シェーダーコンバーターがオプション変数をそのユニフォーム変数で置き換えてコンパイルします。利点は１つのシェーダーコードで複数のバリエーションに対応できるため、<strong>コンパイル時間が短くなります</strong>。欠点はシェーダーコードに分岐が入るため、<strong>速度パフォーマンス面で不利</strong>になるケースがあります。<strong>シェーダー設定ファイルの<span style="color: rgb(33,33,33);">&nbsp;&lt;variation&gt; 要素の branch 属性</span>に&nbsp;true を指定</strong>した場合、ユニフォーム変数分岐になります。ユニフォーム変数分岐はバリエーションをユニフォーム変数による分岐で実現しており、別シェーダーとして実現していないため、バリエーション数分のシェーダープログラムが生成されることはありません。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// オプション変数の定義
+</span><span class="cp">#define USE_VERTEX_COLOR    ( 0 )       </span><span class="c1">// @@ id=&quot;vertex_color&quot;
+</span><span class="cp">#define MULTI_TEX           ( 0 )       </span><span class="c1">// @@ id=&quot;multi_tex&quot; choice=&quot;0:無し, 1:補間, 2:乗算, 3:加算&quot;
+</span>
+<span class="c1">// オプションユニフォームブロックの定義
+</span><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Option</span> <span class="c1">// @@ id=&quot;opt&quot; type=&quot;option&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">useVtxColor</span><span class="p">;</span>    <span class="c1">// @@ id=&quot;vertex_color&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">multiTex</span><span class="p">;</span>       <span class="c1">// @@ id=&quot;multi_tex&quot;
+</span><span class="p">};</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">id=</span><span class="s">&quot;vertex_color&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;bool&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;1&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;true&quot;</span>
+<span class="nt">/&gt;</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="Anchor_286721565_h3_3">オプション変数のタイプが dynamic の場合</h3>
+  <p>ユニフォーム変数分岐でオプション変数のタイプが dynamic の場合は、オプション変数がユニフォーム変数で置き換わらずにデフォルト値のみに置き換わります。そのため、ユーザーはオプションユニフォームブロック以外に分岐用のユニフォーム変数を宣言し、そのユニフォーム変数を使用してシェーダー内で分岐を記述する必要があります。<br />以下に、オプションユニフォームブロック以外に用意した分岐用のユニフォーム変数を参照するコード例を示します。例では、シェイプの粒度で変化する値を skinning 変数に代入する処理を行っています。プリプロセッサー分岐の場合は、SKINNING が 0~9 の範囲のバリエーションが生成され、SKINNING -1 の値が skinning に代入されます。ランタイムでは、使用するバリエーションを決定するため、現在のシェイプのスキニングカウントに応じて <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html#a3afe10975f2f1896503ceedda3e04773">nn::g3d::ShaderSelector::WriteDynamicKey()</a> でシェーダープログラムを選択します。一方で、ユニフォーム変数分岐の場合は SKINNING はデフォルト値の 0 で固定されているため、skinning 変数にはユニフォーム変数の vtxSkinCount が代入されます。SKINNING がデフォルト値 0 であることを利用して、ユニフォーム変数を使用したバリエーションを実現しています。この方法を利用することで、ユニフォーム変数分岐でタイプが dynamic のオプション変数がデフォルト値に固定される場合でも、プリプロセッサー分岐と同じ挙動を実現することができます。開発中はシェーダーコンパイル時間を短縮するためにユニフォーム変数分岐を使用して、製品環境ではプリプロセッサー分岐を使用するなどの運用が可能になります。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="cp">#define SKINNING ( 0 )  </span><span class="c1">// @@ id=&quot;skinning&quot; choice=&quot;[0, 9]&quot; type=&quot;dynamic&quot;
+</span>&nbsp;&nbsp;
+<span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Shape</span> <span class="c1">// @@ id=&quot;shape&quot; type=&quot;shape&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">shapeMtx</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">vtxSkinCount</span><span class="p">;</span>
+<span class="p">};</span>
+&nbsp;
+<span class="kt">int</span> <span class="n">skinning</span> <span class="o">=</span> <span class="n">SKINNING</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">SKINNING</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">vtxSkinCount</span><span class="p">;</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h1 id="Anchor_286721565_h1_4">シェーダーキー</h1>
+  <p>g3d ライブラリーでは、シェーダーオプションの値を元に作成したシェーダーキーを使用してシェーダーバリエーションを決定します。シェーダーキーには static タイプのオプション変数から生成される static シェーダーキーと、dynamic タイプのオプション変数から生成される dynamic シェーダーキーが存在します。シェーダーキーはプリプロセッサー分岐のオプション変数に使用されます。ユニフォーム変数分岐のオプション変数に対応するシェーダーキーは生成されませんので注意してください。</p>
+  <p>g3d には、バリエーションを表すシェーダープログラムを選択するために 2 つのクラス(&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html" rel="nofollow">nn::g3d::ShadingModelObj</a>,&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html" rel="nofollow">nn::g3d::ShaderSelector</a>&nbsp;) が用意されています。それぞれのクラスはシェーダーキーを保持し、static シェーダーキーは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;で扱われ、dynamic シェーダーキーは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html" rel="nofollow">nn::g3d::ShadingModelObj</a>&nbsp;の上位層にあたる&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html" rel="nofollow">nn::g3d::ShaderSelector</a>&nbsp;で扱われます。最終的には&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html#a79873e8ffad5ccd81bc0373f11bf7a44" rel="nofollow">nn::g3d::ShaderSelector::UpdateVariation()</a>&nbsp;が static シェーダーキー と dynamic シェーダーキーの情報を元に選択すべきシェーダープログラムを決定します。ソースコードによるシェーダーキー作成の詳細は<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>を参照してください。</p>
+  <div class="info_new">
+    <div class="info_new_left">参考：</div>
+    <div class="info_new_right">
+      <p>ShaderProgram(バリエーション)を特定する場合は、各シェーダーオプションの値をランタイムで指定すればよいため、通常はシェーダーキーの内容を気にしなくてもよいですが、デバッグ用途や 3dShaderConverter で <span style="color: rgb(51,51,51);">--dump-shader-source オプションを指定した場合にシェーダーキーの内容を理解しておくと便利に活用できます。</span></p>
+      <p>シェーダーキーは、32bit &times; N のビットフラグで実現されており、オプション変数の数と choice のバリエーションに応じて長さが変わります。前半は static オプションの bit、後半は dynamic オプションの bit という構成で、少なくとも static オプション 32bit + dynamic オプション 32bit = 64bit の長さが確保されています。各 type のシェーダーオプションが 32 bit で管理できないほど多い場合は、対応する type のオプション bit がさらに 32bit 追加されます。</p>
+      <table class="codeblock">
+        <tbody>
+          <tr>
+            <td class="code">
+              <div class="codeblock"><pre>// シェーダーキー、前半32bit は static オプション、後半 32bit は dynamic オプションを示す。
+34000000_02000000</pre></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <h1 id="Anchor_286721565_h1_5">ランタイムでの使用方法</h1>
+  <p>ランタイムではモデルが使用するシェーディングモデルから、シェーダーキーを元にバリエーションを表すシェーダープログラムを選択し、シェーダープログラムを使用してモデルの描画を行います。</p>
+  <p style="text-align: center;">
+    <br />
+  </p>
+  <div class="flowchart-svg-inline">
+    <img src="../Attachments/Attach_286721565/flowchart_2.svg" />
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

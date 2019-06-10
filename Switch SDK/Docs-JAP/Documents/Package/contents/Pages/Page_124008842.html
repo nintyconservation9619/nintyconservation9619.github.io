@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Mouse</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Mouse -->
+<div class="pagetitle" id="PageId_124008842">Mouse</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_124008842_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_124008842_h1_2">Windows 環境における構成</a>
+    </li>
+    <li>
+      <a href="#Anchor_124008842_h1_3">使用方法</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_124008842_h1_1">はじめに</h1>
+<p>マウス操作を実現するための API です。</p>
+<p>下記の入力状態を取得することができます。</p>
+<ul style="list-style-type: square;">
+  <li>左ボタン、右ボタン、中央ボタン、フォワードボタン、バックボタン</li>
+  <li>ホイールの回転差分</li>
+  <li>カーソル位置</li>
+</ul>
+<p>入力状態の更新は、8 ms 以上の間隔を開けて、その時点における最新のサンプリング値に基いて行われます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a6b1b5c3ea880a4f11309bca278bea150">MouseState::x</a> と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a0771ebf41154d698aad1d66f3cb11b84">MouseState::y</a> には、カーソル位置を示す LCD 座標が左上端を原点 (0, 0) としてピクセル単位で記録されます。</p>
+<p>これらの値は常に画面内の有効な座標を示します。また、プラットフォームごとに初期位置が定義されます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#ac62e4a1d259a7d35e91257cf88f33f4d">MouseState::deltaX</a> と&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a16f3e1ea9110a629f85d945e3b78b4bc">MouseState::deltaY</a> にはマウスの移動距離が記録されます。</p>
+<p>カーソル位置の差分ではなく、マウスの物理的な移動によって生じた差分値である点に注意してください。</p>
+<p>カーソル位置に変化がない場合であっても、マウスの操作が行われていれば差分値が書き込まれます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a69f24bc32495b763f6734aa29cdc8ec3">MouseState::wheelDelta</a> にはホイールの回転差分が記録されます。マウス使用者から見て、奥が正、手前が負、であり、0.125 度の回転を単位とします。</p>
+<p>多くのマウスのホイールは 15 度ずつ回転するため、120 がひとつの目安です。</p>
+<p>&nbsp;</p>
+<p>API を利用する際は、まず <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a322597cf6f0cf7641113a59e4cfb3ccb">InitializeMouse()</a> を呼び出して初期化を行う必要があります。</p>
+<p>入力状態を取得する API として <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aed76c29fd55b580721e093ff2a2ca0d3">GetMouseState()</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#ab64173b96b13ffbb0850f5c28ee7ba79">GetMouseStates()</a> が用意されています。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aed76c29fd55b580721e093ff2a2ca0d3">GetMouseState()</a> は最新の入力状態を取得する際に使用します。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#ab64173b96b13ffbb0850f5c28ee7ba79">GetMouseStates()</a> は、最新の入力状態から遡って、複数の入力状態を取得する際に使用します。 最大で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aa38e5073a2c2d8ba70a08479552098af">MouseStateCountMax</a> 個まで遡ることができます。</p>
+<p>入力状態の取得が内部状態を変えることはないため、同じ API を繰り返し呼び出した際に、入力状態の更新が挟まれなければ、取得される値は同じとなります。</p>
+<p>入力状態には、更新を行うたびに 1 ずつ増えていく番号が、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a22e993b51e2abd25fc85019f06cde0b7">MouseState::samplingNumber</a> として割り当てられます。 取得した入力状態はこの番号から判別することが可能です。</p>
+<p>また、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a3e300f5c9cda7941685d0b9e5ff80c9c">MouseState::attributes</a> には入力状態の属性が付与されます。 これは特殊な動作を実現させる為に存在するもので、通常はハンドリングする必要はありません。</p>
+<p>&nbsp;</p>
+<p>API はマウスの接続状況に依らず常に利用することができます。</p>
+<p>マウスが接続されていないこと等が原因でサンプリングに失敗した場合、何も入力が無かったものとして、全てのボタンが押されておらず、ホイールの回転差分も存在せず、最後にサンプリングされた座標から移動していない状態をその時点の入力状態とします。</p>
+<p>マウスが、<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a322597cf6f0cf7641113a59e4cfb3ccb">InitializeMouse()</a> の呼び出し後に切断や再接続されたとしても、再初期化を行うことなく継続して利用できます。</p>
+<p>マウスが接続されているか否かを判定する必要がある場合は <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html">MouseState</a> 構造体の <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a3e300f5c9cda7941685d0b9e5ff80c9c">attributes</a> メンバ変数の <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_attribute.html#a6f0733eaed88c2b93b31b3bcb843e6a4">IsConnected</a> フラグを参照してください。</p>
+<h1 id="Anchor_124008842_h1_2">Windows 環境における構成</h1>
+<p>
+  <a href="../Pages/Page_83956134.html">gfx</a> の出力先となるウインドウのクライアント領域をスクリーンと見なして入力状態を決定します。</p>
+<p>カーソルの初期位置にはクライアント領域の中央の座標が利用されます。</p>
+<p>カーソルがウインドウのフォーカスを失った場合、入力状態は最後に観測された座標を維持します。</p>
+<p>左ボタン、右ボタン、中央ボタン、フォワードボタン、バックボタンの押下は、ウインドウ上で発生したものだけが入力状態に反映されます。</p>
+<p>また、マウスの移動距離とホイールの回転差分は、ウインドウにフォーカスがあたっている際に発生したものだけが入力状態に反映されます。</p>
+<p>ただし、左ボタン、右ボタン、中央ボタン、フォワードボタン、バックボタンの開放は、全てが入力状態に反映されます。</p>
+<p>カーソルがウインドウのフォーカスを失ったか否かは <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_state.html#a3e300f5c9cda7941685d0b9e5ff80c9c">MouseState::attributes</a> の <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_mouse_attribute.html#a072a190418df98e2f785ec24945edf7c">MouseAttribute::Transferable</a> から判定可能です。</p>
+<h1 id="Anchor_124008842_h1_3">使用方法</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Mouse.h&gt;
+</span> 
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="c1">// 1. Mouse を初期化します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">InitializeMouse</span><span class="p">();</span>
+&nbsp;
+<span class="c1">// 2. 必要に応じて入力状態を取得します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">MouseState</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">GetMouseState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">buttons</span><span class="p">.</span><span class="n">Test</span><span class="o">&lt;</span><span class="nn">nn::hid::MouseButton::</span><span class="n">Left</span><span class="o">&gt;</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 左ボタンが押されていた場合の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+<span class="c1">// 接続されているか否かを判定したい場合は IsConnected フラグを参照します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">attributes</span><span class="p">.</span><span class="n">Test</span><span class="o">&lt;</span><span class="nn">nn::hid::MouseAttribute::</span><span class="n">IsConnected</span><span class="o">&gt;</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 接続中の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 切断中の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+<span class="c1">// 入力状態を取得する際に、過去の入力状態も合わせて取得したい場合は、GetMouseStates()を使用します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">MouseState</span> <span class="n">states</span><span class="p">[</span><span class="nn">nn::hid::</span><span class="n">MouseStateCountMax</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">stateCount</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">GetMouseStates</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

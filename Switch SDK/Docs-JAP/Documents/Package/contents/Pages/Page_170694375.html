@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ビルド手順: 動的モジュール作成</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ビルド手順: 動的モジュール作成 -->
+<div class="pagetitle" id="PageId_170694375">ビルド手順: 動的モジュール作成</div>
+<div class="text_separate">
+<h1 id="Anchor_170694375_h1_1">動的モジュール作成</h1>
+<h2 id="Anchor_170694375_h2_1">nrs ファイル作成<a name="Anchor_170694375_create-nrs"></a></h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_170694375/171384647.png" class="embedded-image" />
+  </span>
+</p>
+<p>clang++ を使用して、オブジェクトファイル及び静的ライブラリファイルから共有ライブラリファイルを作成します。NintendoSDK ではこの時生成されるファイルの拡張子を nrs としています。</p>
+<p>リンカオプションに関する制約は <a href="#Anchor_170694375_linker-option-restriction">リンカオプションの制約</a> を参照してください。</p>
+<p style="text-align: left;">NintendoSDK における 64bit アプリケーション向けの nrs ファイルを作成するための単純なリンクの方法は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>clang++
+&nbsp;&nbsp;&nbsp;&nbsp;-nostartfiles
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,--gc-sections
+&nbsp;&nbsp;&nbsp; -Wl,--build-id=md5
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,-init=_init,-fini=_fini
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,--shared
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,--export-dynamic,-z,combreloc,-z,relro,--enable-new-dtags
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,--whole-archive
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,--start-group
+&nbsp;&nbsp;&nbsp;&nbsp;%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\rocrt_nro.o
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;入力ファイル&gt;...
+&nbsp;&nbsp;&nbsp; -Wl,--end-group
+&nbsp;&nbsp;&nbsp;&nbsp;%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\crtend.o
+&nbsp;&nbsp;&nbsp;&nbsp;-Wl,-T -Wl,%NINTENDO_SDK_ROOT%\Resources\SpecFiles\RoModule.aarch64.lp64.ldscript
+&nbsp;&nbsp;&nbsp;&nbsp;-fuse-ld=gold.exe
+&nbsp;&nbsp;&nbsp;&nbsp;-o &lt;出力ファイル&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>nrs ファイルは、<a href="../Pages/Page_170694365.html">アプリケーションプログラムの作成</a> の手順でアプリケーションプログラムにリンクして使用します。</p>
+  </div>
+</div>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>リンカオプションは <a href="../Pages/Page_170694365.html">アプリケーションプログラムの作成</a> で使用されるものとは異なります。</p>
+  </div>
+</div>
+<h2 id="Anchor_170694375_h2_2">nro ファイル作成</h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_170694375/171384724.png" class="embedded-image" />
+  </span>
+</p>
+<p>nro ファイルは RO ライブラリ用の動的モジュールファイルです。nro ファイルは nrs ファイルから MakeNro を使用して作成します。</p>
+<p>nro ファイルを作成する際の MakeNro の使用方法は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>MakeNro
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;入力ファイル&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;出力ファイル&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>nro ファイルは通常 <a href="../Pages/Page_170694395.html">アプリケーションイメージの作成</a> の手順でデータ領域ディレクトリに格納します。アプリケーションの実行時に RO ライブラリから参照されます。</p>
+  </div>
+</div>
+<h1 id="Anchor_170694375_h1_2">リンカオプションの制約<a name="Anchor_170694375_linker-option-restriction"></a></h1>
+<!--Remove-->
+<h2 id="Anchor_170694375_h2_3">必須オプション</h2>
+<p>以下のリンカオプションは、必ず指定してリンクを行ってください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-nostartfiles
+-Wl,--gc-sections
+-Wl,-init=_init,-fini=_fini
+-Wl,--shared
+-Wl,--export-dynamic,-z,combreloc,-z,relro,--enable-new-dtags</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>32bit アプリケーション向けの動的モジュールを作成する場合は、以下のリンカオプションも必ず指定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-mabi=aapcs-linux
+-mcpu=cortex-a57
+-mfloat-abi=hard
+-mfpu=crypto-neon-fp-armv8
+-Wl,--target2=got-rel</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>64bit アプリケーション向けの動的モジュールを作成する場合は、以下のリンカオプションも必ず指定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-mcpu=cortex-a57+fp+simd+crypto+crc</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_170694375_h2_4">リンカスクリプトファイル</h2>
+<p>以下のリンカオプションを使用して、リンカスクリプトファイルを指定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-Wl,-T &lt;リンカスクリプトファイル&gt; </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>リンカスクリプトファイルは作成するアプリケーションにあわせて NintendoSDK が提供する以下のいずれかのファイルを改変せずに使用してください。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>64bit アプリケーション</th>
+      <td>
+        <pre>%NINTENDO_SDK_ROOT%\Resources\SpecFiles\RoModule.aarch64.lp64.ldscript</pre>
+      </td>
+    </tr>
+    <tr>
+      <th>32bit アプリケーション</th>
+      <td>
+        <pre>%NINTENDO_SDK_ROOT%\Resources\SpecFiles\RoModule.arm.ilp32.ldscript</pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_170694375_h2_5">リンカ</h2>
+<p>以下のリンカオプションを指定すると、高速な gold リンカが使用されます。詳細は&nbsp;<a href="../Pages/Page_106358595.html">Toolchain for NX</a>&nbsp;を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-fuse-ld=gold.exe</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_170694375_h2_6">ビルド ID</h2>
+<p>以下のリンカオプションを指定して、nrs ファイルにビルド ID を付与してください。付与しない場合 VSI でデバッグ情報を利用することができません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-Wl,--build-id=md5</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ビルド ID に MD5 ハッシュ値を使用すると、同じ入力ファイルに対して常に同じバイナリの nrs ファイルが生成されます。リリース物をビルドする場合は MD5 ハッシュ値を使用することを推奨します。<br />また、ビルド ID には MD5 ハッシュの他、無作為に生成される一意な値である UUID を使用することもできます。ビルド ID の生成にかかる時間を短縮したい場合は、UUID を使用してください。<br />詳細は <a href="../Pages/Page_106358595.html">Toolchain for NX</a> を参照してください。</p>
+  </div>
+</div>
+<h2 id="Anchor_170694375_h2_7">必須入力ファイル</h2>
+<p>NintendoSDK によって提供される以下のファイルを必ずリンクしてください。<a href="#Anchor_170694375_create-nrs">nrs ファイル作成</a> の指定例も参考にしてください。ビルドターゲットとビルドタイプについては&nbsp;<a href="../Pages/Page_106361459.html">ビルドターゲットとビルドタイプ</a> を参照してください。</p>
+<ul>
+  <li>
+    <code>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\rocrt_nro.o</code>
+  </li>
+  <li>
+    <code>%NINTENDO_SDK_ROOT%\Libraries\&lt;ビルドターゲット&gt;\&lt;ビルドタイプ&gt;\crtend.o</code>
+  </li>
+</ul>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>crtend.o は、他の全てのオブジェクトファイル、静的ライブラリファイルよりも後ろに指定してください。</p>
+  </div>
+</div>
+<h1 id="Anchor_170694375_h1_3">すべてのオブジェクトファイルをリンクする</h1>
+<p>nrs ファイルをビルドする際、デフォルトではリンケージに必要となるオブジェクトファイルのみがリンクされます。</p>
+<p>与えられたオブジェクトファイルをすべて nrs ファイルに含めるには --whole-archive オプションを使用してください。このオプション以降に列挙されているライブラリ内のオブジェクトファイル全てがリンクされるようになります。<a href="#Anchor_170694375_create-nrs">nrs ファイル作成</a> に指定例があります。</p>
+<p>--no-whole-archive を使うと、このオプション以降に列挙されているライブラリに対して、--whole-archive オプションの効果を無効にします。</p>
+<h1 id="Anchor_170694375_h1_4">次の手順</h1>
+<ul>
+  <li>
+    <a href="../Pages/Page_170694365.html">アプリケーションプログラムの作成</a>
+  </li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Attribute Address Map and Default Table</title>
+</head>
+<body>
+<pre>
+<font size="1">
+<pre>
++------------------------------------------------------------------------------------------------+
+|                           Bmap Generation Truth Table for VTG Shaders                          |
++-----+------------+-----------+------------+-----------++--------------+------------------------+
+| Row | Odmap[p,n] | Omap[p,n] | Idmap[i,n] | Imap[i,n] || VtgBmap[i,n] |   Value at VTG Input   |
++-----+------------+-----------+------------+-----------++--------------+------------------------+
+|   1 |    ST      |     0     |    LD      |     0     ||       0      |        default         |
+|   2 |    ST      |     0     |    LD      |     1     ||       0      |        default         |
+|   3 |    ST      |     0     |  LD_REQ    |     0     ||       0      |        default         |
+|   4 |    ST      |     0     |  LD_REQ    |     1     ||       1      | HW-generated attribute |
+|   5 |    ST      |     0     |  default   |     0     ||       0      |        default         |
+|   6 |    ST      |     0     |  default   |     1     ||       0      |        default         |
+|     |            |           |            |           ||              |                        |
+|   7 |    ST      |     1     |    LD      |     0     ||       0      |        default         |
+|   8 |    ST      |     1     |    LD      |     1     ||       1      |       attribute        |
+|   9 |    ST      |     1     |  LD_REQ    |     0     ||       0      |        default         |
+|  10 |    ST      |     1     |  LD_REQ    |     1     ||       1      |       attribute        |
+|  11 |    ST      |     1     |  default   |     0     ||       0      |        default         |
+|  12 |    ST      |     1     |  default   |     1     ||       0      |        default         |
+|     |            |           |            |           ||              |                        |
+|  13 |  ST_REQ    |     0     |    LD      |     0     ||       0      |        default         |
+|  14 |  ST_REQ    |     0     |    LD      |     1     ||       0      |        default         |
+|  15 |  ST_REQ    |     0     |  LD_REQ    |     0     ||       0      |        default         |
+|  16 |  ST_REQ    |     0     |  LD_REQ    |     1     ||       1      | HW-generated attribute |
+|  17 |  ST_REQ    |     0     |  default   |     0     ||       0      |        default         |
+|  18 |  ST_REQ    |     0     |  default   |     1     ||       0      |        default         |
+|     |            |           |            |           ||              |                        |
+|  19 |  ST_REQ    |     1     |    LD      |     0     ||       1      |       attribute        |
+|  20 |  ST_REQ    |     1     |    LD      |     1     ||       1      |       attribute        |
+|  21 |  ST_REQ    |     1     |  LD_REQ    |     0     ||       1      |       attribute        |
+|  22 |  ST_REQ    |     1     |  LD_REQ    |     1     ||       1      |       attribute        |
+|  23 |  ST_REQ    |     1     |  default   |     0     ||       1      |       attribute        |
+|  24 |  ST_REQ    |     1     |  default   |     1     ||       1      |       attribute        |
+|     |            |           |            |           ||              |                        |
+|  25 |  discard   |     0     |    LD      |     0     ||       0      |        default         |
+|  26 |  discard   |     0     |    LD      |     1     ||       0      |        default         |
+|  27 |  discard   |     0     |  LD_REQ    |     0     ||       0      |        default         |
+|  28 |  discard   |     0     |  LD_REQ    |     1     ||       1      | HW-generated attribute |
+|  29 |  discard   |     0     |  default   |     0     ||       0      |        default         |
+|  30 |  discard   |     0     |  default   |     1     ||       0      |        default         |
+|     |            |           |            |           ||              |                        |
+|  31 |  discard   |     1     |    LD      |     0     ||       0      |        default         |
+|  32 |  discard   |     1     |    LD      |     1     ||       0      |        default         |
+|  33 |  discard   |     1     |  LD_REQ    |     0     ||       0      |        default         |
+|  34 |  discard   |     1     |  LD_REQ    |     1     ||       1      | HW-generated attribute |
+|  35 |  discard   |     1     |  default   |     0     ||       0      |        default         |
+|  36 |  discard   |     1     |  default   |     1     ||       0      |        default         |
++-----+------------+-----------+------------+-----------++--------------+------------------------+
+Definitions:
+    A '1' in a VTG Bmap location indicates the physical memory is present in the buffer.
+    i is an enabled shader slot.
+    p is the last enabled shader slot before slot i.
+    VtgBmap[i,*] controls the buffer contents and ALD/AST operatons for the buffer between shader stage p and shader 
+            stage i;
+    Idmap[i,n] and Odmap[i,n] are the values in the Attribute Address Map and Default Table, where i picks the column 
+            and n picks the row.
+AST operation for a shader in slot p, as affectd by VtgBmap[i,n]:
+    if VtgBmap[i,n]==0, then the AST always discards the attribure.
+    if VtgBmap[i,n]==1, then the AST stores a value in the buffer.
+ALD operation for a shader in slot p, as affectd by VtgBmap[i,n]:
+    if VtgBmap[i,n]==0, then the ALD always receives a default value.
+    if VtgBmap[i,n]==1, then the ALD reads from the ISBE, which could be any of:
+            an attribute from the last VTG shader; or
+            a HW-generated attribute.
+Note that the HW can additionally force some Bmap locations to '1' or '0'.  Here are the cases:
+    If primitive IDs are needed by any shader stage (i.e., any Imap is '1'), then HW will put a '1' in every shader's  
+            Bmap location that correspond to primitive ID.  This is done to provide a mechanism for PrimitiveID
+            to be copied along from ISBE to ISBE by the hardware.
+    If edge flags are needed by any shader stage or raster, then the HW will put a '1' in Bmap locations that 
+            correspond to the edge flags.
+Exceptions to the logic in the VTG Bmap Generation Truth Table:
+    Edge flags can never be written by a shader, even when the Bmap bit is TRUE. 
+    At the last enabled VTG shader, for Bmap copmutation, the PS Imap values for the front colors are also used for 
+            the back colors.
+    For shader i, if StoreReqStart[p] <= n and n <= StoreReqEnd[p], then ST is treated as ST_REQ, where
+            StoreReqStart[p] and StoreReqEnd[p] are from the SPH for slot p;
+    Attributes listed as “HW-generated attribute” are generated in VAF or VSC;
+</font>
+</pre>
+</body>
+</html>

@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エミッタ拡張パラメータ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エミッタ拡張パラメータ -->
+<div class="pagetitle" id="PageId_106362252">エミッタ拡張パラメータ</div>
+<div class="text_separate">
+<h1 id="Anchor_106362252_h1_1">エミッタ拡張パラメータとは？</h1>
+<p>ユーザーデータ定義を利用し、エミッタ単位でユーザーが拡張パラメータを付加することができます。エフェクトメーカー上で編集したエミッタ拡張パラメータは、エフェクトランタイム上で参照することができ、アプリとエフェクト再生の連携などに利用できます。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_106364557.html">カスタムマイズとは</a>
+        </span>
+      </th>
+      <td>読み進める前に リンク先ページ内、「ユーザーデータ定義」を参照ください。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_107778324.html">ユーザーデータ定義</a>
+      </th>
+      <td>ユーザデータ定義の仕様です。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_106362252_h2_1">エミッタ拡張パラメータを 編集・保存・バイナライズ するための準備</h2>
+<p>エフェクトメーカーでエミッタ拡張パラメータを編集・保存、バイナライズ するには、以下の準備を行う必要があります。</p>
+<ul>
+  <li>ユーザーデータ 定義ファイルの作成</li>
+  <li>エミッタ 拡張パラメータ&nbsp;設定ファイルの作成</li>
+  <li>プロジェクト設定ファイルへの記述</li>
+</ul>
+<h3 id="Anchor_106362252_h3_1">ユーザーデータ定義ファイル の作成</h3>
+<p>作成したいパラメータ定義 と カスタムUI をエフェクトメーカー上で認識・表示させるために、<a href="../Pages/Page_107778324.html">ユーザーデータ定義</a> ページを参照し、ユーザーデータ定義ファイルを作成します。</p>
+<p>作成したエミッタ 拡張パラメータ構造体 の先頭に以下のブロックを記述し、 UserDataDefinition 要素の、Kind 属性を&nbsp;EmitterExtParams とし、 エミッタ 拡張パラメータであることを宣言します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9</td>
+      <td class="code">
+        <div class="codeblock"><pre>/// <span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+/// <span class="nt">&lt;UserDataDefinition</span> <span class="na">Kind=</span><span class="s">&quot;EmitterExtParams&quot;</span>
+<span class="err">/</span>//                     Name=&quot;エミッタ拡張パラメータサンプル&quot;
+///                     Version=&quot;1&quot;&gt;
+struct ResEmitterExtentionData
+{
+　　　：　ResCustomData 以下の記述は、カスタムシェーダ・カスタムアクションなどと同様です。
+　　　：
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_106362252_h3_2">エミッタ 拡張パラメータ&nbsp;設定ファイルの作成</h3>
+<p>作成した ユーザーデータ定義ファイル をエフェクトメーカーに読み込ませるために、エミッタ 拡張パラメータ設定ファイルを作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;ArrayOfEmitterExtParamsDefinition</span> <span class="na">xmlns:xsd=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema&quot;</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;EmitterExtParamsDefinition</span> <span class="na">Udd2Definition=</span><span class="s">&quot;EmitterExtParamsDefinition.h&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/ArrayOfEmitterExtParamsDefinition&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>カスタムデータ コンフィグファイルは、文字コード <strong>UTF-8 </strong>で保存する必要があります。</p>
+  </div>
+</div>
+<h3 id="Anchor_106362252_h3_3">&nbsp;プロジェクト設定ファイルへの登録</h3>
+<p>エフェクトメーカーでカスタムデータを利用するために、プロジェクト設定ファイルに、作成したカスタムデータコンフィグファイルのパスを記述します。詳しくは、<a href="../Pages/Page_83955992.html">プロジェクト設定ファイル</a> を参照ください。<br />エミッタ 拡張パラメータ設定ファイルをエフェクトメーカーオプションで設定することでプロジェクト設定ファイルを利用せずに動作を確認することもできます。</p>
+<h3 id="Anchor_106362252_h3_4">エフェクトメーカー上でUI表示の確認</h3>
+<p>エフェクトメーカーを起動し、 エミッタセット新規作成 し、エミッタを選択右クリックから　「エミッタ拡張パラメータを追加」　を実行することで、エミッタに対してエミッタ拡張パラメータの追加が行えます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_106362252/106437409.png" width="240" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_106362252_h3_5">ランタイム上からエミッタ拡張パラメータバイナリを参照する</h3>
+<p>生成したエミッタセットから以下のようにコードを記述することで、エミッタ拡張パラメータにアクセスすることができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26</td>
+      <td class="code">
+        <div class="codeblock"><pre>// カスタムデータ構造体
+struct ResCustomData
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float4    color;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float3    rgb;
+&nbsp;&nbsp;&nbsp;&nbsp;float               alpha;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float3    position;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float2    texCoord;
+&nbsp;&nbsp;&nbsp;&nbsp;float               coefficient;
+&nbsp;&nbsp;&nbsp;&nbsp;int                 paramInt;
+&nbsp;&nbsp;&nbsp;&nbsp;uint32_t            flags;
+&nbsp;&nbsp;&nbsp;&nbsp;uint32_t            choices;
+&nbsp;&nbsp;&nbsp;&nbsp;uint32_t            choices2;
+&nbsp;&nbsp;&nbsp;&nbsp;char                usrString[32];
+};
+
+// エミッタセット生成
+vfxSystem-&gt;CreateEmitterSetId( <span class="err">&amp;</span>handle, 0, resId, groupId, heap );
+nn::vfx::EmitterSet* emitterSet = m_handle.GetEmitterSet();
+&nbsp;
+// カスタムデータを取得
+for ( int i = 0; i <span class="nt">&lt; emitterSet-&gt;</span>GetCreatedEmitterCount(); i++ )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;const nn::vfx::Emitter* emitter = emitterSet-&gt;GetEmitter( i );
+&nbsp;&nbsp;&nbsp;&nbsp;const ResCustomData* customData = reinterpret_cast<span class="nt">&lt;const</span> <span class="na">ResCustomData</span><span class="err">*</span>&gt;( emitter-&gt;GetCustomDataParameter() );
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_106362252_h2_2">ユーザーデータ定義ファイルの例</h2>
+<p>エミッタ拡張パラメータ ユーザーデータ定義ファイルの記述例です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35<br />
+36<br />
+37<br />
+38<br />
+39<br />
+40<br />
+41<br />
+42<br />
+43<br />
+44<br />
+45<br />
+46<br />
+47<br />
+48<br />
+49<br />
+50<br />
+51<br />
+52<br />
+53<br />
+54<br />
+55<br />
+56<br />
+57<br />
+58<br />
+59<br />
+60<br />
+61<br />
+62<br />
+63<br />
+64<br />
+65<br />
+66<br />
+67<br />
+68<br />
+69<br />
+70<br />
+71<br />
+72<br />
+73<br />
+74<br />
+75<br />
+76<br />
+77<br />
+78<br />
+79<br />
+80<br />
+81<br />
+82<br />
+83<br />
+84<br />
+85<br />
+86<br />
+87<br />
+88<br />
+89<br />
+90<br />
+91<br />
+92<br />
+93<br />
+94<br />
+95<br />
+96<br />
+97<br />
+98<br />
+99<br />
+100<br />
+101<br />
+102<br />
+103<br />
+104<br />
+105</td>
+      <td class="code">
+        <div class="codeblock"><pre>/// <span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+/// <span class="nt">&lt;UserDataDefinition</span> <span class="na">Kind=</span><span class="s">&quot;EmitterExtParams&quot;</span>
+<span class="err">/</span>//                     Name=&quot;エミッタ拡張パラメータサンプル&quot;
+///                     Version=&quot;1&quot;&gt;
+#include <span class="nt">&lt;nn</span><span class="err">/</span>util/util_MathTypes.h&gt;
+struct ResCustomData
+{
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;カラー&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;ColorRgba&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ColorSetting</span> <span class="na">Default=</span><span class="s">&quot;1 1 1 1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float4  color;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;カラーのみ&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;ColorRgb&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ColorSetting</span> <span class="na">Default=</span><span class="s">&quot;1 0.7 0.5&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float3  rgb;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;アルファのみ&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;ColorA&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ColorSetting</span> <span class="na">Default=</span><span class="s">&quot;0.3&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;float   alpha;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;位置座標&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;Slider3f&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;SliderSetting</span> <span class="na">Default=</span><span class="s">&quot;0.1 0.2 0.3&quot;</span> <span class="na">Minimum=</span><span class="s">&quot;-1000000.0&quot;</span> <span class="na">Maximum=</span><span class="s">&quot;1000000.0&quot;</span> <span class="na">Step=</span><span class="s">&quot;1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float3  position;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;テクスチャオフセット&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;Slider2f&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;SliderSetting</span> <span class="na">Default=</span><span class="s">&quot;0.5 0.5&quot;</span> <span class="na">Minimum=</span><span class="s">&quot;0.0&quot;</span> <span class="na">Maximum=</span><span class="s">&quot;1.0&quot;</span> <span class="na">Step=</span><span class="s">&quot;0.01&quot;</span> <span class="na">EnableTransform=</span><span class="s">&quot;False&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Float2  texCoord;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;パラメータ ( Float )&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;Slider1f&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;SliderSetting</span> <span class="na">Default=</span><span class="s">&quot;0.5&quot;</span> <span class="na">Minimum=</span><span class="s">&quot;0.0&quot;</span> <span class="na">Maximum=</span><span class="s">&quot;1.0&quot;</span> <span class="na">Step=</span><span class="s">&quot;0.01&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;float   coefficient;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;パラメータ ( 整数 )&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;Slider1i&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;SliderSetting</span> <span class="na">Default=</span><span class="s">&quot;10&quot;</span> <span class="na">Minimum=</span><span class="s">&quot;0&quot;</span> <span class="na">Maximum=</span><span class="s">&quot;1000000&quot;</span> <span class="na">Step=</span><span class="s">&quot;1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;int     paramInt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;フラグ&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;CheckButtons&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;///                      NeedReload=&quot;true&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;OptionGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;スイッチ1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;スイッチ2&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;スイッチ3&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/OptionGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;unsigned int flags;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;選択肢&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;RadioButtons&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;OptionGroup</span> <span class="na">Default=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢2&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢3&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢4&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/OptionGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;unsigned int choices;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;選択肢2&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;RadioButtons&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;OptionGroup</span> <span class="na">Default=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢2-1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢2-2&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢2-3&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;選択肢2-4&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/OptionGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;unsigned int choices2;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;ユーザー定義文字列&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="err">/</span>//                      Type=&quot;StringComboBox&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;OptionGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;UserDefinitionString1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;UserDefinitionString2&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;UserDefinitionString3&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;///   <span class="nt">&lt;Option</span> <span class="na">Value=</span><span class="s">&quot;UserDefinitionString4&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/OptionGroup&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;char    usrString[32];
+&nbsp;&nbsp;&nbsp;&nbsp;/// <span class="nt">&lt;/ParameterDefinition&gt;</span>
+};
+/// <span class="nt">&lt;UILayout&gt;</span>
+///   <span class="nt">&lt;Group</span> <span class="na">Name=</span><span class="s">&quot;フラグ&quot;</span><span class="nt">&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;flags&quot;</span> <span class="nt">/&gt;</span>
+///   <span class="nt">&lt;/Group&gt;</span>
+///   <span class="nt">&lt;Group</span> <span class="na">Name=</span><span class="s">&quot;ラジオ&quot;</span><span class="nt">&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;choices&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;choices2&quot;</span> <span class="nt">/&gt;</span>
+///   <span class="nt">&lt;/Group&gt;</span>
+///   <span class="nt">&lt;Group</span> <span class="na">Name=</span><span class="s">&quot;カラーグループ&quot;</span><span class="nt">&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;color&quot;</span> <span class="na">Comment=</span><span class="s">&quot;カラーを含むグループには自動的にカラーピッカーが配置されます。&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;rgb&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;alpha&quot;</span> <span class="nt">/&gt;</span>
+///   <span class="nt">&lt;/Group&gt;</span>
+///   <span class="nt">&lt;Group</span> <span class="na">Name=</span><span class="s">&quot;グループ&quot;</span><span class="nt">&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;position&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;texCoord&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;paramInt&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;coefficient&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;Parameter</span> <span class="na">Member=</span><span class="s">&quot;usrString&quot;</span> <span class="nt">/&gt;</span>
+///   <span class="nt">&lt;/Group&gt;</span>
+/// <span class="nt">&lt;/UILayout&gt;</span>
+/// <span class="nt">&lt;/UserDataDefinition&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

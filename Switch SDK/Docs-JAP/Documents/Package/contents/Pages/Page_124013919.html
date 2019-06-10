@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ターゲット環境変数</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ターゲット環境変数 -->
+<div class="pagetitle" id="PageId_124013919">ターゲット環境変数</div>
+<div class="text_separate">
+<h1 id="Anchor_124013919_h1_1">概要</h1>
+<p>ターゲット環境変数は、NintendoSdk アプリケーション外部で定義した任意の値をアプリケーションから取得するための仕組みです。</p>
+<p>用途として、アプリケーションのデバッグパラメータの伝達に加え、Windows アプリケーションにおける開発機固有の環境設定（例：ファイルシステムの参照先、デバイス ID）のエミュレーションを想定しています。</p>
+<h1 id="Anchor_124013919_h1_2">ターゲット環境変数の利用方法</h1>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>機能を利用する上で重要な制限があります。次項の「制限」も必ずご一読ください。</p>
+  </div>
+</div>
+<h2 id="Anchor_124013919_h2_1">ターゲット環境変数定義ファイルの準備</h2>
+<p>ターゲット環境変数を以下のフォーマットに従って定義したファイルを用意します。ファイル拡張子は *.tdf です。（以下、これをターゲット環境変数定義ファイルとします。）</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>今後の更新で、NintendoSdk の各ライブラリが使用するシステム用ターゲット環境変数が定義されたターゲット環境変数定義ファイルがパッケージに含められる予定です。<br />その後は、そのファイルを元に任意の定義を追加するようにしてください。</p>
+  </div>
+</div>
+<h3 id="Anchor_124013919_h3_1">フォーマット</h3>
+<p>ターゲット環境変数定義ファイルは XML 形式のファイルです。エンコードは UTF8（BOM付） です。<br />次に、環境変数 NINTENDO_SDK_ROOT （C:/Sdk）、NINTENDO_SDK_SAMPLE_DIR （C:/Sdk/Sample）、MY_VALUE（128） を定義する場合の例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;TargetEnvironmentVariables&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;SystemVariables&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;NINTENDO_SDK_ROOT&quot;</span> <span class="na">ValueType=</span><span class="s">&quot;string&quot;</span><span class="nt">&gt;</span>C:/Sdk<span class="nt">&lt;/Variable&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;NINTENDO_SDK_SAMPLE_DIR&quot;</span> <span class="na">ValueType=</span><span class="s">&quot;string&quot;</span><span class="nt">&gt;</span>%NINTENDO_SDK_ROOT%/Sample<span class="nt">&lt;/Variable&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/SystemVariables&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;UserVariables&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Variable</span> <span class="na">Name=</span><span class="s">&quot;MY_VALUE&quot;</span> <span class="na">ValueType=</span><span class="s">&quot;string&quot;</span><span class="nt">&gt;</span>128<span class="nt">&lt;/Variable&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/UserVariables&gt;</span>
+<span class="nt">&lt;/TargetEnvironmentVariables&gt;</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各要素の説明は次の通りです。</p>
+<ul>
+  <li>ルート要素は TargetEnvironmentVariables です。</li>
+  <li>ターゲット環境変数の定義<br /><ul><li>変数定義は SystemVariables または UserVariables 要素の子となる Variable 要素で記述します。<ul><li>SystemVariables 以下の値は NintendoSdk ライブラリ内で利用するもので、原則として追加の変数定義は不要です。</li></ul></li><li>Name 属性で変数名を指定します。64 文字以下の任意の文字列が指定可能です。</li><li>ValueType 属性で値の型を指定します。ValueType 属性が未指定の場合は要素の値を文字列として扱います。<ul><li>現在は要素の値を文字列として扱う、&quot;string&quot; のみに対応しています。</li></ul></li><li>値は要素の値として記述します。<ul><li>文字列型の場合、ヌル終端を含む最大 2048 バイト分の文字列が指定可能です。</li></ul></li></ul></li>
+  <li>変数の文字列型の値に &quot;%&quot; で囲まれた文字列を指定した場合 1 度だけ、その文字列を変数名とするターゲット環境変数の値で置き換えられます。<br /><ul><li>&quot;%&quot; で囲まれた文字列を変数名とするターゲット環境変数が定義されていない場合は、定義ファイルに記述された文字列がそのまま値となります。</li><li>&quot;%&quot; で囲まれた文字列を変数名とするターゲット環境変数の値にさらに&quot;%&quot; で囲まれた文字列が入っている場合は、それ以降の値の置き換えは行われません。</li><li>&quot;%&quot; で囲まれた文字列を変数名とする Windows の環境変数で置き換えられることはありません。</li></ul></li>
+</ul>
+<h2 id="Anchor_124013919_h2_2">ターゲット環境変数定義ファイルを指定してアプリケーションを実行</h2>
+<p>定義したターゲット環境変数をアプリケーションから参照するためには、アプリケーション実行時にターゲット環境変数定義ファイルを指定する必要があります。</p>
+<h3 id="Anchor_124013919_h3_2">Windows アプリケーションの実行</h3>
+<p>Windows アプリケーションでは、以下の順序でターゲット環境変数定義ファイルを探し、最初に見つかったものを使用します。</p>
+<ol>
+  <li>アプリケーション実行ファイルと同じディレクトリに置かれた、ファイル拡張子が *.tdf のファイル<ol><li>複数のターゲット環境変数定義ファイルが配置されている場合、いずれか一つが選択され適用されますが、どのファイルが適用されるかは未定義です。</li></ol></li>
+  <li>Windows 環境変数 &quot;NINTENDO_SDK_TARGETENV_DEF_FILE_PATH&quot; に設定された絶対パスが指すファイル</li>
+</ol>
+<p>以上のいずれかの方法でターゲット環境変数定義ファイルが指定された場合、実行されたアプリケーションで <span class="ApiLink_nn__htc__GetTargetEnvironmentVariableLength">nn::htc::GetTargetEnvironmentVariableLength</span>()、 <span class="ApiLink_nn__htc__GetTargetEnvironmentVariable">nn::htc::GetTargetEnvironmentVariable</span>() 等の API を使用して、ターゲット環境変数の値を取得できます。</p>
+<h3 id="Anchor_124013919_h3_3">VSI によるアプリケーションの実行</h3>
+<p>前述の Windows アプリケーションの実行方法に従って、適切にターゲット環境変数定義ファイルが配置されるようにプロジェクトを設定してください。</p>
+<h1 id="Anchor_124013919_h1_3">制限</h1>
+<ul>
+  <li>ターゲット環境変数定義ファイルの最大サイズは 6 KB です。<ul><li>これを超えるターゲット環境変数定義ファイルをアプリケーション実行時に指定した場合、ターゲット環境変数の取得 API でエラー（<span class="ApiLink_nn__htc__ResultConnectionFailure">nn::htc::ResultConnectionFailure</span>）が返ります。</li></ul></li>
+</ul>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__htc__GetTargetEnvironmentVariableLength', '../../../Api/HtmlNX/namespacenn_1_1htc.html#aedc86f477847dbb9e16702cb55bb2cad' )
+SetUrl( 'ApiLink_nn__htc__GetTargetEnvironmentVariable', '../../../Api/HtmlNX/namespacenn_1_1htc.html#ab726cd51bb570d3bb6fdf6b943113ef9' )
+// ApiLink_nn__htc__ResultConnectionFailure
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

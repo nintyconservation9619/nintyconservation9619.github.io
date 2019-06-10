@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>FADD</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    FADD : FP32 Add<br>
+    <!-- SUMMARY_TABLE_INFO { description => "FP32 Add" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "FADD32I", subsection => 0 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "FADD", subsection => 0 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>FADD</b>{.FTZ}{.rnd}{.SAT}</code>   <code>Rd{.CC},{-}{|}Ra{|},{-}{|}Sb{|}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FADD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>FADD32I</b>{.FTZ}</code>            <code>Rd{.CC},{-}{|}Ra{|},#Imm32</code>        <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FADD32I" } -->
+
+ .FTZ:       Denorm inputs/output is flushed to sign preserving 0.0.
+
+ .rnd:       { <b>.RN*, .RM, .RP, .RZ</b> } 
+             .RN - Round to the nearest even.
+             .RM - Round towards -Infinity
+             .RP - Round towards +Infinity
+             .RZ - Round towards 0
+
+ .SAT:       output saturate (.SAT) to (+0.0f,1.0f), with NaN converted to +0.0f.
+
+ .CC:        Write condition codes
+
+<b>FADD</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20&lt;&lt;12)
+</pre>
+
+<p>
+For <b>FADD32I</b> .rnd defaults to .RN</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+Add fp32 sources into destination register.</p>
+
+</div>
+
+<!-- ###################################### -->
+<!-- # IEEE Rounding Modes                # -->
+<!-- ###################################### -->
+<h3>IEEE Rounding Modes</h3>
+<div class="IEEERoundingModes">
+
+<p>
+Fp32 operations support all 4 required IEEE-754 2008 rounding modes:</p>
+<dl>
+<dt>.RN</dt><dd>roundTiesToEven</dd>
+<dt>.RM</dt><dd>roundTowardNegative</dd>
+<dt>.RP</dt><dd>roundTowardPositive</dd>
+<dt>.RZ</dt><dd>roundTowardZero</dd>
+</dl>
+
+<p>
+The optional IEEE rounding mode <em>roundTiesToAway</em> is not supported.</p>
+
+<p>See the IEEE-754 2008 specification, Section 4.3.3.</p>
+
+</div> <!-- IEEERoundingModes -->
+
+
+<!-- ###################################### -->
+<!-- # NaN Behavior                       # -->
+<!-- ###################################### -->
+<h3>NaN Behavior:</h3>
+<div class="NaNBehavior">
+
+<p>
+The chosen NaN behavior for fp32 operations is different than that of fp64
+operations. The chosen fp32 behavior is different from Intel's x87/SSE behavior,
+but is still IEEE-754 2008 compliant: The standard allows canonicalization of the NaN result to be implementation-defined. See the
+IEEE-754 2008 specification, Section 6.2.</p>
+
+</div> <!-- NanBehavior -->
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>FADD</b>         R0, R1,R2;
+<b>FADD32I.FTZ</b>  R0,-R1,0x3f900000;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

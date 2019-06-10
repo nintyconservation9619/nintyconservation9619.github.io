@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VADD</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VADD : Integer Byte/Short Addition<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Byte/Short Addition" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Video Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VADD", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VADD</b>{.dfmt}{.safmt.sbfmt}{.PO}{.SAT}{.op2}</code>   <code>Rd{.CC},{-}Ra{.partselA},{-}Rb{.partselB},Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VADD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>VADD</b>{.dfmt}{.safmt.ifmt}{.PO}{.SAT}{.op2}</code>    <code>Rd{.CC},{-}Ra{.partselA},{-}#imm16,       Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VADD" } -->
+
+ .dfmt:       { <b>.UD, .SD*</b> }
+              Destination format (unsigned or signed)
+
+ .safmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b>}
+ .sbfmt:      { <b>.U32, .S32*, .U16, .S16, .U8, .S8</b>}
+ .ifmt:       {              <b>.U16, .S16*</b>         }
+              Source formats
+
+ .PO:         Plus one (used in computing averages)
+
+ .SAT:        Saturate destination based on .op2 and final sign
+
+ .op2:        { <b>.PASS*, .MRG_16H, .MRG_16L, .MRG_8B0, .MRG_8B2, .ACC, .MIN, .MAX</b>}
+
+
+ .CC:         Write condition codes
+
+ .partselA:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b>} 
+              if (.U16|.S16) { <b>.H0*, .H1</b>}
+
+ .partselB:   if (.U8|.S8)   { <b>.B0*, .B1, .B2, .B3</b>} 
+              if (.U16|.S16) { <b>.H0*, .H1</b>}
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Add sources into destination with optional second stage operation and optional 
+saturate.</p>
+
+
+<h4>Basic math operation:</h4>
+<p>
+2's complement addition/subtraction via optional "-" on sources.</p>
+<p>
+Both inputs are are first promoted to S33 (based on their individual .S or .U format), 
+then the optional negate is applied on the applicable inputs. After that the add is done, 
+producing an S34 result.</p>
+<p>
+The negate on Ra, and Rb/#imm16 is encoded in 2 bit .mode field as follows:</p>
+
+<table summary="VADD Operation Modes">
+<tr><th> mode </th><th> Operation </th><th>  Mapping                                     </th><th> Comments             </th></tr>
+<tr><td>  0   </td><td><pre>  Ra+Rb </pre></td><td><pre>  <b>A</b> +  <b>B</b> + 0 </pre></td><td> Add                  </td></tr>
+<tr><td>  1   </td><td><pre>  Ra-Rb </pre></td><td><pre>  <b>A</b> + ~<b>B</b> + 1 </pre></td><td> <b>Ra</b> - <b>Rb</b></td></tr>
+<tr><td>  2   </td><td><pre> -Ra+Rb </pre></td><td><pre> ~<b>A</b> +  <b>B</b> + 1 </pre></td><td> <b>Rb</b> - <b>Ra</b></td></tr>
+<tr><td>  3   </td><td><pre> .PO    </pre></td><td><pre>  <b>A</b> +  <b>B</b> + 1 </pre></td><td> Add plus one         </td></tr>
+</table>
+
+<p>
+It is illegal to negate both sources at the same time.</p>
+
+<p>
+Note that when .ifmt == S16 is used, the 16-bit immediate is first sign extended, and then the optional negate is applied. This results in non-obvious expansion. E.g.:
+</p>
+<pre>
+        VADD.U32.S16 R0, R1, -0xffff, R2;  # Computes R0 = R1 -  (-1)  + R2
+                                           # but NOT  R0 = R1 - 0xffff + R2
+</pre>
+
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>VADD</b>                   R0, R1,    R2,    RZ;
+<b>VADD.ACC</b>               R0, R1,    R2,    R3;
+<b>VADD.UD.U8.U8</b>          R0, R1.B3, R2.B1, RZ;
+<b>VADD.S16.S16</b>           R0, R1.H0, R2.H1, RZ;
+<b>VADD.U8.S32</b>            R0, R1.B2, R2,    RZ;
+<b>VADD.S16.S8</b>            R0, R1.H0, R2.B1, RZ;
+<b>VADD.SD.S16.S32</b>        R0, R1.H0, R2,    RZ;
+<b>VADD.SD.SAT.MRG_16H</b>    R0, R1,    R2,    R3;
+
+<b>VADD</b>.U32.S16 R0, R1, -0xffff, R2;  # Computes R0 = R1 -  (-1)  + R2
+<b>VADD</b>.U32.S16 R0, R1,  0xffff, R2;  # Computes R0 = R1 +  (-1)  + R2
+<b>VADD</b>.U32.U16 R0, R1, -0xffff, R2;  # Computes R0 = R1 - 0xffff + R2
+<b>VADD</b>.U32.U16 R0, R1,  0xffff, R2;  # Computes R0 = R1 + 0xffff + R2
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

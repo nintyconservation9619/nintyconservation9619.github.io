@@ -1,0 +1,449 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>セキュアコーディング支援マニュアル</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- セキュアコーディング支援マニュアル -->
+<div class="pagetitle" id="PageId_246244876">セキュアコーディング支援マニュアル</div>
+<div class="text_separate">
+<h1 id="Anchor_246244876_h1_1">プラットフォーム外の不正データからの保護</h1>
+<h2 id="Anchor_246244876_h2_1">不正な外部データによる脅威</h2>
+<p>外部からのデータを読み込ませてプログラム内で使用するアプリケーションにおいて、外部データに対するデータの正当性が検証されていない場合、<br />不正に改竄した外部データを作られる事により、プラットフォーム外部から不正なコード(エクスプロイトコード) の侵入をされ、ゲーム内のあらゆる内容が改竄されるリスクがあります。</p>
+<p>一例として、他プラットフォームからセーブデータを移行する場合、移行元プラットフォームのハックによって移行先プラットフォームを攻撃することが可能になるため、より一層の注意が必要となります。</p>
+<h2 id="Anchor_246244876_h2_2">不正データへの保護対策例</h2>
+<h3 id="Anchor_246244876_h3_1">バッファオーバーフロー</h3>
+<p>バッファオーバーフローは、不正コード実行に繋がり得る、最も代表的な事例です。</p>
+<h4 id="Anchor_246244876_h4_1">代表的な攻撃シーン</h4>
+<ul>
+  <li>スタック破壊攻撃<ul><li>スタックには、関数内のローカル変数と、その関数からの戻り先アドレスが存在します。<br />ローカル変数へのコピーがバッファオーバーフローすることによって、戻り先アドレス情報を書き換えることが可能になり得ます。<br />関数がreturnする際に、書き換えられた戻り先アドレスに戻ろうとするため、プログラム実行を任意のアドレスに飛ばすことができます。<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_246244876/246244824.png" class="embedded-image" /></span></li></ul></li>
+</ul>
+<p>
+  <br />
+</p>
+<ul>
+  <li>static変数領域への攻撃<ul><li>static領域中に、配列と関数ポインタテーブルが連続で配置されていると、<br />配列をバッファオーバーフローさせることで、それに続く関数ポインタテーブルのアドレスを書き換えることができ、<br />その関数ポインタが示す関数を呼んだ時に任意のアドレスに飛ばす事ができます。</li></ul></li>
+</ul>
+<h4 id="Anchor_246244876_h4_2">対策</h4>
+<ul>
+  <li>外部からの入力データの正当性を厳密にチェックする。<ul><li>可変長領域をコピーする際に、コピー先バッファのサイズを超えないようにコピーするサイズをチェックする。</li><li>文字列をコピーする際に、コピー先バッファのサイズを超えないようにコピーするサイズをチェックする。</li></ul></li>
+  <li>静的コード解析ツールの利用</li>
+</ul>
+<h5 id="Anchor_246244876_h5_1">プログラム例</h5>
+<h6 id="Anchor_246244876_h6_1">文字列処理によるオーバーフロー</h6>
+<ul>
+  <li style="list-style-type: none; background-image: none;">
+    <ul>
+      <li>
+        <p>危険なコード例</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="cp">#define MAXSIZE 256
+</span>
+<span class="kt">int</span> <span class="nf">badcode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">pSource</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="n">MAXSIZE</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">strcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">pSource</span><span class="p">);</span>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// pSource の示す文字列サイズがヌル文字を含めてMAXSIZEより大きいとバッファオーバーフローを起こす。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// 関数から戻る際、スタック中の任意のアドレスにジャンプさせる事が可能。
+</span><span class="p">}</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>安全なコード例</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="cp">#define MAXSIZE 256
+</span>
+<span class="kt">int</span> <span class="nf">safecode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">pSource</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="n">MAXSIZE</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pSource</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// エラー
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+ &nbsp; &nbsp;<span class="n">memset</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">MAXSIZE</span><span class="p">);</span> <span class="c1">// コピー先領域の0クリア。
+</span>
+ &nbsp; &nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">MAXSIZE</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">strnlen</span><span class="p">(</span><span class="n">pSource</span><span class="p">,</span> <span class="n">MAXSIZE</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">// コピー先領域サイズと、文字列サイズの比較。
+</span> &nbsp; &nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+ &nbsp; &nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp; <span class="n">strlcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">MAXSIZE</span><span class="p">);</span> <span class="c1">// コピーバイト数に制限のある関数を使用する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+<h6 id="Anchor_246244876_h6_2">可変長データの不適切な扱いによるオーバーフロー</h6>
+<ul>
+  <li style="list-style-type: none; background-image: none;">
+    <ul>
+      <li>
+        <p>危険なコード例</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="cp">#define DATASIZE 16
+</span> 
+<span class="k">struct</span> <span class="n">externalData</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="n">DATASIZE</span><span class="p">];</span>
+<span class="p">};</span>
+ 
+<span class="kt">int</span> <span class="nf">badcode</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">externalData</span> <span class="n">e</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="n">DATASIZE</span><span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">readExternalData</span><span class="p">(</span><span class="o">&amp;</span><span class="n">e</span><span class="p">);</span> <span class="c1">// 外部からのデータを読み込む
+</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">length</span><span class="p">);</span> <span class="c1">// 不正なデータ長が来た場合、bufferがオーバーランを起こす。
+</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// 関数から戻る際、スタック中の任意のアドレスにジャンプさせる事が可能。
+</span><span class="p">}</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>安全なコード例</p>
+        <div class="layout-base">
+          <div class="layout-section">
+            <div class="layout-cell">
+              <table class="codeblock">
+                <tbody>
+                  <tr>
+                    <td class="code">
+                      <div class="codeblock"><pre><span class="cp">#define DATASIZE 16
+</span>&nbsp;
+<span class="k">struct</span> <span class="n">externalData</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="n">DATASIZE</span><span class="p">];</span>
+<span class="p">};</span>
+&nbsp;
+<span class="kt">int</span> <span class="nf">safecode</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">externalData</span> <span class="n">e</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="n">DATASIZE</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 外部からのデータを読み込む
+</span>&nbsp;&nbsp;&nbsp; <span class="n">readExternalData</span><span class="p">(</span><span class="o">&amp;</span><span class="n">e</span><span class="p">);</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 外部データ長をチェック
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e.length が負の場合のチェックが抜けると
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// バッファオーバフローを起こすので注意する
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">e</span><span class="p">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="n">DATASIZE</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// データ長が予めチェックされており安全なコピー
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">length</span><span class="p">);</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="layout-cell">
+              <table class="codeblock">
+                <tbody>
+                  <tr>
+                    <td class="code">
+                      <div class="codeblock"><pre><span class="cp">#define DATASIZE 16
+</span>&nbsp;
+<span class="k">struct</span> <span class="n">externalData</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 負の数をケアしなくてよいように size_t に変更
+</span>&nbsp;&nbsp;&nbsp; <span class="kt">size_t</span> <span class="n">length</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="n">DATASIZE</span><span class="p">];</span>
+<span class="p">};</span>
+&nbsp;
+<span class="kt">int</span> <span class="nf">safecode</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">externalData</span> <span class="n">e</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="n">DATASIZE</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 外部からのデータを読み込む
+</span> &nbsp;&nbsp;&nbsp;<span class="n">readExternalData</span><span class="p">(</span><span class="o">&amp;</span><span class="n">e</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 外部データ長をチェック 
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="n">DATASIZE</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// データ長が予めチェックされており安全なコピー
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">length</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <p>
+          <br />
+        </p>
+        <p>
+          <br />
+        </p>
+      </li>
+    </ul>
+  </li>
+</ul>
+<h6 id="Anchor_246244876_h6_3">printf書式文字列によるオーバーフロー</h6>
+<ul>
+  <li>
+    <p>危険なコード例</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">badcode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">pString</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">sprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">pString</span><span class="p">);</span> <span class="c1">// 32 バイトを超える文字列が入力された場合、buffer がオーバーフローする。
+</span> &nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// 関数から戻る際、スタック中の任意のアドレスにジャンプさせる事が可能。
+</span><span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>安全なコード例</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">safecode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">pString</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pString</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="c1">// 引数のNULLチェックを行う。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// エラー
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">pString</span><span class="p">);</span> <span class="c1">// 32 バイトを出力サイズの上限としている。
+</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<p>
+  <br />
+</p>
+<h6 id="Anchor_246244876_h6_4">整数のオーバーフロー</h6>
+<ul>
+  <li>
+    <p>危険なコード例</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">badcode</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span> <span class="o">*</span><span class="n">pData</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">T</span> <span class="o">*</span><span class="n">pBuffer</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">);</span> <span class="c1">// sizeof(T) * n の結果はオーバーフローするかもしれない
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pBuffer</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="c1">// sizeof(T) * n がオーバーフローすることで
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// pBuffer は意図しない長さのメモリが割り当てられているかもしれない
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pBuffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pData</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="c1">// 割り当てられたメモリサイズによってはバッファオーバーフローが発生
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>安全なコード例</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">safecode</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span> <span class="o">*</span><span class="n">pData</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">size_t</span> <span class="n">dataSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">((</span><span class="n">dataSize</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">))</span> <span class="o">!=</span> <span class="n">n</span><span class="p">)</span> <span class="c1">// sizeof(T) * n の結果がオーバーフローしていないことをチェック
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">T</span> <span class="o">*</span><span class="n">pBuffer</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">dataSize</span><span class="p">);</span> <span class="c1">// データ長が予めチェックされており意図したサイズのメモリ割り当て
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pBuffer</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pBuffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pData</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="c1">// 正しいサイズのメモリ割り当てのため範囲外アクセスは生じない
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<h6 id="Anchor_246244876_h6_5">使用を推奨できない関数</h6>
+<ul>
+  <li>strcpy, sprintf, strcat, vsprintf<br /><ul><li>データ領域サイズの評価を行わない関数ですので、使用は推奨できません。</li><li>strlcpy, strlcat, snprintf, vsnprintf 等を使うことで、領域サイズを制限を入れた上でコピーを行ってください。</li></ul></li>
+</ul>
+<p style="margin-left: 60.0px;">※ コンパイラおよびSDKには上記のような関数の使用に対し、警告を出す機能が存在しませんので、実装者側で注意して頂く必要があります。<br /><br /></p>
+<ul>
+  <li>strncpy, strncat についての注意<ul><li><p>strncpy, strncatは、コピー元文字列長がコピーサイズ以上の場合、ヌル文字&rsquo;\0&rsquo;付加を行いませんので、以下のように記述する必要があります。</p><table class="codeblock"><tbody><tr><td class="code"><div class="codeblock"><pre><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span> <span class="o">=</span> <span class="s">&quot;0123456789&quot;</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="n">strncpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>  <span class="c1">// dest には&quot;012345678&quot;(ヌル文字なし)が入る
+</span><span class="n">dest</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span> <span class="c1">// ヌル文字追加の文を書く必要がある。
+</span></pre></div></td></tr></tbody></table><p>strlcpy, strlcat は、ヌル文字を付加してコピーを行いますので、以下のように簡潔な記述にできます。</p><table class="codeblock"><tbody><tr><td class="code"><div class="codeblock"><pre><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span> <span class="o">=</span> <span class="s">&quot;0123456789&quot;</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="n">strlcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">dest</span><span class="p">));</span> <span class="c1">// dest には&quot;012345678&quot;+ヌル文字が入る
+</span></pre></div></td></tr></tbody></table></li></ul></li>
+</ul>
+<h3 id="Anchor_246244876_h3_2">書式文字列攻撃</h3>
+<h4 id="Anchor_246244876_h4_3">概要</h4>
+<p>書式文字列攻撃では、printf, snprintfのような書式文字を指定する関数において書式文字に変数が直接指定されている状況において、&quot;%s&quot;や&quot;%n&quot;などの任意の書式を指定されることで、バッファオーバーフローと同様の被害をもたらします。</p>
+<h4 id="Anchor_246244876_h4_4">対策<br /></h4>
+<ul>
+  <li>書式文字の指定に変数を直接指定しない</li>
+</ul>
+<h5 id="Anchor_246244876_h5_2">プログラム例</h5>
+<h6 id="Anchor_246244876_h6_6">sprintf での書式文字列攻撃</h6>
+<ul>
+  <li>
+    <p>危険なコード例</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">badcode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">pString</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pString</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="c1">// 引数のNULLチェックを行う。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// エラー
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span> <span class="n">pString</span><span class="p">);</span> <span class="c1">// 書式指定の引数に入力文字列変数を直接指定している。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// pString の中身には &quot;%s&quot; や &quot;%n&quot; が格納されているかもしれない。
+</span>&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>安全なコード例</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">safecode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">pString</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pString</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="c1">// 引数のNULLチェックを行う。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// エラー
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">snprintf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">pString</span><span class="p">);</span> <span class="c1">// 書式指定の引数に入力文字列変数を直接指定しない。
+</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_246244876_h2_3">参考資料</h2>
+<ul>
+  <li>「C/C++セキュアコーディング」（株式会社アスキー） 第2章 文字列操作</li>
+  <li>IPA セキュアプログラミング講座<br /><a href="https://www.ipa.go.jp/security/awareness/vendor/programmingv2/contents/c901.html">https://www.ipa.go.jp/security/awareness/vendor/programmingv2/contents/c901.html<br /></a><a href="https://www.ipa.go.jp/security/awareness/vendor/programmingv2/contents/c906.html">https://www.ipa.go.jp/security/awareness/vendor/programmingv2/contents/c906.html</a></li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

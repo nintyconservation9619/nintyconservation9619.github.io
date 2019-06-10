@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>マニュアル放出</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- マニュアル放出 -->
+<div class="pagetitle" id="PageId_83956084">マニュアル放出</div>
+<div class="text_separate">
+<h1 id="Anchor_83956084_h1_1">マニュアル放出</h1>
+<p>ここではプログラムからの操作で、指定した位置に任意のタイミングでパーティクルを放出させる「マニュアル放出」機能について説明します。</p>
+<h2 id="Anchor_83956084_h2_1">マニュアル放出の概要</h2>
+<p>マニュアル放出は、プログラムからの操作で、指定した位置に任意のタイミングでパーティクルを放出させる機能です。<br />同一のエミッタセットを大量に放出するようなケースで、CPU負荷の削減が期待できます。</p>
+<p>大まかな動作の流れは、CreateManualEmitterSetId() で生成した「マニュアルエミッタセット」に対して、<br />任意のタイミングで EmitParticle() を呼ぶことでパーティクルの放出を予約し、<br />毎フレームの Calculate 処理内の放出処理で、直前のフレーム中に放出予約されたパーティクルを生成するというものです。</p>
+<h2 id="Anchor_83956084_h2_2">マニュアル放出のメリット</h2>
+<h3 id="Anchor_83956084_h3_1">CPU処理コスト削減</h3>
+<p>下図のように、同一のエミッタセットを任意のタイミングで複数個放出するようなケースを考えます。</p>
+<p>通常のエミッタセット生成の流れに従うと、エミッタセットが放出する数だけ生成されますが、<br />マニュアル放出を利用することで、１つの「マニュアルエミッタセット」にエミッタセットを集約することができます。<br />このマニュアルエミッタセットからパーティクル放出を行うことで、エミッタセットの定期処理（計算処理・描画処理）の回数が減り、CPU負荷の削減が期待できます。</p>
+<p>下図の例では、処理するエミッタセット数を　4個　&rarr;　1個　まで削減しています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956084/90147374.png" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_83956084_h2_3">マニュアル放出の制限</h2>
+<p>マニュアル放出は、EmitParticle() でパーティクルの放出を「予約」し、毎フレームの Calculate 処理で予約された分を放出する、という処理フローのため、以下の制限があります。</p>
+<ul>
+  <li>EmitParticle() を呼んだ瞬間にはパーティクルが実体化しない</li>
+</ul>
+<p>パーティクル生成コールバックなどは、全て通常エミッタセットで放出したパーティクルと同じように機能しますが、<br />パーティクル生成コールバックが呼び出されるのは「EmitParticle() を呼んだ直後」ではなく、「Calculate 処理でパーティクルが実体化された後」タイミングでとなります。</p>
+<p>また現状、以下の設定を持つエミッタセットに対して、マニュアル放出は対応しておりません。</p>
+<ul>
+  <li>チャイルドエミッタを含むエミッタセットに対してのマニュアル放出。</li>
+</ul>
+<h2 id="Anchor_83956084_h2_4">利用方法</h2>
+<p>マニュアル放出を利用するための手順は以下の通りです。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__vfx__System__CreateManualEmitterSetId">nn::vfx::System::CreateManualEmitterSetId</span>() でエミッタセットを生成。</li>
+  <li>任意のタイミングで <span class="ApiLink_nn__vfx__EmitterSet__EmitParticle">nn::vfx::EmitterSet::EmitParticle</span>() を呼び、パーティクル放出を指示する。</li>
+</ol>
+<h3 id="Anchor_83956084_h3_2">エミッタセットを生成</h3>
+<p>マニュアル放出を行うエミッタセットは、<span class="ApiLink_nn__vfx__System__CreateManualEmitterSetId">nn::vfx::System::CreateManualEmitterSetId</span>() メソッドを利用して生成する必要があります。<br />CreateEmitterSetId() と CreateManualEmitterSetId() の違いは、CreateManualEmitterSetId() の方で以下の引数を指定する点です。</p>
+<ul>
+  <li>
+    <strong>
+      <span style="color: rgb(255,0,0);">
+        <span class="status_macro_base status_macro_Red">必須</span>&nbsp;</span>同一フレーム中に存在しうるパーティクルの最大数</strong>
+  </li>
+  <li>
+    <strong>
+      <span style="color: rgb(255,0,0);">
+        <span style="color: rgb(255,0,0);">
+          <span class="status_macro_base status_macro_Red">必須</span>
+        </span>&nbsp;</span>1フレームあたりに放出できるパーティクルの最大数</strong>
+  </li>
+  <li>
+    <strong>
+      <span style="color: rgb(255,0,0);">
+        <span style="color: rgb(255,0,0);">
+          <span class="status_macro_base status_macro_Red">必須</span>
+        </span>&nbsp;</span>マニュアル放出命令を記録するための領域の先頭アドレス</strong>
+  </li>
+  <li>
+    <strong>
+      <span style="color: rgb(255,0,0);">
+        <span class="status_macro_base status_macro_Green">任意</span>&nbsp;</span>カスタムアクションのコールバックセット</strong>
+    <br />
+    <br />
+  </li>
+</ul>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::vfx::</span><span class="n">Handle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="n">m_VfxSystem</span><span class="o">-&gt;</span><span class="n">CreateManualEmitterSetId</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="p">...</span> <span class="p">,</span> <span class="n">maxParticleCount</span><span class="p">,</span> <span class="n">maxEmitCountPerFrame</span><span class="p">,</span> <span class="n">pEmitReservationListHead</span><span class="p">,</span> <span class="p">...</span> <span class="p">,</span> <span class="n">pCustomActionCallbackSet</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>CreateManualEmitterSetId 固有の引数の説明は下表の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>引数</th>
+      <th>内容</th>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">
+          <span class="status_macro_base status_macro_Red">必須</span>
+        </span>
+      </th>
+      <th style="color: rgb(255,0,0);">maxParticleCount</th>
+      <td>このエミッタセットが同一フレーム中に保持できるパーティクルの最大数です。この数より多くのパーティクルを EmitParticle() で放出することはできません。</td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">
+          <span class="status_macro_base status_macro_Red">必須</span>
+        </span>
+      </th>
+      <th>maxEmitCountPerFrame</th>
+      <td>
+        <p>1フレーム中に放出可能なパーティクルの最大数です。この数より多く EmitParticle() を呼んだ場合、超えた分の呼び出しは失敗します。</p>
+        <p>maxParticleCount &gt;= maxEmitCountPerFrame を必ず満たしている必要があります。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">
+          <span class="status_macro_base status_macro_Red">必須</span>
+        </span>
+      </th>
+      <th>pEmitReservationListHead</th>
+      <td>
+        <p>パーティクル放出を予約するための領域の先頭アドレスです。<span class="ApiLink_nn__vfx__EmitReservationInfo">nn::vfx::EmitReservationInfo</span> 型ので要素数 maxEmitCountPerFrame の配列を確保し、その先頭のアドレスを与えてください。</p>
+        <p>配列の要素数は maxEmitCountPerFrame と同じである必要があります。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">
+          <span class="status_macro_base status_macro_Green">任意</span>
+        </span>
+      </th>
+      <th>
+        <span style="color: rgb(255,0,0);">&nbsp;</span>pCustomActionCallbackSet</th>
+      <td>
+        <p>（※この引数は任意です）</p>
+        <p>カスタムアクションのコールバックとして与える <span class="ApiLink_nn__vfx__CallbackSet">nn::vfx::CallbackSet</span> へのポインタです。</p>
+        <p>
+          <span class="ApiLink_nn__vfx__System">nn::vfx::System</span> にセットしていないコールバックでも与えることができます。</p>
+        <p>これはマニュアルエミッタセットはプログラム側で操作することを前提にしているための機能です。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956084_h3_3">位置を指定してパーティクル放出する</h3>
+<p>マニュアルエミッタセットに対して、任意のタイミングでアプリ側から放出を行います。<br />放出には、<span class="ApiLink_nn__vfx__EmitterSet__EmitParticle">nn::vfx::EmitterSet::EmitParticle</span>() メソッドを利用します。引数にはパーティクルを放出する　<strong><span style="color: rgb(255,0,0);">エミッタ座標系での ローカル 座標</span></strong> を指定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>if ( handle.IsValid() )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;handle.GetEmitterSet()-&gt;EmitParticle( localPos );
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また、第二引数として、ユーザーデータのポインタを渡すことができます。ここで渡したポインタは放出予約を管理する領域に記録され、パーティクル生成時に、パーティクル生成コールバックのユーザーデータのポインタの初期値として与えられます。これを利用して、EmitParticle() 時に渡したユーザーデータを利用して、パーティクル生成コールバックの中で「パーティクルの位置」以外の、色やスケールなどを変更することができます。</p>
+<h4 id="Anchor_83956084_h4_1">マトリクスを指定してパーティクルを放出する</h4>
+<p>放出マトリクス時マトリクスを指定してパーティクルを放出することも可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>if ( handle.IsValid() )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;handle.GetEmitterSet()-&gt;EmitParticle( emitMatrix );
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>マトリクスを指定してマニュアル放出を行った場合、放出されたパーティクルはEmitParticle で指定されたマトリクスを保持し、そのマトリクスで描画されます。この機能を利用する場合、マニュアル放出で利用するエミッタは、「<a href="../Pages/Page_93357799.html">パーティクル追従タイプ</a>」を「エミッタに追従しない」に設定しておく必要があります。</p>
+<p>この機能はキャラクタの足跡などで利用することができます。キャラクタ足が接地時の地形マトリクス情報を利用してマニュアル放出をすることで、接地面と並行なパーティクル放出することができます。</p>
+<p>&nbsp;</p>
+<!--Remove-->
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System__CreateManualEmitterSetId', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a828faae12bffbffbd559e8e5ce59d5ff' )
+SetUrl( 'ApiLink_nn__vfx__EmitterSet__EmitParticle', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_emitter_set.html#ae71e39d8367ed1b66cc718744af6ee6f' )
+SetUrl( 'ApiLink_nn__vfx__EmitReservationInfo', '../../../Api/HtmlNX/structnn_1_1vfx_1_1_emit_reservation_info.html' )
+SetUrl( 'ApiLink_nn__vfx__CallbackSet', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_callback_set.html' )
+SetUrl( 'ApiLink_nn__vfx__System', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

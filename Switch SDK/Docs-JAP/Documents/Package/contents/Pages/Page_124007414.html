@@ -1,0 +1,401 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ビューアランタイムを組み込む</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ビューアランタイムを組み込む -->
+<div class="pagetitle" id="PageId_124007414">ビューアランタイムを組み込む</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_124007414_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_124007414_h1_2">利用方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_124007414_h1_3">通信スレッドについて</a>
+    </li>
+    <li>
+      <a href="#Anchor_124007414_h1_4">ディスクリプタスロットの扱いについて</a>
+    </li>
+    <li>
+      <a href="#Anchor_124007414_h1_5">ビューアランタイムの便利な機能</a>
+    </li>
+    <li>
+      <a href="#Anchor_124007414_h1_6">トラブルシューティング</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_124007414_h1_1">はじめに</h1>
+<p>ビューアランタイムを組み込むと以下のことが実現できます。</p>
+<h2 id="Anchor_124007414_h2_1">開発中アプリケーション上で エフェクトデータの作成、編集が行える</h2>
+<p>開発中アプリケーションとエフェクトメーカーを接続し、エフェクトメーカーで開いたエフェクトデータを転送し、開発中アプリケーション上で作成中エフェクトの再生・描画 することができます。EffectViewer を利用するのと違い、デザイナは開発中アプリケーション上でポストエフェクトなどを考慮した最終的なアプリケーション上ので描画結果を確認しながらエフェクトの作成、編集を行うことができ、開発サイクルを改善することができます。</p>
+<h2 id="Anchor_124007414_h2_2">開発中アプリケーション上に実装された エフェクトデータの編集が行える</h2>
+<p>デザイナが作成したエフェクトデータはプログラマによって開発中アプリケーションに実装され 再生・描画 されますが、デザイナはゲーム上に組み込まれた実装済みエフェクトデータをゲーム上で直接再調整することができます。</p>
+<p>NintendoSDK に付属する EffectViewer を利用してエフェクトデータ作成を進めることもできますが、開発中アプリケーションに ビューアランタイム を組み込んでいただくことでより効率的にエフェクトデータの作成を行うことができます。</p>
+<ol>
+  <li>デザイナがエフェクトデータを作成する</li>
+  <li>作成されたエフェクトデータをプログラマがアプリケーションに組み込む</li>
+  <li>デザイナがアプリケーション上で組み込まれたエフェクトを確認し、問題があれば再調整を行う</li>
+</ol>
+<p>と いったフローで作業する場合、アプリケーションにビューアランタイムを組み込むことで、デザイナが直接 アプリケーション上に組み込まれたエフェクトを再調整することができるため、時間のかかる ROMバイナリの再生成や、再調整後のエフェクトデータのプログラマによる組み込み、組み込み後の再確認 といったフローを省略することができ、素早く再調整後のエフェクトの再生結果をアプリケーション上で確認することができます。</p>
+<h1 id="Anchor_124007414_h1_2">利用方法</h1>
+<p>ビューアランタイムをアプリ上で利用するには、以下のステップが必要になります。</p>
+<ol>
+  <li>ビューアランタイムの初期化</li>
+  <li>ビューアランタイムの定期処理</li>
+  <li>アプリケーション上で再生確認</li>
+</ol>
+<h2 id="Anchor_124007414_h2_3">ビューアランタイムの初期化</h2>
+<p>
+  <span class="ApiLink_nn__vfx__viewer__ViewerSystem">nn::vfx::viewer::ViewerSystem</span> オブジェクトを生成し、ビューアランタイムの初期化を行います。</p>
+<p>ビューアランタイムはエフェクトメーカーから送られてきた通信データを ビューアランタイム内部で生成した通信スレッド 上で非同期にコピーするため、通常のヒープ と 通信用のヒープ それぞれ別のヒープを渡します。<br />生成する通信スレッドのプライオリティは、<span class="ApiLink_nn__vfx__viewer__ViewerSystem">nn::vfx::viewer::ViewerSystem</span> クラスコンストラクタにて指定できます。デフォルトのプライオリティは、<span class="ApiLink_nn__os__LowestThreadPriority">nn::os::LowestThreadPriority</span> です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// nn::htcs の初期化を行う
+</span><span class="cp">#ifdef NN_ENABLE_HTC
+</span><span class="k">if</span><span class="p">(</span> <span class="o">!</span><span class="nn">nn::htcs::</span><span class="n">IsInitialized</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::htcs::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">Allocate</span><span class="p">,</span> <span class="n">Deallocate</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cp">#endif
+</span>
+<span class="c1">// ビューアランタイムを生成する
+</span><span class="n">vfxViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">nn::vfx::viewer::</span><span class="n">ViewerSystem</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">vfxHeap</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">vfxConnectionHeap</span><span class="p">,</span> <span class="n">vfxSystem</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>アプリ側で <span class="ApiLink_NN_ENABLE_HTC">NN_ENABLE_HTC</span> を定義していただくことで リリースビルド版でも動作します。<br />現状、リリースビルド時に <span class="ApiLink_NN_ENABLE_HTC">NN_ENABLE_HTC</span> を定義しない場合は、htcs に関わる部分が 空実装 になり動作しなくなります。</p>
+  </div>
+</div>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <span class="ApiLink_nn__vfx__viewer__ViewerSystem">nn::vfx::viewer::ViewerSystem</span> 初期化時に渡す 通常のヒープと通信用ヒープ を同じインスタンスにした場合は、予期せぬ動作不良が発生しますのでご注意ください。</p>
+  </div>
+</div>
+<h3 id="Anchor_124007414_h3_1">ビューアランタイムの破棄</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// nn::htcs の破棄を行う
+</span><span class="cp">#ifdef NN_ENABLE_HTC
+</span><span class="k">if</span><span class="p">(</span> <span class="o">!</span><span class="nn">nn::htcs::</span><span class="n">IsInitialized</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::htcs::</span><span class="n">Finalize</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="cp">#endif
+</span>
+<span class="c1">// ビューアランタイムを破棄する
+</span><span class="n">vfxViewer</span><span class="o">-&gt;</span><span class="n">Finalize</span><span class="p">(</span><span class="n">FreeDescriptorSlotForTexture</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GraphicsFramework</span><span class="p">);</span>
+<span class="k">delete</span> <span class="n">vfxViewer</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124007414_h2_4">ビューアランタイムの定期処理</h2>
+<p>通信スレッド上で非同期にコピーされたバイナリやビューアランタイムへのコマンドを <span class="ApiLink_nn__vfx__viewer__ViewerSystem__ProcessCalculation">nn::vfx::viewer::ViewerSystem::ProcessCalculation</span> メソッドを利用して実行します。ProcessCalculation の返り値が true の場合、エフェクトメーカーからエフェクト再生の一時停止命令が発行されている状態です。ビューアランタイムが再生するエフェクトは、<span class="ApiLink_nn__vfx__SystemParameters_ViewerGroupId">nn::vfx::SystemParameters_ViewerGroupId</span> グループに所属するので、再生、一時停止を考慮しエフェクトシステムの計算処理を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// viewMatrix はエミッタビルボード再生用。
+// プレビューでエミッタビルボード機能を利用する場合は、ビューマトリクス ( viewMatrix ) を設定してください。
+// ビューマトリクスの設定は、ビューアランタイムに　必須　ではありません。
+</span><span class="kt">bool</span> <span class="n">pause</span> <span class="o">=</span> <span class="n">vfxViewer</span><span class="o">-&gt;</span><span class="n">ProcessCalculation</span><span class="p">(</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">viewMatrix</span><span class="p">,</span> <span class="n">allocateForTextureSlot</span><span class="p">,</span> <span class="n">textureDescriptorManager</span> <span class="p">)</span>
+
+<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">BeginFrame</span><span class="p">();</span>
+
+<span class="k">if</span> <span class="p">(</span> <span class="n">pause</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="nn">nn::vfx::</span><span class="n">SystemParameters_ViewerGroupId</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="nb">false</span> <span class="p">);</span>     <span class="c1">// 一時停止
+</span><span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="nn">nn::vfx::</span><span class="n">SystemParameters_ViewerGroupId</span><span class="p">,</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>描画処理もゲームアプリケーション上のエフェクトと同様に <span class="ApiLink_nn__vfx__SystemParameters_ViewerGroupId">nn::vfx::SystemParameters_ViewerGroupId</span> グループに対して行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">processingIndex</span><span class="p">,</span> <span class="n">pCommandBuffer</span><span class="p">,</span> <span class="nn">nn::vfx::</span><span class="n">SystemParameters_ViewerGroupId</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124007414_h2_5">アプリケーションへの組み込み</h2>
+<p>ビューアランタイムは、エフェクトランタイムに対してエフェクトの生成や削除などの操作を行う為、ビューアランタイム の定期処理の呼び出しは、エフェクトランタイムの定期処理よりも前段で行われる必要があります。この呼び出し順が崩れてしまうと不具合の原因となります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_124007414/183373722.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_124007414_h3_2">アプリケーション上で再生確認</h3>
+<p>実際にアプリケーションとエフェクトメーカーを接続し、アプリケーション上でエフェクトが再生されるか確認します。<br />アプリケーションとエフェクトメーカーの通信には、 TargetManager の起動が必須になります。</p>
+<h1 id="Anchor_124007414_h1_3">通信スレッドについて</h1>
+<p>ビューアランタイムは、エフェクトメーカーと通信するためのスレッドを生成します。<br />ビューアランタイム内部でスレッドを生成したくない場合は、<span class="ApiLink_nn__vfx__viewer__ViewerSystem">nn::vfx::viewer::ViewerSystem</span> 生成時の引数で通信スレッド生成をキャンセルし、アプリ側で生成したスレッドからビューアランタイム内部の通信処理関数を呼び出すことで、エフェクトメーカーと通信させることも可能です。詳しくは、VfxViewerSimple サンプルを参照ください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>ビューアランタイムを組み込んだアプリが EffectMakerと正しく通信できない場合、通信スレッドの優先度を調整することで正しく通信できるようになる場合があります。<br />通信スレッドの優先度は、ビューアランタイム初期化時の引数にて指定できます。優先度の初期値は、<span class="ApiLink_nn__os__LowestThreadPriority">nn::os::LowestThreadPriority</span> が指定されています。</p>
+  </div>
+</div>
+<h1 id="Anchor_124007414_h1_4">ディスクリプタスロットの扱いについて</h1>
+<p>エフェクトメーカーから転送されてくるエフェクトバイナリを再生するために、バイナリ内に含まれるテクスチャに対してディスクリプタスロットの割り当てが必要になります。<span class="ApiLink_nn__vfx__viewer__ViewerSystem__ProcessCalculation">nn::vfx::viewer::ViewerSystem::ProcessCalculation</span> メソッドの引数でコールバック関数を指定して割り当てる方法もありますし、<span class="ApiLink_nn__vfx__Resource">nn::vfx::Resource</span> クラスを経由して任意のタイミングで割り当てることも可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ビューア計算処理
+</span><span class="n">vfxViewer</span><span class="o">-&gt;</span><span class="n">ProcessCalculation</span><span class="p">(</span> <span class="mf">1.0f</span><span class="p">,</span> <span class="n">viewMtx</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span> <span class="p">);</span>
+
+<span class="c1">// ビューア計算処理内でバイナリリロードが発生した場合、ディスクリプタスロットの振り直しを行う
+</span><span class="k">if</span> <span class="p">(</span> <span class="n">vfxViewer</span><span class="o">-&gt;</span><span class="n">IsReloadBinary</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エフェクトビューアがロードしたリソースに対してディスクリプタスロット振り直し
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// userResourceCount は、nn::vfx::Config で指定したリソース数
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">userResourceCount</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">GetResourceCountMax</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::vfx::</span><span class="n">Resource</span><span class="o">*</span> <span class="n">res</span> <span class="o">=</span> <span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">GetResource</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">res</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">res</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span> <span class="n">allocateForTextureSlot</span><span class="p">,</span> <span class="n">textureDescriptorManager</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>エフェクトメーカーからは、最大で16個のエミッタセット中間ファイルを開くことができ、１つのエミッタセットが保持しうるテクスチャの最大枚数は48枚なので、最大で 16 * 48 = 768枚 のテクスチャディスクリプタ登録が発生します。</p>
+  </div>
+</div>
+<h1 id="Anchor_124007414_h1_5">ビューアランタイムの便利な機能</h1>
+<p>ビューアランタイムをアプリケーションに組み込む上で知っておくと便利な機能を紹介します。</p>
+<h3 id="Anchor_124007414_h3_3">ビューアランタイムが再生するエフェクト再生位置を調整する</h3>
+<p>
+  <span class="ApiLink_nn__vfx__viewer__ViewerSystem__SetViewerCenter">nn::vfx::viewer::ViewerSystem::SetViewerCenter</span> をメソッドを利用することで、ビューアランタイムが再生するエフェクトの再生位置を調整することができます。毎フレーム メインキャラクタの表示位置 や カメラの注視点 などを設定しておくと、エフェクトメーカーから転送されたエフェクトデータが常に画面内に再生されます。</p>
+<h3 id="Anchor_124007414_h3_4">ゲーム内キャラクターとエフェクトメーカーから転送したエフェクトを連動させる</h3>
+<p>ゲームキャラクタの名前とボーン名をエフェクトメーカーに転送し、エフェクトメーカー上でキャラクタとボーンに連動さつつエフェクトメーカーから転送したエフェクトを再生することができます。</p>
+<p>エフェクトメーカーに転送するゲームキャラクタ名とボーン名の列挙は、<span class="ApiLink_nn__vfx__viewer__detail__ModelEnumerator">nn::vfx::viewer::detail::ModelEnumerator</span> を介して行われます。 アプリ開発者は、<span class="ApiLink_nn__vfx__viewer__detail__ModelEnumerator">nn::vfx::viewer::detail::ModelEnumerator</span> の派生クラスを生成し、<span class="ApiLink_nn__vfx__viewer__ViewerSystem__UpdateModelInfo">nn::vfx::viewer::ViewerSystem::UpdateModelInfo</span> メソッドを利用してエフェクトメーカーにキャラクタ名とボーン名の情報を転送します。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <td class="highlight-grey">
+        <strong>
+          <a href="../Pages/Page_163288477.html">VfxViewerSimple サンプルについて</a>
+        </strong>
+      </td>
+      <td>ゲーム内キャラクタとエフェクトメーカーから転送したエフェクトを連動させるサンプルです。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_124007414_h1_6">トラブルシューティング</h1>
+<h3 id="Anchor_124007414_h3_5">同名エフェクトが全て編集状態になってしまう</h3>
+<p>ビューアランタイムを利用してアプリ内エフェクトデータを編集する際、アプリ内に存在する編集対象と同名のエミッタセットも編集対象として認識して しまう不具合がありましたが、バイナリコンバータにエミッタセットファイルパスをバイナリ化する機能を追加し、これを回避できるようになりました。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_124007414/206776109.png" class="embedded-image" />
+  </span>
+</p>
+<p>この機能を利用するには、２点の作業が必要になります。</p>
+<ul>
+  <li>ゲーム内で読み込むエフェクトバイナリをパス付に変更する</li>
+  <li>EffectMaker から転送するエフェクトバイナリをパス付に変更する</li>
+</ul>
+<p>エフェクトバイナリをパス付に変更するには、アプリ内で読み込むエフェクトバイナリコンバートオプションに <strong>--include-emitter-set-file-path-array</strong> を指定します。</p>
+<p>EffectMaker から転送するバイナリをパス付に変更するには、EffectMaker の プロジェクト設定ファイル 上で <strong><code class="xml keyword">&lt;IncludeEmitterSetFilePathArrayInEditorMode&gt;</code></strong> タグの記述が必要になります。この設定は、バイナリコンバートとは連動しないことにご注意ください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>エミッタセットファイルパスをバイナリに含めるのは、基本的に開発中のバイナリについて行うようにし、製品に含めるバイナリをコンバートする際には、本機能を使用しないでください。<br />エフェクトバイナリを解析された場合、開発環境のディレクトリ構成やエミッタセット名などの情報が漏えいするおそれがあります。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="wrapped" style="margin-left: 20.0px;">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955581.html">バイナリコンバータ</a>
+      </th>
+      <td>--include-emitter-set-file-path-array に関する情報が記載されています。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955992.html">プロジェクト設定ファイル</a>
+      </th>
+      <td>EffectMaker から転送するバイナリをパス付に変更する為の情報が記載されています。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__viewer__ViewerSystem', '../../../Api/HtmlNX/classnn_1_1vfx_1_1viewer_1_1_viewer_system.html' )
+SetUrl( 'ApiLink_nn__os__LowestThreadPriority', '../../../Api/HtmlNX/namespacenn_1_1os.html#a88510f5f630a16612aa8d479c10b56de' )
+// ApiLink_NN_ENABLE_HTC
+SetUrl( 'ApiLink_nn__vfx__viewer__ViewerSystem__ProcessCalculation', '../../../Api/HtmlNX/classnn_1_1vfx_1_1viewer_1_1_viewer_system.html#a0facec18f3e0baff63a388a22230ba68' )
+SetUrl( 'ApiLink_nn__vfx__SystemParameters_ViewerGroupId', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#a066f6ff695f03644411e5d69515b4d94a4be68e89b8ba844d9de0ed91484a9b6d' )
+SetUrl( 'ApiLink_nn__vfx__Resource', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_resource.html' )
+SetUrl( 'ApiLink_nn__vfx__viewer__ViewerSystem__SetViewerCenter', '../../../Api/HtmlNX/classnn_1_1vfx_1_1viewer_1_1_viewer_system.html#a0675353af7f9bc9b1c5b3a66995551ea' )
+// ApiLink_nn__vfx__viewer__detail__ModelEnumerator
+SetUrl( 'ApiLink_nn__vfx__viewer__ViewerSystem__UpdateModelInfo', '../../../Api/HtmlNX/classnn_1_1vfx_1_1viewer_1_1_viewer_system.html#ad8588691e10fdab9c2206984686f655a' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

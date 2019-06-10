@@ -1,0 +1,470 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>各種テスト機能</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 各種テスト機能 -->
+<div class="pagetitle" id="PageId_173242331">各種テスト機能</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_173242331_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_173242331_h1_2">ネットワーク時計のテスト機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_173242331_h2_1">システムによる自動的なネットワーク時計の補正処理の無効化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_173242331_h3_1">設定方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_173242331_h3_2">テスト手順例</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_173242331_h2_2">ネットワーク時計の無効化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_173242331_h3_3">設定方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_173242331_h3_4">テスト手順例</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_173242331_h2_3">任意の時刻をネットワーク時計に設定</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_173242331_h3_5">設定方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_173242331_h3_6">テスト手順例</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_173242331_h1_3">単調増加クロックのテスト機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_173242331_h2_4">単調増加クロックのリセット</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_173242331_h3_7">設定方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_173242331_h3_8">テスト手順例</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_173242331_h2_5">単調増加クロックの値にオフセットを追加する</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_173242331_h3_9">設定方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_173242331_h3_10">テスト手順例</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_173242331_h1_1">はじめに</h1>
+<p>TIME ライブラリのテスト機能の解説です。<br />以下の開発用ツールを利用します。</p>
+<ul style="list-style-type: square;">
+  <li>
+    <a href="../Pages/Page_107328771.html">DevMenu</a>
+    <ul style="list-style-type: square;">
+      <li>Time Test ページ</li>
+    </ul>
+  </li>
+  <li>
+    <a href="../Pages/Page_107328760.html">DevMenuCommand</a>
+    <ul style="list-style-type: square;">
+      <li>time サブコマンド</li>
+    </ul>
+  </li>
+</ul>
+<p>TIME ライブラリを利用する上で気を付けるべきポイント、そのテスト方法を以下の表にまとめます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>時計</th>
+      <th>気を付けるべきポイント</th>
+      <th>テストに利用できる機能</th>
+      <th>影響のある関数</th>
+    </tr>
+    <tr>
+      <td>
+        <p>単調増加クロック</p>
+        <p>
+          <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html">nn::time::StandardSteadyClock</a>
+        </p>
+      </td>
+      <td>
+        <p>デバイスのシャットダウンを跨いで、経過時間の計算ができなくなることがあります。</p>
+        <p>
+          <br />電池切れによって単調増加クロックのリセットクロックのカウンタがリセットした場合に発生します。</p>
+        <p>
+          <br />
+          <strong>デバイス起動中にリセットは発生しません。</strong>
+        </p>
+      </td>
+      <td>
+        <ul>
+          <li>「<a href="#Anchor_173242331_reset_steady_clock">単調増加クロックのリセット</a>」</li>
+        </ul>
+        <p>&nbsp;</p>
+        <p>単調増加クロックのリセットを行うと、ユーザー時計は既定の初期値に戻り、ネットワーク時計は未補正の状態に戻ります。</p>
+      </td>
+      <td>
+        <p>リセットをまたいだ <a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a> 同士の経過時間を以下の関数で得ることができなくなります。</p>
+        <ul>
+          <li>&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1time.html#a029976fde1c33e311557957f3fc57a6b">nn::time::GetSpanBetween()</a></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>ユーザー時計の時刻</p>
+        <p>
+          <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html">nn::time::StandardUserSystemClock</a>
+        </p>
+      </td>
+      <td>
+        <p>アプリケーション起動中においても、巻き戻りや、非連続的な進みが発生することがあります。</p>
+      </td>
+      <td>
+        <p>アプリケーションの起動中/シャットダウン時に、ユーザー時計の時刻を操作してテストしてください。</p>
+        <p>&nbsp;</p>
+        <p>「<a href="#Anchor_173242331_reset_steady_clock">単調増加クロックのリセット</a>」を行うことでも、既定の初期時刻に戻ります。</p>
+      </td>
+      <td>
+        <ul>
+          <li>
+            <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html#adffdbaa1a805ced47c7c9e48b78f042f">nn::time::StandardUserSystemClock::GetCurrentTime()</a>
+          </li>
+          <li>
+            <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html#ac07b5ef9024de43e63284aeebf4aca2b">nn::time::StandardUserSystemClock::now()</a>
+          </li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="3">
+        <p>ネットワーク時計</p>
+        <p>
+          <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a>
+        </p>
+      </td>
+      <td>
+        <p>時刻が取得できないことがあります。</p>
+        <p>&nbsp;</p>
+        <p>一度時刻を取得できたとしても、次回起動時に取得できなくなることがあります。</p>
+      </td>
+      <td>
+        <ul>
+          <li>「<a href="#Anchor_173242331_invalidate_network_clock">ネットワーク時計の無効化</a>」</li>
+          <li>「<a href="#Anchor_173242331_disable_network_clock_auto_correction">システムによる自動的なネットワーク時計の補正処理の無効化</a>」</li>
+          <li>「<a href="#Anchor_173242331_reset_steady_clock">単調増加クロックのリセット</a>」</li>
+        </ul>
+      </td>
+      <td rowspan="3">
+        <ul>
+          <li>
+            <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime()</a>
+          </li>
+          <li>
+            <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#ad1008fc4eb012f704f5ebf19502a1092">nn::time::StandardNetworkSystemClock::now()</a>
+          </li>
+        </ul>
+        <br />
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>デバイス起動中、「取得できない状態」から「取得できる状態」に遷移することがあります。</p>
+        <p>&nbsp;</p>
+        <p>
+          <strong>逆方向の遷移はデバイス起動中には起こりません。&nbsp;</strong>
+        </p>
+      </td>
+      <td>
+        <ul>
+          <li>「<a href="#Anchor_173242331_invalidate_network_clock">ネットワーク時計の無効化</a>」</li>
+        </ul>
+        <p>&nbsp;</p>
+        <p>アプリケーションの起動中に LAN ケーブルを挿すなどして、ネットワークを利用できない状態から利用できる状態へ遷移させることで、システムによる自動補正が行われます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>アプリケーション起動中においても、巻き戻りや、非連続的な進みが発生することがあります。</p>
+      </td>
+      <td>
+        <ul>
+          <li>「<a href="#Anchor_173242331_set_network_clock_datetime">任意の時刻をネットワーク時計に設定</a>」</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1 id="Anchor_173242331_h1_2">ネットワーク時計のテスト機能</h1>
+<p>ネットワーク時計 <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a> のテスト機能の解説です。</p>
+<h2 id="Anchor_173242331_h2_1">
+  <a name="Anchor_173242331_disable_network_clock_auto_correction"></a>システムによる自動的なネットワーク時計の補正処理の無効化</h2>
+<p>システムによる自動的なネットワーク時計の補正処理を無効化、有効化することができます。</p>
+<p>例えば、デバイスがネットワークに接続できるが、ネットワーク時計が補正されていないケースをテストすることができます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>システムによる自動的なネットワーク時計の補正処理を無効化するだけであり、補正済のネットワーク時計を未補正の状態には戻しません。</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_1">設定方法</h3>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;で以下の赤枠のチェックボックスで設定してください。チェックされていると有効、されていないと無効です。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_173242331/174064635.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;でも設定可能です。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>設定を反映させるには、システムのリセットが必要です</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_2">テスト手順例</h3>
+<ol>
+  <li>システムによるネットワーク時計の自動補正の無効化を行う。</li>
+  <li>すでにネットワーク時計が有効であれば、ネットワーク時計の無効化を行う。（後述）</li>
+  <li>システムのリセットを行う。</li>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime</a> 関数が失敗します。このときのシーケンスをテストしてください。</li>
+  <li>アプリケーションにてネットワークに接続し、ネットワーク時計の補正処理をシステムへ要求する。<br />※<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_async_ensure_network_clock_availability_task.html">nn::time::AsyncEnsureNetworkClockAvailabilityTask</a> クラス、および <a href="../../../Api/HtmlNX/namespacenn_1_1time.html#af67800badb90c468f5ef39abb9250fdc">nn::time::EnsureNetworkClockAvailability</a> 関数を利用します。</li>
+  <li>補正処理完了まで待機し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime</a> 関数が成功を返すようになります。このときのシーケンスをテストしてください。<br />※ネットワーク状況によっては補正処理が失敗します。このケースは補正処理完了までに LAN ケーブル抜き等を行うことで確認可能です。</li>
+</ol>
+<h2 id="Anchor_173242331_h2_2">
+  <a name="Anchor_173242331_invalidate_network_clock"></a>ネットワーク時計の無効化</h2>
+<p>ネットワーク時計の時刻取得&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime</a> が失敗する状態にすることができます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>ネットワーク時計を無効化した状態を維持するには、「システムによるネットワーク時計の自動補正の無効化」を事前に行ってください。<br />そうしない場合、ネットワークが利用可能な場合に自動的にネットワーク時計が補正される可能性があります。&nbsp;</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_3">設定方法</h3>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;で以下の赤枠のボタンを押して設定ください。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_173242331/174064638.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;でも設定可能です。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>設定を反映させるには、システムのリセットが必要です</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_4">テスト手順例</h3>
+<ol>
+  <li>デバイスがネットワークに接続できない状態にする。<br />※例えば、デバイスに有線接続のみを設定し、LAN ケーブルを抜いておきます。</li>
+  <li>ネットワーク時計を無効化する。</li>
+  <li>システムのリセットを行う。</li>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime</a> 関数が失敗します。その時のシーケンスをテストしてください。</li>
+  <li>デバイスがネットワークに接続できる状態にする。<br />※有線接続を設定しており、LAN ケーブルを抜いてる場合には、LAN ケーブルを挿す。</li>
+  <li>システムが自動的にネットワーク時計の補正を行い、自動的に&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime</a> 関数が成功を返すようになります。その時のシーケンスをテストしてください。</li>
+</ol>
+<h2 id="Anchor_173242331_h2_3">
+  <a name="Anchor_173242331_set_network_clock_datetime"></a>任意の時刻をネットワーク時計に設定</h2>
+<p>ネットワーク時計 <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a> の時刻を、任意の時刻に設定することができます。</p>
+<p>例えば、あるネットワーク時刻を過ぎると発生するゲーム内イベント等のテストの補助や、ネットワーク時計が巻き戻った挙動のテストを行うことができます。</p>
+<h3 id="Anchor_173242331_h3_5">設定方法</h3>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;で以下の赤枠のボタンを押して設定してください。<br />右の日時設定で日時をずらし、左の「Commit New Date-Time」ボタンを押すことで日時設定が即座にデバイスへ反映されます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_173242331/174064642.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;でも設定可能です。</p>
+<p>なお、システムのリセットは不要です。</p>
+<h3 id="Anchor_173242331_h3_6">テスト手順例</h3>
+<ol>
+  <li>ネットワーク時計を任意の時刻に設定する。</li>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html#a75e6450e1746922b7794116c49388ac2">nn::time::StandardNetworkSystemClock::GetCurrentTime</a> 関数で現在時刻を取得し、&nbsp;1. で設定した時刻を過ぎると発生するイベントを確認する。</li>
+  <li>DevMenu に切り替え、 1. で設定したネットワーク時計の時刻から、3分巻き戻った時刻を設定する。<br />※DevMenu へはアプリケーション起動中にも切り替えることができます。</li>
+  <li>アプリケーションに切り替え、もう一度 1. で設定したイベント発生時刻に到達するまで待機します。その時のアプリケーションの挙動が意図通りかテストしてください。</li>
+</ol>
+<h1 id="Anchor_173242331_h1_3">単調増加クロックのテスト機能</h1>
+<p>単調増加クロック&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html">nn::time::StandardSteadyClock</a> のテスト機能の解説です。</p>
+<h2 id="Anchor_173242331_h2_4">
+  <a name="Anchor_173242331_reset_steady_clock"></a>単調増加クロックのリセット</h2>
+<p>単調増加クロックが指し示す値を強制的にリセットすることができます。<br />これにより、単調増加クロックへの電源供給が途絶えた時の挙動をテストすることができます。</p>
+<p>例えば、デバイスの電源断やアプリケーションのシャットダウンをまたいで、ある一定時間が経過したときにだけ発生するゲーム内イベント等のハンドリングにて、経過時間が計算できない場合のテストを行うことができます。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>この操作は以下の影響を及ぼします。</p>
+    <ul>
+      <li>
+        <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_user_system_clock.html">nn::time::StandardUserSystemClock</a> が指し示す時刻は初期値に戻る。</li>
+      <li>
+        <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_network_system_clock.html">nn::time::StandardNetworkSystemClock</a> は未補正の状態に戻る。</li>
+      <li>このリセットをまたいだ <a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a> 同士は、経過時間を計算することができません。<br />※<span class="ApiLink_nn__time__GetSpanBetween">nn::time::GetSpanBetween</span> 関数が失敗を返します。</li>
+    </ul>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_7">設定方法</h3>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;で以下の赤枠のボタンで設定してください。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_173242331/174064650.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;でも設定可能です。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>設定を反映させるには、システムのリセットが必要です</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_8">テスト手順例</h3>
+<ol>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html#aaa969aa98d8e6c911a49fb6f3df7f97d">nn::time::StandardSteadyClock::GetCurrentTimePoint</a> 関数で得られる&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a> (A) をセーブデータ等に永続化する。</li>
+  <li>単調増加クロックをリセットする。</li>
+  <li>システムのリセットを行う。</li>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html#aaa969aa98d8e6c911a49fb6f3df7f97d">nn::time::StandardSteadyClock::GetCurrentTimePoint</a> 関数でその時点の&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a> (B) を得る。</li>
+  <li>(A) と (B) の&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a> 同士の経過時間を <span class="ApiLink_nn__time__GetSpanBetween">nn::time::GetSpanBetween</span> 関数で計算すると失敗します。その時のシーケンスをテストしてください。</li>
+</ol>
+<h2 id="Anchor_173242331_h2_5">単調増加クロックの値にオフセットを追加する</h2>
+<p>単調増加クロック <a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html">nn::time::StandardSteadyClock</a>&nbsp;が指し示す値を任意の時間進めることができます。</p>
+<p>この操作をまたいだ &nbsp;<a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a> 同士の経過時間計算は、追加したオフセット分増加します。<br />※経過時間の計算には <a href="../../../Api/HtmlNX/namespacenn_1_1time.html#a029976fde1c33e311557957f3fc57a6b">nn::time::GetSpanBetween</a> 関数を利用します。&nbsp;</p>
+<p>例えば、デバイスの電源断やアプリケーションのシャットダウンをまたいで、ある一定時間が経過したときにだけ発生するゲーム内イベントのテストを補助します。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>単調増加クロックがデバイスの起動中に巻き戻ることはありません。<br />進めた時間を無くしたい場合は「単調増加クロックのリセット」を利用してください。&nbsp;</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_9">設定方法</h3>
+<p>
+  <a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;で以下の赤枠のボタンで設定してください。<br />進める時間は累積で溜まっていき、「Total offset: XXXX」という具合に画面表示されます。 一度増やしたオフセット値を減らすことはできないので注意してください。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_173242331/174064653.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;でも設定可能です。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>設定を反映させるには、システムのリセットが必要です</p>
+  </div>
+</div>
+<h3 id="Anchor_173242331_h3_10">テスト手順例</h3>
+<ol>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html#aaa969aa98d8e6c911a49fb6f3df7f97d">nn::time::StandardSteadyClock::GetCurrentTimePoint</a> 関数で得られる <a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a>&nbsp;(A) をセーブデータ等に永続化する。</li>
+  <li>単調増加クロックを任意の時間進める。</li>
+  <li>システムのリセットを行う。</li>
+  <li>アプリケーションを起動し、<a href="../../../Api/HtmlNX/classnn_1_1time_1_1_standard_steady_clock.html#aaa969aa98d8e6c911a49fb6f3df7f97d">nn::time::StandardSteadyClock::GetCurrentTimePoint</a> 関数でその時点の <a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a>&nbsp;(B) を得る</li>
+  <li>(A) と (B) の <a href="../../../Api/HtmlNX/structnn_1_1time_1_1_steady_clock_time_point.html">nn::time::SteadyClockTimePoint</a>&nbsp;同士の経過時間を <a href="../../../Api/HtmlNX/namespacenn_1_1time.html#a029976fde1c33e311557957f3fc57a6b">nn::time::GetSpanBetween</a> 関数で計算すると、実際の経過時間よりもさらに任意の時間進めた経過時間が返ります。その時のシーケンスをテストしてください。</li>
+</ol>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__time__GetSpanBetween', '../../../Api/HtmlNX/namespacenn_1_1time.html#a029976fde1c33e311557957f3fc57a6b' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

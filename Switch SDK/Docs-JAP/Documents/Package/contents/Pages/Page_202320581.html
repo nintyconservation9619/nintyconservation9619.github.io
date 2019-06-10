@@ -1,0 +1,783 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ツールマニュアル</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ツールマニュアル -->
+<div class="pagetitle" id="PageId_202320581">ツールマニュアル</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_202320581_h1_1">はじめに</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_202320581_h2_1">概要</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_202320581_h1_2">利用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_202320581_h2_2">実行方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_3">コマンドオプション</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_202320581_h1_3">NX 向けシェーダへ変換する際の注意点</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_202320581_h2_4">行列の定義の違い</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_5">DirectX エフェクトファイルの対応</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_6">シェーダ間のパラメータの受け渡し</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_7">Uniform 変数のバインディング</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_8">Attribute のバインディングとコンフィグファイル</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_9">バッチ処理</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_10">エフェクトファイルのバッチ処理</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_11">UniformBlock 内のロケーションのバインディング</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_12">UniformBlock のバインディングとコンフィグファイル</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_13">コンフィグファイルによるサンプラタイプの指定</a>
+      </li>
+      <li>
+        <a href="#Anchor_202320581_h2_14">GLSL テクスチャサンプラ</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_202320581_h1_1">はじめに</h1>
+<h2 id="Anchor_202320581_h2_1">概要</h2>
+<p>SLConverter を利用するための手順を説明します。</p>
+<h1 id="Anchor_202320581_h1_2">利用方法</h1>
+<h2 id="Anchor_202320581_h2_2">実行方法</h2>
+<p>ツールは以下のように呼び出します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SlConverter.exe [options] input-filename</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul style="list-style-type: square;">
+  <li>input-filename は変換元となる HLSL シェーダファイルです。</li>
+  <li>*.fx , *.hlsl 等のようにワイルドカードも利用することが出来ます。</li>
+  <li>オプションは大文字、小文字を識別します。</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>SlConverter.exe は以下のディレクトリに配置されています。</p>
+    <p>$NINTENDO_SDK_ROOT/Tools/Graphics/GraphicsTools/SlConverter.exe</p>
+  </div>
+</div>
+<h2 id="Anchor_202320581_h2_3">
+  <br />コマンドオプション</h2>
+<p>オプションには以下のものがあり、複数のオプションを同時に指定することが可能です。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>オプション名</th>
+      <th>
+        <p>説明</p>
+      </th>
+    </tr>
+    <tr>
+      <td>-b</td>
+      <td>GLSL のユニフォームのバインディング機能を無効にします。(デフォルトでは有効です。)</td>
+    </tr>
+    <tr>
+      <td>-c &lt;コンフィグファイル名&gt;</td>
+      <td>コンフィグファイル名を指定します。 (デフォルトではコンフィグファイルは利用しません。)</td>
+    </tr>
+    <tr>
+      <td>-D &lt;マクロ名&gt;</td>
+      <td>
+        <p>プリプロセッサのマクロを定義します。オプションで値を与えることも可能です。</p>
+        <p>
+          <br />
+        </p>
+        <ul style="list-style-type: square;">
+          <li>値なしの例: -D MYDEFINE</li>
+          <li>値をつける例: -D MYDEFINE=10</li>
+        </ul>
+        <p>
+          <br />
+        </p>
+        <p>複数のマクロを定義したい時は、個別に -D オプションを追記する必要が有ります。</p>
+        <p>例: -D MYDEFINE1 -D MYDEFINE2=3</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-e &lt;メイン関数名&gt;</td>
+      <td>シェーダのメインとなる関数名を指定します。</td>
+    </tr>
+    <tr>
+      <td>-s &lt;vs, ps&gt;</td>
+      <td>
+        <p>シェーダのタイプを指定します。以下のいずれか1つを指定してください。</p>
+        <ul style="list-style-type: square;">
+          <li>vs : 頂点シェーダ</li>
+          <li>ps : ピクセルシェーダ</li>
+        </ul>
+        <p>デフォルトでは vs が有効になっています。</p>
+        <p>
+          <br />
+        </p>
+        <p>シェーダモデルも以下のように指定することが可能です。</p>
+        <ul style="list-style-type: square;">
+          <li>vs_3_0 : 頂点シェーダ (シェーダモデル 3.0)</li>
+          <li>vs_4_0 : 頂点シェーダ (シェーダモデル 4.0)</li>
+          <li>vs_5_0 : 頂点シェーダ (シェーダモデル 5.0)</li>
+          <li>ps_3_0 : ピクセルシェーダ (シェーダモデル 3.0)</li>
+          <li>ps_4_0 : ピクセルシェーダ (シェーダモデル 4.0)</li>
+          <li>ps_5_0 : ピクセルシェーダ (シェーダモデル 5.0)</li>
+        </ul>
+        <p>シェーダモデルが指定されていない時は、デフォルトでシェーダモデル 3.0 として変換されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-i</td>
+      <td>頂点シェーダからピクセルシェーダに渡される varying の変数名を元の HLSL シェーダの semantic 名を利用します。</td>
+    </tr>
+    <tr>
+      <td>-I &lt;インクルードのディレクトリ名&gt;</td>
+      <td>
+        <p>シェーダのコンパイル時にインクルードされるファイルのディレクトリを指定します。</p>
+        <p>複数のディレクトリを指定したい場合は &quot;;&quot; で分けることが可能です。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-h</td>
+      <td>ヘルプ用のメッセージを表示します。</td>
+    </tr>
+    <tr>
+      <td>-l</td>
+      <td>Varying 変数のロケーション指定を無効にします。 (デフォルトでは有効です。)</td>
+    </tr>
+    <tr>
+      <td>-m</td>
+      <td>行列の &quot;mul&quot; オペレーションの順番を入れ替える事を無効化します。 (デフォルトでは有効です。)</td>
+    </tr>
+    <tr>
+      <td>-o &lt;出力される GLSL ファイル名&gt;</td>
+      <td>
+        <p>出力されるファイル名を指定します。 (デフォルトではインプットのファイル名に拡張子を .glsl にしたものが出力されます。)</p>
+        <p>
+          <br />
+        </p>
+        <p>出力ファイルのパターン指定も可能です。</p>
+        <p>$0 = Input hlsl filename without extension.</p>
+        <p>$1 = Shader method name</p>
+        <p>$2 = Directory of input hlsl file</p>
+        <p>
+          <br />
+        </p>
+        <p>例えば、$0_$1.glsl を指定し sample.fx の MainVS というシェーダをコンバートした時は、</p>
+        <p>出力ファイル名が sample_MainVS.glsl になります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-p</td>
+      <td>ピクセルシェーダ内のテクスチャ座標 (semantic が TEXCOORD) を gl_PointCoord として利用するようにします。</td>
+    </tr>
+    <tr>
+      <td>-v &lt;GL,None&gt;</td>
+      <td>
+        <p>変換されたシェーダを確認用にコンパイルします。以下のいずれか1つを指定してください。</p>
+        <ul style="list-style-type: square;">
+          <li>GL : 標準の GLSL コンパイラを使用します。</li>
+          <li>None: 確認用のコンパイルはしません。</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>-t</td>
+      <td>
+        <p>マルチスレッドを使い複数のシェーダのコンパイルを並列処理します。 (デフォルトでは無効です。)</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-V &lt;true,false&gt;</td>
+      <td>ログメッセージを表示するか指定します。 (デフォルトでは有効です。)</td>
+    </tr>
+    <tr>
+      <td>-r</td>
+      <td>ファイル検索を回帰的に行います。 (デフォルトでは無効です。)</td>
+    </tr>
+    <tr>
+      <td>-n</td>
+      <td>変換されたシェーダをコンパイルしません。</td>
+    </tr>
+    <tr>
+      <td>-z</td>
+      <td>z の Projection 空間が [-1,1] から [0,1] になるように 頂点シェーダで変換するコードが生成されます。</td>
+    </tr>
+    <tr>
+      <td>--builtin &lt;VALUE&gt;</td>
+      <td>
+        <p>指定した関数名が GLSL に変換された時に変換されず、そのままの名前で出力されます。</p>
+        <p>
+          <br />
+        </p>
+        <p>例: --builtin &quot;float4 texture4(sampler xxx,float2 pos);&quot;</p>
+        <p>上記の例だと、HLSL 内で定義された texture4 という関数は GLSL に変換される際にその関数は無視され</p>
+        <p>GLSL に既にある関数として出力されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>@ &lt;リストファイル&gt;</td>
+      <td>
+        <div class="content-wrapper">
+          <p>コンバートしたいファイルのリストを列挙したファイルを指定します。</p>
+          <p>
+            <br />
+          </p>
+          <p>例えば以下のコマンドを入力し、</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>SlConverter.exe @listfile.txt</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <br />
+          </p>
+          <p>listfile.txt が以下のように記述されていた場合</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>MyShader1.hlsl#main#vs#MyShader.glsl
+MyEffect.fx</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>以下のコマンドと同じ効果が得られます。プロセスを余分に立ち上げない分、高速に処理することが可能です。</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>SlConverter.exe MyShader1.hlsl -e main -s vs -o MyShader.glsl
+SlConverter.exe MyEffect.fx</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>--maptype NAME=TYPE</td>
+      <td>
+        <p>NAMEで指定されたサンプラを特定のサンプラタイプに強制的に変換します。</p>
+        <p>
+          <br />
+        </p>
+        <p>例: --maptype ShadowSampler=sampler2DShadow</p>
+        <p>
+          <br />
+        </p>
+        <p>上記のようなオプションをつけると SHadowSampler という名前のサンプラが GLSL に変換される際に</p>
+        <p>uniform sampler2DShadow ShadowSampler;</p>
+        <p>というように変換されます。 (通常は sampler2D になります。)</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-savegsh</td>
+      <td>コンパイルされた結果のバイナリを gsh ファイルに出力します。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_202320581_h1_3">
+  <br />NX 向けシェーダへ変換する際の注意点</h1>
+<h2 id="Anchor_202320581_h2_4">行列の定義の違い</h2>
+<p>HLSL では、 float4x4 等の行列定義は「列 x 行」ですが、GLSL では「行 x 列」になります。</p>
+<p>単純に列と行の書き方を変えただけでは、 Explicit unform binding 機能等を使っていると binding のインデックスがずれてしまいます。</p>
+<p>SLConverter では、変換する際に行列とベクトルの計算の順番を入れ替えることで、アプリ側での行列設定を変えずに済むようにしています。</p>
+<p>また、 -m オプションを利用することで順番の入れ替えを無効にすることも可能です。</p>
+<h2 id="Anchor_202320581_h2_5">DirectX エフェクトファイルの対応</h2>
+<p>DirectX にはエフェクトファイルと呼ばれるものが存在し、テクニックや描画のパスごとに使うシェーダやコンパイル等を変えることが可能です。</p>
+<p>OpenGL には基本、このようなシステムはありません。</p>
+<p>SLConverter では DirectX のエフェクトファイルにも対応しています。入力ファイルが .fx ファイルの場合は、エフェクトファイルに記載されている各テクニック、各パスごとに利用するシェーダを別ファイルに分けて変換します。</p>
+<h2 id="Anchor_202320581_h2_6">シェーダ間のパラメータの受け渡し</h2>
+<p>HLSL では、シェーダ間のパラメータの受け渡しは Semantic によって為されています。</p>
+<p>GLSL では、Semantic に相当する機能が無く、名前で解決しています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>struct VSOut
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float2 texCoord : TEXCOORD0;
+};
+
+VSOut VS_Main(...)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;VSOut Out;
+&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;return Out;
+}
+
+struct PSIn
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float2 uv : TEXCOORD0;
+};
+
+float4 PS_Main( PSIn In ) : COLOR
+{
+&nbsp;&nbsp;&nbsp;&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;:
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記の HLSL の例では、 VSOut の texCoord と PSIn の uv は変数名こそ違いますが、同じ Semantic なので受け渡しが解決されます。</p>
+<p>GLSL には Semantic と同じ概念がなく、 varying (または in, out)の変数名を同じにする必要があります。</p>
+<p>SLConverter では、 -i オプションを使うことにより、オリジナルの HLSL についていた Semantic を見て変数のロケーションを割り当てることが可能です。</p>
+<p>そのため、VertexShader と PixelShader で名前が違っていても Semantic が同じであれば正しく受け渡しが出来るように GLSL が出力されます。</p>
+<h2 id="Anchor_202320581_h2_7">Uniform 変数のバインディング</h2>
+<p>HLSL では Uniform 変数の割り当てを明示的に行うことが出来ます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>float4x4 u_modelMtx : WORLD : register(c0)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>GLSL には元来このような機能はありませんが、GLSL では Uniform のロケーションを明示的に指定する拡張機能が存在します。</p>
+<p>SLConverter ではデフォルトでその拡張機能が使えるようにシェーダが変換されます。</p>
+<p>-b オプションで無効にすることも可能です。</p>
+<p>HLSL では Uniform の割り当てを一部だけの変数にしてもかまいませんが、NX の GLSL では Uniform の割り当てを使用するときは全ての Uniform に対して行わなければなりません。</p>
+<p>SLConverter では HLSL から GLSL に変換する際、元の HLSL で明示的にレジスタ番号が指定されていない変数がある場合、自動的に空いているレジスタ番号を割り当てることで解決しています。</p>
+<h2 id="Anchor_202320581_h2_8">Attribute のバインディングとコンフィグファイル</h2>
+<p>HLSL では VertexShader のインプットとアプリ側から設定する頂点データとバインディングは Semantic によって為されますが、GLSL ではそのようなシステムはありません。</p>
+<p>SLConverter ではコンフィグファイルを利用し、元 HLSL の頂点インプットを変換後の GLSL のどの Attribute に割り当てるのかを明示的に指定させることが可能です。</p>
+<p>コンフィグファイルは XML 形式で以下のようなフォーマットになっています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;config&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;layout semantic=&quot;POSITION&quot; name=&quot;a_Position&quot; location=&quot;0&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;layout semantic=&quot;POSITION0&quot; name=&quot;a_Position0&quot; location=&quot;0&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;layout semantic=&quot;TEXCOORD&quot; name=&quot;a_TexCoord&quot; location=&quot;5&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;layout semantic=&quot;TEXCOORD0&quot; name=&quot;a_TexCoord0&quot; location=&quot;5&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;layout semantic=&quot;TEXCOORD1&quot; name=&quot;a_TexCoord1&quot; location=&quot;6&quot; /&gt;
+&lt;/config&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&lt;config&gt; エレメントがルートにあり、その下に &lt;layout&gt; のエレメントをつけることが可能です。(複数指定することが可能です。)</p>
+<p>&lt;layout&gt; エレメントでは以下のような Attribute を指定します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>アトリビュート名</th>
+      <th>
+        <p>説明</p>
+      </th>
+    </tr>
+    <tr>
+      <td>semantic</td>
+      <td>元 HLSL での頂点インプットの semantic です。</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>変換後の GLSL 上のアトリビュートの名前です。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>location</p>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>変換後の GLSL 上のアトリビュートのロケーションです。</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>&lt;layout semantic=&quot;POSITION&quot; name=&quot;a_Position&quot; location=&quot;0&quot; /&gt;</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>上記のコンフィグが設定された場合、元 HLSL で POSITION の semantic が与えられている頂点インプットは変換後の GLSL では</p>
+          <p>a_Position という名前でロケーションは 0 の位置でバインディングされるアトリビュートになります。</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>locationString</td>
+      <td>
+        <div class="content-wrapper">
+          <p>変換後の GLSL 上のアトリビュートのロケーションです。</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>&lt;layout semantic=&quot;POSITION&quot; name=&quot;a_Position&quot; locationString=&quot;LOCATION_POSITION&quot; /&gt;</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>上記のコンフィグが設定された場合、変換されたシェーダでは以下のように出力されます。</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>layout(location = LOCATION_POSITION) in vec4 a_Position;</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>locationString にて文字列を指定した場合、SLConverter 実行時の GLSLコンパイルチェックにおいてエラーが発生します。</p>
+          <p>これは、GLSL への変換は行われていますが、指定した「文字列」の解決が行われていないことによります。</p>
+          <p>
+            <br />
+          </p>
+          <p>ユーザ側で #version や #extension の後に以下の記述を行うことを想定しています。</p>
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre>#define LOCATION_POSITION 0</pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>これにより、ユーザ側の C++のコードとシェーダ側でロケーションの整合性を取る仕様にすることが可能です。</p>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_202320581_h2_9">バッチ処理</h2>
+<p>プロジェクトによっては数百、数千の HLSL を GLSL に変換することがあるかもしれません。</p>
+<p>それらをファイルごとにコマンドを打ち込んでコンバートさせるのは非常に手間がかかるので、SLConverter ではインプットのファイル名にワイルドカードを指定してバッチ処理させることが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SlConverter *.hlsl</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記のように呼び出すことで、拡張子が .hlsl のファイル全てに対して変換をかけることが可能です。</p>
+<p>また、大量のファイルを処理するときに変換時間を短縮させるため以下のように、 -t オプションをつけマルチスレッドを使い並列処理をさせることで変換時間を大幅に短縮させることが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SlConverter -t *.hlsl</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ディレクトリを回帰的に検索したい場合は、 -r オプションをつけることで可能です。</p>
+<p>またはファイル名に ** をつけることでも可能になります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SlConverter -r *.hlsl
+SlConverter **.hlsl</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記の例ではいずれもファイルを回帰的に検索し hlsl の拡張子が付いたファイル全てに変換をかけます。</p>
+<h2 id="Anchor_202320581_h2_10">エフェクトファイルのバッチ処理</h2>
+<p>メインのエントリー関数が指定されていない場合、また入力ファイルが DirectX のエフェクトファイル形式の時はファイルに記載されている各テクニック、各パス毎に使われるシェーダを別ファイルに分けて変換されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// sample.fx
+Technique Tech0
+{
+&nbsp;&nbsp;&nbsp;&nbsp;Pass Pass0
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VertexShader = compile vs_1_1 Tech0_VS();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PixelShader  = compile ps_1_1 Tech0_PS();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+Technique Tech1
+{
+&nbsp;&nbsp;&nbsp;&nbsp;Pass Pass1
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VertexShader = compile vs_1_1 Tech1_VS();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PixelShader = compile ps_1_1 Tech1_PS();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記のようなエフェクトファイル (sample.fx) を指定した場合は以下のファイルが出力されます。</p>
+<ul style="list-style-type: square;">
+  <li>Sample_Tech0_VS.glsl</li>
+  <li>Sample_Tech0_PS.glsl</li>
+  <li>Sample_Tech1_VS.glsl</li>
+  <li>Sample_Tech1_PS.glsl</li>
+</ul>
+<p>
+  <br />
+</p>
+<p>また1つのファイルから任意のシェーダを任意のファイルに出力することも出来ます。(複数指定も可能です。)</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;Filename&gt;#&lt;entrypoint&gt;#&lt;stage&gt;#&lt;出力先ファイル&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>の順番で # ごとに区切りをつけることで、一括で複数のシェーダを変換できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SlConverter.exe sample.fx#SimpleVS#vs#vs.glsl sample.fx#SimplePS#ps#ps.glsl</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記コマンドは以下のように二回実行したものと同じ結果を得られます。一括で処理を行っているため処理速度が速くなります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SlConverter.exe sample.fx -e SimpleVS -s vs -o vs.glsl
+SlConverter.exe sample.fx -e SimplePS -s ps -o ps.glsl</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_202320581_h2_11">UniformBlock 内のロケーションのバインディング</h2>
+<p>HLSL では以下のようにコンスタントバッファ内の各変数にオフセット地を明示的に与えることが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>cbuffer cbChangesEveryFrame
+{
+&nbsp;&nbsp;&nbsp;&nbsp;matrix World : packoffset(c0);
+&nbsp;&nbsp;&nbsp;&nbsp;float hoge : packoffset(c4.x);
+&nbsp;&nbsp;&nbsp;&nbsp;float4 vMeshColor : packoffset(c5);
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>変換された GLSL は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>uniform cbChangesEveryFrame {
+&nbsp;&nbsp;&nbsp;&nbsp;layout(location = 0) mat4 World ;
+&nbsp;&nbsp;&nbsp;&nbsp;layout(location = 64) float hoge ;
+&nbsp;&nbsp;&nbsp;&nbsp;layout(location = 80) vec4 vMeshColor ;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ただし注意点として HLSL では以下のように1レジスタの中間部分だけを指定する事が可能ですが、GLSL では指定することは出来ないため SLConverter でも対応していません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>cbuffer cbChangesEveryFrame
+{
+&nbsp;&nbsp;&nbsp;&nbsp;matrix World : packoffset(c0);
+&nbsp;&nbsp;&nbsp;&nbsp;float hoge : packoffset(c4.y);
+&nbsp;&nbsp;&nbsp;&nbsp;float4 vMeshColor : packoffset(c5);
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記のコードのような場合は、元の HLSL を書き換える必要があります。</p>
+<h2 id="Anchor_202320581_h2_12">UniformBlock のバインディングとコンフィグファイル</h2>
+<p>SLConverter ではコンフィグファイルを用いて、元 HLSL の ConstantBuffer のロケーションを変換後の GLSL のどのロケーションに割り当てるかを明示的に指定させることが可能です。</p>
+<p>以下のようにコンフィグファイルが設定されていた場合</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;config&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;cbuffer register=&quot;colors&quot; binding=&quot;COLORS&quot; /&gt;
+&lt;/config&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>cbuffer cbColors : register( colors )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float4 color0;
+&nbsp;&nbsp;&nbsp;&nbsp;float4 color1;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>以下のような GLSL に変換されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>layout(binding = COLORS) uniform cbColors {
+&nbsp;&nbsp;&nbsp;&nbsp;vec4 color0;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4 color1;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&quot;COLORS&quot; はユーザアプリ側で #define 等で設定されることを想定しています。</p>
+<h2 id="Anchor_202320581_h2_13">コンフィグファイルによるサンプラタイプの指定</h2>
+<p>コンフィグファイルに以下のような記述がなされていると、特定のサンプラを強制的に任意のタイプへ変換することが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;map name=&quot;shadowSampler&quot; type=&quot;sampler2DShadow&quot; /&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記の設定を行った場合、名前が &quot;shadowSampler&quot; というサンプラが HLSL にあると GLSL に変換する際、以下のように変換されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>uniform sampler2DShadow shadowSampler;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>コマンドオプションの -maptype でも同じ設定が可能です。</p>
+<h2 id="Anchor_202320581_h2_14">GLSL テクスチャサンプラ</h2>
+<p>HLSL で使用されているテクスチャオブジェクトとサンプラステートの組み合わせによって、 GLSL テクスチャサンプラが割り当てられます。</p>
+<p>GLSL のテクスチャサンプラ名は、 HLSL の &lt;テクスチャオブジェクト名&gt;_&lt;サンプラステート名&gt; として決定されます。</p>
+<p>HLSL テクスチャオブジェクトに register キーワードによる t# のテクスチャ割り当てが行われている場合、同一インデックスの OpenGL テクスチャユニットへの割り当てを &quot;Opaque-Uniform Layout Qualifiers (binding)&quot; によって行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Texture2D &lt;float4&gt; tTex2d0;
+Texture2D &lt;float4&gt; tTex2d1 : register(t1);
+SamplerState sSampler0;
+{
+&nbsp;&nbsp;float4 col0 = tTex2d0.Sample(sSampler0,texcoord);
+&nbsp;&nbsp;float4 col1 = tTex2d1.Sample(sSampler0,texcoord);
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記のように HLSL で定義されていた場合、以下の GLSL に変換されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>uniform sampler2D tTex2d0_sSampler0;
+layout(binding = 1) uniform sampler2D tTex2d1_sSampler0;
+{
+&nbsp;&nbsp;vec4 col0 = texture(tTex2d0_sSampler0, texcoord);
+&nbsp;&nbsp;vec4 col1 = texture(tTex2d1_sSampler0, texcoord);
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>ATOMS</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    ATOMS : Atomic Operation on Shared Memory<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Atomic Operation on Shared Memory" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ATOMS", subsection => 7 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOMS</b>.op{.sz}</code>            <code>Rd, [Ra + ImmS24], Rb</code>       <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Operation</code>           </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOMS" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOMS</b><b>.CAS</b>{.sz}</code>           <code>Rd, [Ra + ImmS24], Rb, Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Swap</code>    </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOMS" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOMS</b><b>.CAST{.SPIN}</b>{.sz}</code>   <code>Rd, [Ra + ImmS24], Rb, Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Store</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOMS" } -->
+
+    Omit register Ra to specify an absolute address:
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOMS</b>.op{.sz}</code>            <code>Rd, [ImmU24], Rb</code>            <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Operation</code>           </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOMS" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOMS</b><b>.CAS</b>{.sz}</code>           <code>Rd, [ImmU24], Rb, Rc</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Swap</code>    </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOMS" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOMS</b><b>.CAST{.SPIN}</b>{.sz}</code>   <code>Rd, [ImmU24], Rb, Rc</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Store</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOMS" } -->
+
+    .op:    { <b>.ADD, .MIN, .MAX, .INC, .DEC, .AND, .OR, .XOR, .EXCH</b>}      Operation
+    .sz:    { <b>.U32*, .S32, .U64</b> }                                        Typed bit size of memory and Rd
+            <b>.32 is also accepted and aliases to .U32</b>
+            <b>.64 is also accepted and aliases to .U64</b>
+
+          --------------------------------------------------------------------------------<b>
+                             Supported Atomic Operations
+          .op    .sz                    Description,  M is [Ra + Imm24]                   </b>
+          --------------------------------------------------------------------------------
+          .ADD   .U32 .S32              Rd = M; M = M + Rb;
+          .MIN   .U32 .S32              Rd = M; M = min(M, Rb);
+          .MAX   .U32 .S32              Rd = M; M = max(M, Rb);
+          .INC   .U32                   Rd = M; M = (M &gt;= Rb) ? 0 : (M + 1);
+          .DEC   .U32                   Rd = M; M = (M == 0 || M &gt; Rb)? Rb : M - 1;
+          .AND   .U32 .S32              Rd = M; M = M &amp; Rb;
+          .OR    .U32 .S32              Rd = M; M = M | Rb;
+          .XOR   .U32 .S32              Rd = M; M = M ^ Rb;
+          .EXCH  .U32 .S32 .U64         Rd = M; M = Rb;
+          .CAS   .U32 .S32 .U64         Rd = M; if (M == Rb) M = Rc;
+          .CAST  .U32 .S32 .U64         if (M == Rb) { M = Rc; Rd = 1; } else { Rd = 0 }
+          ---------------------------------------------------------------------------------
+
+    .SPIN   "Fast fail" option.  Threads are put into groups, based on the shared memory
+            bank which contains the address they are trying to update.  One thread from
+            each group is selected to do its ATOMS.CAST (compare & store); all other threads
+            from that bank will immediately "fail", i.e. they will not attempt to do their
+            store, and will return 0.  For cases where multiple threads are expected to be
+            contending for the same address, this can be much faster than ATOMS.CAST (without
+            the .SPIN) or ATOMS.CAS, as the non-.SPIN cases may end up doing up to 32 passes,
+            once per thread, in order to let every thread attempt its compare-and-store or
+            compare-and-swap.
+
+    Encoding restrictions:
+        The low 2 bits of the ImmS24 or ImmU24 must always be zero.
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+<b>ATOMS.op</b> performs atomic operation <b>.op</b> with register Rb on
+shared memory, and returns the prior memory value to register Rd.</p>
+
+<p>
+The byte address is computed as the 32-bit addition of register Ra plus the
+immediate offset Imm24. When Ra is RZ (or not specified), then the Imm24 is
+zero-extended to 32 bits. When Ra is other than RZ, then the Imm24 is
+sign-extended to 32 bits, and added to Ra. The address must be within the
+16 MB shared memory window. The allocated per-CTA Shared sizes are set by the
+driver. <b>ATOMS</b> uses window-specific addressing, like <b>LDS</b> and <b>STS</b>.
+</p>
+
+<p>
+<b>ATOMS.op</b> combines register Rb with the specified shared memory location
+atomically, without intervening accesses to that memory location by other
+threads: </p>
+<pre>
+    satomic {                      // Atomic operation on shared memory location [Ra + Imm24]
+        .sz M = shmem[Ra + Imm24]; // Read memory location
+        Rd = M;                    // Return prior memory location value to register Rd
+        M = .op(M, Rb);            // Form atomic operation result value
+        shmem[Ra + Imm24] = M;     // Write memory location
+    }
+</pre>
+
+<p>
+<b>ATOMS.CAS</b> performs an atomic compare-and-swap operation on shared memory. 
+It requires one or more extra register(s) for the compare value, which are
+provided as Rc.</p>
+
+<p>
+{Rb,Rc} are expected to be consecutive registers, naturally aligned based on
+.sz. Specifically, in <b>ATOMS.CAS/.CAST.32</b>,
+Rb must be R2n+0(even register) and cannot be RZ, and Rc must be Rb+1 or RZ. 
+Similarly, for <b>ATOMS.CAS/.CAST.64</b>, Rb must be R4n+0 (and cannot be RZ)
+and Rc must be Rb+2 or RZ.</p>
+
+<p>Other atomic operations assemble the omitted Rc as RZ.   </p>
+
+<p>
+Any operations not supported natively are expected to be supported via an
+<b>ATOMS</b>.CAS or <b>ATOMS</b>.CAST or <b>ATOMS</b>.CAST.SPIN loops.
+<br>
+For example:
+</p>
+<pre>
+    // uint64 atomicMin
+    uint64_t atomicMin(uint64_t *address, uint64_t val)
+    {
+        uint64_t ret = *address;
+        while (val < ret)
+        {
+            uint64_t old = ret;
+            if ((ret = atomicCAS64(address, old, val)) == old)
+                break;
+        }
+        return ret;
+    }
+</pre>
+
+
+<p>
+<b>ATOMS</b> can only be used in compute shaders, as shared memory windows are
+not defined for other shader types.</p>
+
+<p>
+Memory addresses must be naturally aligned, on a byte address that is a
+multiple of the access size. Misaligned addresses cause a misaligned address
+error. An address outside an allocated memory region causes an address
+out-of-range error. </p> 
+
+<p>
+<b>ATOMS</b> interprets memory data in little-endian byte order: the effective
+address specifies the least-significant data bits.</p>  
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>ATOMS</b>.ADD.S32        R0, [R1 - 400], R9;
+<b>ATOMS</b>.MIN.U32        R0, [R4 + 8], R2;
+<b>ATOMS</b>.ADD.U32        R9, [0x10], R8;            # absolute 24-bit address
+<b>ATOMS</b>.CAS.U64        R0, [R4 + 8], R4, R6;      # R4 is Reg4 aligned, Rc=Rb+2
+<b>ATOMS</b>.CAST.SPIN.U32  R0, [R4 + 0x18], R4, R6;   # R4 is Reg4 aligned, Rc=Rb+2
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>

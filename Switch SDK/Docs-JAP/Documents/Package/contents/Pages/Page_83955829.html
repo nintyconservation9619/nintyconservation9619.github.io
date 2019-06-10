@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>サウンドパラメータ制御の動作</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- サウンドパラメータ制御の動作 -->
+<div class="pagetitle" id="PageId_83955829">サウンドパラメータ制御の動作</div>
+<div class="text_separate">
+<h1 id="Anchor_83955829_h1_1">サウンドパラメータ制御の動作</h1>
+<h2 id="Anchor_83955829_h2_1">サウンドパラメータの設定と制御</h2>
+<p>SoundMaker では、シーケンスサウンド、ストリームサウンド、ウェーブサウンドの各サウンドに対して、音量やピッチ、パンなどの各種サウンドパラメータを設定することができます。</p>
+<p>さらに Atk ライブラリでは、アプリケーションの実行中に、プレイヤー単位、アクター単位、サウンド単位で再生するサウンドの各種サウンドパラメータを制御することができます。</p>
+<p>このセクションでは、サウンドデザイナが SoundMaker で作成したサウンドに対して、アプリケーションの実行中に Atk ライブラリで行うサウンドパラメータ制御が、内部でどのように処理されているかを解説します。</p>
+<p>図 8 サウンドパラメータ制御、概念図</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956111/83080154.gif" class="embedded-image" />
+  </span>
+</p>
+<p>SoundMaker で各サウンドに設定された本来の値を DATA、Atk ライブラリで行われる制御の値は、プレイヤー単位を Player、アクター単位を Actor、サウンド単位を Sound と表記します。</p>
+<h2 id="Anchor_83955829_h2_2">動作仕様</h2>
+<p>各サウンドパラメータの制御は、乗算、加算、優先順位の 3 種類のうち何れかの処理方法で計算され、最終的なサウンドの再生に反映されます。</p>
+<p>ここでは、3 種類の処理方法ごとに、処理されるパラメータの種類と、その計算方法を解説します。</p>
+<h3 id="Anchor_83955829_h3_1">乗算</h3>
+<p>すべてのパラメータを、倍率として掛け合わせて、最終的なパラメータの値を決める処理方法です。</p>
+<p>音量、ピッチのパラメータは乗算で処理されます。</p>
+<p>乗算の処理では、最終的なパラメータの値に上限値と下限値が定められており、処理後にこれを超える時にはクランプされます。</p>
+<p>
+  <em>DATA &times; Player &times; Actor &times; Sound</em>
+</p>
+<h3 id="Anchor_83955829_h3_2">加算</h3>
+<p>すべてのパラメータを、0.0 を中心として加算（減算）して、最終的なパラメータの値を決める処理方法です。</p>
+<p>パン、サラウンドパン、LPF カットオフ周波数、メインセンド、エフェクトセンドのパラメータは加算で処理されます。</p>
+<p>加算の処理では、各パラメータに予め上限値と下限値が定められており、処理中にこれを超える時には、クランプされます。</p>
+<p>
+  <em>DATA ＋ Player ＋ Actor ＋ Sound</em>
+</p>
+<h3 id="Anchor_83955829_h3_3">優先順位</h3>
+<p>プレイヤー単位、サウンド単位など、制御を行う場所毎に優先順位を付け、この優先順に従ってパラメータの値を上書きで決める処理方法です。</p>
+<p>Biquad フィルタ設定は優先順位で処理されます。</p>
+<p>優先順位は、左から優先の高い順に、以下の並びになっています。</p>
+<p>
+  <em>Sound ＞ Player ＞ Actor ＞ DATA</em>
+</p>
+<h2 id="Anchor_83955829_h2_3">
+  <em>サウンドパラメータの種類と処理方法の対応一覧</em>
+</h2>
+<p>&nbsp;</p>
+<p>表 3 サウンドパラメータの種類と処理方法の対応一覧&nbsp;</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <td>
+        <p>
+          <strong>&nbsp;</strong>
+        </p>
+      </td>
+      <td colspan="3">
+        <p align="center">
+          <strong>SoundMaker (DATA)</strong>
+        </p>
+      </td>
+      <td colspan="3">
+        <p align="center">
+          <strong>Atk ライブラリ</strong>
+        </p>
+      </td>
+      <td>
+        <p>
+          <strong>&nbsp;</strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <strong>パラメータの種類</strong>
+        </p>
+      </td>
+      <td>
+        <p align="center">
+          <strong>STRM</strong>
+        </p>
+      </td>
+      <td>
+        <p align="center">
+          <strong>WSD</strong>
+        </p>
+      </td>
+      <td>
+        <p align="center">
+          <strong>SEQ </strong> <em>※１</em></p>
+      </td>
+      <td>
+        <p align="center">
+          <strong>Player</strong>
+        </p>
+      </td>
+      <td>
+        <p align="center">
+          <strong>Actor</strong>
+        </p>
+      </td>
+      <td>
+        <p align="center">
+          <strong>Sound</strong>
+        </p>
+      </td>
+      <td>
+        <p>
+          <strong>処理方法</strong>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>音量</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>乗算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>ピッチ</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>乗算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>パン</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>加算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>サラウンドパン</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>加算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>LPF カットオフ周波数</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>加算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>メインセンド</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>加算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>エフェクトセンド</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">－</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>加算</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>Biquad フィルタ設定</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p align="center">○</p>
+      </td>
+      <td>
+        <p>優先順位</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>※&nbsp;<em>1　シーケンスサウンドについては、バンク内の設定やシーケンス内の複数の設定も参照され、同様に処理（音量は乗算、パンは加算&hellip;&hellip;）されます。</em></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

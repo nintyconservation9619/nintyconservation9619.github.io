@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link href="../css/template.css" rel="stylesheet" type="text/css" />
+<title>スキニング</title>
+</head>
+<body>
+<h1>スキニング</h1>
+<h2>スキニングの種類</h2>
+<p>
+スキニングとは <a href="../reference/elements/bone.html">&lt;bone&gt;</a> により、モデルを変形する機能です。
+</p>
+<p>
+実機上での処理の違いによってスキニングの種類には、スムーススキニング、リジッドスキニング、リジッドボディ（スキニング無し）の三種類があります。
+スキニングの種類は <strong><a href="../reference/elements/shape.html">&lt;shape&gt;</a> 単位</strong>で指定することができます。
+これに対応するため、モデルは描画時にスムーススキニング用行列パレットとリジッドスキニング用行列パレットを生成します。
+</p>
+
+<h3>スムーススキニング</h3>
+<p>
+スムーススキニングは一つの頂点が複数の <a href="../reference/elements/bone.html">&lt;bone&gt;</a> の影響を受けて、滑らかに変形するスキニングです。頂点は <a href="../reference/elements/bone.html">&lt;bone&gt;</a> から生成するスムーススキニング用行列パレットへのインデックスと、<a href="../reference/elements/bone.html">&lt;bone&gt;</a> の影響度合いを指定するウェイト値を、それぞれ <a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a>
+vertex_skinning_count 個もちます。
+</p>
+
+<h3>リジッドスキニング</h3>
+<p>
+リジッドスキニングは一つの頂点が単一の <a href="../reference/elements/bone.html">&lt;bone&gt;</a> の影響を受けて、変形するスキニングです。頂点は <a href="../reference/elements/bone.html">&lt;bone&gt;</a> から生成するリジッドスキニング用行列パレットへのインデックスを一つ持ちます。
+</p>
+
+<h3>リジッドボディ</h3>
+<p>
+リジッドボディは <a href="../reference/elements/bone.html">&lt;bone&gt;</a> による変形を行いません。
+頂点は <a href="../reference/elements/bone.html">&lt;bone&gt;</a> に関する情報を持たず、
+<a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a> bone_name で指定した
+<a href="../reference/elements/bone.html">&lt;bone&gt;</a> の座標系に、そのまま表示します。
+</p>
+
+<h2>スキニング関連の中間ファイル項目</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>スムーススキニング</th>
+            <th>リジッドスキニング</th>
+            <th>リジッドボディ</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td class="center"><a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a> vertex_skinning_count >= 2</td>
+        <td class="center"><a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a> vertex_skinning_count == 1</td>
+        <td class="center"><a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a> vertex_skinning_count == 0</td>
+        </tr>
+        <tr>
+        <td class="center">頂点位置はモデル座標系（バインドポーズ）</td>
+        <td class="center">
+            頂点位置は <a href="../reference/elements/vtx_attrib.html">&lt;vtx_attrib&gt;</a> blendindex0 の <a href="../reference/elements/bone.html">&lt;bone&gt;</a> ローカル座標系
+        </td>
+        <td class="center">
+            頂点位置は <a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a> bone_name の <a href="../reference/elements/bone.html">&lt;bone&gt;</a> ローカル座標系
+        </td>
+        </tr>
+        <tr>
+        <td class="center">
+            <a href="../reference/elements/vtx_attrib.html">&lt;vtx_attrib&gt;</a> ((blendindex, blendweight) * <a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a><br />
+            vertex_skinning_count) でスムーススキニング用行列パレットを複数参照してブレンド
+        </td>
+        <td class="center">
+            <a href="../reference/elements/vtx_attrib.html">&lt;vtx_attrib&gt;</a> blendindex0 でリジッドスキニング用の行列パレットを参照
+        </td>
+        <td class="center">
+            行列パレットへの参照無し
+        </td>
+        </tr>
+        <tr>
+        <td class="center">
+            <a href="../reference/elements/bone.html">&lt;bone&gt;</a> matrix_index の前のインデックスに行列パレット生成
+        </td>
+        <td class="center">
+            <a href="../reference/elements/bone.html">&lt;bone&gt;</a> matrix_index の後のインデックスに行列パレット生成
+        </td>
+        <td class="center">
+            行列パレット生成無し
+        </td>
+        </tr>
+        <tr>
+        <td class="center">
+            <a href="../reference/elements/bone.html">&lt;bone&gt;</a> matrix_index の前のインデックスが -1 でなければ <a href="../reference/elements/inv_model_matrix.html">&lt;inv_model_matrix&gt;</a> 生成
+        </td>
+        <td class="center">
+            <a href="../reference/elements/inv_model_matrix.html">&lt;inv_model_matrix&gt;</a> 無し
+        </td>
+        <td class="center">
+            <a href="../reference/elements/inv_model_matrix.html">&lt;inv_model_matrix&gt;</a> 無し
+        </td>
+        </tr>
+<!--
+        <tr>
+        <td class="center">
+        </td>
+        </tr>
+-->
+    </tbody>
+</table>
+<p>
+<a href="../reference/elements/bone.html">&lt;bone&gt;</a> render_matrix は、スムーススキニング、リジッドスキニング、リジッドボディのいずれからも <a href="../reference/elements/bone.html">&lt;bone&gt;</a> が利用されていない場合に false となります。
+</p>
+<p>
+スキニングの種類に関わらず、<a href="../reference/elements/shape.html">&lt;shape&gt;</a> のビジビリティは <a href="../reference/elements/shape_info.html">&lt;shape_info&gt;</a> bone_name で参照している <a href="../reference/elements/bone.html">&lt;bone&gt;</a> visibility により指定します。
+</p>
+</body>
+</html>

@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>標準 MIDI ファイル</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 標準 MIDI ファイル -->
+<div class="pagetitle" id="PageId_83956031">標準 MIDI ファイル</div>
+<div class="text_separate">
+<h1 id="Anchor_83956031_h1_1">標準 MIDI ファイル</h1>
+<p>ここでは標準 MIDI ファイルを利用したシーケンスデータの作成方法を解説します。</p>
+<p>標準 MIDI ファイルは、コンバート時に 1 度テキストシーケンスファイルに変換されます。<br />テキストシーケンスファイルは、後で説明するシーケンスコマンドを使って記述されています。</p>
+<h2 id="Anchor_83956031_h2_1">フォーマット</h2>
+<p>SMF フォーマットは、フォーマット 0 または、1 のみ使用できます。フォーマット 2 には対応していません。</p>
+<h2 id="Anchor_83956031_h2_2">トラック</h2>
+<p>トラックは最大 16 個使用できます。<br />ただし <span class="ApiLink_nn__atk">nn::atk</span> ライブラリのシステム全体としては、使用できるトラック数に制限があります。</p>
+<p>チャンネル番号 1 ～ 16 がそれぞれ、トラック番号 0 ～ 15 に対応します。<br />またトラック 0 には、テンポチェンジなど、シーケンス全体に効果のある MIDI イベントも混ぜて出力されます。</p>
+<h2 id="Anchor_83956031_h2_3">シーケンス全体のループ指定</h2>
+<p>SMF で全トラックを同じタイミングでループさせたい場合は、MIDI シーケンサ上でマーカーとして、半角の角括弧（ [ , ] ） を書き込んでください。</p>
+<p>コンバートの動作は、開き括弧 [ の位置を始点、閉じ括弧 ] の位置を終点として、全トラックについて、始点にラベル、終点にラベルへの jump コマンドが追加されます。</p>
+<p>開き括弧 [ および、閉じ括弧 ] は、それぞれ &quot;loop_start&quot; および &quot;loop_end&quot; という文字列で代用することもできます。</p>
+<h2 id="Anchor_83956031_h2_4">トラック単位のループ指定</h2>
+<p>トラック単位でループをさせたい場合は、ループ始点に値が 0 のコントロールチェンジ 89 を、ループ終点にコントロールチェンジ 90 (値は任意) を入れます。</p>
+<h2 id="Anchor_83956031_h2_5">SMF 先頭部の空白</h2>
+<p>SoundMaker が SMF をコンバートしたとき、最初のノートオンまでの空白部分は自動的にカットされます。<br />カットされないようにするためには、シーケンスの先頭に、音量の小さいダミーのノートを加えてください。</p>
+<p>ただし、最初のノートオンより前の位置に、ループスタートがあった場合などは、ループスタート位置より前の部分のみカットされます。</p>
+<h2 id="Anchor_83956031_h2_6">MIDI イベント</h2>
+<p>Wii の NW4R SoundMaker、CTR の NW4C SoundMaker および&nbsp;Cafe の NW4F SoundMaker 向けに作成された SMF は、コントロールチェンジの番号などもそのまま利用することができます。</p>
+<p>NintendoWare SoundMaker が対応する MIDI イベントについては、シーケンスデータマニュアルの最後にある「<a href="../Pages/Page_83955585.html">付録</a>」の「MIDI コントロールコード対応表」を参照してください。</p>
+<h2 id="Anchor_83956031_h2_7">SMF へのテキストコマンド埋め込み</h2>
+<h3 id="Anchor_83956031_h3_1">機能概要</h3>
+<p>シーケンサでシーケンスデータを作成すると、音の確認をすぐに行えるため便利です。<br />ただし、MIDI イベントだけではすべてのシーケンスコマンドを活用できません。<br />そのため、SMF にテキストコマンドを埋め込んでおき、MIDI イベントと一緒にテキストコマンドをシーケンスコマンドとして出力できる機能があります。<br />これを使えば、どんなテキストコマンドを使うこともできます。</p>
+<p>シーケンスコマンドについては、このドキュメントにある「テキストシーケンス」を参照してください。</p>
+<h3 id="Anchor_83956031_h3_2">埋め込み方</h3>
+<p>SMF データに、マーカーまたはテキストイベントとして、次のような文字列を埋め込みます。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>text_03:    pan_r 30, 90</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この記述により、トラック (MIDI チャンネル) 3 番の指定位置に、&quot;pan_r 30, 90&quot; というコマンドが出力されます。</p>
+<h3 id="Anchor_83956031_h3_3">全トラック出力</h3>
+<p>次のように書くと、全トラックそれぞれに対して出力されます。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>text_all:    pan_r 30, 90</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ただし、使用していないトラックには出力されません。</p>
+<h3 id="Anchor_83956031_h3_4">ラベル名展開</h3>
+<p>例えば、全トラックの同じ位置にラベルを定義したい場合、&quot;text_all&quot; を使って、次のようにするとエラーとなります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>text_all:BLOCK_A:</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>複数の箇所で、BLOCK_A というラベルが定義されてしまい、ラベルの二重定義エラーとなります。このような場合は、次のようにします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>text_all:$BLOCK_A:</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>文字 '$' をつけておくことで、ラベル名が展開され、各トラックに次のように出力されます。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SMF_filename_Track_0_BLOCK_A:</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&quot;filename&quot; の箇所は SMF のファイル名が、数字の箇所はトラック番号が入ります。<br />トラック番号がトラックごとに異なるため、ラベルの二重定義は起こりません。</p>
+<p>また、次のように '$' のかわりに '$$' とすると、&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>text_all:$$BLOCK_A:</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>SMF ファイル名の部分は展開されなくなります。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Track_0_BLOCK_A:</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956031_h3_5">リアルタイム MIDI 再生時の注意</h3>
+<p>SoundMaker の PC エミュレーションや AtkPlayer の PreviewBank ウィンドウを使ったリアルタイム MIDI 再生では、埋め込んだテキストシーケンスの処理が行われません。<br />そのため、コンバートして再生したものとは異なる結果になりますので、注意してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk', '../../../Api/HtmlNX/namespacenn_1_1atk.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

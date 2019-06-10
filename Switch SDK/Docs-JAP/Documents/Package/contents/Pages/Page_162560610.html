@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Mii ヘルパーライブラリ機能説明</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Mii ヘルパーライブラリ機能説明 -->
+<div class="pagetitle" id="PageId_162560610">Mii ヘルパーライブラリ機能説明</div>
+<div class="text_separate">
+<h1 id="Anchor_162560610_h1_1">機能説明</h1>
+<p>ここでは Mii ヘルパーライブラリが提供する機能について説明します。</p>
+<h2 id="Anchor_162560610_h2_1">機能一覧</h2>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>機能</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>AssignCharModel()</td>
+      <td>Mii 顔モデルを<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_file.html"> nn::g3d::ResFile</a> にアサインする関数です。</td>
+    </tr>
+    <tr>
+      <td>MaterialCallback()</td>
+      <td>
+        <p>AssignCharModel() で呼ばれるコールバック関数です。</p>
+        <p>
+          <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_material.html">nn::g3d::ResMaterial</a> に対してユーザが設定すべき値を本コールバック関数でセットします。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>DrawParamCallback()</td>
+      <td>
+        <p>AssignCharModel() で呼ばれるコールバック関数です。</p>
+        <p>DrawParamCallback() に入力されるシェイプインデックスに対応する <span class="ApiLink_nn__mii__DrawParam">nn::mii::DrawParam</span> を</p>
+        <p>本コールバック関数の出力変数 DrawParamCallbackOutput にセットします。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>DrawParamCallbackOutput</td>
+      <td>DrawParamCallback() の処理結果を格納する変数です。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_162560610_h3_1">AssignCharModel()</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_file.html">nn::g3d::ResFile</a> に対して <span class="ApiLink_nn__mii__CharModel">nn::mii::CharModel</span> が持つデータをアサインします。内部で MaterialCallback()、DrawParamCallback() をコールします。DrawParamCallback() の出力により下記の挙動を取ります。</p>
+<ul>
+  <li>DrawParamCallbackOutput::isMiiFace == false の時<br />ライブラリは何もしません。中間ファイルに記述された値を保持します。</li>
+  <li>DrawParamCallbackOutput::isMiiFace == true の時<br /><ul><li><p>DrawParamCallbackOutput::pDrawParam == nullptr の時<br />シェイプと関連づいたボーンのビジビリティを非可視にします。</p><div class="info_new"><div class="info_new_left">参考：</div><div class="info_new_right"><p>異なるシェイプから共通のボーンが参照されている場合は、そのボーンを参照している最後のシェイプの DrawParamCallbackOutput::pDrawParam の判定によりボーンビジビリティが設定される点に注意して下さい。何れにせよランタイムで適切にボーンビジビリティを設定し直す必要があります。</p></div></div></li><li><p>DrawParamCallbackOutput::pDrawParam != nullptr の時<br /><span class="ApiLink_nn__mii__DrawParam">nn::mii::DrawParam</span> から頂点バッファなどの情報を取得し、関連する値を更新します。</p><div class="info_new"><div class="info_new_left">参考：</div><div class="info_new_right"><p>Mii ヘルパーライブラリは ResBoneData::flag の値は更新せず中間ファイルに記述された値のままにします。ユーザがランタイムで適切な visibility をセットしてください。</p></div></div></li></ul></li>
+</ul>
+<h3 id="Anchor_162560610_h3_2">MaterialCallback()</h3>
+<p>本コールバック関数内で <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_material.html">nn::g3d::ResMaterial</a> 配下のパラメータを設定します。ライブラリはどのシェーダパラメータに Mii のシェーダパラメータをアサインしていいか分からないため本コールバック関数を通してユーザに値をセットして貰う事を期待します。</p>
+<h3 id="Anchor_162560610_h3_3">DrawParamCallback()</h3>
+<p>本コールバック関数は入力に <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_model.html">nn::g3d::ResModel</a>、シェイプインデックス、<span class="ApiLink_nn__mii__CharModel">nn::mii::CharModel</span> を受け取り、処理結果を <a href="../../../Api/HtmlNX/struct_draw_param_callback_output.html">nn::g3d::mii::DrawParamCallbackOutput</a> に出力します。本コールバック関数ではシェイプ名、そのシェイプに対応するボーン名から対応する <span class="ApiLink_nn__mii__DrawParam">nn::mii::DrawParam</span> を出力する事が期待されます。参考：<a href="../../../Api/HtmlNX/struct_draw_param_callback_output.html">nn::g3d::mii::DrawParamCallbackOutput</a></p>
+<h3 id="Anchor_162560610_h3_4">DrawParamCallbackOutput</h3>
+<p>DrawParamCallback() の出力変数です。下表にメンバとその役割を示します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__g3d__mii__DrawParamCallbackOutput">nn::g3d::mii::DrawParamCallbackOutput</span> メンバ変数</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>bool isMiiFace</td>
+      <td>
+        <p>Mii 用のパーツかどうかを示すフラグです。</p>
+        <p>DrawParamCallback() に入力されたシェイプインデックスが Mii 用のものではない時は false にします。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>const <span class="ApiLink_nn__mii__DrawParam">nn::mii::DrawParam</span>* pDrawParam</td>
+      <td>
+        <p>シェイプに対応する DrawParam を出力します。</p>
+        <p>対応する DrawParam が存在しない時は nullptr をセットします。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>const <span class="ApiLink_nn__mii__BoundingBox">nn::mii::BoundingBox</span>* pBoundingBox</td>
+      <td>Mii のバウンディングボックスです。</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <ul>
+      <li>Mii モデルによっては、一部のパーツが存在しない場合があるため isMiiFace = true、pDrawParam = nullptr というステートも存在します。</li>
+      <li>この条件の時、ライブラリは material の visibility を false にします。つまり、material の visibility でパーツの有無が判定できます。</li>
+      <li>全 shape が pBoundingBox から計算されたバウンディングを持ちます。サブメッシュバンディングの計算ができないためサブメッシュについても同様です。</li>
+    </ul>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__DrawParam', '../../../Api/HtmlNX/classnn_1_1mii_1_1_draw_param.html' )
+SetUrl( 'ApiLink_nn__mii__CharModel', '../../../Api/HtmlNX/classnn_1_1mii_1_1_char_model.html' )
+// ApiLink_nn__g3d__mii__DrawParamCallbackOutput
+SetUrl( 'ApiLink_nn__mii__BoundingBox', '../../../Api/HtmlNX/structnn_1_1mii_1_1_bounding_box.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

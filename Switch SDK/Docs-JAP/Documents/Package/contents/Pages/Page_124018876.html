@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Npad</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Npad -->
+<div class="pagetitle" id="PageId_124018876">Npad</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_124018876_h1_1">はじめに</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_124018876_h2_1">操作スタイルの設定の取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_124018876_h2_2">操作スタイル毎の入力状態の取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_124018876_h2_3">Generic 環境で利用できる操作スタイル</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_124018876_h1_2">Npad の使用方法</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_124018876_h1_1">はじめに</h1>
+<p>Npad は、種々の操作スタイルをプラットフォームで定義されたコントローラーモデルにならって制御するためのインタフェースです。</p>
+<p>Npad ではシステムで扱われるコントローラーを Npad ID という単位で扱います。Npad を利用するためには、対象とする Npad Id について &nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a1d97b3d6e01d167dce3aa26bad0d9a3a">InitializeNpad()</a>&nbsp;を呼び出して初期化を行います。<br />標準的にサポートされる Npad ID は以下の通りです。</p>
+<ul>
+  <li>コントローラー番号の割り当てられる Npad (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">NpadId::No1</a> ～ <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_id.html#a67fe4452e1380bd82a290ecc0252dd72">NpadId::No8</a>)<br />1番から8番までコントローラー番号の割り当てられる Npad を扱います。 コントローラーは接続されると、番号の若い順にコントローラー番号が割り当てられます。</li>
+  <li>携帯機に搭載されたボタンやスティック類 (携帯機コントローラー) を直接的に扱うための Npad (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_id.html#afc19a9a80ac740645b567fc7e1dc36cf">NpadId::Handheld</a>)<br />携帯機コントローラーの入力を個別に扱いたい場合に使用します。例えば携帯機コントローラーに無線コントローラーが接続され、それらとは独立して本体に搭載されたボタンやスティックの入力を扱う場合に使用します。&nbsp;</li>
+</ul>
+<p>Npad は、Npad ID に対して指定された個々の Npad に対して複数の操作スタイルをサポートすることが可能です。操作スタイルは、Npad に対応づけられている物理的なコントローラーの種類によって変化します。<br />各プラットフォーム毎に使用できる Npad の操作スタイルはそれぞれのドキュメントで確認してください。</p>
+<p>Generic 環境で使用できる操作スタイルは、<a href="#Anchor_124018876_Generic環境で利用できる操作形態">Npad</a>&nbsp;に記載があります。</p>
+<h2 id="Anchor_124018876_h2_1">操作スタイルの設定の取得</h2>
+<p>アプリケーションがサポートする操作スタイルは、<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#ac04a55a989058f9d69c5c3e4e29c4480">SetSupportedNpadStyleSet()</a>&nbsp;で設定することができます。Npad Id で指定されて個々の Npad で現在有効な操作スタイルは、<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a50e56789aa106765d43935bb1838c797">GetNpadStyleSet()</a>&nbsp;で取得します。<br />操作スタイルは接続されたコントローラーの種類によって変化します。操作スタイルの変更は、 <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#ae34acebb134f3f0bd8a5d2481327e880">BindNpadStyleSetUpdateEvent()</a> で渡した <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_system_event_type.html">SystemEventType </a>から通知を受け取ることができます。</p>
+<h2 id="Anchor_124018876_h2_2">操作スタイル毎の入力状態の取得</h2>
+<p>入力状態を取得する API として <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">GetNpadState()</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a5ce232e78c3098d144e001a546fd0781">GetNpadStates()</a> が用意されています。<br /><a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">GetNpadState()</a> は最新の入力状態を取得する際に使用します。<br /><a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a5ce232e78c3098d144e001a546fd0781">GetNpadStates()</a> は、最新の入力状態から遡って、複数の入力状態を取得する際に使用します。 最大で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#add90d5d40f21b94e40f416c60d54f4c2">NpadStateCountMax</a>&nbsp;個まで遡ることができます。<br />入力状態の取得が Npad の状態を変えることはないため、同じ API を繰り返し呼び出した際に、入力状態の更新が挟まれなければ、取得される値は同じとなります。<br />入力状態には、更新を行うたびに 1 ずつ増えていく番号が、サンプリング番号として割り当てられます。 取得した入力状態はこの番号から判別することが可能です。</p>
+<p>入力状態には、属性情報(attributes)が含まれます。属性情報には、本体との接続状態とケーブル接続状態が含まれます。</p>
+<ul>
+  <li>接続状態 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_attribute.html#a43fa7c0a0a7f76f4842b790cca2f85c0">NpadAttribute::isConnected</a>)<ul><li>本体に対してコントローラーが接続され、通信できる状態にあることを示します</li></ul></li>
+  <li>ケーブル接続状態 (<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_attribute.html#a1ebd3d4da36850daf5dad50aabe024f4">NpadAttributes::isWired</a>)<ul><li>コントローラーが本体や充電機と有線接続されている状態を示します<br />携帯型コントローラー (NpadStyleHandheld) の場合は、ゲーム機本体が充電機などとケーブルで接続された状態にあることを示します。</li><li>6軸センサーを扱う場合、ケーブル接続状態での操作は危険を伴うためユーザーにケーブルを抜いてもらうなどの案内を出すために使用します</li></ul></li>
+</ul>
+<p>ゲームパッドの接続状況に依らず、 Npad の入力状態は常に取得することが可能です。<br />ゲームパッドが、&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a1d97b3d6e01d167dce3aa26bad0d9a3a">InitializeNpad()</a> の呼び出し後に切断や再接続されたとしても、Npad は再初期化を行うことなく継続して利用できます。</p>
+<h2 id="Anchor_124018876_h2_3">Generic 環境で利用できる操作スタイル</h2>
+<p>NintendoSdk の Generic 環境で使用できる操作スタイルは以下の 2種類です。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>Npad の操作スタイル定義</th>
+      <th style="text-align: center;">説明</th>
+      <th style="text-align: center;">対応するコントローラー / 持ち方</th>
+      <th style="text-align: center;">入力状態</th>
+      <th>振動デバイス</th>
+      <th>その他の機能</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a594f4eed71a6821bd28283ce0a273fb1">NpadStyleFullKey</a>
+      </td>
+      <td>
+        <p>Switch Proコントローラーをモデルとした操作スタイル</p>
+        <p>
+          <br />
+        </p>
+      </td>
+      <td>
+        <ul>
+          <li>Switch Pro Controller</li>
+          <li>XInput 対応コントローラー</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>
+            <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_full_key_state.html">NpadFullKeyState</a>
+            <br />十字ボタン、Aボタン、Bボタン、Xボタン、Yボタン<br />Lボタン、Rボタン、ZLボタン、ZRボタン<br />+ボタン、-ボタン<br />右アナログスティック、左アナログスティック</li>
+          <li>6軸センサー : 1つ</li>
+        </ul>
+      </td>
+      <td>HD 振動: 2つ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a594f4eed71a6821bd28283ce0a273fb1">NpadStyleHandheld</a>
+      </td>
+      <td>
+        <p>携帯型ゲーム機のコントローラー操作をモデルとした操作スタイル</p>
+        <p>
+          <br />
+        </p>
+      </td>
+      <td>
+        <ul>
+          <li>なし<br />現状 Generic 環境で携帯型コントローラーとして割り当てることのできるデバイスは存在しません。</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>
+            <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_npad_handheld_state.html">NpadHandheldState</a>
+            <br />方向ボタン、 Aボタン、Bボタン、Xボタン、Yボタン<br />Lボタン、Rボタン、ZLボタン、ZRボタン<br />+ボタン、-ボタン<br />右アナログスティック、左アナログスティック</li>
+          <li>6軸センサー : 1つ</li>
+        </ul>
+      </td>
+      <td>HD 振動: 2つ</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_124018876_h1_2">Npad の使用方法</h1>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Npad.h&gt;
+</span> 
+<span class="c1">// 使用する Npad の ID を定義
+</span><span class="nn">nn::hid::</span><span class="n">NpadIdType</span> <span class="n">g_NpadIds</span><span class="p">[]</span> <span class="o">=</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::NpadId::</span><span class="n">No1</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::NpadId::</span><span class="n">No2</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::NpadId::</span><span class="n">No3</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::NpadId::</span><span class="n">No4</span>
+<span class="p">};</span>
+ 
+<span class="k">const</span> <span class="kt">int</span> <span class="n">NpadIdCount</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_NpadIds</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_NpadIds</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+ 
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Npad を初期化
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">InitializeNpad</span><span class="p">();</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 使用する操作スタイルを設定
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">SetSupportedNpadStyleSet</span><span class="p">(</span><span class="nn">nn::hid::NpadStyleFullKey::</span><span class="n">Mask</span> <span class="o">|</span> <span class="nn">nn::hid::NpadStyleHandheld::</span><span class="n">Mask</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 使用する Npad を設定
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">SetSupportedNpadIdType</span><span class="p">(</span><span class="n">g_NpadIds</span><span class="p">,</span> <span class="n">NpadIdCount</span><span class="p">);</span>
+
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 必要に応じて入力状態を取得します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">NpadFullKeyState</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">GetNpadState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="n">g_NpadIds</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">buttons</span><span class="p">.</span><span class="n">Test</span><span class="o">&lt;</span><span class="nn">Npad::NpadButton::</span><span class="n">A</span><span class="o">&gt;</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// A ボタンが押されていた場合の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 入力状態を取得する際に、過去の入力状態も合わせて取得したい場合は、GetNpadStates() を使用します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">NpadFullKeyState</span> <span class="n">states</span><span class="p">[</span><span class="nn">nn::hid::</span><span class="n">NpadStateCountMax</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 最低でも 1 つの入力状態を取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">stateCount</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">GetNpadStates</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">g_NpadIds</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 過去の入力状態（最大で 16 サンプル）における右アナログスティックの平均座標を算出
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">stateCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">x</span> <span class="o">+=</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">analogStickR</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">y</span> <span class="o">+=</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">analogStickR</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">x</span> <span class="o">/=</span> <span class="n">stateCount</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">y</span> <span class="o">/=</span> <span class="n">stateCount</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

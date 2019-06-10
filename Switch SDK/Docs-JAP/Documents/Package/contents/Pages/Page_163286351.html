@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>6. 最終的なリダクションを実行する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 6. 最終的なリダクションを実行する -->
+<div class="pagetitle" id="PageId_163286351">6. 最終的なリダクションを実行する</div>
+<div class="text_separate">
+<h1 id="Anchor_163286351_h1_1">パラメーターを決定する</h1>
+<p>ここまでで、Town モデルのリダクションに影響を及ぼすパラメーターを見てきました。これらを組み合わせる事で、リダクションを行います。</p>
+<p>Town は以下の様な特徴を持ったモデルであることが、実行結果から分かります。</p>
+<ul>
+  <li>UV 開放端が多く、UV　の歪みが大きい<ul><li>フローチャートより UV 考慮を採用</li></ul></li>
+  <li>UV 開放端と、OpenEdgeは同じものである事が多いが、開放端保護は必要<ul><li>フローチャートより開放端保護を採用</li></ul></li>
+  <li>角の多い形状である<ul><li>フローチャートより法線考慮を採用</li></ul></li>
+  <li>UV よりは形状の保護を重くとった方が結果がより良い<ul><li>フローチャートよりUV重みを調整して、効果を弱めに設定</li></ul></li>
+  <li>ポリゴン数が十分にある<ul><li>多めにリダクション可能</li></ul></li>
+</ul>
+<p>以上を考慮して、フローチャートを参照して、以下のパラメーターを設定します。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelHeader" style=" border-bottom-width: 1px;">
+    <b>パラメーターE</b>
+  </div>
+  <div class="panelContent">
+    <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --quality 0.0001 --property-flag Position|UV|Normal --optimize-position-policy OptimalOnSpace --lock-uv-hard-edge-angle 30 --normal-weight 0.0001 --feature-face-angle 90&quot;</span>
+  </div>
+</div>
+<p>--quality オプションについては後述の説明を参照してください。以下のバッチファイルで実行する事が出来ます。</p>
+<p>
+  <span class="nolink">%NINTENDO_SDK_ROOT%\Samples\Sources\Tools\3dTools\3dIntermediateFileOptimizer\PolygonReductionTutorial</span>\ExecuteParameterE.bat</p>
+<h4 id="Anchor_163286351_h4_1">品質設定を行う</h4>
+<p>パラメーターEで設定している、<span style="color: rgb(51,153,102);">--quality 0.00001&nbsp;<span style="color: rgb(0,51,102);">は、簡略化可能だと判断できるコストの割合を設定できます。この値は、これでいいという値を提示することが難しい値です。 </span> </span></p>
+<p>理由は二つあります。</p>
+<p>１、簡略化が進むごとに、コストは蓄積されていく（蓄積しないオプションもあります）<br />２、コストの分布はモデルによって異なる</p>
+<p>です。Town モデルではパイプの崩壊を抑える為に、かなり小さな値を設定しましたが、極端な形状崩壊を防ぐ目的であれば 0.1 ～ 0.01 位で運用されるのが良いかと思います。</p>
+<p>値を設定する際には、実行時にコマンドプロンプトに表示されるメッセージを参考にしてみてください。</p>
+<p>&nbsp;</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelHeader" style=" border-bottom-width: 1px;">
+    <b>メッセージ</b>
+  </div>
+  <div class="panelContent">
+    <p>&nbsp;現在 133894 -&gt; 目標 034366 [最大コスト = 3752948.860]</p>
+  </div>
+</div>
+<p>最大コスト＝XXX の数字部分が、このように大きい場合は、小さな値を設定した方が良いという指標になります。このコストは変動する体積の合計値になっています。例えば、<span style="color: rgb(51,153,102);">--quality 0.00001&nbsp;</span> <span style="color: rgb(0,51,102);">は、</span>三桁程度に抑えたいという意図で設定されています。</p>
+<p> <br /> </p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_163286351/190384288.png" height="250" class="embedded-image" />
+          </span>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_163286351/190384459.png" height="250" class="embedded-image" />
+          </span>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_163286351/190384307.png" height="250" class="embedded-image" />
+          </span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>図 14_1 --quality 0.1 の結果 LOD（34365 ポリゴン）</td>
+      <td>図 14_1  --quality 0.0001 の結果 LOD（49872 ポリゴン）</td>
+      <td> 図 14_2 --quality 0.00001 の結果 LOD（49872 ポリゴン）</td>
+    </tr>
+  </tbody>
+</table>
+<p>最大コストは極端な形状変化を抑える事には役立つものの、その他の多くの簡略化処理を抑制する為に用いるべきではありません。図 14 に見られるように 0.1 と 0.0001 では詳細部分を含めて変化はみられません。これは、通常の簡略化処理で失われる体積が小さいということを示しています。0.00001 に設定した場合、これら通常の簡略化を行う事が出来ず、LOD モデルのポリゴン数が増大しています。 </p>
+<h4 id="Anchor_163286351_h4_2">決定したパラメーターの意味</h4>
+<p>パラメーターE の意味は、次のようなものです。</p>
+<ul>
+  <li>頂点位置、UV 座標、法線を考慮する</li>
+  <li>リダクション後の位置は、体積の変化を最小化する方式で行う</li>
+  <li>UV に対する重みは小さめにし、形状を重視する</li>
+  <li>UV ハードエッジは直角のみを保護する</li>
+  <li>
+    <p>法線重みは小さめにする事で、パイプなど影響の受けやすいオブジェクトへの影響を抑える</p>
+    <table class="wrapped" style="margin-left: 1.5em;">
+      <colgroup>
+        <col />
+        <col />
+      </colgroup>
+      <tbody>
+        <tr>
+          <td>
+            <div class="content-wrapper">
+              <p>
+                <span class="embedded-file-wrapper ">
+                  <img src="../Attachments/Attach_163286351/270192252.png" height="250" class="embedded-image" />
+                </span>
+              </p>
+            </div>
+          </td>
+          <td>
+            <div class="content-wrapper">
+              <p>
+                <span class="embedded-file-wrapper ">
+                  <img src="../Attachments/Attach_163286351/270192248.png" height="250" class="embedded-image" />
+                </span>
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>図15 オリジナル</td>
+          <td>図15_1 最終的な実行結果 LOD(34365 ポリゴン)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<p>ここで示すものが完全なもの、と言う訳ではありませんが、データの状況を見てパラメーターを決定していく過程の一例として参考にしてください。</p>
+<h1 id="Anchor_163286351_h1_2">データを作成する場合に、気に留めて置いてほしい事とお願い</h1>
+<p>リダクションツールは、ハードエッジが多い場合に弱いという特性があります。</p>
+<p>オプションによって保護は可能ですが、なるべく UV アトラスの数を少なくしていただく事で、より効果的にリダクションを行う事が出来ます。</p>
+<p>また、不具合やリクエストなどありましたら、お気軽にお問い合わせください。</p>
+<div>
+  <span style="white-space: pre-wrap;"> <br /> </span>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

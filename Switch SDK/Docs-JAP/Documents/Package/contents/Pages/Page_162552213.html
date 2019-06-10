@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>クイックスタート</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- クイックスタート -->
+<div class="pagetitle" id="PageId_162552213">クイックスタート</div>
+<div class="text_separate">
+<h1 id="Anchor_162552213_h1_1">クイックスタート</h1>
+<p>Spy を利用してアプリケーションのオーディオパフォーマンスを可視化する方法を説明します。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>以降の手順を進めるには、VisualStudio が必要です。</p>
+  </div>
+</div>
+<h2 id="Anchor_162552213_h2_1">SpyAudio サンプルの実行</h2>
+<p>まずは、SpyAudio サンプルを実行して、可視化できる情報の確認方法を説明します。</p>
+<ol>
+  <li>VisualStudio のソリューションファイルを開いて、ビルドします<br />NintendoSDK 4.0.0 以降は<br />　NintendoSDK\Samples\Sources\Applications\SpyAudio\SpyAudio-spec.Generic.autogen.vs2015.sln<br />それより以前は<br />　NintendoSDK\Samples\Sources\Applications\SpyAudio\SpyAudio-spec.Generic.vs2015.sln</li>
+  <li>サンプルプログラムを実行します</li>
+  <li>NintendoTargetManager を起動します</li>
+  <li>「NintendoSDK\Tools\Spy\Spy.exe」を起動します</li>
+  <li>Spy.exe のメニューから接続先として「Windows」を選択し、接続をONにします<br />これで、 Spy.exe のタイムラインパネルに、SpyAudio サンプルから受信したデータが表示されます&nbsp;</li>
+</ol>
+<h2 id="Anchor_162552213_h2_2">アプリケーションへの組み込み</h2>
+<p>アプリケーションに <span class="ApiLink_nn__spy">nn::spy</span>&nbsp;ライブラリ、<span class="ApiLink_nn__spy__audio">nn::spy::audio</span> ライブラリを組み込む方法を説明します。</p>
+<h3 id="Anchor_162552213_h3_1">Spy をつかったアプリケーション処理の流れ</h3>
+<p>Spy は、以下の流れになるようアプリケーションに組み込んでください。<br />SpyAudio サンプルを実装例として合わせて参照ください。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>手順</th>
+      <th>説明</th>
+      <th>API</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Spy が依存するライブラリの初期化</td>
+      <td>htcs, audio など。</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>
+        <span class="ApiLink_nn__spy">nn::spy</span> の初期化</td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController">nn::spy::SpyController</span>&nbsp;を初期化します。</td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController__Initialize">nn::spy::SpyController::Initialize</span>()</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>SpyModule (Spy への追加機能) の初期化</td>
+      <td>
+        <p>利用したい SpyModule を初期化し、<span class="ApiLink_nn__spy__SpyController">nn::spy::SpyController</span>&nbsp;に登録します。</p>
+        <p>（例：<span class="ApiLink_nn__spy__audio__AudioSpyModule">nn::spy::audio::AudioSpyModule</span>）</p>
+      </td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController__RegisterModule">nn::spy::SpyController::RegisterModule</span>()</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Spy の開始</td>
+      <td>Spy.exe と通信可能な状態にします。</td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController__Open">nn::spy::SpyController::Open</span>()</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>
+        <p>（アプリケーションフレーム処理において）</p>
+        <p>データを送信</p>
+      </td>
+      <td>
+        <p>例えば、アプリケーションフレーム情報や audio パフォーマンス情報、波形情報を送信します。</p>
+        <p>Spy が開始される前や Spy.exe に接続前にはデータ送信されず、処理をスキップします。</p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__spy__SpyController__SetCurrentApplicationFrame">nn::spy::SpyController::SetCurrentApplicationFrame</span>()</p>
+        <p>
+          <span class="ApiLink_nn__spy__audio__AudioSpyModule__PushPerformanceMetrics">nn::spy::audio::AudioSpyModule::PushPerformanceMetrics</span>()</p>
+        <p>
+          <span class="ApiLink_nn__spy__audio__AudioSpyModule__PushWaveform">nn::spy::audio::AudioSpyModule::PushWaveform</span>()</p>
+        <p>
+          <span class="ApiLink_nn__spy__DebugModule__PushDataBufferUsage">nn::spy::DebugModule::PushDataBufferUsage</span>()</p>
+      </td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Spy の停止</td>
+      <td>Spy.exe との通信を切断します。</td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController__Close">nn::spy::SpyController::Close</span>()</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>SpyModule (Spy への追加機能) の終了</td>
+      <td>
+        <p>利用中の SpyModule を <span class="ApiLink_nn__spy__SpyController">nn::spy::SpyController</span> から登録解除し、終了処理を行います。</p>
+        <p>（例：<span class="ApiLink_nn__spy__audio__AudioSpyModule">nn::spy::audio::AudioSpyModule</span>）</p>
+      </td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController__UnregisterModule">nn::spy::SpyController::UnregisterModule</span>()</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>
+        <span class="ApiLink_nn__spy">nn::spy</span> の終了</td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController">nn::spy::SpyController</span> を終了します。</td>
+      <td>
+        <span class="ApiLink_nn__spy__SpyController__Finalize">nn::spy::SpyController::Finalize</span>()</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>Spy が依存するライブラリの終了</td>
+      <td>htcs, audio など。</td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_162552213_h3_2">アプリケーションと Spy の通信方法</h3>
+<ol>
+  <li>Spy が組み込まれたアプリケーションを実行し、前述の手順の「Spy の開始」が実行された状態にします</li>
+  <li>NintendoTargetManager を起動します</li>
+  <li>「NintendoSDK\Tools\Spy\Spy.exe」を起動します</li>
+  <li>Spy.exe のメニューから接続先を選択し、接続を ON にします<br />これで、Spy.exe のタイムラインパネルに、アプリケーションから受信したデータが表示されます&nbsp;</li>
+</ol>
+<p>&nbsp;</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoTargetManager の起動タイミングは、「アプリケーションと Spy.exe の接続」より前であれば、いつでも構いません。</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__spy', '../../../Api/HtmlNX/namespacenn_1_1spy.html' )
+SetUrl( 'ApiLink_nn__spy__audio', '../../../Api/HtmlNX/namespacenn_1_1spy_1_1audio.html' )
+SetUrl( 'ApiLink_nn__spy__SpyController', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html' )
+SetUrl( 'ApiLink_nn__spy__SpyController__Initialize', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#a15e999cee5cc9967eb8a517e4fc8c839' )
+SetUrl( 'ApiLink_nn__spy__audio__AudioSpyModule', '../../../Api/HtmlNX/classnn_1_1spy_1_1audio_1_1_audio_spy_module.html' )
+SetUrl( 'ApiLink_nn__spy__SpyController__RegisterModule', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#a8815a41df05d03047fc31d32b73d0f36' )
+SetUrl( 'ApiLink_nn__spy__SpyController__Open', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#a0c43c48ffe9cdcbba64845eab23bd374' )
+SetUrl( 'ApiLink_nn__spy__SpyController__SetCurrentApplicationFrame', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#ab75947870a5481e7a169c8c6869ad508' )
+SetUrl( 'ApiLink_nn__spy__audio__AudioSpyModule__PushPerformanceMetrics', '../../../Api/HtmlNX/classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a2f4011ed38916f1170eb7e337b80bdb1' )
+SetUrl( 'ApiLink_nn__spy__audio__AudioSpyModule__PushWaveform', '../../../Api/HtmlNX/classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a3bd08f5fbe1ab79d538a0237241f932f' )
+SetUrl( 'ApiLink_nn__spy__DebugModule__PushDataBufferUsage', '../../../Api/HtmlNX/classnn_1_1spy_1_1_debug_module.html#adb9a809fd317e69140a333ba78a480fc' )
+SetUrl( 'ApiLink_nn__spy__SpyController__Close', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#a2b3bbbb145f76452014c148787e97185' )
+SetUrl( 'ApiLink_nn__spy__SpyController__UnregisterModule', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#ad6dc518a47a291aeb0f0c9f8574826b1' )
+SetUrl( 'ApiLink_nn__spy__SpyController__Finalize', '../../../Api/HtmlNX/classnn_1_1spy_1_1_spy_controller.html#a737740a71504977a92759dac6f628584' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>サウンドアクター</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- サウンドアクター -->
+<div class="pagetitle" id="PageId_83956039">サウンドアクター</div>
+<div class="text_separate">
+<h1 id="Anchor_83956039_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956039_h2_1">サウンドアクターとは？</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956039_h2_2">サウンドアクタープログラム</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956039_h2_3">アクタープレイヤー</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956039_h2_4">サウンド ID の動的変更</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83956039_h1_2">サウンドアクター</h1>
+<p>ここでは、アクター単位でサウンドを管理する「サウンドアクター」の使い方について説明します。</p>
+<h2 id="Anchor_83956039_h2_1">サウンドアクターとは？</h2>
+<p>あるゲーム中のキャラクターは、足音を立てて歩き、声を出しながら剣を振ります。この時、足音、声、剣を振る音は、1&nbsp;つのキャラクターが出す音です。<br />サウンドアクターは、これら 1 つのキャラクターが出す複数のサウンドを、まとめて管理することができます。</p>
+<p>サウンドアクターを使うと、次のようなことができます。</p>
+<ul>
+  <li>あるキャラクターがゲーム中から消えた時、そのキャラクターが出していた音すべてを、一度に停止させることができます。</li>
+  <li>あるキャラクターが出している音全てに対して、音量などのパラメータを一度に変更させることができます。</li>
+  <li>1 つのキャラクターが同時に鳴らすことができる音数を制限することができます。</li>
+</ul>
+<h2 id="Anchor_83956039_h2_2">サウンドアクタープログラム</h2>
+<p>ソースコードの内容を見ながら、サウンドプログラムを説明します。</p>
+<p>サンプルプログラムは Samples\Sources\Applications\AtkSoundActor&nbsp;ディレクトリにある AtkSoundActor.cpp&nbsp;ファイルです。</p>
+<h3 id="Anchor_83956039_h3_1">インスタンスの初期化</h3>
+<p>サウンドアクター&nbsp;(<span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>)&nbsp;クラスのインスタンスを作成、初期化します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::</span><span class="n">SoundActor</span> <span class="n">g_SoundActor</span><span class="p">;</span>
+
+
+<span class="n">g_SoundActor</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="n">g_SoundArchivePlayer</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;クラスの&nbsp;Initialize&nbsp;関数の引数として、サウンドアーカイブプレイヤー&nbsp;(<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>)&nbsp;への参照を渡します。<br /><span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;を使ってサウンドを再生すると、結果的に、ここで渡した<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>&nbsp;を使って再生されます。</p>
+<h3 id="Anchor_83956039_h3_2">サウンドアクターを使ったサウンド再生</h3>
+<p>サウンドアクターを使ってサウンドを再生するためには、<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>&nbsp;クラスの代わりに、<span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;クラスを使って再生します。<br /><span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;クラスにも、<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>&nbsp;クラスと同様のサウンド再生関数が用意されています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_SoundActor</span><span class="p">.</span><span class="n">StartSound</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SoundHandle</span><span class="p">,</span> <span class="n">SE_YOSHI</span> <span class="p">).</span><span class="n">IsSuccess</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956039_h3_3">最大同時サウンド再生数の設定</h3>
+<p>アクター単位で、同時に再生できる最大サウンド数を設定できます。初期状態では、無制限に再生できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_SoundActor</span><span class="p">.</span><span class="n">SetPlayableSoundCount</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>1 つ目の引数は、アクタープレイヤー番号です。アクタープレイヤーについて詳しくは、後で説明します。</p>
+<p>2 つ目の引数は、最大同時サウンド再生数です。ここでは、同時に 2 つまで再生できるようにしています。</p>
+<h3 id="Anchor_83956039_h3_4">パラメータの更新</h3>
+<p>アクター単位で、音量およびパンの値を変更することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">g_SoundActor</span><span class="p">.</span><span class="n">SetVolume</span><span class="p">(</span> <span class="n">g_ActorVolume</span> <span class="p">);</span>
+<span class="n">g_SoundActor</span><span class="p">.</span><span class="n">SetPan</span><span class="p">(</span> <span class="n">g_ActorPan</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956039_h3_5">サウンドアクターの破棄</h3>
+<p>アクターが消滅したときなど、<span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;のインスタンスが破棄されても、そのアクターで再生されたサウンドは再生を続けます。</p>
+<p>再生中の音を止めたい場合は、明示的に&nbsp;<span class="ApiLink_nn__atk__SoundActor__StopAllSound">nn::atk::SoundActor::StopAllSound</span>&nbsp;関数を呼び出す必要があります。</p>
+<h2 id="Anchor_83956039_h2_3">アクタープレイヤー</h2>
+<h3 id="Anchor_83956039_h3_6">最大同時サウンド再生数とアクタープレイヤー</h3>
+<p>最大同時サウンド再生数について、これまでサウンドアクター毎に設定できると説明しましたが、厳密に言うとアクタープレイヤー単位の設定になります。</p>
+<p>1 つのサウンドアクターには、4 つのアクタープレイヤーが存在します。0&nbsp;番から&nbsp;3&nbsp;番の各アクタープレイヤーごとに、最大同時サウンド再生数を設定することができます。</p>
+<p>例えば、足音を鳴らし、声を出すキャラクターがいた場合、声は常に&nbsp;1&nbsp;つだけ鳴るように制限をかけたい一方、足音には制限をかけたく無いことがあります。</p>
+<p>この時、1&nbsp;番のアクタープレイヤーのみ、最大同時サウンド再生数を&nbsp;1&nbsp;とし、声はアクタープレイヤー&nbsp;1&nbsp;番で再生するように設定します。0&nbsp;番のアクタープレイヤーには制限をかけず、足音は&nbsp;0&nbsp;番のアクタープレイヤーで再生するようにします。</p>
+<p>図&nbsp;4&nbsp;アクタープレイヤー</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956039/83080912.png" class="embedded-image" />
+  </span>
+</p>
+<p>なおデフォルトでは、サウンドアクターのインスタンスが構築されたとき、アクタープレイヤー&nbsp;0&nbsp;番は、最大同時サウンド再生数が無制限に設定されていますが、アクタープレイヤー&nbsp;1, 2, 3&nbsp;番は、1&nbsp;つに制限されています。</p>
+<h3 id="Anchor_83956039_h3_7">再生するアクタープレイヤー番号の設定</h3>
+<p>どのアクタープレイヤーで再生するかは、サウンドデータ側でサウンド毎のパラメータとして設定されます。デフォルトでは、0&nbsp;番のアクタープレイヤーで再生されます。</p>
+<p>SoundMaker&nbsp;上の「アクタープレイヤー」のカラムで設定することができます。</p>
+<h2 id="Anchor_83956039_h2_4">
+  <a name="Anchor_83956039_SND_ID_DynamicChange"></a>サウンド ID の動的変更</h2>
+<p>サウンドアクターを使えば、アクターの状態に応じて鳴らすサウンドを動的に変化させることができます。</p>
+<p>足音の再生する場合、アクターが歩いている地面の種類に応じて再生するサウンドを変化させたいケースがあります。</p>
+<p>通常、StartSound&nbsp;関数で引数に渡すサウンド&nbsp;ID&nbsp;を変更すればすみますが、<span class="ApiLink_nn__atk__SoundActor__SetupSound">nn::atk::SoundActor::SetupSound</span>&nbsp;関数をオーバーライドすることによって、再生するサウンド&nbsp;ID&nbsp;を変更することも可能です。</p>
+<h3 id="Anchor_83956039_h3_8">SoundActor::SetupSound&nbsp;関数</h3>
+<p>
+  <span class="ApiLink_nn__atk__SoundActor__SetupSound">nn::atk::SoundActor::SetupSound</span>&nbsp;関数は仮想関数です。<span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;クラスを継承し、この関数をオーバーライドすることができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">virtual</span> <span class="nn">SoundStartable::</span><span class="n">StartResult</span> <span class="n">SetupSound</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SoundHandle</span><span class="o">*</span> <span class="n">handle</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint32_t</span> <span class="n">soundId</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">SoundStartable::</span><span class="n">StartInfo</span><span class="o">*</span> <span class="n">startInfo</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">setupArg</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__atk__SoundActor__SetupSound">nn::atk::SoundActor::SetupSound</span>&nbsp;関数は、サウンドを再生する時に呼び出されます。</p>
+<p>引数は、StartSound&nbsp;関数とほぼ同じです。4&nbsp;つ目の&nbsp;setupArg&nbsp;引数は、サウンドのセットアップに必要なパラメータ引数です。</p>
+<p>基底クラスの&nbsp;SetupSound&nbsp;関数を呼び出すときは、この引数は変更せずにそのまま渡す必要があります。</p>
+<h3 id="Anchor_83956039_h3_9">サウンド ID の変更</h3>
+<p>
+  <span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>&nbsp;クラスを継承した&nbsp;MySoundActor&nbsp;クラスを使って、地面で跳ね返る音を、地面の種類に応じて変更させる例を考えてみます。</p>
+<p>以下のように&nbsp;MySoundActor::SetupSound&nbsp;関数を実装します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::SoundStartable::</span><span class="n">StartResult</span> <span class="nn">MySoundActor::</span><span class="n">SetupSound</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SoundHandle</span><span class="o">*</span> <span class="n">handle</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint32_t</span> <span class="n">soundId</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">SoundStartable::</span><span class="n">StartInfo</span><span class="o">*</span> <span class="n">startInfo</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">setupArg</span>
+<span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span> <span class="n">soundId</span> <span class="o">==</span> <span class="n">SE_BOUND_BASE</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">switch</span> <span class="p">(</span> <span class="n">m_FloorType</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nl">FloorTypeSand</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">soundId</span> <span class="o">=</span> <span class="n">SE_BOUND_SAND</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nl">FloorTypeWater</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">soundId</span> <span class="o">=</span> <span class="n">SE_BOUND_WATER</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nl">FloorTypeWood</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">soundId</span> <span class="o">=</span> <span class="n">SE_BOUND_WOOD</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nn">nn::atk::SoundActor::</span><span class="n">SetupSound</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">handle</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">soundId</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">startInfo</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">setupArg</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__SoundActor', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_actor.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html' )
+SetUrl( 'ApiLink_nn__atk__SoundActor__StopAllSound', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_actor.html#a9e2ae682bf6c431f5d04fbf0967473d4' )
+SetUrl( 'ApiLink_nn__atk__SoundActor__SetupSound', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_actor.html#acab9d3a4e1785b4da3fddaa06f904964' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

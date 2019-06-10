@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>振動値</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 振動値 -->
+<div class="pagetitle" id="PageId_104489003">振動値</div>
+<div class="text_separate">
+<h1 id="Anchor_104489003_h1_1">振動値</h1>
+<h2 id="Anchor_104489003_h2_1">概要</h2>
+<p>振動値は、ある瞬間の振動子の振動状態を表す値です。</p>
+<p>ひとつの振動値は、低帯域と高帯域それぞれの振幅と周波数の値をセットで表します。</p>
+<p>振動値を表す <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html">nn::hid::VibrationValue</a> 構造体は、これら 4 つの値を float 型のメンバ変数として持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">VibrationValue</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">amplitudeLow</span><span class="p">;</span>     <span class="c1">//!&lt; 低帯域の振幅 (最大振幅を 1.0f とする単位)
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">frequencyLow</span><span class="p">;</span>     <span class="c1">//!&lt; 低帯域の周波数 (単位は Hz)
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">amplitudeHigh</span><span class="p">;</span>    <span class="c1">//!&lt; 高帯域の振幅 (最大振幅を 1.0f とする単位)
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">frequencyHigh</span><span class="p">;</span>    <span class="c1">//!&lt; 高帯域の周波数 (単位は Hz)
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../Pages/Page_104488991.html">VibrationDevice</a> に振動値を送ることで、振動子の振動を制御することができます。&nbsp;</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_104489003_h2_2">振動値と振動の対応関係</h2>
+<p>
+  <a href="../Pages/Page_104488991.html">VibrationDevice</a> に送信された振動値は、最終的には振動子を制御するアナログ波形に変換されます。</p>
+<p>内部的には、 <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a7668abecfd625d4bf937f004538ec70d">amplitudeLow</a> と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a5c534d569ba34d5874af3bebb9a8c7a1">frequencyLow </a>の組からひとつの正弦波が生成され、 <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a844aba2abf842b7ad7a23bca7edefc0d">amplitudeHigh </a>と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a67491cceecedaf5c52ac6f04dbe45d91">frequencyHigh </a>の組からは別の正弦波が生成されます。</p>
+<p>最終的なアナログ波形は、これら 2 つの正弦波を足し合わせた波形です。</p>
+<p>&nbsp;</p>
+<p>振動値の各メンバ変数が、実際の振動とどのような対応関係にあるか、以下にいくつか例を示します。</p>
+<h3 id="Anchor_104489003_h3_1">振幅値と振動の関係</h3>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a7668abecfd625d4bf937f004538ec70d">amplitudeLow</a>&nbsp;と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a844aba2abf842b7ad7a23bca7edefc0d">amplitudeHigh&nbsp;</a>は、振動の振幅を表します。</p>
+<p>これらの変数を変化させることによって、振動の強さを変化させることができます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>振動値</th>
+      <td>
+        <p>amplitudeLow = <strong>0.4f</strong>;</p>
+        <p>frequencyLow = 160.0f;</p>
+        <p>amplitudeHigh = 0.0f;</p>
+        <p>frequencyHigh = 320.0f;</p>
+      </td>
+      <td>
+        <p>amplitudeLow = <strong>0.8f</strong>;</p>
+        <p>frequencyLow = 160.0f;</p>
+        <p>amplitudeHigh = 0.0f;</p>
+        <p>frequencyHigh = 320.0f;</p>
+      </td>
+    </tr>
+    <tr>
+      <th>振動</th>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_104489003/104734671.png" width="300" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_104489003/104734672.png" width="300" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h4 id="Anchor_104489003_h4_1">低帯域と高帯域を組み合わせた振動</h4>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a7668abecfd625d4bf937f004538ec70d">amplitudeLow</a>&nbsp;と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a844aba2abf842b7ad7a23bca7edefc0d">amplitudeHigh&nbsp;</a>の両方に正の値を指定すると、低帯域と高帯域の波形が合成された振動が生成されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>振動値</th>
+      <td>
+        <p>amplitudeLow = <strong>0.3f</strong>;</p>
+        <p>frequencyLow = 160.0f;</p>
+        <p>amplitudeHigh = 0.0f;</p>
+        <p>frequencyHigh = 320.0f;</p>
+      </td>
+      <td>
+        <p>amplitudeLow = 0.0f;</p>
+        <p>frequencyLow = 160.0f;</p>
+        <p>amplitudeHigh = <strong>0.6f</strong>;</p>
+        <p>frequencyHigh = 320.0f;</p>
+      </td>
+      <td>
+        <p>amplitudeLow = <strong>0.3f</strong>;</p>
+        <p>frequencyLow = 160.0f;</p>
+        <p>amplitudeHigh = <strong>0.6f</strong>;</p>
+        <p>frequencyHigh = 320.0f;&nbsp;</p>
+      </td>
+    </tr>
+    <tr>
+      <th>振動</th>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_104489003/104734674.png" width="300" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_104489003/104734675.png" width="300" class="embedded-image" />
+        </span>
+      </td>
+      <td>&nbsp;<span class="embedded-file-wrapper "><img src="../Attachments/Attach_104489003/104734677.png" width="300" class="embedded-image" /></span></td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_104489003_h4_2">振幅の最大値</h4>
+<p>振動子に送る振動値の <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a7668abecfd625d4bf937f004538ec70d">amplitudeLow</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a844aba2abf842b7ad7a23bca7edefc0d">amplitudeHigh</a>&nbsp;の合計値は、 1.0 を超えることができません。</p>
+<p>仮に合計値が 1.0 を超えてしまった場合には、振動子に送信するエンコード処理の過程で適当な係数が&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a7668abecfd625d4bf937f004538ec70d">amplitudeLow</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a844aba2abf842b7ad7a23bca7edefc0d">amplitudeHigh</a>&nbsp;の両方に乗算されて、振幅が適正な範囲に収まるよう調整されます。</p>
+<h3 id="Anchor_104489003_h3_2">周波数値と振動の関係</h3>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a5c534d569ba34d5874af3bebb9a8c7a1">frequencyLow</a>&nbsp;と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a67491cceecedaf5c52ac6f04dbe45d91">frequencyHigh</a>&nbsp;は、振動の周波数を表します。</p>
+<p>これらの変数を変化させることによって、振動の細かさを変化させることができます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>振動値</th>
+      <td>
+        <p>amplitudeLow = 0.6f;</p>
+        <p>frequencyLow = <strong>130.0f</strong>;</p>
+        <p>amplitudeHigh = 0.0f;</p>
+        <p>frequencyHigh = 320.0f;</p>
+      </td>
+      <td>
+        <p>amplitudeLow = 0.6f;</p>
+        <p>frequencyLow = <strong>190.0f</strong>;</p>
+        <p>amplitudeHigh = 0.0f;</p>
+        <p>frequencyHigh = 320.0f;</p>
+      </td>
+    </tr>
+    <tr>
+      <th>振動</th>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_104489003/104734679.png" width="300" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_104489003/104734680.png" width="300" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_104489003_h4_3">デフォルト周波数</h4>
+<p>低帯域のデフォルトの周波数は <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#abf5bb03893feac86bc2e25630690fb74">VibrationFrequencyLowDefault </a>Hz、高帯域のデフォルトの周波数は <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#af6910de976372b3ff51ce332d72d2809">VibrationFrequencyHighDefault </a>Hz です。</p>
+<p>これらのデフォルト周波数は、振動子の共振周波数、すなわち振動しやすい周波数です。</p>
+<p>したがって、基本的にはそれぞれの帯域において、デフォルト周波数から大きく離れた周波数を指定しないことが推奨されます。</p>
+<p>&nbsp;</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Nintendo Switch の振動子に対しては、低周波の帯域に関しては 160 Hz を中心に 40 Hz から 640 Hz まで設定が可能です。</p>
+    <p>また、高周波の帯域に関しては 320 Hz を中心に 80 Hz から 1280 Hz まで設定が可能です。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h2 id="Anchor_104489003_h2_3">振動値の制御方法</h2>
+<h3 id="Anchor_104489003_h3_3">振動値の指定</h3>
+<p>振動値を新規に作るには、 <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a4ef22275c519781a15a46e0479bf27a4">VibrationValue::Make()</a> 関数を使います。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html">VibrationValue</a> 構造体のメンバ変数の値を直接編集することで、振動値を編集することもできます。</p>
+<h3 id="Anchor_104489003_h3_4">VibrationDevice に直接振動値を指定する方法</h3>
+<p>
+  <a href="../Pages/Page_104488991.html">VibrationDevice</a> に対して <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#adc2935e350eab46cc13a4e9d33c61ef9">SendVibrationValue()</a> 関数を使って振動値を直接送信することで、<a href="../Pages/Page_104488991.html">VibrationDevice</a> に対応する振動子を振動させることができます。</p>
+<p>時系列に沿って送信する振動値を変化させると、物理的な振動も動的に変化します。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a7668abecfd625d4bf937f004538ec70d">amplitudeLow</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html#a844aba2abf842b7ad7a23bca7edefc0d">amplitudeHigh</a>&nbsp;が両方 0 であるような振動値を <a href="../Pages/Page_104488991.html">VibrationDevice</a> に対して送信することで、対応する振動子の振動を停止させることができます。</p>
+<h3 id="Anchor_104489003_h3_5">振動バイナリファイルを生成する方法</h3>
+<p>振動バイナリファイルから振動値を取り出して <a href="../Pages/Page_104488991.html">VibrationDevice</a> に送ることで、あらかじめ記録済みの振動値の列を再生することができます。</p>
+<p>詳しくは<a href="../Pages/Page_104489011.html">振動バイナリファイル</a>の説明を参照してください。</p>
+<h3 id="Anchor_104489003_h3_6">振動ノードを使って振動値を制御する方法&nbsp;</h3>
+<p>
+  <a href="../Pages/Page_104489019.html">振動ノード</a>を利用して振動値の流れを制御する有向グラフ構造を構築することもできます。</p>
+<p>詳しくは<a href="../Pages/Page_104489019.html">振動ノード</a>の説明を参照してください。</p>
+<h3 id="Anchor_104489003_h3_7">振動値の更新頻度</h3>
+<p>
+  <a href="../Pages/Page_104488991.html">VibrationDevice</a> に送信された振動値は、内部的には 5ms に一回の頻度で更新されます。</p>
+<p>振動を細かく制御する場合には、5ms 周期で動作するタイマーを利用することが推奨されます。</p>
+<p>これよりも細かい頻度で振動値を更新しようとした場合、途中で指定したいくつかの振動値が内部的に上書きされる場合がありますので注意してください。</p>
+<h2 id="Anchor_104489003_h2_4">調整係数</h2>
+<p>振動値に対する調整係数は、 <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_value.html">VibrationValue</a> の各メンバ変数に対して乗算される係数の組です。</p>
+<p>調整係数を表す <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_modulation.html">nn::hid::VibrationModulation</a> 係数は、 4 つの係数を float 型のメンバ変数として持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">VibrationModulation</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">gainLow</span><span class="p">;</span>      <span class="c1">//!&lt; 低帯域の振幅に対する調整係数
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">pitchLow</span><span class="p">;</span>     <span class="c1">//!&lt; 低帯域の周波数に対する調整係数
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">gainHigh</span><span class="p">;</span>     <span class="c1">//!&lt; 高帯域の振幅に対する調整係数
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">pitchHigh</span><span class="p">;</span>    <span class="c1">//!&lt; 高帯域の周波数に対する調整係数 
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_modulation.html#a22971b3fdbc7ace466ceb22981763677">VibrationModulation::ApplyModulation()</a> 関数を使うことで、調整係数を振動値に適用することができます。</p>
+<p>&nbsp;</p>
+<p>
+  <a href="../Pages/Page_104489019.html">振動ノード</a>によって構築された有向グラフの辺に対して調整係数を設定することもできます。</p>
+<p>辺に対して設定された調整係数は、有向グラフ上で振動値が更新される際に、自動的に振動値に適用されます。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

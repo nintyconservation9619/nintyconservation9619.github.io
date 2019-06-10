@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>IMNMX</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    IMNMX : Integer Minimum/Maximum<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Minimum/Maximum" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "IMNMX", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>IMNMX</b>{.signedAB}{.xmode}</code>   <code>Rd{.CC},Ra,Sb,{!}SPa</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "IMNMX" } -->
+
+ .signedAB    {<b>.U32, .S32*</b>}
+              Specifies whether Ra and Sb are signed or unsigned for
+              the comparison
+
+ .xmode       {<b>.XLO,.XMED,.XHI</b>}
+              Extended precision modes to allow comparison of &gt;32bit
+              values.
+
+ .CC:         Write condition codes
+
+<b>IMNMX</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20)
+</pre>
+
+</div>
+ 
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Miminum or maximum of sources into destination.  Minimum chosen if
+source predicate is TRUE, maximum chosen if source predicate is FALSE.
+Source predicate has optional complement.  Supports unsigned/signed minimum and maximum.</p>
+<p>
+.XLO,.XMED,.XHI are for extended-precision support.  In extended-precision mode, values
+are processed one word at a time, starting with the most-significant word.  As soon as the
+overall ordering is determined, the remaining IMNMX instructions simply select the correct
+input based on the ordering.  .XHI is used to process the high-order word, .XLO is used to
+process the low-order word, and .XMED is used to process any words in the middle (e.g., for
+128-bit values).  For signed minimum and maximum, only the high-order word should be 
+processed as signed number.  The lower-order words should be processed as unsigned number 
+for correctness of the operation.</p>
+<p>
+In extended-precision mode, the Zero Flag and Sign Flag have their usual meaning.  The
+Zero Flag is accumulated across all words of the extended-precision result.  The Sign Flag
+is set based on the result of the first IMNMX instruction in a sequence, so that it
+correctly represents the sign of the extended-precision result.  The Carry Flag is used to
+indicate whether the overall order has been determined.  The Overflow Flag is used to
+indicate this order once it has been determined, so that subsequent IMNMX instructions can
+select the appropriate source operand to copy to the destination.  The final IMNMX
+instruction clears CF and OF, so the Condition Code represents the correct flags for the
+extended-precision result.</p>
+
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+	
+<pre>
+<b>IMNMX</b> R0,R1,R2,PT;          // MIN
+<b>IMNMX</b> R0,R1,R2,!PT;         // MAX
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

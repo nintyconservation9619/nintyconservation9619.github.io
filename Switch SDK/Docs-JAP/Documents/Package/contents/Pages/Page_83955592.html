@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>パフォーマンスガイド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- パフォーマンスガイド -->
+<div class="pagetitle" id="PageId_83955592">パフォーマンスガイド</div>
+<div class="text_separate">
+<h1 id="Anchor_83955592_h1_1">パフォーマンスガイド</h1>
+<p>最適なパフォーマンスを得るためのテクニカルな情報について説明します。</p>
+<h2 id="Anchor_83955592_h2_1">データの設定による高速化について</h2>
+<p>レイアウトランタイムはデータの設定によって 描画処理を高速化することができます。</p>
+<p>高速化のポイントを列挙します。</p>
+<ul class="simple">
+  <li>頂点カラーと透明度を無効にする。<ul><li>頂点カラーの設定を白 (255, 255, 255) にする。</li><li>透明度の設定を 255 にする。</li><li>どちらかの設定を変更すると処理負荷が増加します。</li></ul></li>
+  <li>ブレンドの設定を無効にする。<ul><li>フラグメントオペレーションの「プリセット」から「不透明」を選択する。</li><li>ブレンド設定のカラーを「無効」に、アルファが「カラーと同じ設定」になる。</li></ul></li>
+  <li>マルチテクスチャを減らす。<ul><li>問題ないのであれば、予め合成しておいてマルチテクスチャの枚数を減らす。</li></ul></li>
+  <li>大きなテクスチャではリピート回数を減らす。<ul><li>バイトサイズの大きいテクスチャをリピートで繰り返し表示する場合に、テクスチャキャッシュのミスが多発し、処理負荷が増加します。</li><li>テクスチャの幅や高さ、またはフォーマットを変更することで、テクスチャのサイズを小さく修正する。</li><li>「マッピング設定」や「テクスチャ座標」の設定を修正して、繰り返し回数を減らす。</li></ul></li>
+</ul>
+<h2 id="Anchor_83955592_h2_2">ウィンドウペインの高速化について</h2>
+<p>ウィンドウペインの負荷を少なくするにはいくつかの方法があります。</p>
+<ul class="simple">
+  <li>フレームはできるだけ少なくする。<ul><li>ウィンドウの種類は以下の順番で処理が重くなっていきます。<ul><li>種類「水平ーコンテンツ無し」Tex数「１枚」</li><li>種類「水平ーコンテンツ無し」Tex数「２枚」</li><li>種類「水平」Tex数「１枚」</li><li>種類「水平」Tex数「２枚」</li><li>種類「全方位」Tex数「１枚」</li><li>種類「全方位」Tex数「４枚」</li><li>種類「全方位」Tex数「８枚」</li></ul></li></ul></li>
+  <li>ウィンドウペインの「左上マテリアル共有する」機能を有効にする。</li>
+</ul>
+<h2 id="Anchor_83955592_h2_3">テキストボックスペインの高速化について</h2>
+<p>テキストボックスペインの処理負荷を少なくするためには以下のような点に注意する必要があります。</p>
+<ul class="simple">
+  <li>テキスト内容の変更頻度を少なくする。</li>
+  <li>文字カラーアニメーション（上端カラー、下端カラー）を使わない。<br /><ul class="simple"><li>内部的に頂点カラーを利用しており、頂点の作り直しの処理が発生します。</li><li>代わりに、白黒カラー補完の代用を検討してください。</li></ul></li>
+  <li>TextBox::SetDirtyFlag の使用頻度を少なくする。<ul><li>TextBox::SetDirtyFlag はペインサイズ変更時などに使用します。</li></ul></li>
+</ul>
+<h2 id="Anchor_83955592_h2_4">インダイレクトテクスチャを使用したペインでマスクまたはアルファの処理を最適化</h2>
+<p>インダイレクトテクスチャを使用したペインにマスクやアルファを適用したい場合に マルチテクスチャでアルファチャンネル用テクスチャをさらに追加しないといけないケースがあります。</p>
+<p>マルチテクスチャの枚数を追加すると描画負荷が大きく上がってしまうので、 テクスチャを追加せず、アルファチャンネル付きのインダイレクトテクスチャを作成することで 描画負荷を増加を抑えることができます。</p>
+<p>インダイレクトテクスチャとして、３チャンネル(BC1)または４チャンネル(BC3, RGBA8)の テクスチャフォーマットを利用すると、それぞれ、３チャンネル目(B成分)、４チャンネル目(A成分)が アルファチャンネルとして使用されます。</p>
+<p>圧縮テクスチャの特性上、BC1テクスチャでは想定したようにアルファチャンネルが 再現できない可能性があります。<br />その場合、サイズは増えてしまいますが、 BC3テクスチャなど４チャンネルのフォーマットを利用してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

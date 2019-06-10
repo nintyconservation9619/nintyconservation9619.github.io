@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>CPU パフォーマンス計測</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- CPU パフォーマンス計測 -->
+<div class="pagetitle" id="PageId_113805876">CPU パフォーマンス計測</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_113805876_h1_1">CPU のパフォーマンス計測概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_113805876_h1_2">CPU パフォーマンス計測機能の使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_113805876_h2_1">計測結果の扱い</a>
+      </li>
+      <li>
+        <a href="#Anchor_113805876_h2_2">入れ子計測</a>
+      </li>
+      <li>
+        <a href="#Anchor_113805876_h2_3">アタッチ</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_113805876_h1_1">CPU のパフォーマンス計測概要</h1>
+<p>CPU のパフォーマンス計測は、コード内の任意の複数区間の CPU の処理時間を計測する機能です。<br />計測したい区間を適切な関数で囲むことで、内部でシステムの tick の差分を集計してパフォーマンス情報を簡易的に出力します。&nbsp;&nbsp;</p>
+<p>CPU のパフォーマンス計測を行うためには&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">nn::perf::CpuMeter</a>&nbsp;クラスを使用します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>並列で処理が行われる区間を同時に計測する場合は、並列処理分の <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">nn::perf::CpuMeter</a> オブジェクトを生成して計測する必要があります。</p>
+  </div>
+</div>
+<h1 id="Anchor_113805876_h1_2">CPU パフォーマンス計測機能の使用方法</h1>
+<ol>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_info.html">nn::perf::LoadMeterInfo</a> クラスの初期化を行います。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/perf.h&gt;
+</span>
+<span class="nn">nn::perf::</span><span class="n">LoadMeterInfo</span> <span class="n">info</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">SetSectionCountMax</span><span class="p">(</span> <span class="mi">64</span> <span class="p">);</span>　　　　　　　<span class="c1">// 計測する区間の最大数
+</span><span class="n">info</span><span class="p">.</span><span class="n">SetBufferCount</span><span class="p">(</span> <span class="mi">2</span> <span class="p">);</span>　　　　　　　　　　<span class="c1">// フレーム毎の計測結果を保存するバッファ数（最低ダブルバッファが必要）
+</span> 
+<span class="c1">// info.SetCoreCount() でコア数を設定できるが CpuMeter の初期化にはこの設定は使用されない
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">nn::perf::CpuMeter</a>&nbsp;内で使用するメモリを確保します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">size_t</span> <span class="n">memorySize</span> <span class="o">=</span> <span class="nn">CpuMeter::</span><span class="n">CalculateBufferSize</span><span class="p">(</span> <span class="n">info</span> <span class="p">);</span>
+<span class="kt">size_t</span> <span class="n">memoryAlignment</span> <span class="o">=</span> <span class="nn">CpuMeter::</span><span class="n">GetBufferAlignment</span><span class="p">();</span>
+ 
+<span class="kt">void</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="n">AllocateMemory</span><span class="p">(</span> <span class="n">memorySize</span><span class="p">,</span> <span class="n">memoryAlignment</span> <span class="p">);</span>　　　<span class="c1">// アプリ側のアロケータ等でメモリを確保
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">nn::perf::CpuMeter</a>&nbsp;クラスの初期化を行います。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::perf::</span><span class="n">CpuMeter</span> <span class="n">meter</span><span class="p">;</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="n">info</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memorySize</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>計測したい箇所を&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#aaad5315c7acfb81faa43c543263a86a4">BeginMeasure()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#ad2ca1657fa553bf6b26ee1c5ef148033">EndMeasure()</a>で囲みます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">();</span>  <span class="c1">// 計測開始
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//計測する処理
+</span><span class="p">}</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">();</span>  <span class="c1">// 計測終了
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>毎フレームの終了時に、計測結果を集計して保存するバッファを <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#a5c3e1424475d4aa3312cd06223203821">Next()</a> で切り替えます。この切り替えを行わないと正常に計測ができないため注意してください。<br /><a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#a5c3e1424475d4aa3312cd06223203821">Next()</a>&nbsp;では 「バッファ数 - 2」フレーム前の計測結果を集計します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// 毎フレームのレンダリング
+</span><span class="k">for</span><span class="p">(</span> <span class="kt">int</span> <span class="n">frame</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">frame</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="o">++</span><span class="n">frame</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">();</span>  <span class="c1">// 計測開始
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//計測する処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">();</span>  <span class="c1">// 計測終了
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>             <span class="c1">// 結果の集計とバッファの切り替え
+</span><span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>計測結果をコンソール出力します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>出力結果例です。「　[ メーター名 ] 　計測区間の合計所要時間 ( <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a38bc114bbde7be2db1c62fe185ae7efe">SetFrameRate()</a>&nbsp;で設定したフレームレートに対する割合 )　」のフォーマットで出力されます。<br />メーター名は <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a003f2ba2f7760c174df40e008ef155dd">SetName()</a> で設定できます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="p">[</span> <span class="n">MyMeter</span> <span class="p">]</span>     <span class="mf">15.657</span> <span class="n">ms</span> <span class="p">(</span><span class="mf">93.943764</span><span class="o">%</span><span class="p">)</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>終了処理を行います。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">meter</span><span class="p">.</span><span class="n">Finalize</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>確保したメモリはアプリ側で開放してください。&nbsp;</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">FreeMemory</span><span class="p">(</span> <span class="n">memory</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_113805876_h2_1">計測結果の扱い</h2>
+<p>区間毎の計測結果は&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1perf_1_1_load_meter_base_1_1_section.html">nn::perf::LoadMeterBase::Section</a>&nbsp;構造体で扱います。<br /><a href="../../../Api/HtmlNX/structnn_1_1perf_1_1_load_meter_base_1_1_section.html">nn::perf::LoadMeterBase::Section</a>&nbsp;構造体は以下の情報を保持します。</p>
+<ul>
+  <li>区間の開始時間</li>
+  <li>区間の終了時間</li>
+  <li>区間の色</li>
+  <li>区間の名前</li>
+  <li>区間のタグ</li>
+  <li>入れ子で計測されている場合の親区間</li>
+  <li>入れ子の深さ<br /></li>
+</ul>
+<p>なお <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#adad92a510925364eb81aedba60d22d59">BeginMeasure()</a>&nbsp;の引数に計測する区間の色と名前とタグを設定することが可能です。<br /><br /><a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#aab42a9f8cf7638a2fc0828b1c4d45b16">GetLastResult()</a> を使うことで&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1perf_1_1_load_meter_base_1_1_section.html">nn::perf::LoadMeterBase::Section</a>&nbsp;を取得可能です。<br /><a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#ad45fb8738c4e68a231b00ecdde1432e6">GetLastTotalSpan()</a> を使うことで計測した区間の合計の所要時間を取得できます。</p>
+<p>&nbsp;</p>
+<p>コンソール出力や <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#aab42a9f8cf7638a2fc0828b1c4d45b16">GetLastResult()</a>, <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#ad45fb8738c4e68a231b00ecdde1432e6">GetLastTotalSpan()</a>&nbsp;等の計測結果を取得する関数で得られる値は、最新の&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#a5c3e1424475d4aa3312cd06223203821">Next()</a> で集計された結果になります。<br /><a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html#a5c3e1424475d4aa3312cd06223203821">Next()</a> では 「バッファ数 - 2」フレーム前の計測結果を集計します。<br />バッファ数は <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_info.html#aab91da1a45f893d9a661d3def9438a7b">nn::perf::LoadMeterInfo::SetBufferCount()</a> で設定可能です (初期値はダブルバッファとなる 2 )。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">//--------- 0 フレーム目 ------------//
+</span><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">);</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">();</span>
+ 
+<span class="c1">// バッファが 2 の場合 &quot;A&quot; の計測を集計。
+// バッファが 3 の場合、集計しない。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>
+<span class="c1">// バッファが 2 の場合 &quot;A&quot; の結果を出力。
+// バッファが 3 の場合、初期値を出力。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span>
+ 
+<span class="c1">//--------- 1 フレーム目 ------------//
+</span><span class="n">meter</span><span class="p">.</span><span class="n">BeginMeasure</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">);</span>
+<span class="n">meter</span><span class="p">.</span><span class="n">EndMeasure</span><span class="p">();</span>
+ 
+<span class="c1">// バッファが 2 の場合 &quot;B&quot; の計測を集計。
+// バッファが 3 の場合 &quot;A&quot; の計測を集計。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>
+<span class="c1">// バッファが 2 の場合 &quot;B&quot; の結果を出力。
+// バッファが 3 の場合 &quot;A&quot; の結果を出力。
+</span><span class="n">meter</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_113805876_h2_2">入れ子計測</h2>
+<p>以下のように入れ子で計測することも可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">BeginMeasure</span><span class="p">(</span><span class="s">&quot;処理A&quot;</span><span class="p">);</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">BeginMeasure</span><span class="p">(</span><span class="s">&quot;処理B&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 処理
+</span>&nbsp;&nbsp;&nbsp; <span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">EndMeasure</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="n">EndMeasure</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この場合&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#ad45fb8738c4e68a231b00ecdde1432e6">GetLastTotalSpan()</a> で取得できる時間やログ出力される時間は、「処理 A + 処理 B」の時間ではなく「処理 A」の時間です。入れ子で計測した結果は加算されません。&nbsp;</p>
+<h2 id="Anchor_113805876_h2_3">アタッチ</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a5840e28c79d9cc2fd7ae8bd4f14161d8">AttachLoadMeter()</a> を使用することで、自身とは別の&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_cpu_meter.html">nn::perf::CpuMeter</a>&nbsp;及び&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_gpu_meter.html">nn::perf::GpuMeter</a>&nbsp;のオブジェクトを自身にアタッチすることができます。<br />オブジェクトをアタッチすると&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a43157c0b871db6e3ac6f7cd43831e92d">Next()</a> 及び <a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a0f849fa3a545aaeec11c51358c69b975">Dump()</a> を呼んだ際に、アタッチしたオブジェクトの&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a43157c0b871db6e3ac6f7cd43831e92d">Next()</a>&nbsp;及び&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_base.html#a0f849fa3a545aaeec11c51358c69b975">Dump()</a>&nbsp;関数も同時に呼ばれるようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::perf::</span><span class="n">CpuMeter</span> <span class="n">meterMain</span><span class="p">;</span>
+<span class="nn">nn::perf::</span><span class="n">CpuMeter</span> <span class="n">meterSubCpu</span><span class="p">;</span>
+<span class="nn">nn::perf::</span><span class="n">GpuMeter</span> <span class="n">meterSubGpu</span><span class="p">;</span>
+ 
+<span class="n">meterMain</span><span class="p">.</span><span class="n">AttachLoadMeter</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">meterSubCpu</span> <span class="p">);</span>
+<span class="n">meterMain</span><span class="p">.</span><span class="n">AttachLoadMeter</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">meterSubGpu</span> <span class="p">);</span>
+
+<span class="k">for</span><span class="p">(</span> <span class="kt">int</span> <span class="n">frame</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">frame</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="o">++</span><span class="n">frame</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 毎フレームの処理内容
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">meterMain</span><span class="p">.</span><span class="n">Next</span><span class="p">();</span>   <span class="c1">// meterSubCpu と meterSubGpu の Next() も内部で呼ばれる
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">meterMain</span><span class="p">.</span><span class="n">Dump</span><span class="p">();</span> <span class="c1">// meterSubCpu と meterSubGpu の Dump() も内部で呼ばれる
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

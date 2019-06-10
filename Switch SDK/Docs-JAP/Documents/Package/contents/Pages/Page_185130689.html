@@ -1,0 +1,930 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>パフォーマンス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- パフォーマンス -->
+<div class="pagetitle" id="PageId_185130689">パフォーマンス</div>
+<div class="text_separate">
+<h1 id="Anchor_185130689_h1_1">パフォーマンスに影響する要因</h1>
+<h2 id="Anchor_185130689_h2_1">記録メディアのアクセス速度</h2>
+<p>
+  <span style="color: rgb(51,51,51);">記録メディアのアクセス速度は、記録メディアの種類<span style="color: rgb(51,51,51);">（本体保存メモリー、ゲームカード、SDカード）</span>によって異なります。また同一のメディアであっても、容量や製品の世代、個体差、経年劣化などによってアクセス速度が異なる場合があります。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">4GB 以下のゲームカードは 25MHz で動作し、8GB 以上のゲームカードは 50MHz で動作するため、<span style="color: rgb(51,51,51);">ゲームカードは</span>容量によって 2 倍のパフォーマンス差があります。NX 開発カードは、nmeta ファイルの設定によって容量および動作周波数を変更できます。詳細は 機能 &gt;&nbsp;<a href="../Pages/Page_177655843.html">NX 開発カード</a>&nbsp;を参照してください。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">SD カードは、様々な製品が市場に流通しており、パフォーマンスも様々です。同じクラスの SD カードでもパフォーマンスは異なる場合があります。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">アプリケーションは、記録メディアのアクセス速度が変動しても正常に動作する必要があります。アクセス速度に依存した不具合がないかテストするために、NintendoSDK では速度エミュレーション機能を提供しています。速度エミュレーション機能では、Faster mode、Slower mode、Random mode の 3 つの速度でアプリケーションの動作を確認することが出来ます。詳細は FS ライブラリ &gt; デバッグ機能 &gt;&nbsp;<a href="../Pages/Page_177646410.html">アクセス速度依存確認</a> を参照してください。</span>
+</p>
+<h2 id="Anchor_185130689_h2_2">記録メディアへの同時アクセス</h2>
+<p>本体保存メモリー、ゲームカード、SD カードへの通信経路はそれぞれ一つのため、アプリケーションから同じ記録メディアに配置されるデータを複数同時にアクセスしても内部的な処理はブロッキングされます。</p>
+<p>アプリケーションがゲームカードから起動された場合、アプリケーション動作中にリソースデータ（ROM）が保存されているゲームカードへアクセスを行うのは起動しているアプリケーションのみですが、セーブデータが保存されている本体保存メモリーへは Firmware からのアクセスも発生することがあるため、同時アクセス の影響を受けます。</p>
+<p>アプリケーションが本体保存メモリーまたは SD カードから起動された場合は、セーブデータだけでなくリソースデータ（ROM）へのアクセスも 同時アクセス の影響を受けます。</p>
+<p>代表的な 同時アクセス としてはバックグラウンドでアプリケーションのダウンロードが発生している状況が挙げられます。</p>
+<p>
+  <span style="color: rgb(51,51,51);">このような 同時アクセス の結果、一時的にアクセスがブロッキングされ、後述するパフォーマンス実測値より遅いアクセス速度になる場合があります。</span>
+</p>
+<h2 id="Anchor_185130689_h2_3">CPU リソースやメモリ帯域の負荷</h2>
+<p>グラフィックス処理などにより、CPU リソースやメモリ帯域に負荷がかかると、FS パフォーマンスも低下します。<a href="../Pages/Page_258035870.html#Anchor_258035870_h2_2">動画撮影機能</a> を有効化すると、FS パフォーマンスは 10% 前後低下します。</p>
+<h2 id="Anchor_185130689_h2_4">アクセス方法</h2>
+<p>FS パフォーマンスはアクセス方法に大きく依存します。ファイルを連続したオフセットアドレスでアクセスするシーケンシャルアクセスの方が不連続のオフセットアドレスでアクセスするランダムアクセスより速いです。また、大きなバッファサイズでまとめてアクセスする方が小さなバッファサイズで細かくアクセスするより速いです。具体的な実装方法は、後述の&nbsp;<a href="#Anchor_185130689_access_optimization">アクセス速度の最適化</a>&nbsp;を参照してください。</p>
+<h2 id="Anchor_185130689_h2_5">データの配置</h2>
+<p>本体保存メモリーと SD カードでは、ディレクトリとファイルの作成と削除が繰り返されると、連続した空き領域がなくなり、データが断片化して配置される可能性があります。この場合、記録メディアへまとめてアクセスできなくなり、パフォーマンスが遅くなります。</p>
+<p>また、SD カードが適切にフォーマットされていない場合、データの配置が SD カード内部の物理的なアクセス単位と合わず、非効率なアクセスとなり、パフォーマンスが遅くなる場合があります。</p>
+<h1 id="Anchor_185130689_h1_2">パフォーマンス実測値（参考）</h1>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <span style="color: rgb(4,52,108);">ここに示す値はパフォーマンスとして保証されているわけではありません。パフォーマンスは上記に示した要因に大きく依存します。</span>
+    </p>
+  </div>
+</div>
+<p>リソースデータ（ROM）、セーブデータのアクセス速度を次の条件で測定した結果を示します。</p>
+<!--Remove-->
+<ul>
+  <li>NintendoSDK Firmware for NX 5.0.0-4.0 (NX Addon 5.3.0)</li>
+  <li>動画撮影機能有効</li>
+  <li>Joy-Con 接続状態</li>
+</ul>
+<h2 id="Anchor_185130689_h2_6">リソースデータ（ROM）の読み込み</h2>
+<h3 id="Anchor_185130689_h3_1">記録メディアの比較</h3>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_185130689/268862286.png" height="400" class="embedded-image" />
+  </span>
+</p>
+<ul>
+  <li>A: 速度エミュレーション Faster mode</li>
+  <li>B: 本体保存メモリー</li>
+  <li>C: SD カード</li>
+  <li>D: 8GB 以上のゲームカード</li>
+  <li>E: 4GB 以下のゲームカード</li>
+  <li>F: 速度エミュレーション Slower mode</li>
+</ul>
+<h3 id="Anchor_185130689_h3_2">4GB 以下のゲームカード</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">4.2</td>
+      <td style="text-align: right;">0.6</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">5.4</td>
+      <td style="text-align: right;">1.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">6.3</td>
+      <td style="text-align: right;">1.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">6.7</td>
+      <td style="text-align: right;">3.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">7.1</td>
+      <td style="text-align: right;">5.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">10.4</td>
+      <td style="text-align: right;">8.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">13.3</td>
+      <td style="text-align: right;">11.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">15.6</td>
+      <td style="text-align: right;">12.8</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">17.2</td>
+      <td style="text-align: right;">15.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">18.0</td>
+      <td style="text-align: right;">17.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">18.4</td>
+      <td style="text-align: right;">17.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">18.8</td>
+      <td style="text-align: right;">18.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">19.1</td>
+      <td style="text-align: right;">18.8</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_185130689_h3_3">8GB 以上のゲームカード</h3>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">4.8</td>
+      <td style="text-align: right;">0.8</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">6.2</td>
+      <td style="text-align: right;">1.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">7.3</td>
+      <td style="text-align: right;">2.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">8.2</td>
+      <td style="text-align: right;">3.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">8.6</td>
+      <td style="text-align: right;">7.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">13.9</td>
+      <td style="text-align: right;">11.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">19.8</td>
+      <td style="text-align: right;">16.8</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">25.1</td>
+      <td style="text-align: right;">20.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">29.4</td>
+      <td style="text-align: right;">25.5</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">31.3</td>
+      <td style="text-align: right;">29.6</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">32.9</td>
+      <td style="text-align: right;">30.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">34.6</td>
+      <td style="text-align: right;">32.6</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">35.6</td>
+      <td style="text-align: right;">34.4</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_185130689_h3_4">本体保存メモリー</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">6.6</td>
+      <td style="text-align: right;">2.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">10.8</td>
+      <td style="text-align: right;">3.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">14.5</td>
+      <td style="text-align: right;">5.5</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">18.2</td>
+      <td style="text-align: right;">9.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">22.2</td>
+      <td style="text-align: right;">17.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">35.9</td>
+      <td style="text-align: right;">29.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">52.6</td>
+      <td style="text-align: right;">43.5</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">66.3</td>
+      <td style="text-align: right;">51.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">69.8</td>
+      <td style="text-align: right;">59.6</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">74.7</td>
+      <td style="text-align: right;">69.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">89.7</td>
+      <td style="text-align: right;">80.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">89.4</td>
+      <td style="text-align: right;">88.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">97.9</td>
+      <td style="text-align: right;">99.0</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_185130689_h3_5">SD カード</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">4.5</td>
+      <td style="text-align: right;">1.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">5.9</td>
+      <td style="text-align: right;">1.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">7.1</td>
+      <td style="text-align: right;">2.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">8.0</td>
+      <td style="text-align: right;">3.5</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">8.5</td>
+      <td style="text-align: right;">5.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">11.6</td>
+      <td style="text-align: right;">9.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">14.6</td>
+      <td style="text-align: right;">12.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">16.2</td>
+      <td style="text-align: right;">14.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">17.4</td>
+      <td style="text-align: right;">16.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">18.0</td>
+      <td style="text-align: right;">17.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">18.9</td>
+      <td style="text-align: right;">18.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">19.7</td>
+      <td style="text-align: right;">19.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">20.1</td>
+      <td style="text-align: right;">19.9</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_185130689_h3_6">速度エミュレーション Faster mode</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">8.2</td>
+      <td style="text-align: right;">3.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">14.0</td>
+      <td style="text-align: right;">5.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">19.8</td>
+      <td style="text-align: right;">8.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">26.3</td>
+      <td style="text-align: right;">14.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">32.9</td>
+      <td style="text-align: right;">24.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">51.7</td>
+      <td style="text-align: right;">40.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">72.4</td>
+      <td style="text-align: right;">59.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">89.1</td>
+      <td style="text-align: right;">75.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">101.3</td>
+      <td style="text-align: right;">89.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">96.7</td>
+      <td style="text-align: right;">90.8</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">120.8</td>
+      <td style="text-align: right;">103.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">132.2</td>
+      <td style="text-align: right;">118.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">138.5</td>
+      <td style="text-align: right;">130.3</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_185130689_h3_7">速度エミュレーション Slower mode</h3>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col style="width: 115.0px;" />
+    <col style="width: 168.0px;" />
+    <col style="width: 128.0px;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">3.7</td>
+      <td style="text-align: right;">0.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">4.9</td>
+      <td style="text-align: right;">0.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">5.6</td>
+      <td style="text-align: right;">0.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">6.2</td>
+      <td style="text-align: right;">0.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">6.4</td>
+      <td style="text-align: right;">1.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">9.3</td>
+      <td style="text-align: right;">2.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">12.4</td>
+      <td style="text-align: right;">4.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">14.2</td>
+      <td style="text-align: right;">7.8</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">15.7</td>
+      <td style="text-align: right;">11.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">16.6</td>
+      <td style="text-align: right;">14.6</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">14.6</td>
+      <td style="text-align: right;">13.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">15.4</td>
+      <td style="text-align: right;">14.5</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">15.8</td>
+      <td style="text-align: right;">15.5</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_185130689_h2_7">セーブデータの読み込み</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">8.5</td>
+      <td style="text-align: right;">3.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">14.0</td>
+      <td style="text-align: right;">5.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">20.5</td>
+      <td style="text-align: right;">8.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">26.3</td>
+      <td style="text-align: right;">16.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">32.3</td>
+      <td style="text-align: right;">31.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">51.5</td>
+      <td style="text-align: right;">48.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">74.2</td>
+      <td style="text-align: right;">69.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">94.5</td>
+      <td style="text-align: right;">89.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">108.4</td>
+      <td style="text-align: right;">103.0</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">106.1</td>
+      <td style="text-align: right;">102.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">107.3</td>
+      <td style="text-align: right;">104.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">108.1</td>
+      <td style="text-align: right;">103.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">106.1</td>
+      <td style="text-align: right;">105.9</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_185130689_h2_8">セーブデータの書き込み</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>バッファサイズ<br />(KB)&nbsp;</th>
+      <th>シーケンシャルアクセス<br />(MB/sec)&nbsp;</th>
+      <th>ランダムアクセス<br />(MB/sec)&nbsp;</th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">4.5</td>
+      <td style="text-align: right;">1.3</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">6.4</td>
+      <td style="text-align: right;">1.6</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">7.7</td>
+      <td style="text-align: right;">2.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">9.3</td>
+      <td style="text-align: right;">4.9</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">12.6</td>
+      <td style="text-align: right;">12.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">26.6</td>
+      <td style="text-align: right;">25.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">35.3</td>
+      <td style="text-align: right;">32.7</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">36.3</td>
+      <td style="text-align: right;">36.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">47.3</td>
+      <td style="text-align: right;">43.5</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">56.6</td>
+      <td style="text-align: right;">54.2</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">57.1</td>
+      <td style="text-align: right;">56.1</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">56.7</td>
+      <td style="text-align: right;">56.4</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">57.0</td>
+      <td style="text-align: right;">56.9</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_185130689_h1_3">アクセス速度の最適化<a name="Anchor_185130689_access_optimization"></a></h1>
+<p>NintendoSDK のファイルシステムは、セキュリティや堅牢性を維持するため、一度のアクセスにかかる時間が比較的大きくなっています。パフォーマンスの低下を抑えるためには、次のようなことに注意する必要があります。</p>
+<ul>
+  <li>ファイルの開閉回数を減らす</li>
+  <li>フラッシュする回数を減らす</li>
+  <li>大きなバッファでまとめてアクセスする<br /></li>
+  <li>ファイルシステム以外の機能も含めたシステムの処理負荷を下げる</li>
+</ul>
+<p>また、記録メディアは、本体保存メモリー、ゲームカード、SD カードに共通して次のような特性があります。</p>
+<ul>
+  <li>連続したアドレスでアクセスするシーケンシャルアクセスの方が速い<br class="_mce_tagged_br" /></li>
+  <li>まとめてアクセスした方が速い</li>
+</ul>
+<p>上記の「4GB 以下のゲームカード」の実測値を例に考えると、次のようになります。</p>
+<ul>
+  <li>16MB のデータを連続したアドレスで読み出す場合、<br class="_mce_tagged_br" /><ul><li>1KB バッファで 16 * 1024 回 <span class="ApiLink_nn__fs__ReadFile">nn::fs::ReadFile</span>() すると 約 3.8 秒かかる<br /></li><li>1MB バッファで 16 回 <span class="ApiLink_nn__fs__ReadFile">nn::fs::ReadFile</span>() すると 約 0.9 秒で済む</li></ul></li>
+  <li>ある 1MB 領域内に飛び飛びにデータが配置されている場合、<br /><ul><li>1KB バッファで 500 回 <span class="ApiLink_nn__fs__ReadFile">nn::fs::ReadFile</span>() を行うと 約 814 ms かかる<br /></li><li>1MB バッファで 1 回 <span class="ApiLink_nn__fs__ReadFile">nn::fs::ReadFile</span>() を 59 ms で行い、RAM 上で該当箇所を参照する方が速い</li></ul></li>
+</ul>
+<p>
+  <span class="ApiLink_nn__fs">nn::fs</span> API をコールする回数を少なくするほどパフォーマンスは向上する、とも言えます。</p>
+<p>データ構造の設計段階で、これらを念頭に入れて設計するようにしてください。これらを考慮しなかった場合、十分なパフォーマンスが得られず、修正する場合に大きなコストが必要になる可能性があります。データ構造の設計では、パッチ &gt;&nbsp;<a href="../Pages/Page_185135554.html">最適化情報</a>&nbsp;も考慮してください。</p>
+<p>実装例として、Data という型のデータ 10 個をファイル save:/data.dat に書き込むことを考えます。i 番目のデータへのポインタは、関数 const Data* GetData(i); で取得できるものとします。 なお、疑似コードであり、見やすさのため、マウント処理やエラーハンドリングは省略しています。 実際のコードでは FS ライブラリ &gt; マニュアル &gt; 機能説明 &gt;&nbsp;<a href="../Pages/Page_174247773.html">エラーハンドリング</a>&nbsp;に従って正しくエラーハンドリングしてください。</p>
+<p>まず、もっとも単純なコードです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::fs::CreateFile(&quot;save:/data.dat&quot;, 0);
+for (int i = 0; i &lt; 10; ++i)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::FileHandle fileHandle;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::OpenFile(&amp;fileHandle, &quot;save:/data.dat&quot;, nn::fs::OpenMode_Write | nn::fs::OpenMode_AllowAppend);
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::WriteFile(fileHandle, sizeof(Data) * i, GetData(i), sizeof(Data), nn::fs::WriteOption::MakeValue(nn::fs::WriteOptionFlag_Flush));
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::CloseFile(fileHandle);
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記のコードでは、追記書き込みのたびにファイルの管理情報のファイルサイズが更新され、アクセスが遅くなります。また、追記されたデータ領域は物理的に連続した配置にならない場合があり、以降のファイルアクセスが遅くなる可能性があります。ファイルを作成する際は、以下のようにあらかじめ必要なサイズを指定し、<span class="ApiLink_nn__fs__OpenMode_AllowAppend">nn::fs::OpenMode_AllowAppend</span> オプションを指定せずにファイルアクセスすることを推奨します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::fs::CreateFile(&quot;save:/data.dat&quot;, sizeof(Data) * 10);
+for (int i = 0; i &lt; 10; ++i)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::FileHandle fileHandle;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::OpenFile(&amp;fileHandle, &quot;save:/data.dat&quot;, nn::fs::OpenMode_Write);
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::WriteFile(fileHandle, sizeof(Data) * i, GetData(i), sizeof(Data), nn::fs::WriteOption::MakeValue(nn::fs::WriteOptionFlag_Flush));
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::CloseFile(fileHandle);
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>次に、上記のコードでは一要素を書き込むたびにファイルを開き直しています。 ファイルのオープン・クローズは、管理情報の読み込み・解放を伴うため、ファイルシステムにとって重い処理となります。 そこで、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::fs::CreateFile(&quot;save:/data.dat&quot;, sizeof(Data) * 10);
+nn::fs::FileHandle fileHandle;
+nn::fs::OpenFile(&amp;fileHandle, &quot;save:/data.dat&quot;, nn::fs::OpenMode_Write);
+for (int i = 0; i &lt; 10; ++i)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::WriteFile(fileHandle, sizeof(Data) * i, GetData(i), sizeof(Data), nn::fs::WriteOption::MakeValue(nn::fs::WriteOptionFlag_Flush));
+}
+nn::fs::CloseFile(fileHandle);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>のようにすることを考えます。 ファイルを開く回数を削減した分、全体の処理時間を削減できます。しかし、このままでは、まだフラッシュの回数が多いです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::fs::CreateFile(&quot;save:/data.dat&quot;, sizeof(Data) * 10);
+nn::fs::FileHandle fileHandle;
+nn::fs::OpenFile(&amp;fileHandle, &quot;save:/data.dat&quot;, nn::fs::OpenMode_Write);
+for (int i = 0; i &lt; 10; ++i)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::WriteFile(fileHandle, sizeof(Data) * i, GetData(i), sizeof(Data), nn::fs::WriteOption());
+}
+nn::fs::FlushFile(fileHandle);
+nn::fs::CloseFile(fileHandle);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記コードのようにフラッシュを一回だけ最後に行うことで、全体の処理時間を削減できます。</p>
+<p>しかし、sizeof(Data) が比較的小さい場合、一回のファイルアクセスにかかるオーバヘッドが大きいため、 総アクセス量に対して想定外に大きな時間がかかることがあります。 このような場合、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::fs::CreateFile(&quot;save:/data.dat&quot;, sizeof(Data) * 10);
+nn::fs::FileHandle fileHandle;
+nn::fs::OpenFile(&amp;fileHandle, &quot;save:/data.dat&quot;, nn::fs::OpenMode_Write);
+char* buffer = allocator.Allocate(sizeof(Data) * 10, 4);
+NN_ABORT_UNLESS_NOT_NULL(buffer);
+for (int i = 0; i &lt; 10; ++i)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;std::memcpy(buffer + sizeof(Data) * i, GetData(i), sizeof(Data));
+}
+nn::fs::WriteFile(fileHandle, 0, buffer, sizeof(Data) * 10, nn::fs::WriteOption::MakeValue(nn::fs::WriteOptionFlag_Flush));
+allocator.Free(buffer);
+nn::fs::CloseFile(fileHandle);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>のようにまとめてアクセスすることで、速度を向上することが可能です。軽微な速度改善ですが、読み込み・書き込みに使用するバッファは 4 Byte アライメントにすると、ファイルシステム内部でのアライメント調整処理を削減できます。アライメントを指定したバッファの確保は <span class="ApiLink_NN_ALIGNAS">NN_ALIGNAS</span> マクロや&nbsp;<a href="../Pages/Page_89102552.html">StandardAllocator</a>&nbsp;を使用してください。</p>
+<p>すべてをまとめてアクセスできるほどの十分なバッファを捻出できない場合は、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::fs::CreateFile(&quot;save:/data.dat&quot;, sizeof(Data) * 10);
+nn::fs::FileHandle fileHandle;
+nn::fs::OpenFile(&amp;fileHandle, &quot;save:/data.dat&quot;, nn::fs::OpenMode_Write);
+char* buffer = allocator.Allocate(sizeof(Data) * 5, 4);
+NN_ABORT_UNLESS_NOT_NULL(buffer);
+for (int j = 0; j &lt; 2; ++j)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; 5; ++i)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::memcpy(buffer + sizeof(Data) * i, GetData(5 * j + i), sizeof(Data));
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;nn::fs::WriteFile(fileHandle, (sizeof(Data) * 5) * j, buffer, sizeof(Data) * 5, nn::fs::WriteOption());
+}
+allocator.Free(buffer);
+nn::fs::FlushFile(fileHandle);
+nn::fs::CloseFile(fileHandle);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>のように、部分的にでもまとめてアクセスするようにしてください。</p>
+<p>512KB 以上のデータの読み込み・書き込みをまとめるバッファサイズは 512KB 以上になることを目標としてください。 これよりも細かいアクセスの場合、パフォーマンスが大幅に低下することが考えられます。 さらに、非常に大きなアクセス(10MB 以上)をまとめて行う場合には、1MB 以上のバッファを確保することを推奨します。</p>
+<p>この他に、ファイルアクセスと並列して必要な処理を行うようにすると、全体の処理時間を削減することが出来ます。例えば、圧縮されているデータを読み込む場合やデータを圧縮して書き込む場合は、読み込み処理と伸張処理、圧縮処理と書き込み処理を並走させると良いです。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__fs__ReadFile', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a433a913ce9dd7154b430118e99b4867b' )
+SetUrl( 'ApiLink_nn__fs', '../../../Api/HtmlNX/namespacenn_1_1fs.html' )
+SetUrl( 'ApiLink_nn__fs__OpenMode_AllowAppend', '../../../Api/HtmlNX/namespacenn_1_1fs.html#a4c97b79cce78a95c2333dbc9053b9393aac1149600d18adbb26a1ae87de7096c1' )
+SetUrl( 'ApiLink_NN_ALIGNAS', '../../../Api/HtmlNX/nn___macro_8h.html#a6ce9d4b07ab8bec971ac8875873615b5' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

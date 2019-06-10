@@ -1,0 +1,298 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: BreakpadSimple.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">BreakpadSimple.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_breakpad_simple.html">breakpad による ELF ファイルからのデバッグ情報の取得</a> および <a class="el" href="_breakpad_simple_8cpp.html" title="breakpad による ELF ファイルからのデバッグ情報の取得 ">BreakpadSimple.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nn_Common.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;breakpad/dwarf2reader.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;breakpad/functioninfo.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;new&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/diag.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">using namespace </span><a class="code" href="namespacedwarf2reader.html">dwarf2reader</a>;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> uint64_t ReadDebugSections(ElfReader &amp;rd, SectionMap *sections)</div>
+<div class="line">{</div>
+<div class="line">    uint64_t debug_info_len = 0;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> shndx = 0; shndx &lt; rd.GetNumSections(); ++shndx)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span> *sec_name = rd.GetSectionName(shndx);</div>
+<div class="line">        <span class="keywordflow">if</span> (sec_name != <span class="keyword">nullptr</span> &amp;&amp; strncmp(sec_name, <span class="stringliteral">&quot;.debug&quot;</span>, 6) == 0)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordtype">size_t</span> sec_size;</div>
+<div class="line">            <span class="keyword">auto</span> *sec_data = rd.GetSectionByIndex(shndx, &amp;sec_size);</div>
+<div class="line">            sections-&gt;insert(std::make_pair(sec_name, std::make_pair(reinterpret_cast&lt;const uint8_t *&gt;(sec_data), sec_size)));</div>
+<div class="line">            <span class="keywordflow">if</span> (!strcmp(sec_name, <span class="stringliteral">&quot;.debug_info&quot;</span>))</div>
+<div class="line">            {</div>
+<div class="line">                debug_info_len = sec_size;</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">return</span> debug_info_len;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> printFunction(<span class="keyword">const</span> FunctionInfo &amp;fi, LineMap &amp;lm)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// If DW_AT_decl_file(line) is missing we try to find file:line</span></div>
+<div class="line">    <span class="comment">// using LineMap.</span></div>
+<div class="line">    std::string file = fi.file;</div>
+<div class="line">    <span class="keywordtype">unsigned</span> line = fi.line;</div>
+<div class="line">    <span class="keywordflow">if</span> (file.empty())</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">auto</span> line_it = lm.lower_bound(fi.lowpc);</div>
+<div class="line">        <span class="keywordflow">if</span> (line_it != lm.end()) std::tie(file, line) = (*line_it).second;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a0"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;{ &#39;%s&#39;, &#39;%s:%u&#39;, &#39;[%p - %p]&#39; }\n&quot;</span>, fi.name.c_str(), file.c_str(),</div>
+<div class="line">            line, <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">void</span> *<span class="keyword">&gt;</span>(fi.lowpc),</div>
+<div class="line">            reinterpret_cast&lt;void *&gt;(fi.highpc));</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> SearchFunctionName(uintptr_t targetAddr, SectionMap sections, ByteReader br, <span class="keyword">const</span> <span class="keywordtype">char</span>* FilePath, uint64_t debug_info_len)</div>
+<div class="line">{</div>
+<div class="line">    uint64_t cu_len, cu_offset = 0;</div>
+<div class="line">    <span class="keywordflow">do</span></div>
+<div class="line">    {</div>
+<div class="line">        FunctionMap offset2fi, addr2fi;</div>
+<div class="line">        std::vector&lt;std::string&gt; dirs;</div>
+<div class="line">        std::vector&lt;SourceFileInfo&gt; files;</div>
+<div class="line">        LineMap lm;</div>
+<div class="line">        CULineInfoHandler lih(&amp;files, &amp;dirs, &amp;lm);</div>
+<div class="line">        CUFunctionInfoHandler fih(&amp;files, &amp;dirs, <span class="keyword">nullptr</span>, &amp;offset2fi, &amp;addr2fi, &amp;lih, sections, &amp;br);</div>
+<div class="line"></div>
+<div class="line">        CompilationUnit cu(FilePath, sections, cu_offset, &amp;br, &amp;fih);</div>
+<div class="line">        cu_len = cu.Start();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span>(<span class="keyword">auto</span> &amp;p : addr2fi)</div>
+<div class="line">        {</div>
+<div class="line">            FunctionInfo* pFunctionInfo = p.second;</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// バックトレースで取得したアドレスが、指定されたアドレス内にあるかを確認する</span></div>
+<div class="line">            <span class="comment">//NN_LOG(&quot;0x%X - 0x%X\n&quot;, pFunctionInfo-&gt;lowpc, pFunctionInfo-&gt;highpc);</span></div>
+<div class="line">            <span class="keywordflow">if</span>( pFunctionInfo-&gt;lowpc &lt;= targetAddr &amp;&amp; targetAddr &lt;= pFunctionInfo-&gt;highpc )</div>
+<div class="line">            {</div>
+<div class="line">                <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%s\n&quot;</span>, pFunctionInfo-&gt;name.c_str());</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        cu_offset += cu_len;</div>
+<div class="line">    } <span class="keywordflow">while</span> (cu_len &amp;&amp; cu_offset &lt; debug_info_len);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a1"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a2"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> result;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">size_t</span> cacheSize = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">char</span>* cacheBuffer = <span class="keyword">nullptr</span>;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ファイルシステムをマウントします。</span></div>
+<div class="line">    <span class="comment">// マウントにはキャッシュバッファが必要です。</span></div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Mount Rom\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// ファイルシステムのメタデータキャッシュに必要なバッファサイズを取得します。</span></div>
+<div class="line">        <span class="comment">// 取得失敗時はライブラリ内でアボートするため、エラーハンドリングは不要です。</span></div>
+<div class="line">        (void)<a name="a3"></a><a class="code" href="namespacenn_1_1fs.html#a5df6e3385c795a5bd046790ef7f17f2d">nn::fs::QueryMountRomCacheSize</a>(&amp;cacheSize);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// キャッシュバッファを確保します。</span></div>
+<div class="line">        cacheBuffer = <span class="keyword">new</span>(std::nothrow) <span class="keywordtype">char</span>[cacheSize];</div>
+<div class="line">        <span class="keywordflow">if</span> (cacheBuffer == <span class="keyword">nullptr</span>)</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a4"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(<span class="keyword">false</span>, <span class="stringliteral">&quot;Cache buffer is null.\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">return</span>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// ファイルシステムをマウントします。</span></div>
+<div class="line">        <span class="comment">// キャッシュバッファはアンマウントするまで解放しないでください。</span></div>
+<div class="line">        result = <a name="a5"></a><a class="code" href="namespacenn_1_1fs.html#a2e453fe1fbf8f818dc45bbd2897105cd">nn::fs::MountRom</a>(<span class="stringliteral">&quot;rom&quot;</span>, cacheBuffer, cacheSize);</div>
+<div class="line">        <span class="comment">// 失敗した際は必ずアボートしてください。</span></div>
+<div class="line">        <a name="a6"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// リソースデータを読み込みます。</span></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>* FilePath = <span class="stringliteral">&quot;rom:/BreakpadSimple.nss&quot;</span>;</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">    ElfReader rd(FilePath);</div>
+<div class="line">    ByteReader br(ENDIANNESS_LITTLE);</div>
+<div class="line">    br.SetAddressSize(rd.IsElf64File() ? 8 : 4);</div>
+<div class="line"></div>
+<div class="line">    SectionMap sections;</div>
+<div class="line"></div>
+<div class="line">    uint64_t cu_len, cu_offset = 0,</div>
+<div class="line">    debug_info_len = ReadDebugSections(rd, &amp;sections);</div>
+<div class="line">    <span class="keywordflow">if</span> (!debug_info_len)</div>
+<div class="line">    {</div>
+<div class="line">        fprintf(stderr, <span class="stringliteral">&quot;%s: couldn&#39;t find .debug_info section\n&quot;</span>, FilePath);</div>
+<div class="line">        exit(1);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// .debug_info の情報を出力するデモ</span></div>
+<div class="line">    <span class="keywordflow">do</span></div>
+<div class="line">    {</div>
+<div class="line">        FunctionMap offset2fi, addr2fi;</div>
+<div class="line">        std::vector&lt;std::string&gt; dirs;</div>
+<div class="line">        std::vector&lt;SourceFileInfo&gt; files;</div>
+<div class="line">        LineMap lm;</div>
+<div class="line">        CULineInfoHandler lih(&amp;files, &amp;dirs, &amp;lm);</div>
+<div class="line">        CUFunctionInfoHandler fih(&amp;files, &amp;dirs, <span class="keyword">nullptr</span>, &amp;offset2fi, &amp;addr2fi, &amp;lih, sections, &amp;br);</div>
+<div class="line"></div>
+<div class="line">        CompilationUnit cu(FilePath, sections, cu_offset, &amp;br, &amp;fih);</div>
+<div class="line">        cu_len = cu.Start();</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;p : addr2fi) printFunction(*p.second, lm);</div>
+<div class="line"></div>
+<div class="line">        cu_offset += cu_len;</div>
+<div class="line">    } <span class="keywordflow">while</span> (cu_len &amp;&amp; cu_offset &lt; debug_info_len);</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 取得したバックトレースのアドレスから、関数名を取得する</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> backtraceSize;</div>
+<div class="line">    uintptr_t backtraceAddress[16];</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 関数名を取得する対象として、バックトレースを取得</span></div>
+<div class="line">    backtraceSize = <a name="a7"></a><a class="code" href="namespacenn_1_1diag.html#a20e6a6c4855e4c13bdad1691b4be8139">nn::diag::GetBacktrace</a>(backtraceAddress, 16);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;backtrace:\n&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i = 0; i &lt; backtraceSize; i++)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;   [%d] 0x%X\n&quot;</span>, i, backtraceAddress[i]);</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ベースアドレスを調べるために、全モジュールの情報を得て、対応するモジュールを調べる。</span></div>
+<div class="line">    uintptr_t backtraceOffsetAddress = 0;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> bufferSize = <a name="a8"></a><a class="code" href="namespacenn_1_1diag.html#a302e8399cc94c1cf8e19532d9b4c19d6">nn::diag::GetRequiredBufferSizeForGetAllModuleInfo</a>();</div>
+<div class="line">    <span class="keyword">auto</span> buffer = <span class="keyword">reinterpret_cast&lt;</span>nn::Bit8*<span class="keyword">&gt;</span>(std::malloc(bufferSize));</div>
+<div class="line"></div>
+<div class="line">    <a name="_a9"></a><a class="code" href="structnn_1_1diag_1_1_module_info.html">nn::diag::ModuleInfo</a>* modules;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> moduleCount = <a name="a10"></a><a class="code" href="namespacenn_1_1diag.html#a1796e18112f2799bf9890697c4e17250">nn::diag::GetAllModuleInfo</a>(&amp;modules, buffer, bufferSize);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Modules:\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  %-*s   %-*s   path\n&quot;</span>, <span class="keyword">sizeof</span>(uintptr_t) * 2, <span class="stringliteral">&quot;base&quot;</span>, <span class="keyword">sizeof</span>(uintptr_t) * 2, <span class="stringliteral">&quot;size&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; moduleCount; i++)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span>&amp; module = modules[i];</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  0x%P 0x%P %s\n&quot;</span>, module.baseAddress, module.size, module.path);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span>( <span class="keywordtype">int</span> j = 0; j &lt; backtraceSize; j++)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span>( module.baseAddress &lt; backtraceAddress[j] &amp;&amp; module.baseAddress + module.size &gt; backtraceAddress[j] )</div>
+<div class="line">            {</div>
+<div class="line">                backtraceOffsetAddress = backtraceAddress[j] - module.baseAddress;</div>
+<div class="line">                <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[%d] 0x%X : &quot;</span>, j, backtraceAddress[j]);</div>
+<div class="line">                <span class="comment">// オフセット値が取得できたので、このアドレスが含まれる関数名を debug_info から取得する</span></div>
+<div class="line">                SearchFunctionName(backtraceOffsetAddress, sections, br, FilePath, debug_info_len);</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">    std::free(buffer);</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

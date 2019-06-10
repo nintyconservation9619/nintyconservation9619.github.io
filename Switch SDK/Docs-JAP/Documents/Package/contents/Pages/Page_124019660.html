@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>クイックスタート</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- クイックスタート -->
+<div class="pagetitle" id="PageId_124019660">クイックスタート</div>
+<div class="text_separate">
+<h1 id="Anchor_124019660_h1_1">クイックスタート</h1>
+<p>レイアウトの実装の流れを、付属のサンプルデモ「Ui2dSimple」のソースコードを元に説明します。<br />なお、下記の疑似コードは説明のためにコードを抜粋して作成しているためそのまま使用することは出来ません。<br />実際の実装は Ui2dSimple のソースコードを参照してください。&nbsp;&nbsp;</p>
+<p>大まかな処理として、初期化、更新、描画、終了処理があります。</p>
+<h3 id="Anchor_124019660_h3_1">初期化</h3>
+<p>主に ui2d ライブラリの初期化とリソースの作成・セットアップを行います。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__ui2d__Initialize">nn::ui2d::Initialize</span>関数でレイアウトライブラリの初期化を行います。引数には、内部で使うメモリアロケータを渡します。</li>
+  <li>レイアウトアーカイバで作成されたアーカイブファイルを読み込みます。</li>
+  <li>リソースアクセサ(デモではg_pArcResourceAccessor変数)にアーカイブファイルをアタッチします。</li>
+  <li>必要に応じてフォントを読み込み、リソースアクセサにアタッチします。</li>
+  <li>レイアウト(デモではg_pLayout変数)を初期化し、構築します。</li>
+  <li>
+    <pre>font/ui2d の GPU バッファで使用するためのメモリプールを作成します。</pre>
+  </li>
+  <li>
+    <pre>ui2d の描画に使用する各種 GPU バッファを作成します。</pre>
+  </li>
+  <li>グラフィックリソース(デモではg_GraphicsResource変数)を初期化します。</li>
+  <li>描画情報(デモではg_DrawInfo変数)を設定します。</li>
+  <li>必要に応じてアニメーションの設定をします。</li>
+  <li>ディスクリプタスロットを初期化します（詳細は「<a href="../Pages/Page_108531266.html">ディスクリプタプールについて</a>」を参照してください）。</li>
+</ol>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 1. レイアウトライブラリの初期化
+</span><span class="nn">nn::ui2d::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">Ui2dAllocateFunction</span><span class="p">,</span> <span class="n">Ui2dDeallocateFunction</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="c1">// 2. レイアウトアーカイブの読み込み
+</span><span class="n">g_pLayoutArchiveBinary</span> <span class="o">=</span> <span class="n">ReadFileWithAllocate</span><span class="p">(</span><span class="s">&quot;Contents:/Ui2dSimple.arc&quot;</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">ArchiveResourceAlignment</span><span class="p">);</span>
+<span class="c1">// 3. アーカイブバイナリをリソースアクセッサへアタッチ。
+</span><span class="n">g_pArcResourceAccessor</span><span class="o">-&gt;</span><span class="n">Attach</span><span class="p">(</span><span class="n">g_pLayoutArchiveBinary</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
+<span class="c1">// 4.フォントの初期化
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">pFont</span> <span class="o">=</span> <span class="n">ReadFileWithAllocate</span><span class="p">(</span><span class="s">&quot;Contents:/sample.bffnt&quot;</span><span class="p">,</span> <span class="nn">nn::font::</span><span class="n">ResourceAlignment</span><span class="p">);</span>
+<span class="n">g_pFont</span><span class="o">-&gt;</span><span class="n">SetResource</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">pFont</span><span class="p">);</span>
+<span class="n">g_pFont</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForTexture_</span><span class="p">);</span>
+<span class="n">g_pArcResourceAccessor</span><span class="o">-&gt;</span><span class="n">RegisterFont</span><span class="p">(</span><span class="s">&quot;sample.bffnt&quot;</span><span class="p">,</span> <span class="n">g_pFont</span><span class="p">);</span>
+
+<span class="c1">// 5. レイアウトの初期化
+</span><span class="nn">nn::ui2d::</span><span class="n">BuildResultInfomation</span> <span class="n">buildResultInfomation</span><span class="p">;</span>
+<span class="n">buildResultInfomation</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+
+<span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">BuildWithName</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buildResultInfomation</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">g_pArcResourceAccessor</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="s">&quot;simple.bflyt&quot;</span><span class="p">);</span>
+
+<span class="c1">// 6. font/ui2d の GPU バッファで使用するためのメモリプールを作成
+</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pMemoryPoolMemory</span> <span class="o">=</span> <span class="n">Ui2dAllocateFunction</span><span class="p">(</span><span class="n">totalMemoryPoolSize</span><span class="p">,</span> <span class="n">MemoryPoolAlignment</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">g_Ui2dDrawMemoryPool</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">memPoolInfo</span><span class="p">);</span>
+ 
+<span class="c1">// 7. 各種 GPU バッファを作成(ここでは ui2d のコンスタントバッファを作成)
+</span><span class="nn">nn::font::GpuBuffer::</span><span class="n">InitializeArg</span>  <span class="n">arg</span><span class="p">;</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetGpuAccessFlag</span><span class="p">(</span><span class="nn">nn::gfx::</span><span class="n">GpuAccess_ConstantBuffer</span><span class="p">);</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetBufferSize</span><span class="p">(</span><span class="n">buildResultInfomation</span><span class="p">.</span><span class="n">requiredUi2dConstantBufferSize</span><span class="p">);</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetBufferCount</span><span class="p">(</span><span class="nn">nn::ui2d::</span><span class="n">ConstantBufferCount</span><span class="p">);</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetMemoryPool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Ui2dDrawMemoryPool</span><span class="p">);</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetMemoryPoolOffset</span><span class="p">(</span><span class="n">bufferOffset</span><span class="p">);</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetAllocator</span><span class="p">(</span><span class="n">Ui2dAllocateFunction</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">arg</span><span class="p">.</span><span class="n">SetAllocateSyncFlag</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+ 
+<span class="c1">// ui2d 用コンスタントバッファを作成
+</span><span class="n">g_Ui2dConstantBuffer</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="c1">// 8. グラフィックスリソースの設定
+</span><span class="n">g_GraphicsResource</span><span class="p">.</span><span class="n">Setup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="mi">512</span><span class="p">);</span>
+<span class="n">g_GraphicsResource</span><span class="p">.</span><span class="n">RegisterCommonSamplerSlot</span><span class="p">(</span><span class="n">RegisterSlotForSampler_</span><span class="p">);</span>
+
+<span class="c1">// 9. 描画に使用する情報の設定
+</span><span class="n">drawInfo</span><span class="p">.</span><span class="n">SetUi2dConstantBuffer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Ui2dConstantBuffer</span><span class="p">);</span>
+<span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">SetGraphicsResource</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_GraphicsResource</span><span class="p">);</span>
+<span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">SetProjectionMtx</span><span class="p">(</span><span class="n">projection</span><span class="p">);</span>
+<span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">SetViewMtx</span><span class="p">(</span><span class="n">view</span><span class="p">);</span>
+
+<span class="c1">// 10.アニメーションの作成と再生
+</span><span class="nn">nn::ui2d::</span><span class="n">GroupAnimator</span><span class="o">*</span> <span class="n">pAnimator</span> <span class="o">=</span> <span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">CreateGroupAnimator</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">,</span> <span class="s">&quot;loop&quot;</span><span class="p">);</span>
+<span class="n">pAnimator</span><span class="o">-&gt;</span><span class="n">PlayAuto</span><span class="p">(</span><span class="mf">1.0f</span><span class="p">);</span>
+
+<span class="c1">// 11.ディスクリプタスロットを初期化します
+// サンプラーについて
+</span><span class="n">g_GraphicsResource</span><span class="p">.</span><span class="n">RegisterCommonSamplerSlot</span><span class="p">(</span><span class="n">RegisterSlotForSampler_</span><span class="p">);</span>
+<span class="c1">// フォント内のテクスチャについて
+</span><span class="n">g_pFont</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForTexture_</span><span class="p">);</span>
+<span class="c1">// リソース内のテクスチャについて
+// テクスチャパターンアニメーションに利用されるテクスチャが正しく登録されるように、アニメーションの初期化後に実行
+</span><span class="n">g_pArcResourceAccessor</span><span class="o">-&gt;</span><span class="n">RegisterTextureViewToDescriptorPool</span><span class="p">(</span><span class="n">RegisterSlotForTexture_</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_124019660_h3_2">更新</h3>
+<p>主に ui2d の内部状態の更新を行います。<br />描画時に参照されるコンスタントバッファなどの更新も行われているため描画に先立って呼び出されている必要があります。&nbsp;</p>
+<ol>
+  <li>レイアウト(デモでは g_pLayout 変数)の&nbsp;<span class="ApiLink_nn__ui2d__Layout__AnimateAndUpdateAnimFrame">nn::ui2d::Layout::AnimateAndUpdateAnimFrame</span> メソッドで、アニメーション処理を行います。</li>
+  <li>描画情報(デモでは g_DrawInfo 変数)の Map() メソッドで、レイアウトライブラリが使用する各種 GPU バッファの書き込み準備処理を行います。</li>
+  <li>レイアウトの <span class="ApiLink_nn__ui2d__Layout__Calculate">nn::ui2d::Layout::Calculate</span> メソッドで、描画時の行列などを含む各種 GPU バッファのデータを設定します。</li>
+  <li>描画情報(デモでは g_DrawInfo 変数)の Unmap() メソッドで、レイアウトライブラリが使用する各種 GPU バッファの書き込み終了処理を行います。</li>
+</ol>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 1. レイアウトの更新処理
+</span><span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">AnimateAndUpdateAnimFrame</span><span class="p">();</span>
+ 
+<span class="c1">// 2. レイアウトライブラリが使用する各種 GPU バッファの書き込み準備処理
+</span><span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">Map</span><span class="p">(</span><span class="n">g_Ui2dConstantBufferIndex</span><span class="p">);</span>
+ 
+<span class="c1">// 3. 各種 GPU バッファの更新処理
+</span><span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span><span class="n">g_DrawInfo</span><span class="p">);</span>
+ 
+<span class="c1">// 4. 各種 GPU バッファの書き込み終了処理
+</span><span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">Unmap</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_124019660_h3_3">描画</h3>
+<p>主に描画処理を行います。</p>
+<ol>
+  <li>描画情報(デモでは g_DrawInfo 変数)の SetGpuAccessBufferIndex() メソッドで、GPU が描画時に参照する GPU バッファのインデックスを指定します。</li>
+  <li>レイアウト(デモではg_pLayout変数)の Draw メソッドで、画面に描画します。</li>
+</ol>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 1. 描画時に参照する GPU バッファのインデックスを指定
+</span><span class="n">g_DrawInfo</span><span class="p">.</span><span class="n">SetGpuAccessBufferIndex</span><span class="p">(</span><span class="n">g_Ui2dConstantBufferIndex</span><span class="p">);</span>
+ 
+<span class="c1">// 2. 描画処理
+</span><span class="n">g_pLayout</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="n">g_DrawInfo</span><span class="p">,</span> <span class="n">g_CommandBuffer</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_124019660_h3_4">終了処理</h3>
+<p>使用したリソースの開放処理を行います。</p>
+<ol>
+  <li>基本的には初期化処理の逆順になるように解放します。</li>
+</ol>
+<h1 id="Anchor_124019660_h1_2">リソースコンバート</h1>
+<p>Ui2dSimple の プロジェクトファイル (Ui2dSimple-spec.Generic.vcxproj )は、リソースのコンバートを行う方法のサンプルにもなっています。エディタでファイルを開いて&lt;PreBuildEvent&gt; 要素をご覧ください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__ui2d__Initialize', '../../../Api/HtmlNX/namespacenn_1_1ui2d.html#a7eddb71c6d17a2be9b6a1ac2db75fee5' )
+SetUrl( 'ApiLink_nn__ui2d__Layout__AnimateAndUpdateAnimFrame', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_layout.html#a9f34b01bec30735fbfd02479505301d4' )
+SetUrl( 'ApiLink_nn__ui2d__Layout__Calculate', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_layout.html#a59a23fbf33217c59eba47bba35630cb9' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

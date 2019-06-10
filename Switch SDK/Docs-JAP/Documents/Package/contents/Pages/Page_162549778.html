@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>GPU処理時間を計測する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- GPU処理時間を計測する -->
+<div class="pagetitle" id="PageId_162549778">GPU処理時間を計測する</div>
+<div class="text_separate">
+<h1 id="Anchor_162549778_h1_1">GPU処理時間を計測する</h1>
+<p>エミッタ描画プロファイラコールバックを利用してエミッタセットやエミッタのGPU処理時間を計測する方法を説明します。</p>
+<h2 id="Anchor_162549778_h2_1">エミッタ描画プロファイラコールバックを利用したGPU処理時間の計測</h2>
+<p>エミッタ描画プロファイラコールバックは、エミッタセット、エミッタのGPU処理時間を計測するために用意された仕組みです。vfxランタイムは、計測するための仕組みは用意されますが、実際に計測する仕組みはアプリケーション側で用意していただく必要があります。</p>
+<p>そこで、NintendoSDK には、 Perf モジュールという CPU / GPU 処理を計測する仕組みがありますので、それを利用して各エミッタセット、エミッタのGPU処理時間を計測する方法について説明したいと思います。</p>
+<h3 id="Anchor_162549778_h3_1">Perf モジュールを利用して計測する</h3>
+<p>Perf モジュールの利用方法については、Perf モジュールのドキュメントやサンプルを参照してください。</p>
+<p>まずは、以下の記述例を参考にしてエミッタ描画プロファイラコールバック関数を準備します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span> <span class="nf">_DrawEmitterProfileCallback</span><span class="p">(</span><span class="nn">nn::vfx::</span><span class="n">DrawEmitterProfilerArg</span><span class="o">&amp;</span> <span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span> <span class="n">arg</span><span class="p">.</span><span class="n">pEmitterSet</span> <span class="o">&amp;&amp;</span> <span class="n">arg</span><span class="p">.</span><span class="n">beforeRenderEmitter</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PERF_BEGIN_MEASURE_NAME_GPU</span><span class="p">(</span> <span class="n">arg</span><span class="p">.</span><span class="n">pCommandBuffer</span><span class="p">,</span> <span class="n">arg</span><span class="p">.</span><span class="n">pEmitterSet</span><span class="o">-&gt;</span><span class="n">GetName</span><span class="p">()</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span> <span class="n">arg</span><span class="p">.</span><span class="n">pEmitter</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">arg</span><span class="p">.</span><span class="n">beforeRenderEmitter</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PERF_SET_COLOR_GPU</span><span class="p">(</span><span class="nn">nn::util::Color4u8::</span><span class="n">Blue</span><span class="p">());</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PERF_BEGIN_MEASURE_NAME_GPU</span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">pCommandBuffer</span><span class="p">,</span> <span class="n">arg</span><span class="p">.</span><span class="n">pEmitter</span><span class="o">-&gt;</span><span class="n">GetName</span><span class="p">(),</span><span class="mi">1</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">pSystem</span><span class="o">-&gt;</span><span class="n">DrawEmitter</span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">pCommandBuffer</span><span class="p">,</span> <span class="n">arg</span><span class="p">.</span><span class="n">pEmitter</span><span class="p">,</span> <span class="n">arg</span><span class="p">.</span><span class="n">isComputeShaderMode</span><span class="p">,</span> <span class="n">arg</span><span class="p">.</span><span class="n">pUserParam</span><span class="p">,</span> <span class="n">arg</span><span class="p">.</span><span class="n">pDrawParameterArg</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PERF_END_MEASURE_GPU</span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">pCommandBuffer</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span> <span class="n">arg</span><span class="p">.</span><span class="n">pEmitterSet</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">arg</span><span class="p">.</span><span class="n">beforeRenderEmitter</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PERF_END_MEASURE_GPU</span><span class="p">(</span> <span class="n">arg</span><span class="p">.</span><span class="n">pCommandBuffer</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>このコールバック関数では、エミッタセット描画処理の前後、エミッタセットに含まれる各エミッタ描画処理の前後でGPU時間を取得・保持します。</p>
+<p>コールバック関数を有効にするには、<span class="ApiLink_nn__vfx__System__SetEmitterDrawProfilerCallback">nn::vfx::System::SetEmitterDrawProfilerCallback</span> を利用してコールバック関数を設定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">pEffectSystem</span><span class="o">-&gt;</span><span class="n">SetEmitterDrawProfilerCallback</span><span class="p">(</span> <span class="n">_DrawEmitterProfileCallback</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>取得・保持した GPU時間は Perf モジュール の　<span class="ApiLink_nn__perf__LoadMeterCenter">nn::perf::LoadMeterCenter</span> 経由でアクセスでき、以下のようなコードで、各エミッタセット、エミッタのGPU処理時間をログ出力することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::perf::</span><span class="n">LoadMeterBase</span><span class="o">*</span> <span class="n">gpuMeter</span> <span class="o">=</span> <span class="nn">nn::perf::LoadMeterCenter::</span><span class="n">GetGpuMeter</span><span class="p">();</span>
+<span class="kt">int</span> <span class="n">resultNum</span> <span class="o">=</span> <span class="n">gpuMeter</span><span class="o">-&gt;</span><span class="n">GetLastSectionCount</span><span class="p">();</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">resultNum</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::perf::LoadMeterBase::</span><span class="n">Section</span><span class="o">&amp;</span> <span class="n">section</span> <span class="o">=</span> <span class="n">rootMeter</span><span class="o">-&gt;</span><span class="n">GetLastResult</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s : %f msec&quot;</span><span class="p">,</span> <span class="n">section</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">section</span><span class="p">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">section</span><span class="p">.</span><span class="n">begin</span><span class="p">).</span><span class="n">ToTimeSpan</span><span class="p">().</span><span class="n">GetMicroSeconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1000.f</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System__SetEmitterDrawProfilerCallback', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a6ba7f3a8c498928dc7d4834c632974b5' )
+SetUrl( 'ApiLink_nn__perf__LoadMeterCenter', '../../../Api/HtmlNX/classnn_1_1perf_1_1_load_meter_center.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,687 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>描画フレームワーク</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 描画フレームワーク -->
+<div class="pagetitle" id="PageId_187887372">描画フレームワーク</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_187887372_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_187887372_h1_2">NVN を使用した描画フレームワーク</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_187887372_h2_1">描画フロー </a>
+      </li>
+      <li>
+        <a href="#Anchor_187887372_h2_2">複数のフレームワークの紹介</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_187887372_h1_3">Gfx を使用した描画フレームワーク</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_187887372_h2_3">描画フロー</a>
+      </li>
+      <li>
+        <a href="#Anchor_187887372_h2_4">複数のフレームワークの紹介</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_187887372_h1_4">注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_187887372_h2_5">GPU リソース制限</a>
+      </li>
+      <li>
+        <a href="#Anchor_187887372_h2_6">GPU のスリープモード</a>
+      </li>
+      <li>
+        <a href="#Anchor_187887372_h2_7">nvnQueueAcquireTexture() の廃止</a>
+      </li>
+      <li>
+        <a href="#Anchor_187887372_h2_8">nvnQueueFinish() による VSync 待ちの非推奨化</a>
+      </li>
+      <li>
+        <a href="#Anchor_187887372_h2_9">参考になる NintendoSDK サンプルアプリケーション</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<p>
+  <span style="color: rgb(33,33,33);">ここでは&nbsp;NVN 及び Gfx を使用したグラフィックス描画フレームワークについて説明します。基本的にサンプルコードや関数等は&nbsp;NVN&nbsp;を使用して説明します。<br />また、<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga610c7f233b7bb1e02f4926fe554df5db">nvnWindowBuilderSetTextures()</a> や <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_swap_chain_info.html#ab489421ecb43aae64bc8d0d22b612cd0">nn::gfx::SwapChainInfo::SetBufferCount()</a>&nbsp;でテクスチャバッファ</span>
+  <span style="color: rgb(33,33,33);">数を 2 以上に指定していることを前提として解説を行います。</span>
+</p>
+<h1 id="Anchor_187887372_h1_1">はじめに</h1>
+<p>本ドキュメントでは以下の 2 点を目的としています。</p>
+<ul>
+  <li>複数の描画フレームワークの紹介</li>
+  <li>描画フレームワークに関わる NX の仕様と既知の不具合の周知</li>
+</ul>
+<p>本ドキュメントでは開発者が以下のことができるようになることを想定しています。</p>
+<ul>
+  <li>フレーム毎リソースを壊さないように正しく GPU 待ちできるようになる</li>
+  <li>VSync を正しい方法で待てる</li>
+  <li>既知の不具合を把握し、対応できる</li>
+  <li>GPU リソースを最大限利用できる</li>
+  <li>ゲームアプリケーションの種類に応じた適切な描画フレームワークを構築できる</li>
+</ul>
+<h1 id="Anchor_187887372_h1_2">NVN&nbsp;を使用した描画フレームワーク</h1>
+<p>まず、基本形の描画フローを解説した後に、各描画フレームワークを簡単に紹介します。</p>
+<h2 id="Anchor_187887372_h2_1">描画フロー&nbsp;</h2>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_1">サンプルコード ( DeferredExecution )</h3>
+<p>
+  <a href="../../../Api/HtmlNX/nvn_index.html#nvn_guide_sec_18_1">NVN Programming Guide の 18.1. Presentation sample code</a> のサンプルコードをベースとして、描画ループに注目して変更を加えたコードです。安全のため、GPU の完了を明示的に待つように変更している点がサンプルコードとは異なります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">textureIndex</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">bufferIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">NVNtexture</span> <span class="o">*</span><span class="n">renderTargetTexture</span><span class="p">;</span>
+<span class="n">NVNcommandHandle</span> <span class="n">commandHandle</span><span class="p">;</span>
+
+
+<span class="c1">// コマンドバッファ用のコマンドメモリー
+</span><span class="n">NVNmemoryPool</span><span class="o">*</span> <span class="n">commandMemoryPool</span><span class="p">;</span>
+<span class="kt">ptrdiff_t</span> <span class="n">memoryPoolOffset</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+ 
+<span class="c1">// ディスプレイリリースフェンスと同期する Sync オブジェクト
+</span><span class="n">NVNsync</span> <span class="o">*</span><span class="n">displayReleaseSync</span><span class="p">;</span>
+<span class="n">nvnSyncInitialize</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">,</span> <span class="n">device</span><span class="p">);</span>
+
+<span class="c1">// GPU の完了と同期する Sync オブジェクト(gpu)
+</span><span class="n">NVNsync</span> <span class="o">*</span><span class="n">gpuDoneSync</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="n">nvnSyncInitialize</span><span class="p">(</span><span class="n">gpuDoneSync</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="p">);</span>
+<span class="n">nvnSyncInitialize</span><span class="p">(</span><span class="n">gpuDoneSync</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">device</span><span class="p">);</span>
+ 
+<span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  バッファインデクスの更新( ダブルバッファリングの場合 )
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">bufferIndex</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">;</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  ACQ : レンダリング先のテクスチャを取得  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  テクスチャインデクスとそのテクスチャへの GPU レンダリングが可能であることを通知するディスプレイリリースフェンスを取得します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  ディスプレイリリースフェンスは、テクスチャのディスプレイ描画が終了した時 (vsync) にシグナルされます。  
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">renderTargetTexture</span> <span class="o">=</span> <span class="n">textures</span><span class="p">[</span><span class="n">textureIndex</span><span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  QWS : nvnWindowAcquireTexture で取得した Sync オブジェクトを Queue に提出 */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  ディスプレイリリースフェンスがシグナルされるまで、これ以降に Queue に提出された GPU コマンドの実行がブロックされます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueWaitSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  REC : 描画コマンドを作成  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  nvnWindowAcquireTexture で受け取ったテクスチャをレンダーターゲットに指定します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// cmdBuf(コマンドバッファ)オブジェクトは 1 つ用意すれば問題ありませんが
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// GPU でコマンド実行中に CPU でコマンドをセットする場合(DefferdExecution, DefferdSubmission が該当)は、コマンドメモリーの破壊を防ぐために、前回と異なるコマンドメモリーをコマンドバッファに割り当てる必要があります。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 本ドキュメントではダブルバッファリングで対応しています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddCommandMemory</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="n">commandMemoryPool</span><span class="p">,</span> <span class="n">memoryPoolOffset</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddControlMemory</span><span class="p">(</span><span class="n">cmdBuf</span> <span class="n">controlMemory</span><span class="p">,</span> <span class="n">controlSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferBeginRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferSetRenderTargets</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">renderTargetTexture</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">commandHandle</span> <span class="o">=</span> <span class="n">nvnCommandBufferEndRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  PRE : 描画コマンドをキューに提出  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  nvnQueueWaitSync() によって nvnWindowAcquireTexture で取得したディスプレイリリースフェンスがシグナルされるまで、提出したコマンドは実行されません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueSubmitCommands</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">commandHandle</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  PRE : GPU コマンドの完了を同期する Sync オブジェクト をキューに提出  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  nvnQueueSubmitCommands() で提出した GPU コマンドが完了したことを受け取るための、Sync オブジェクト(gpu) を Queue に渡します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueFenceSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">gpuDoneSync</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  PRE : テクスチャをディスプレイに提出するコマンドをキューに提出  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueuePresentTexture</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">textureIndex</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  WAIT : テクスチャがディスプレイから解放されるまで待機  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  nvnWindowAcquireTexture で取得したディスプレイリリースフェンスがシグナルされるまで待機します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">);</span> 
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  WAIT : 前フレームに作成した GPU コマンドの完了を待機  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  前のフレームで、nvnQueueFenceSync() で Queue に提出した Sync オブジェクト(gpu) がシグナルされるのを待機します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">gpuDoneSync</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">],</span> <span class="n">NVN_WAIT_TIMEOUT_MAXIMUM</span><span class="p">);</span>
+ 
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  VSync  */</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_2">図</h3>
+<p>基本形のコードを実行した時の、3 フレーム目以降の定常状態時の CPU, GPU, DISPLAY の挙動を表した図です。<br />CPU の各処理の名前 ( ACQ, QWS, REC, PRE, WAIT) は、上記コードの解説文の頭の文字列に対応します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_187887372/187887309.png" width="1280" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_187887372_h2_2">複数のフレームワークの紹介</h2>
+<p>ここでは上記で紹介した基本形の他に 2 種類の描画フレームワークを紹介します。ここで紹介するのは一例ですので、各プロジェクトで描画フレームワークを構築する際の参考として活用してください。</p>
+<p>紹介するフレームワークは 「DeferredExecution」「DeferredSubmission」「Immediate」の 3 つです。<br />これらは CPU でのコマンド作成と提出、GPU レンダリング、ディスプレイ出力のタイミングがそれぞれ異なります。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>フレームワーク名</th>
+      <th>Acquire フレーム</th>
+      <th>コマンド作成フレーム</th>
+      <th>コマンド提出フレーム</th>
+      <th>GPU レンダリングフレーム</th>
+      <th>ディスプレイ出力フレーム</th>
+      <th>特徴</th>
+    </tr>
+    <tr>
+      <th>
+        <p>DeferredExecution</p>
+      </th>
+      <td>N</td>
+      <td>N</td>
+      <td>N</td>
+      <td>N+1</td>
+      <td>N+2</td>
+      <td>コマンド作成から 2 フレーム後にディスプレイ出力される。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>DeferredSubmission</p>
+      </th>
+      <td>N</td>
+      <td>N</td>
+      <td>N+1</td>
+      <td>N+1</td>
+      <td>N+2</td>
+      <td>コマンドを作成した次のフレーム開始時にコマンドの提出を行う。</td>
+    </tr>
+    <tr>
+      <th>
+        <p>Immediate</p>
+      </th>
+      <td>N-1</td>
+      <td>N</td>
+      <td>N</td>
+      <td>N</td>
+      <td>N+1</td>
+      <td>
+        <p>コマンド作成からディスプレイに出力されるまでの遅延が最小。</p>
+        <p>ただし、GPU リソースをフルに使用することができない。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>フレームワークの選択基準として、以下のようなケースが考えられます。</p>
+<ul>
+  <li>NVN Programming Guide で解説されている NVN 基本形の、<strong>DeferredExecution</strong>&nbsp;を選択する。</li>
+  <li>以前のプロジェクトではコマンド作成を行うフレームと提出を行うフレームが異なっていたため、コード互換性を保つために、<strong>DeferredSubmission</strong>&nbsp;をベースとしたフレームワークを検討する。</li>
+  <li>ミュージックゲームや格闘ゲーム等では入力から画面表示までの遅延を抑えたい場合、<strong>Immediate</strong> をベースとしたフレームワークを検討する。</li>
+</ul>
+<p>以降の項目で、それぞれの挙動を表した図とサンプルコードを記載します。&nbsp;</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_3">DeferredExecution</h3>
+<p>上記で解説した基本形のフレームワークです。ディスプレイリリースフェンスがシグナルされる前 (VSync 前) にコマンドを Queue に提出します。<br />コマンドを提出する前に、<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a><strong>&nbsp;</strong>で取得した Sync オブジェクトを <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaad28b8279c1f539d143c1902212df11f">nvnQueueWaitSync()</a>&nbsp;で&nbsp;Queue に提出し、ディスプレイリリースフェンスがシグナルされるまで以降に提出されたコマンドの実行をブロックする必要があります。<br />ディスプレイリリースフェンスがシグナルされ (VSync)、システムの GPU が割り当たった後にゲームアプリの GPU コマンド実行が開始されます。&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_187887372/187887310.png" width="900" class="embedded-image" />
+  </span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">bufferIndex</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">renderTargetTexture</span> <span class="o">=</span> <span class="n">textures</span><span class="p">[</span><span class="n">textureIndex</span><span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueWaitSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddCommandMemory</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="n">commandMemoryPool</span><span class="p">,</span> <span class="n">memoryPoolOffset</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddControlMemory</span><span class="p">(</span><span class="n">cmdBuf</span> <span class="n">controlMemory</span><span class="p">,</span> <span class="n">controlSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferBeginRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferSetRenderTargets</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">renderTargetTexture</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferEndRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueSubmitCommands</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">commandHandle</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueFenceSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">gpuDoneSync</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueuePresentTexture</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">textureIndex</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">gpuDoneSync</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">],</span> <span class="n">NVN_WAIT_TIMEOUT_MAXIMUM</span><span class="p">);</span>
+ 
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// VSync
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_4">DeferredSubmission</h3>
+<p>DeferredExecution とはコマンドを Queue に提出するタイミングが異なります。</p>
+<p>コマンドを Queue に提出するタイミングが、ディスプレイリリースフェンスがシグナルされた VSync 後になります。<br />VSync 後の 3% はシステムが GPU を使用しているため、VSync 後の 3% 以内にコマンドの提出が開始されていれば、GPU リソースをフルに使用することが可能です。<br />反対に、コマンドを Queue に提出するタイミングが VSync から 3% 以上遅れてしまうと、GPU リソースを無駄にしてしまいます。</p>
+<p>また、ディスプレイリリースフェンスがシグナルされた後にコマンドを Queue に提出することから、ディスプレイリリースフェンスがシグナルされるのを GPU 側で待つ必要がありません。<br />そのため、<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a><strong>&nbsp;</strong>で取得した Sync オブジェクトを Queue に提出しなくても構いません。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_187887372/187887311.png" width="920" class="embedded-image" />
+  </span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span><span class="p">(</span><span class="n">frameCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディスプレイリリースフェンスがシグナルされた後に Queue にコマンドを提出する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueSubmitCommands</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">commandHandle</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueFenceSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">gpuDoneSync</span><span class="p">,</span> <span class="n">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueuePresentTexture</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">renderTargetTexture</span> <span class="o">=</span> <span class="n">textures</span><span class="p">[</span><span class="n">textureIndex</span><span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 不要。CPU 側で Queue にコマンドを提出するのはディスプレイリリースフェンスがシグナルされた後なので、GPU 側でディスプレイリリースフェンスを待つ必要はない。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nvnQueueWaitSync(queue, displayReleaseSync);
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddCommandMemory</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="n">commandMemoryPool</span><span class="p">,</span> <span class="n">memoryPoolOffset</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddControlMemory</span><span class="p">(</span><span class="n">cmdBuf</span> <span class="n">controlMemory</span><span class="p">,</span> <span class="n">controlSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferBeginRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferSetRenderTargets</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">renderTargetTexture</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferEndRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">gpuDoneSync</span><span class="p">,</span> <span class="n">NVN_WAIT_TIMEOUT_MAXIMUM</span><span class="p">);</span>
+ 
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// VSync
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_5">Immediate</h3>
+<p>コマンド作成からディスプレイ出力までの遅延が少ないことが特徴です。</p>
+<p>コマンドを作成して提出するタイミングが、ディスプレイリリースフェンスがシグナルされた VSync 後になります。<br />ディスプレイリリースフェンスがシグナルされた後に、コマンドの作成と提出を行うため、GPU リソースをフルに使用することができません。</p>
+<p>ディスプレイリリースフェンスがシグナルされた後にコマンドを Queue に提出することから、ディスプレイリリースフェンスがシグナルされるのを GPU 側で待つ必要がありません。<br />そのため、<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a><strong>&nbsp;</strong>で取得した Sync オブジェクトを Queue に提出しなくても構いません。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_187887372/187887312.png" width="900" class="embedded-image" />
+  </span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span><span class="p">(</span><span class="n">frameCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディスプレイリリースフェンスがシグナルされた後にコマンドを作成する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddCommandMemory</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="n">commandMemoryPool</span><span class="p">,</span> <span class="n">memoryPoolOffset</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferAddControlMemory</span><span class="p">(</span><span class="n">cmdBuf</span> <span class="n">controlMemory</span><span class="p">,</span> <span class="n">controlSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferBeginRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferSetRenderTargets</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">renderTargetTexture</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnCommandBufferEndRecording</span><span class="p">(</span><span class="n">cmdBuf</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディスプレイリリースフェンスがシグナルされた後に Queue にコマンドを提出する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueSubmitCommands</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">commandHandle</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueFenceSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">gpuDoneSync</span><span class="p">,</span> <span class="n">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueuePresentTexture</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">textureIndex</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">renderTargetTexture</span> <span class="o">=</span> <span class="n">textures</span><span class="p">[</span><span class="n">textureIndex</span><span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 不要。CPU 側で Queue にコマンドを提出するのはディスプレイリリースフェンスがシグナルされた後なので、GPU 側でディスプレイリリースフェンスを待つ必要はない。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nvnQueueWaitSync(queue, displayReleaseSync);
+</span> 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">gpuDoneSync</span><span class="p">,</span> <span class="n">NVN_WAIT_TIMEOUT_MAXIMUM</span><span class="p">);</span>
+ 
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// VSync
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_187887372_h1_3">Gfx を使用した描画フレームワーク</h1>
+<p>ここでは Gfx を使用した各フレームワークのサンプルコードを記載します。&nbsp;<br />フレームワークの挙動や特徴は NVN&nbsp;を使用した場合とほぼ同様ですので、詳しい解説や挙動は「NVN 描画フレームワーク」の項目をご覧ください。</p>
+<h2 id="Anchor_187887372_h2_3">描画フロー</h2>
+<p>ディスプレイリリースフェンスを受け取ることができる&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_swap_chain.html#a526433e7a3ea68a3ba6092fd9732767e">nn::gfx::SwapChain::AcquireNextScanBufferIndex()</a>&nbsp;を使用した例です。<br />NintendoSDK サンプルでは、GfxSimple や GfxPrimitiveRenderer、FrameworkDemo で同様の実装が確認できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">nextScanBufferIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+ 
+<span class="c1">// GPU の完了と同期する Sync オブジェクト(gpu)
+</span><span class="nn">nn::gfx::</span><span class="n">Fence</span> <span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="nn">nn::gfx::Fence::</span><span class="n">InfoType</span> <span class="n">info</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span>
+<span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">device</span><span class="p">,</span> <span class="n">info</span><span class="p">);</span>
+<span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">device</span><span class="p">,</span> <span class="n">info</span><span class="p">);</span>
+ 
+<span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  バッファインデクスの更新( ダブルバッファリングの場合 )
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">bufferIndex</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  ACQ : レンダリング先のスキャンバッファを取得  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  スキャンバッファインデクスとそのスキャンバッファへの GPU レンダリングが可能であることを通知するディスプレイリリースフェンス (Semaphore と Fence オブジェクト) を取得します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">AcquireScanBufferResult</span> <span class="n">acquireResult</span> <span class="o">=</span> <span class="n">g_SwapChain</span><span class="p">.</span><span class="n">AcquireNextScanBufferIndex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">nextScanBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplayFence</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">ColorTargetView</span><span class="o">*</span> <span class="n">pTarget</span> <span class="o">=</span> <span class="n">pScanBufferViews</span><span class="p">[</span> <span class="n">nextScanBufferIndex</span> <span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  QWS : AcquireNextScanBufferIndex で取得した Semaphore を Queue に提出 */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  ディスプレイリリースフェンスがシグナルされるまで、これ以降に Queue に提出された GPU コマンドの実行がブロックされます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">SyncSemaphore</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  REC : 描画コマンドを作成  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MakeCommand</span><span class="p">(</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pTarget</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  PRE : 描画コマンドをキューに提出  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// GPU コマンドの完了を同期する Sync オブジェクトもキューに提出します。 
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">ExecuteCommand</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">]</span> <span class="p">);</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  PRE : テクスチャをディスプレイに提出するコマンドをキューに提出  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">Present</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SwapChain</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  WAIT : テクスチャがディスプレイから解放されるまで待機  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  AcquireNextScanBufferIndex で取得したディスプレイリリースフェンスがシグナルされるまで待機します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DisplayFence</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  WAIT : 前フレームに作成した GPU コマンドの完了を待機  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  前のフレームで、ExecuteCommand() で Queue に提出した Sync オブジェクト がシグナルされるまで待機します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">].</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+ 
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  VSync  */</span>
+&nbsp;<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_187887372_h2_4">複数のフレームワークの紹介</h2>
+<p>各フレームワークの特徴は NVN&nbsp;の項目を確認して下さい。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_6">DeferredExecution</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">bufferIndex</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">AcquireScanBufferResult</span> <span class="n">acquireResult</span> <span class="o">=</span> <span class="n">g_SwapChain</span><span class="p">.</span><span class="n">AcquireNextScanBufferIndex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">nextScanBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplayFence</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">ColorTargetView</span><span class="o">*</span> <span class="n">pTarget</span> <span class="o">=</span> <span class="n">pScanBufferViews</span><span class="p">[</span> <span class="n">nextScanBufferIndex</span> <span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">SyncSemaphore</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MakeCommand</span><span class="p">(</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pTarget</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">ExecuteCommand</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">]</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">Present</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SwapChain</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DisplayFence</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_GpuDoneSync</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bufferIndex</span><span class="p">].</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+ 
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  VSync  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+&nbsp;<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_7">DeferredSubmission</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span><span class="p">(</span><span class="n">frameCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディスプレイリリースフェンスがシグナルされた後に Queue にコマンドを提出する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">ExecuteCommand</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GpuDoneSync</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">Present</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SwapChain</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">AcquireScanBufferResult</span> <span class="n">acquireResult</span> <span class="o">=</span> <span class="n">g_SwapChain</span><span class="p">.</span><span class="n">AcquireNextScanBufferIndex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">nextScanBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplayFence</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">ColorTargetView</span><span class="o">*</span> <span class="n">pTarget</span> <span class="o">=</span> <span class="n">pScanBufferViews</span><span class="p">[</span> <span class="n">nextScanBufferIndex</span> <span class="p">];</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 不要。CPU 側で Queue にコマンドを提出するのはディスプレイリリースフェンスがシグナルされた後なので、GPU 側でディスプレイリリースフェンスを待つ必要はない。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// g_Queue.SyncSemaphore( &amp;g_DisplaySemaphore );
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MakeCommand</span><span class="p">(</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pTarget</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DisplayFence</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_GpuDoneSync</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+ 
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  VSync  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+&nbsp;<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_8">Immediate</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span><span class="p">(</span><span class="n">frameCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">AcquireScanBufferResult</span> <span class="n">acquireResult</span> <span class="o">=</span> <span class="n">g_SwapChain</span><span class="p">.</span><span class="n">AcquireNextScanBufferIndex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">nextScanBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplayFence</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DisplayFence</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディスプレイリリースフェンスがシグナルされた後にコマンドを作成する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MakeCommand</span><span class="p">(</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pTarget</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディスプレイリリースフェンスがシグナルされた後に Queue にコマンドを提出する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">ExecuteCommand</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_GpuDoneSync</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_Queue</span><span class="p">.</span><span class="n">Present</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SwapChain</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">AcquireScanBufferResult</span> <span class="n">acquireResult</span> <span class="o">=</span> <span class="n">g_SwapChain</span><span class="p">.</span><span class="n">AcquireNextScanBufferIndex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">nextScanBufferIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplaySemaphore</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_DisplayFence</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::gfx::</span><span class="n">ColorTargetView</span><span class="o">*</span> <span class="n">pTarget</span> <span class="o">=</span> <span class="n">pScanBufferViews</span><span class="p">[</span> <span class="n">nextScanBufferIndex</span> <span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 不要。CPU 側で Queue にコマンドを提出するのはディスプレイリリースフェンスがシグナルされた後なので、GPU 側でディスプレイリリースフェンスを待つ必要はない。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// g_Queue.SyncSemaphore( &amp;g_DisplaySemaphore );
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_DisplayFence</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_GpuDoneSync</span><span class="p">.</span><span class="n">Sync</span><span class="p">(</span> <span class="n">timeout</span> <span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">/*  VSync  */</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+&nbsp;<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_187887372_h1_4">注意事項</h1>
+<p>描画フレームワークを構築する上で開発者が注意すべき情報を説明します。&nbsp;</p>
+<h2 id="Anchor_187887372_h2_5">GPU リソース制限</h2>
+<p>NX ではアプリケーションとシステムが GPU を使用するため、それぞれが利用できる GPU のリソース割当ての制御が行われます。<br />例えば、ゲームアプリケーションがインフォーカス状態にある場合、フレーム時間の 3% がシステムに割り当てられ、残り 97% がゲームアプリケーションに割り当てられます。<br />システムは VSync 直後の 3% の時間を使用するため、アプリケーションは VSync 直後に&nbsp;GPU 処理を行うことは出来ません。</p>
+<p>ゲームアプリケーションで GPU リソースを最大限利用するためには、この GPU リソース制限の仕組みを理解した上で描画フレームワークを構築する必要があります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_187887372/187887308.png" height="150" class="embedded-image" />
+  </span>
+</p>
+<p>GPU リソース制限の詳しい内容は&nbsp;<a href="../Pages/Page_175850533.html">グラフィックス / グラフィックス(NXAddon) / GPU リソース制限</a>&nbsp;を参照してください。</p>
+<h2 id="Anchor_187887372_h2_6">GPU のスリープモード</h2>
+<p>アプリケーションの GPU 処理が少なくフレーム時間に占める GPU 処理の割合が低い場合は、省電力のために GPU がスリープモードに入ります。<br />スリープモード中は GPU はコマンドを実行することはできず、スリープモードに入っている GPU が次に提出されたコマンドを実行しようとする際には、200~300us のスリープモードからの復帰時間が発生します。<br />そのため、前フレームの GPU 処理が少ない場合は VSync 直後にはスリープモードからの復帰処理が行われることで、GPU のコマンド処理が開始されるタイミングが遅れることがあります。これは仕様であり、不具合ではありません。</p>
+<p>VSync 後にアプリケーションの GPU が開始するタイミングが通常とは異なると感じた場合は、まずは GPU のスリープモードを疑ってください。<br />なお、アプリケーションの GPU 処理が高い場合は、GPU がスリープモードに遷移することはなく VSync 後に GPU のコマンド処理の開始が遅れることはないため、アプリケーションの GPU パフォーマンスには影響ありません。&nbsp;&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_187887372/187891704.png" width="729" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_187887372_h2_7">
+  <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gad3bea65df8f7b1fbd349f9aa72955fa5">nvnQueueAcquireTexture()</a>&nbsp;の廃止</h2>
+<p>将来的に&nbsp;<span style="color: rgb(0,51,102);"><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gad3bea65df8f7b1fbd349f9aa72955fa5">nvnQueueAcquireTexture()</a></span>&nbsp;は廃止される予定です。その代わりに&nbsp;<strong><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a>&nbsp;</strong>を使用してください。</p>
+<p>
+  <span style="color: rgb(0,51,102);">
+    <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gad3bea65df8f7b1fbd349f9aa72955fa5">nvnQueueAcquireTexture()</a>
+  </span>&nbsp;ではテクスチャのみを取得しますが、<strong><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a>&nbsp;</strong>ではテクスチャとディスプレイリリースフェンスを取得できます。<br />ディスプレイリリースフェンスを取得することで、ディスプレイリリースフェンスがシグナルされるタイミング (VSync) を&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaad28b8279c1f539d143c1902212df11f">nvnQueueWaitSync()</a>&nbsp;を使ってアプリケーションの任意のタイミングで待機することが可能になります。</p>
+<p>
+  <strong>
+    <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a>&nbsp;</strong>の詳しい情報は nvn の API リファレンス<span style="color: rgb(37,53,85);">を確認してください。</span></p>
+<p>※ 現在の NVN ドキュメントや NintendoSDK サンプルでは&nbsp;<span style="color: rgb(0,51,102);"><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gad3bea65df8f7b1fbd349f9aa72955fa5">nvnQueueAcquireTexture()</a></span>&nbsp;が使用されていますので注意してください。<br />※ 本ドキュメントでは&nbsp;<strong><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a>&nbsp;</strong>を使用します。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_187887372_h3_9">
+  <span style="color: rgb(33,33,33);">乗り換え方法</span>
+</h3>
+<p>
+  <span style="color: rgb(0,51,102);">
+    <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gad3bea65df8f7b1fbd349f9aa72955fa5">nvnQueueAcquireTexture()</a>
+  </span>&nbsp;は内部で&nbsp;<strong><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a>&nbsp;</strong>を呼んだ後、受け取ったディスプレイリリースフェンスを Queue に提出しています。<br /><span style="color: rgb(0,51,102);"><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gad3bea65df8f7b1fbd349f9aa72955fa5">nvnQueueAcquireTexture()</a>&nbsp;</span>を使用していた箇所で、<span style="color: rgb(0,51,102);">以下のように&nbsp;</span><strong><a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a>&nbsp;</strong>と&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaad28b8279c1f539d143c1902212df11f">nvnQueueWaitSync()</a>&nbsp;を呼ぶように変更することで、単純な乗り換えが可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// テクスチャとディスプレイリリースフェンスを取得
+</span><span class="n">NVNwindowAcquireTextureResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">displayReleaseSync</span><span class="p">,</span> <span class="n">textureIndex</span><span class="p">);</span>
+ 
+<span class="c1">// ディスプレイリリースフェンスを Queue に提出 
+// ディスプレイリリースフェンスがシグナルされるまで、これ以降に提出されたコマンドの実行はブロックされる
+</span><span class="n">nvnQueueWaitSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">displayReleaseSync</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Gfx ライブラリを使用している場合も対応が必要になります。</p>
+    <p>Gfx では引数なしの <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_swap_chain.html#ab49ab688a8ba21a8a251528a1e678f7a">nn::gfx::SwapChain::AcquireNextScanBufferIndex()</a> が廃止され、3 引数版の <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_swap_chain.html#a526433e7a3ea68a3ba6092fd9732767e">nn::gfx::SwapChain::AcquireNextScanBufferIndex()</a> が追加されています。新しい&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_swap_chain.html#a526433e7a3ea68a3ba6092fd9732767e">nn::gfx::SwapChain::AcquireNextScanBufferIndex()</a>&nbsp;ではテクスチャインデクスの他に、ディスプレイリリースフェンスとして <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a03469e863b0fe9185e881eab4038ec36">nn::gfx::Semaphore</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a3f5549319294e6d37b7ddffbf84cee98">nn::gfx::Fence</a> のポインタを取得することができます。</p>
+    <p>
+      <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_swap_chain.html#a526433e7a3ea68a3ba6092fd9732767e">nn::gfx::SwapChain::AcquireNextScanBufferIndex()</a>&nbsp;の詳しい情報は gfx の API リファレンス<span style="color: rgb(37,53,85);">を確認してください。</span></p>
+  </div>
+</div>
+<h2 id="Anchor_187887372_h2_8">
+  <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;による VSync 待ちの非推奨化</h2>
+<p>
+  <span style="color: rgb(0,51,102);">
+    <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;は Queue に提出されている全てのコマンドの実行が完了するまで CPU を待機させる関数です。</span>
+  <span style="color: rgb(0,51,102);">一方で、これまでは、ディスプレイリリースフェンスを Queue に提出した後に&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;を呼ぶことで、VSync を</span>
+  <span style="color: rgb(0,51,102);">待つという使い方が可能でした。</span>
+</p>
+<p>
+  <span style="color: rgb(0,51,102);">しかし、GPU リソース制限の仕組みが追加されたことで&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;で Vsync を待つような使い方が出来なくなりました。具体的には、ディスプレイリリースフェンスを Queue に提出した後に&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;を呼ぶと、VS</span>
+  <span style="color: rgb(0,51,102);">ync 後に GPU のシステムへの割り当てが終了するまで CPU がブロックされます。そのため、これまで同様に&nbsp;VSync 待ちとして&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;を使用している場合、CPU の開始が&nbsp;</span>
+  <span style="color: rgb(0,51,102);">VSync よりも (フレーム時間の) 3% 程度遅れてしまいます。また、GPU 処理の開始タイミングが CPU のコマンド提出に依存している場合は GPU の開始が遅くなる可能性もあります。&nbsp;</span>
+</p>
+<p>
+  <span style="color: rgb(0,51,102);">この&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;の挙動は仕様であり、本来は&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a>&nbsp;で VSycn 待ちを行うべきではありません。</span>
+  <span style="color: rgb(0,51,102);">正しい VSync の待ち方は、<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a><strong>&nbsp;</strong>で取得したディスプレイリリースフェンスがシグナルされるタイミングを&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaad28b8279c1f539d143c1902212df11f">nvnQueueWaitSync()</a>&nbsp;で直接待つ方法です。本ドキュメントのサンプルコードでは、VSync 待ちとして&nbsp;<a href="../../../Api/HtmlNX/group__nvn__c__functions.html#ga7fa0b45affa2e04d77e3c1ad11a03c32">nvnWindowAcquireTexture()</a><strong>&nbsp;</strong>で取得したディスプレイリリースフェンスがシグナルされるのを待つようにしていますので、参照してください。&nbsp;</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/* Bad case */</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueAcquireTexture</span><span class="p">()</span> 
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Does't return until &quot;VSync+3%&quot;.
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueFinish</span><span class="p">();</span>
+&nbsp;<span class="p">}</span>
+ 
+<span class="cm">/* Bad case */</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueWaitSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Does't return until &quot;VSync+3%&quot;.
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueFinish</span><span class="p">();</span>
+<span class="p">}</span>
+ 
+<span class="cm">/* good case */</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnWindowAcquireTexture</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureIndex</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnQueueWaitSync</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">displayReleaseSync</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Does't return until &quot;VSync&quot;.
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">nvnSyncWait</span><span class="p">(</span><span class="n">displayReleaseSync</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Gfx では <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#afc21092b4436c72ed0ca8d23c6a2ff78">nn::gfx::Queue::Sync()</a> 関数内で <a href="../../../Api/HtmlNX/group__nvn__c__functions.html#gaab3c15f657cefdff33dab453795ff38f">nvnQueueFinish()</a><span style="color: rgb(0,51,102);">&nbsp;</span>が呼ばれています。<br />NintendoSDK では、現在でも <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#afc21092b4436c72ed0ca8d23c6a2ff78">nn::gfx::Queue::Sync()</a>&nbsp;で VSync 待ちを行っているサンプルアプリケーションが存在するため、サンプルを参考にフレームワークを構築されていた場合はこの問題を踏んでいる可能性があります。<br />新しく追加された <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_swap_chain.html#a526433e7a3ea68a3ba6092fd9732767e">nn::gfx::SwapChain::AcquireNextScanBufferIndex()</a>&nbsp;を使用することでディスプレイリリースフェンスが取得できますので、その Sync オブジェクトがシグナルされるのを直接待つ方法で VSync を待つようにしてください</p>
+  </div>
+</div>
+<h2 id="Anchor_187887372_h2_9">参考になる NintendoSDK サンプルアプリケーション</h2>
+<p>Samples/Sources/Applications に配置されているサンプルアプリケーションでは、上記の不具合や制限等に対応していないものが多数あります。<br />サンプルアプリケーションで描画フレームワークの確認を行いたい場合は、以下のサンプルを参照するようにしてください。&nbsp;</p>
+<ul>
+  <li>Samples/Sources/Applications/GfxPrimitiveRenderer</li>
+  <li>Samples/Sources/Applications/FrameworkDemo</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

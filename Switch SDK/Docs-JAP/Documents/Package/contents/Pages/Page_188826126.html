@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>DSP のリソース制限</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- DSP のリソース制限 -->
+<div class="pagetitle" id="PageId_188826126">DSP のリソース制限</div>
+<div class="text_separate">
+<p>NX ではアプリケーションとシステムが DSP を同時に使用するため、それぞれが利用できる DSP のリソース割当て制御が行われます。ここではその仕様について説明します。</p>
+<h1 id="Anchor_188826126_h1_1">アプリケーションへの DSP リソースの割り当て</h1>
+<p>アプリケーションとシステムには時分割によって DSP 時間が割り当てられます。<br />グラフィクスと異なり、オーディオはアプリケーションの「フォーカス状態」に依存して配分が変化することはありません。<br />配分の比率は次の通りです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>システムの DSP 時間</th>
+      <th>アプリケーションの DSP 時間</th>
+    </tr>
+    <tr>
+      <td style="text-align: right;">25%</td>
+      <td style="text-align: right;">75%</td>
+    </tr>
+  </tbody>
+</table>
+<p>NX ではオーディオフレームは 5000 us です。よって 1 オーディオフレーム当たりアプリケーションが使用できることが保障されている時間の上限は 3750 us です。<br />システムの DSP 時間は主に以下の処理が利用します。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__audio__AudioOut">nn::audio::AudioOut</span> のオーディオ処理 (アプリケーションが利用するものを含む)</li>
+  <li>ホームメニューのオーディオ処理</li>
+  <li>ライブラリアプレットのオーディオ処理</li>
+  <li>オーバレイアプレットのオーディオ処理</li>
+  <li>システム内部のオーディオ処理<br /><br /></li>
+</ul>
+<p>アプリケーションの DSP 時間は以下の処理が利用します。よって、アプリケーションが消費する DSP 時間は、これらの DSP 上での処理時間の合計値です。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__audio__AudioRenderer">nn::audio::AudioRenderer</span> のレンダリング処理</li>
+  <li>
+    <span class="ApiLink_nn__codec__HardwareOpusDecoder">nn::codec::HardwareOpusDecoder</span> のデコード処理</li>
+</ul>
+<h1 id="Anchor_188826126_h1_2">注意事項</h1>
+<ul>
+  <li>将来のリリースでは、システムの改善などによりアプリケーションに割り当てられる配分が増える可能性があります。<br />ただし、増加前の SDK でビルドされたアプリケーションは、増えた後も 3750 us が自動的に割り当てられる予定です。</li>
+  <li>
+    <span class="ApiLink_nn__audio__AudioRenderer">nn::audio::AudioRenderer</span> の DSP 処理時間については、 <span class="ApiLink_nn__audio__PerformanceMetrics">nn::audio::PerformanceMetrics</span> 、またその結果を可視化する Spy で確認することが可能です。<br />ただし、処理時間を制限する仕組みの都合上、上記 API・ツールの出力する結果と DSP のリソース制限に使用される値の間には、若干の誤差を含むことにご留意ください。<br />使用方法については、各 API・ツールのリファレンスをご参照ください。</li>
+  <li>アプリケーションが、複数の AudioRenderer を使用している場合に、アプリケーションの DSP の処理時間の合計が 3750 us を超えた場合のそれぞれのインスタンスへの時間配分は、システムの状態依存です。&nbsp;</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__audio__AudioOut', '../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_out.html' )
+// ApiLink_nn__audio__AudioRenderer
+SetUrl( 'ApiLink_nn__codec__HardwareOpusDecoder', '../../../Api/HtmlNX/classnn_1_1codec_1_1_hardware_opus_decoder.html' )
+// ApiLink_nn__audio__PerformanceMetrics
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

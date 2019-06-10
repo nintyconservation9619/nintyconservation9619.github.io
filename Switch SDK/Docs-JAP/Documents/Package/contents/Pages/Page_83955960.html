@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プレイヤーヒープ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プレイヤーヒープ -->
+<div class="pagetitle" id="PageId_83955960">プレイヤーヒープ</div>
+<div class="text_separate">
+<h1 id="Anchor_83955960_h1_1">プレイヤーヒープ</h1>
+<p>このセクションでは、プレイヤーヒープの動作と使い方について解説を行います。</p>
+<h2 id="Anchor_83955960_h2_1">プレイヤーヒープとは？</h2>
+<p>NintendoWare オーディオ開発環境では、Atk ライブラリが行うメモリ管理の方法として、通常サウンドヒープを使います。<br />サウンドヒープを使う場合、あらかじめシーン毎に必要なサウンドデータをグループという単位でまとめておく必要があります。<br />例えば、あるシーンで再生される可能性がある BGM 用シーケンスデータが数十曲あった場合、 グループに全てのシーケンスデータを含めておく必要があり、大量のメモリを必要とします。<br />プレイヤーヒープを使えば、この様な場合に、メモリ消費量を必要最低限に押さえることができます。</p>
+<p>サウンドヒープが、サウンドデータを手動でロードするのに対して、 プレイヤーヒープでは、サウンドの再生開始時に自動的にロードを行い、再生が終了した時点で自動的に解放します。<br />解放されたヒープは、次に再生するサウンド用のデータをロードするために使われます。</p>
+<p>以下に、サウンドヒープを使った場合と、プレイヤーヒープを使った場合との違いについて、例を示します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955960/83080682.gif" class="embedded-image" />
+  </span>&nbsp;</p>
+<p>このように、あるシーンで再生される可能性がある BGM 用シーケンスデータの内、 データサイズが最も大きなシーケンスデータをロードできるサイズのプレイヤーヒープがあれば、 それら全てのシーケンスを再生することが可能になります。</p>
+<h2 id="Anchor_83955960_h2_2">プレイヤーヒープの使い方</h2>
+<p>プレイヤーヒープの設定は、プレイヤーに対して行います。<br />プレイヤーリストのプレイヤーヒープの項目で、プレイヤーヒープのサイズを指定してください。</p>
+<p>シーケンスサウンドを、プレイヤーヒープが設定されたプレイヤーで再生しようとすると、 シーケンスデータが、自動的にプレイヤーヒープにロードされます。<br />従って、シーケンスデータをグループに含めて、あらかじめサウンドヒープにロードしておく必要は無くなります。</p>
+<p>なお、プレイヤーヒープが設定されていても、シーケンスデータが既にサウンドヒープにロードされている場合は、 サウンドヒープ上のデータが使用され、プレイヤーヒープへのロードは行われません。</p>
+<h2 id="Anchor_83955960_h2_3">プレイヤーヒープの注意点</h2>
+<h3 id="Anchor_83955960_h3_1">ロードできるデータの種類</h3>
+<p>プレイヤーヒープには、シーケンスデータのほか、すべてのサウンドデータをロードさせることができます。</p>
+<h3 id="Anchor_83955960_h3_2">消費メモリサイズ</h3>
+<p>プレイヤーヒープ用のメモリ領域は、サウンドリミットの個数分確保されます。<br />例えば、サウンドリミットが 3 だった場合、プレイヤーヒープで指定したサイズの 3 倍、メモリを消費します。<br />また、プレイヤーヒープ用のメモリ領域は、初期化時に、常駐領域として確保されます。</p>
+<h3 id="Anchor_83955960_h3_3">再生開始遅延</h3>
+<p>プレイヤーヒープを使うと、再生開始時にデータをロードします。<br />実際に音が鳴り始めるのは、ロードが完了した後なので、音の鳴り始めに遅延が発生します。</p>
+<p>再生開始時に即座に音を鳴らしたい場合は、プログラム側で、再生準備処理（Prepare 処理）を行うことで、 前もってプレイヤーヒープにデータをロードしておくことができます。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

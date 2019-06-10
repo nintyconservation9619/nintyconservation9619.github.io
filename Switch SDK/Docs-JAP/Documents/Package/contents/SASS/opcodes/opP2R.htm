@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>P2R</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    P2R : Move Predicate Register To Register<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Move Predicate Register To Register" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Predicate/CC Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "P2R", subsection => 4.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>P2R</b>{.insert}</code>   <code>Rd, PR</code>                <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "P2R" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>P2R</b>{.insert}</code>   <code>Rd, PR, Ra , SbMask</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "P2R" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>P2R</b>{.insert}</code>   <code>Rd, CC</code>                <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "P2R" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>P2R</b>{.insert}</code>   <code>Rd, CC, Ra , SbMask</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "P2R" } -->
+
+ .insert  : {<b>.B0*,.B1, B2, B3</b>}
+             .B0 merges CC/PR bits in Ra[ 7: 0] based on SbMask and writes the result in Rd.   
+             .B1 merges CC/PR bits in Ra[15: 8] based on SbMask and writes the result in Rd. 
+             .B2 merges CC/PR bits in Ra[23:16] based on SbMask and writes the result in Rd.    
+             .B3 merges CC/PR bits in Ra[31:24] based on SbMask and writes the result in Rd. 
+
+Source operand SbMask may have one of these forms:
+    Rb                          32-bit register
+    c[ImmU05][ImmU16]           32-bit constant with immediate byte address
+    ImmS20                      32-bit sign-extended 20-bit immediate
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+<b>P2R</b> writes destination register Rd with the merge of bits from
+Predicate Register <b>PR</b> or Condition Code register <b>CC</b> and bits from register Ra. 
+Bits 7:0 of source operand SbMask select which individual bits of <b>PR/CC</b> bits are read.  A SbMask
+bit of 1 reads the corresponding <b>PR/CC</b> bit; an SbMask bit of 0
+reads an Ra bit from the byte specified by .insert modifier in register Ra.</p>
+
+
+<p>
+Predicate Register <b>PR</b> holds the predicates P0 - P6 for each thread arranged in the 8-bit layout below.</p>
+<pre>
+         <b>Predicate Register PR</b>
+     7    6    5    4    3    2    1    0 
+  +----+----+----+----+----+----+----+----+
+  |  0 | P6 | P5 | P4 | P3 | P2 | P1 | P0 |
+  +----+----+----+----+----+----+----+----+
+</pre>
+
+Condition code  Register <b>CC</b> holds the condition code CC flags ZF, SF, CF, and OF for each thread, 
+arranged in the 8-bit layout below.</p>
+<pre>
+        <b>Condition Code Register CC</b>
+   7    6    5    4    3    2    1    0 
+  +----+----+----+----+----+----+----+----+
+  |  0 |  0 |  0 |  0 | OF | CF | SF | ZF |
+  +----+----+----+----+----+----+----+----+
+</pre>
+
+<p>
+The simple form of <b>P2R</b> is assembled as <b>P2R.B0</b> Rd,
+<b>PR/CC, RZ, 0xFF;</b>.  Simple <b>P2R</b> writes register Rd with
+zero-extended <b>PR/CC</b>.   </p>
+<p>
+Optional .insert  modifier allows merging <b>PR/CC</b> register at arbitrary byte of register Ra.
+</p>
+
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>P2R</b>     R5, PR;                         // R5 = PR;
+<b>P2R</b>     R0, PR, RZ, 0xFF;               // R0 = PR;
+<b>P2R.B0</b>  R0, PR, R0, 0xFF;               // R0.B0 = PR;
+<b>P2R.B1</b>  R0, PR, R0, 0xFF;               // R0.B1 = PR;
+
+<b>P2R.B0</b>  R0, CC, R5, 0x1;                  // R0 = {R5[31:1], CC.ZF;}
+<b>P2R</b>     R0, CC, R0, (1&lt;&lt;3);         // R0[3] = CC.OF
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

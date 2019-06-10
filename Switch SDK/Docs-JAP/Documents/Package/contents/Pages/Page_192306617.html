@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ユーザ例外ハンドラ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ユーザ例外ハンドラ -->
+<div class="pagetitle" id="PageId_192306617">ユーザ例外ハンドラ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_192306617_h1_1">ユーザ例外ハンドラ機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_192306617_h2_1">ユーザ例外ハンドラ機能</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_192306617_h3_1">ユーザ例外ハンドラ機能の動作環境</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_2">デフォルトユーザ例外ハンドラ関数</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_3">ユーザ例外情報</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_192306617_h2_2">ユーザ例外ハンドラ機能の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_192306617_h2_3">ユーザ例外ハンドラ機能の具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_192306617_h2_4">ユーザ例外ハンドラ機能の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_192306617_h2_5">ユーザ例外ハンドラ機能使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_192306617_h3_4">デバッガとの併用</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_5">ユーザ例外ハンドラのコンテキスト</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_6">ユーザ例外ハンドラの多重発生</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_7">ユーザ例外ハンドラ関数からの復帰</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_8">ユーザ例外ハンドラの登録解除</a>
+        </li>
+        <li>
+          <a href="#Anchor_192306617_h3_9">開発機および製品機での仕様</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_192306617_h1_1">ユーザ例外ハンドラ機能</h1>
+<h2 id="Anchor_192306617_h2_1">ユーザ例外ハンドラ機能</h2>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">ユーザ例外ハンドラ機能とは、自プログラムもしくはシステム上の予期しない理由により現在の命令シーケンスを中断せざるを得ない事象（これをユーザ例外と呼びます）が発生した際にそれをハンドリングする機能です。</span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">予めユーザ例外ハンドラ関数を登録しておくことで<span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);">ユーザ例外をハンドリングすることができます</span></span>。ユーザ例外ハンドラ関数では、発生したユーザ例外に関する情報を引数として受け取り、それを整形してログ出力を行うといったことが可能です。<br /></span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">ユーザ例外ハンドラ関数は、プログラムが起動して <a href="../Pages/Page_92310396.html#Anchor_92310396_call_nninitStartupnninitStartup関数の呼び出し">nninitStartup()</a> 関数に到達した時点で後述の「デフォルトユーザ例外ハンドラ関数」が登録されています。プログラム開発者は、デフォルトユーザ例外ハンドラに代えて、独自に実装したユーザ例外ハンドラ関数を登録し直すことができます。</span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">プログラム実行中にユーザ例外が発生すると、ユーザ例外情報である <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a> へのポインタを引数としてユーザ例外ハンドラ関数が呼ばれます。ユーザ例外ハンドラ関数は、実際にユーザ例外が発生したスレッドコンテキスト上で動作し、この間も他のスレッドは通常通り動作し続けます。ユーザ例外ハンドラ関数からリターンするとプログラムは異常終了として扱われ、その後は開発機の設定によって、HOME メニューや DevMenu に戻ったり、デバッガ接続待ちの状態になります。<br /></span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">ユーザ例外ハンドラ関数を登録する <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a80a1e659aaba155ff9552f48604aec54">nn::os::SetUserExceptionHandler()</a> には以下に示すパラメータを引数として渡します。この時、引数に特殊なパラメータを渡すことで、ユーザ例外ハンドラ関数を実行するためのスタック領域や<span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);">ユーザ例外</span></span></span></span>情報の配置場所を指定することができます（ユーザ例外が発生したスレッドのスタック領域上に配置することなども可能です）。詳細は API リファレンスを参照して下さい。<br /></span>
+  </span>
+</p>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aff433bbe881d0fcb8fbb47fe3e299173">nn::os::UserExceptionHandler</a> 型のユーザ例外ハンドラ関数</span>
+    </span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">ユーザ例外ハンドラ関数が動作するためのスタック領域</span>
+    </span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">
+        <span style="color: rgb(51,51,51);">
+          <span style="color: rgb(51,51,51);">
+            <span style="color: rgb(51,51,51);">
+              <span style="color: rgb(51,51,51);">
+                <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a> 型</span>
+            </span>のユーザ例外情報を格納するアドレス<br /></span>
+        </span>
+      </span>
+    </span>
+  </li>
+</ul>
+<h3 id="Anchor_192306617_h3_1">ユーザ例外ハンドラ機能の動作環境</h3>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">ユーザ例外のハンドリングは開発機上でのみ行なうことができます。製品機では、ユーザ例外が発生するとプログラムは強制的に異常終了し、これをハンドリングすることはできません。仮にユーザ例外ハンドラが登録されていても無視されます。</span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">また、Windows 実行環境ではユーザ例外ハンドラ機能はサポートされておりません。</span>
+  </span>
+</p>
+<h3 id="Anchor_192306617_h3_2">デフォルトユーザ例外ハンドラ関数</h3>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">プログラムが起動して <a href="../Pages/Page_92310396.html#Anchor_92310396_call_nninitStartupnninitStartup関数の呼び出し">nninitStartup()</a> 関数に到達した時点で、既に</span>
+  </span>デフォルトのユーザ例外ハンドラ関数が登録されています。この関数は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa9f112844be928c69600e987eb45980f">nn::os::DefaultUserExceptionHandler()</a> として API 公開されているため、独自に実装したユーザ例外ハンドラ関数から呼び出すこともできます。</p>
+<h3 id="Anchor_192306617_h3_3">ユーザ例外情報</h3>
+<p>ユーザ例外ハンドラ関数は <span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a> 構造体へのポインタを引数として受け取ります。この構造体には以下の情報が含まれています。</span></span></p>
+<ul>
+  <li>ユーザ例外種別</li>
+  <li>ユーザ例外が発生した時点でのプロセッサの汎用レジスタ情報</li>
+  <li>ユーザ例外が発生した時点でのプロセッサの例外レジスタ情報</li>
+</ul>
+<p>ユーザ例外種別は、<span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a> 構造体の </span></span></span></span>exceptionType メンバ変数に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460">nn::os::UserExceptionType</a> 列挙型のいずれかが格納されています。</p>
+<p>プロセッサの汎用レジスタ情報、例外レジスタ情報は <span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a> 構造体の detail メンバ変数に格納されています。detail メンバ変数は </span></span></span></span><a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info_detail.html">nn::os::UserExceptionInfoDetail</a> 構造体で、その構造は NX32 ビルド環境と NX64 ビルド環境とで以下のように異なります。また、各レジスタの意味は各プロセッサのスペックシートなども合わせて参照して下さい。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>ビルド環境</th>
+      <th>detail メンバ変数の構造体型名</th>
+    </tr>
+    <tr>
+      <td>NX32</td>
+      <td>
+        <a class="el" href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info_detail_aarch32_status64.html">nn::os::UserExceptionInfoDetailAarch32Status64</a>
+      </td>
+    </tr>
+    <tr>
+      <td>NX64</td>
+      <td>
+        <a class="el" href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info_detail_aarch64.html">nn::os::UserExceptionInfoDetailAarch64</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_192306617_h2_2">ユーザ例外ハンドラ機能の使用方法</h2>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">ユーザ例外ハンドラ関数は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a80a1e659aaba155ff9552f48604aec54">nn::os::SetUserExceptionHandler()</a> で登録することができます。この関数には、ユーザ例外ハンドラ関数のほか、スタック領域とユーザ例外情報の配置場所も同時に指定します。</span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">以下は、ユーザ例外ハンドラのスタック領域とユーザ例外情報の両方に関して、専用の領域を確保して登録する例です。<br /></span>
+  </span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/nn_Macro.h&gt;
+#include &lt;nn/os.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">OriginalUserExceptionHandler</span><span class="p">(</span><span class="nn">nn::os::</span><span class="n">UserExceptionInfo</span><span class="o">*</span> <span class="n">info</span><span class="p">)</span><span class="p">;</span>
+<span class="n">NN_ALIGNAS</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="kt">char</span> <span class="n">g_UserExceptionStack</span><span class="p">[</span><span class="mh">0x4000</span><span class="p">];</span>
+<span class="nn">nn::os::</span><span class="n">UserExceptionInfo</span> <span class="n">g_UserExceptionInfo</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">SetUserExceptionHandler</span><span class="p">(</span> <span class="n">OriginalUserExceptionHandler</span><span class="p">,</span> <span class="n">g_UserExceptionStack</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_UserExceptionStack</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">g_UserExceptionInfo</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>一方、<span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);">ユーザ例外ハンドラ専用の領域を確保せずに、例外が発生したスレッドのスタックをそのまま使い続けるといった設定も可能です。以下はその登録例です。</span></span></p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">OriginalUserExceptionHandler</span><span class="p">(</span><span class="nn">nn::os::</span><span class="n">UserExceptionInfo</span><span class="o">*</span> <span class="n">info</span><span class="p">)</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">SetUserExceptionHandler</span><span class="p">(</span> <span class="n">OriginalUserExceptionHandler</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">HandlerStackUsesThreadStack</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">UserExceptionInfoUsesHandlerStack</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ただし後者の場合、例えば特定のスレッド上でスタックオーバーフローが発生した場合、もう既にそのスレッドスタックに空き領域はないため、ユーザ例外ハンドラは動作できずにプログラムは異常終了扱いとなります。前者の方法であれば、スタックオーバーフローが発生した場合でも、ユーザ例外ハンドラが動作することが可能であるため、ユーザ例外情報をログ出力したりといったことが可能になります。</p>
+<h2 id="Anchor_192306617_h2_3">ユーザ例外ハンドラ機能の具体的な使用例</h2>
+<p>具体的な使用例は、&nbsp;<a href="../../../Api/HtmlNX/_page_sample_os_user_exception_handler.html">ユーザ例外ハンドラ機能サンプル</a>&nbsp;を参照して下さい。</p>
+<h2 id="Anchor_192306617_h2_4">ユーザ例外ハンドラ機能の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a80a1e659aaba155ff9552f48604aec54">nn::os::SetUserExceptionHandler()</a>
+      </span>
+    </span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa9f112844be928c69600e987eb45980f">nn::os::DefaultUserExceptionHandler()</a>
+      </span>
+    </span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a52dba2921df0ef2adf203a4b9829a6d6">nn::os::EnableUserExceptionHandlerOnDebugging()</a>
+      </span>
+    </span>
+  </li>
+</ul>
+<h2 id="Anchor_192306617_h2_5">ユーザ例外ハンドラ機能使用上の注意事項</h2>
+<h3 id="Anchor_192306617_h3_4">デバッガとの併用</h3>
+<p>デフォルトでは、VSI デバッガ接続中はユーザ例外が発生してもユーザ例外ハンドラは呼ばれずに、ユーザ例外が発生した場所でデバッガが Break するようになっています。</p>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span style="color: rgb(51,51,51);">一方、予め <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a52dba2921df0ef2adf203a4b9829a6d6">nn::os::EnableUserExceptionHandlerOnDebugging()</a></span>
+  </span> に true を設定しておくと、VSI デバッガ接続中でもユーザ例外ハンドラが呼び出されるようになります。その後、ユーザ例外ハンドラからリターンするとそこでデバッガが Break します。</p>
+<p>ただし、この場合、デバッガで停止する位置はユーザ例外が発生した位置ではなく、ユーザ例外ハンドラ関数からリターンした位置になっていますのでご注意下さい。</p>
+<h3 id="Anchor_192306617_h3_5">ユーザ例外ハンドラのコンテキスト</h3>
+<p>ユーザ例外ハンドラは、ユーザ例外が発生したスレッドのコンテキストで実行されます（ただし、スタック領域は <span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a80a1e659aaba155ff9552f48604aec54">nn::os::SetUserExceptionHandler()</a></span></span> で指定された場所を使用しています）。そのため、ユーザ例外ハンドラで <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad106866a5b13bc3d430104333966b479">nn::os::GetCurrentThread()</a> を発行すると、ユーザ例外が発生したスレッド自身を返します。また、ユーザ例外ハンドラ実行中も、他のスレッドはユーザ例外発生前と同様に動作し続けます。</p>
+<h3 id="Anchor_192306617_h3_6">ユーザ例外ハンドラの多重発生</h3>
+<p>ユーザ例外ハンドラ関数の中で、再度ユーザ例外が発生することがあります。ユーザ例外ハンドラ実行中はスレッドコンテキストであるため、これは単に当該スレッドでユーザ例外が発生したのと同じです。この時のユーザ例外スタックやユーザ例外情報の格納先は、あくまで <span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a80a1e659aaba155ff9552f48604aec54">nn::os::SetUserExceptionHandler()</a></span></span> の設定値に従うため、１回目のユーザ例外ハンドラで使用した領域を上書きして動作することになりますので注意して下さい。</p>
+<p>ユーザ例外が発生してから、ユーザ例外ハンドラ関数に処理が遷移するまでの間に、再度ユーザ例外が発生してしまうこともあります。この場合、１回目のユーザ例外をハンドリングできずに２回目のユーザ例外が発生しているため、多重例外としてプログラムは異常終了します。これは例えば、ユーザ例外のスタック領域やユーザ例外情報の配置場所にスレッドスタックをそのまま使用する場合などに発生しやすくなります。また、独自のスタック領域を確保した場合でも、スタック領域が小さい場合にはこの多重例外に陥ることがありますので注意して下さい。</p>
+<h3 id="Anchor_192306617_h3_7">ユーザ例外ハンドラ関数からの復帰</h3>
+<p>通常、ユーザ例外ハンドラ関数からリターンすると、前述の通りデバッガ接続待ちとなります（デバッガ未接続時は Home メニューや DevMenu に復帰します）。</p>
+<p>一方で、ユーザ例外情報である <span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../../Api/HtmlNX/structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a> 構造体にはユーザ例外発生時のレジスタ情報が格納されていますが、アプリケーションで何かしらの対処を行った後に、全てのレジスタ値を完全に書き戻して例外発生場所から再実行するといったことはできません。また、後述の通り、製品機ではユーザ例外そのものをハンドリングすることができないため、NintendoSDK ではこういったユーザ例外ハンドラから復帰するための機能や手段は提供していません。<br /></span></span></p>
+<p>ユーザ例外ハンドラは、あくまでユーザ例外発生時にデバッグのためのヒントとなる情報を残すための機能として使用して下さい。</p>
+<h3 id="Anchor_192306617_h3_8">ユーザ例外ハンドラの登録解除</h3>
+<p>ユーザ例外ハンドラ機能の登録を解除するには以下のようにして下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">SetUserExceptionHandler</span><span class="p">(</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">EnableUserExceptionHandlerOnDebugging</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_192306617_h3_9">開発機および製品機での仕様</h3>
+<p>前記の通り、ユーザ例外のハンドリングは開発機でのみ可能となっています。製品機ではユーザ例外をハンドリングすることはできません。製品機でユーザ例外が発生した場合は、ユーザ例外ハンドラ関数が登録されていたとしても、プログラムの異常終了として扱われます。</p>
+<p>また、開発機でも <a href="../Pages/Page_107328760.html">DevMenuCommand</a> を使うことで、ユーザー例外ハンドラ関数の呼び出しを無効化することができます。これにより、製品機に似た動作を再現することが可能です。</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

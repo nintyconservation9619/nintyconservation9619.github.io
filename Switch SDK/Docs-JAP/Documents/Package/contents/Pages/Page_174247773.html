@@ -1,0 +1,515 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エラーハンドリング</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エラーハンドリング -->
+<div class="pagetitle" id="PageId_174247773">エラーハンドリング</div>
+<div class="text_separate">
+<h1 id="Anchor_174247773_h1_1">
+  <span style="color: rgb(117,117,117);">概要</span>
+</h1>
+<p>
+  <span style="color: rgb(33,33,33);">ファイルシステムのエラーハンドリングについて説明します。</span>
+</p>
+<h2 id="Anchor_174247773_h2_1">Result の扱いについて</h2>
+<p>ファイルシステムにおいて発生するエラーは、以下の 3 種類にわけられます。</p>
+<ul>
+  <li>アプリケーションがハンドリングすべきエラー</li>
+  <li>製品では発生すべきではないエラー</li>
+  <li>致命的なエラー</li>
+</ul>
+<h3 id="Anchor_174247773_h3_1">アプリケーションがハンドリングすべきエラー</h3>
+<p>以下のような原因で発生するエラーです。</p>
+<ul>
+  <li>指定したファイルやディレクトリが既に存在する</li>
+  <li>指定したファイルやディレクトリが存在しない</li>
+  <li>指定したファイルやディレクトリがロックされている</li>
+  <li>削除したいディレクトリに子エントリが存在する</li>
+  <li>空き容量が足りない</li>
+  <li>ファイルへの書き込みに失敗した後に、ファイルを開き直さずに読み書き操作を行った</li>
+</ul>
+<p>これらのエラーが発生した場合は、アプリケーションにエラーリザルトが返され動作が続行します。これらのエラーが発生することを想定している場合は、必ずエラーハンドリングを行ってください。</p>
+<p>エラーハンドリングは、具体的には以下のように行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="n">FunctionXXXXXX</span><span class="p">();</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultXXXXXX::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラーが発生した際の処理
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>対象ファイルが存在することが確実であるケースの OpenFile() など、アプリケーションがハンドリングすべきエラーが発生しないことが確実な場合、エラーハンドリングの実装は <span class="ApiLink_NN_ABORT_UNLESS_RESULT_SUCCESS">NN_ABORT_UNLESS_RESULT_SUCCESS</span>() などによるアボートで構いません。製品でアボートが発生しないようアプリケーションをデバッグしてください。</p>
+<h3 id="Anchor_174247773_h3_2">製品では発生すべきではないエラー</h3>
+<p>以下のような原因で発生するエラーです。</p>
+<ul>
+  <li>引数が不正な呼び出し</li>
+  <li>事前条件に違反した呼び出し</li>
+  <li>読み込み専用のファイルシステムへの書き込み操作</li>
+  <li>セーブデータのジャーナリング領域が足りない</li>
+  <li>未実装な機能の使用</li>
+</ul>
+<p>これらのエラーによりエラーリザルトが返されることはありません。これらのエラーが発生した際は、ライブラリ内のアボートによりアプリは強制停止され、システムがエラーメッセージを表示します。</p>
+<p>製品ではこれらのエラーが発生しないようにしてください。</p>
+<h3 id="Anchor_174247773_h3_3">致命的なエラー</h3>
+<p>以下のような原因で発生するエラーです。</p>
+<ul>
+  <li>データが壊れている</li>
+  <li>システムメモリが足りない</li>
+  <li>ロムがない</li>
+  <li>nca に特定の領域がない</li>
+  <li>メディアエラー</li>
+  <li>不明なエラー</li>
+</ul>
+<p>これらのエラーによりエラーリザルトが返されることはありません。これらのエラーが発生した際は、ライブラリ内のアボートによりアプリは強制停止され、システムがエラーメッセージを表示します。</p>
+<p>実装する際に、これらのエラーが発生することを考慮する必要はありません。</p>
+<h2 id="Anchor_174247773_h2_2">各ファイルシステムにおけるエラーハンドリング</h2>
+<p>&nbsp;&nbsp;&nbsp;</p>
+<div class="section">各ファイルシステムにおけるエラーハンドリングの指針を C++ のコードを簡略化した形で示します。</div>
+<h3 id="Anchor_174247773_h3_4">リソースデータを扱うファイルシステム</h3>
+<h4 id="Anchor_174247773_h4_1">マウント処理</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// リソースデータを扱うファイルシステムをマウントする際は、アプリケーションで用意したキャッシュ用バッファが必要となります。
+// キャッシュ用バッファはアンマウントするまで解放してはいけません。 
+</span> 
+<span class="c1">// キャッシュに必要なバッファサイズを取得します。
+// 失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span><span class="kt">size_t</span> <span class="n">romCacheSize</span><span class="p">;</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">QueryMountRomCacheSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">romCacheSize</span><span class="p">);</span>
+ 
+<span class="c1">// キャッシュ用バッファを確保します。
+</span><span class="kt">char</span><span class="o">*</span> <span class="n">romCacheBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="p">[</span><span class="n">romCacheSize</span><span class="p">];</span>
+
+<span class="c1">// ファイルシステムをマウントします。
+// 製品版でハンドリングすべきエラーはありません。失敗時はアボートさせてください。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">MountRom</span><span class="p">(</span><span class="n">mountName</span><span class="p">,</span> <span class="n">romCacheBuffer</span><span class="p">,</span> <span class="n">romCacheSize</span><span class="p">);</span>
+<span class="n">NN_ABORT_UNLESS_RESULT_SUCCESS</span><span class="p">(</span><span class="n">result</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_2">アンマウント処理</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ファイルシステムをアンマウントします。
+// この関数は Result を返しません。
+</span><span class="nn">nn::fs::</span><span class="n">Unmount</span><span class="p">(</span><span class="n">mountName</span><span class="p">);</span>
+ 
+<span class="c1">// アンマウントしたら、キャッシュ用バッファの解放が可能です。
+</span><span class="k">delete</span><span class="p">[]</span> <span class="n">romCacheBuffer</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_3">ディレクトリ操作</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ディレクトリを開きます
+</span><span class="nn">nn::fs::</span><span class="n">DirectoryHandle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">OpenDirectory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">directoryPath</span><span class="p">,</span> <span class="n">openDirectoryMode</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー: directoryPath に対応するディレクトリが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// パスが正しいか、リソースデータを正しくビルドできているかを確認してください。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span> 
+<span class="c1">// ディレクトリ内のエントリの個数を取得します。
+// 失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span><span class="kt">int64_t</span> <span class="n">entryCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">GetDirectoryEntryCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">entryCount</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span>
+ 
+<span class="c1">// ディレクトリ内のエントリを列挙します。
+// エラーを返すことは無いのでハンドリング不要です。
+</span><span class="kt">int64_t</span> <span class="n">readEntryCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nn">nn::fs::</span><span class="n">DirectoryEntry</span> <span class="n">directoryEntryList</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">ReadDirectory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readEntryCount</span><span class="p">,</span> <span class="n">directoryEntryList</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+ 
+<span class="c1">// ディレクトリを閉じます
+// この関数は Result を返しません。
+</span><span class="nn">nn::fs::</span><span class="n">CloseDirectory</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_4">ファイル操作</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ファイルを開きます
+</span><span class="nn">nn::fs::</span><span class="n">FileHandle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">OpenFile</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">openFileMode</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー: filePath に対応するファイルが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// パスが正しいか、リソースデータを正しくビルドできているかを確認してください。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span> 
+<span class="c1">// ファイルサイズを取得します。
+// 失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span><span class="kt">int64_t</span> <span class="n">fileSize</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">GetFileSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fileSize</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span>
+ 
+<span class="c1">// ファイルをバッファに読み込みます
+// ReadFile はオーバーロードされていますが、いずれもエラーを返すことは無いのでハンドリング不要です。
+</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">readBuffer</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+ 
+<span class="c1">// ファイルを閉じます
+// この関数は Result を返しません。
+</span><span class="nn">nn::fs::</span><span class="n">CloseFile</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_174247773_h3_5">セーブデータファイルシステム</h3>
+<div class="platform_nx">
+  <h4 id="Anchor_174247773_h4_5">作成および nmeta ファイルによるサイズ更新</h4>
+  <p>
+    <span class="ApiLink_nn__fs__EnsureSaveData">nn::fs::EnsureSaveData</span>() 実行の要否については、<a href="../Pages/Page_107782148.html">セーブデータ (NX Addon)</a> の「アプリケーションによるセーブデータの作成」を参照してください。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// システムにより作成されていないセーブデータはマウント前にアプリケーションが作成する必要があります。
+// nmeta ファイルに既存のセーブデータより大きいサイズが記述されていた場合は、この関数によってセーブデータのサイズが拡張されます。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">EnsureSaveData</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultUsableSpaceNotEnough::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : セーブデータ作成またはサイズ拡張のための容量が不足しています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 容量が不足している旨のメッセージは、システムが自動的にエラービューアで表示します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// このエラーが返った場合、セーブデータが意図通りに作成されていないもしくはサイズ設定されていないため、アプリケーションはアカウント選択操作をキャンセルして前のシーンに戻るなどの対応をする必要があります。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h4 id="Anchor_174247773_h4_6">随時サイズ拡張</h4>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="c1">// セーブデータを任意のサイズに拡張します。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">ExtendSaveData</span><span class="p">(</span><span class="n">userId</span><span class="p">,</span> <span class="n">saveDataSize</span><span class="p">,</span> <span class="n">saveDataJournalSize</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultUsableSpaceNotEnough::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : セーブデータサイズ拡張のための容量が不足しています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 容量が不足している旨のメッセージは、システムが自動的にエラービューアで表示します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// このエラーが返った場合、セーブデータが意図通りにサイズ設定されていないため、アプリケーションはアカウント選択操作をキャンセルして前のシーンに戻るなどの対応をする必要があります。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<h4 id="Anchor_174247773_h4_7">マウント処理</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// セーブデータファイルシステムをマウントする際は、ユーザアカウントの識別子が必要となります。
+// 製品版でハンドリングすべきエラーはありません。失敗時はアボートさせてください。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">MountSaveData</span><span class="p">(</span><span class="n">mountName</span><span class="p">,</span> <span class="n">userId</span><span class="p">);</span>
+<span class="n">NN_ABORT_UNLESS_RESULT_SUCCESS</span><span class="p">(</span><span class="n">result</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_8">コミット処理</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// セーブデータの更新をコミットします。
+// 失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">Commit</span><span class="p">(</span><span class="n">mountName</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_9">アンマウント処理</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ファイルシステムをアンマウントします。
+// コミット処理をしないままアンマウントした場合には前回コミットした時点の内容に巻き戻ります。
+// この関数は Result を返しません。
+</span><span class="nn">nn::fs::</span><span class="n">Unmount</span><span class="p">(</span><span class="n">mountName</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_10">ディレクトリの作成と削除</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ディレクトリを作成します。
+</span><span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">CreateDirectory</span><span class="p">(</span><span class="n">directoryPath</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 親ディレクトリが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 親ディレクトリ作成処理を行ってください。またはパスが正当か確認してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathAlreadyExists::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">||</span> <span class="nn">nn::fs::ResultTargetLocked::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 既に同名のディレクトリが存在します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 作成しようとしたディレクトリが既に存在する場合の処理を行って下さい。またはパスが正当か確認してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultUsableSpaceNotEnough::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : セーブデータのデータ保存領域が不足しています。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span> 
+<span class="c1">// ディレクトリを削除します。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">DeleteDirectory</span><span class="p">(</span><span class="n">directoryPath</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 対象ディレクトリが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// パスが誤っていないか確認してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultDirectoryNotEmpty::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : ディレクトリに子エントリが存在するため削除できません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 子エントリを削除してから再試行してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultTargetLocked::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 対象ディレクトリ、または子エントリが開かれているため削除できません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 閉じてから再試行してください。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_11">ファイルの作成と削除</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ファイルを作成します。
+</span><span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">CreateFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">fileSize</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 親ディレクトリが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 親ディレクトリ作成処理を行ってください。またはパスが正当か確認してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathAlreadyExists::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">||</span> <span class="nn">nn::fs::ResultTargetLocked::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 既に同名のファイルが存在します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 作成しようとしたファイルが既に存在する場合の処理を行って下さい。またはパスが正当か確認してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultUsableSpaceNotEnough::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : セーブデータのデータ保存領域が不足しています。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span> 
+<span class="c1">// ファイルを削除します。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">DeleteFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 対象ファイルが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// パスが誤っていないか確認してください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultTargetLocked::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : 対象ファイルが開かれているため削除できません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 閉じてから再試行してください。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_12">ディレクトリ操作</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ディレクトリを開きます
+</span><span class="nn">nn::fs::</span><span class="n">DirectoryHandle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">OpenDirectory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">directoryPath</span><span class="p">,</span> <span class="n">openDirectoryMode</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー: directoryPath に対応するディレクトリが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ディレクトリ作成処理を行ってください。またはパスが正当か確認してください。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span> 
+<span class="c1">// ディレクトリ内のエントリの個数を取得します。
+// 失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span><span class="kt">int64_t</span> <span class="n">entryCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">GetDirectoryEntryCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">entryCount</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span>
+ 
+<span class="c1">// ディレクトリ内のエントリを列挙します。
+// エラーを返すことは無いのでハンドリング不要です。
+</span><span class="kt">int64_t</span> <span class="n">readEntryCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nn">nn::fs::</span><span class="n">DirectoryEntry</span> <span class="n">directoryEntryList</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">ReadDirectory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readEntryCount</span><span class="p">,</span> <span class="n">directoryEntryList</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+ 
+<span class="c1">// ディレクトリを閉じます
+// この関数は Result を返しません。
+</span><span class="nn">nn::fs::</span><span class="n">CloseDirectory</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_174247773_h4_13">ファイル操作</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ファイルを開きます
+</span><span class="nn">nn::fs::</span><span class="n">FileHandle</span> <span class="n">handle</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">OpenFile</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">openFileMode</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultPathNotFound::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー: filePath に対応するファイルが存在しません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 初回起動時などにこのエラーが返る想定の場合は nn::fs::CreateFile を呼び出してから再試行してください。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 呼び出し前に存在確認をしている場合など、このエラーの発生があり得ない場合は
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 実装ミスとなりますので、NN_ABORT_UNLESS_RESULT_SUCCES でアボートさせてください。
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultTargetLocked::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー: 対象ファイルが既にオープンされています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ファイルが既にオープンされている可能性が無い場合は、このエラーハンドリングは不要です。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span> 
+<span class="c1">// ファイルサイズを取得します。
+// 失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span><span class="kt">int64_t</span> <span class="n">fileSize</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">GetFileSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fileSize</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span>
+
+ 
+<span class="c1">// ファイルサイズを変更します。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">SetFileSize</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">newFileSize</span><span class="p">);</span> 
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultUsableSpaceNotEnough::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : セーブデータのデータ保存領域が不足しています。
+</span><span class="p">}</span>
+
+<span class="c1">// ファイルをバッファに読み込みます
+// ReadFile はオーバーロードされていますが、いずれもエラーを返すことは無いのでハンドリング不要です。
+</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nn">nn::fs::</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">readBuffer</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+ 
+<span class="c1">// バッファからファイルに書き込みます
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::fs::</span><span class="n">WriteFile</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">writeBuffer</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="nn">nn::fs::WriteOption::</span><span class="n">MakeValue</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::fs::ResultUsableSpaceNotEnough::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// エラー : セーブデータのデータ保存領域が不足しています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// OpenMode_AllowAppend でファイルを開いた場合のみこのエラーを返します。
+</span><span class="p">}</span>
+<span class="c1">// その他の失敗時にはライブラリ内でアボートするためハンドリング不要です。
+</span>&nbsp;
+<span class="c1">// ファイルを閉じます
+// この関数は Result を返しません。
+</span><span class="nn">nn::fs::</span><span class="n">CloseFile</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_NN_ABORT_UNLESS_RESULT_SUCCESS', '../../../Api/HtmlNX/nn___abort_8h.html#a1e657a678a588533a020c2e947df7772' )
+SetUrl( 'ApiLink_nn__fs__EnsureSaveData', '../../../Api/HtmlNX/namespacenn_1_1fs.html#ae5f48fe542ce22263e1399e3b50190e8' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

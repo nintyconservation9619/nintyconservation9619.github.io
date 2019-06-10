@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ランタイム内部で消費するメモリについて</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ランタイム内部で消費するメモリについて -->
+<div class="pagetitle" id="PageId_91194043">ランタイム内部で消費するメモリについて</div>
+<div class="text_separate">
+<h1 id="Anchor_91194043_h1_1">ランタイム内部で消費するメモリについて</h1>
+<p>エフェクトランタイムのメモリ消費は、大きく分けて２つのケースがあります。</p>
+<ul>
+  <li>vfxシステム が確保するワーク</li>
+  <li>エフェクトを再生する為に確保されるワーク</li>
+</ul>
+<h1 id="Anchor_91194043_h1_2">vfxシステム が確保するワーク</h1>
+<p>vfxシステムが確保するワークは、大きく分けて２つのケースがあります。</p>
+<ul>
+  <li>vfxシステム初期化時に確保するワーク</li>
+  <li>vfxシステムにエフェクトバイナリを登録する際に確保するワーク</li>
+</ul>
+<h2 id="Anchor_91194043_h2_1">システム初期化時に確保するワーク</h2>
+<p>システム初期化時にランタイムを動作させる為のメモリを確保します。確保さたメモリはシステム終了時に解放されます。メモリ確保先ヒープ は、<span class="ApiLink_nn__vfx__Config__SetEffectHeap">nn::vfx::Config::SetEffectHeap</span> で指定されたヒープを利用します。確保されるメモリサイズは、<span class="ApiLink_nn__vfx__Config">nn::vfx::Config</span>で指定されるエミッタセット数やエミッタ数により変動し、エ フェクトシステム初期化後に最終的に確保されたワークサイズの詳細がログ出力されます。</p>
+<p>確保されるメモリの主な用途は以下の通りです。</p>
+<ul>
+  <li>エミッタセット / エミッタ / リソース などのワーク</li>
+  <li>テンポラリバッファ</li>
+  <li>Gpuバッファ</li>
+  <li>カールノイズ用テクスチャワーク</li>
+  <li>エミッタが利用するコンスタントバッファ</li>
+</ul>
+<p>テンポラリバッファ や Gpuバッファ は、EmitterSet 初期化時や描画コマンド発行に利用されます。</p>
+<h3 id="Anchor_91194043_h3_1">nn::vfx::Config について</h3>
+<p>
+  <span class="ApiLink_nn__vfx__Config">nn::vfx::Config</span> で設定される以下の値が大きければ大きいほど、vfxシステム初期化時に確保するワークのサイズが大きくなります。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__Config__SetResourceCount">nn::Config::SetResourceCount</span>
+      </th>
+      <td>vfxシステムが扱えるリソースの最大数を設定します。</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__Config__SetEmitterSetCount">nn::Config::SetEmitterSetCount</span>
+      </th>
+      <td>vfxシステムが再生できるエミッタセットの最大数を設定します。</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__Config__SetEmitterCount">nn::Config::SetEmitterCount</span>
+      </th>
+      <td>vfxシステムが再生できるエミッタの最大数を設定します。</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__Config__SetStripeCount">nn::Config::SetStripeCount</span>
+      </th>
+      <td>vfxシステムが再生できる「履歴式ストライプ」の最大数を設定します。</td>
+    </tr>
+    <tr>
+      <th>nn::Config::SetSuperStripeCount</th>
+      <td>vfxシステムが再生できる「履歴式ストライプ 2」の最大数を設定します。</td>
+    </tr>
+    <tr>
+      <th>nn::Config::SetTemporaryBufferSize</th>
+      <td>vfxシステムが初期化するテンポラリバッファのサイズを設定します。</td>
+    </tr>
+    <tr>
+      <th>nn::Config::SetGpuBufferSize</th>
+      <td>vfxシステムが初期化するGpuバッファのサイズを設定します。</td>
+    </tr>
+    <tr>
+      <th>nn::Config::SetParticleSortBufferCount</th>
+      <td>vfxシステムが扱えるソート可能なパーティクル数を設定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_91194043_h2_2">エフェクトバイナリを登録する際に確保するワーク</h2>
+<p>エフェクトバイナリ初期化時にバイナリをセットアップするためのメモリを確保します。確保さたメモリはエフェクトバイナリ破棄時に解放されます。メ モリ確保先ヒープは、<span class="ApiLink_nn__vfx__System">nn::vfx::System</span> ::EntryResource メソッドでアプリ側でロードされたエフェクトバイナリと合わせて指定します。エフェクトバイナリ初期化後に <span class="ApiLink_nn__vfx__Resource__OutputResourceInfo">nn::vfx::Resource::OutputResourceInfo</span>()をメソッドを利用して確保されたワークの詳細な内訳がログ出力することができます。</p>
+<p>確保されるメモリ の主な用途は以下の通りです。</p>
+<ul>
+  <li>各種アセット( シェーダ / テクスチャ / プリミティブ ) 管理用ワーク</li>
+  <li>エミッタセット/エミッタパラメータ 管理用ワーク</li>
+  <li>リソース内エミッタ情報から生成されるコンスタントバッファ</li>
+</ul>
+<p>&nbsp;</p>
+<h1 id="Anchor_91194043_h1_3">エフェクトを再生する為に確保されるワーク</h1>
+<p>エフェクトを再生する為に、以下３つのバッファから再生用ワークが確保されます。</p>
+<ul>
+  <li>Dynamic Heap</li>
+  <li>GpuBuffer</li>
+  <li>TemporaryBuffer</li>
+</ul>
+<p>これらのバッファからワークを確保できなかった場合、ランタイムは警告を出力した上で続行します。<br />それぞれのバッファについて詳しく説明します。</p>
+<h3 id="Anchor_91194043_h3_2">Dynamic Heap</h3>
+<p>ダイナミックヒープは、エフェクトを再生する為に必要となるワークを動的に確保する為に利用されます。<br />確保先ヒープは、<span class="ApiLink_nn__vfx__Config__SetEffectDynamicHeap">nn::vfx::Config::SetEffectDynamicHeap</span> で指定します。<br />VFXランタイム内部では、以下の用途でダイナミックヒープからワークが確保されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パーティクルデータ</th>
+      <td>
+        <p>パーティクル個々の情報を記録する為のワークです。<br />エミッタが放出するパーティクル数に比例してワークサイズが大きくなります。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>ストライプ履歴管理用ワーク</th>
+      <td>履歴式ストライプ 1 と履歴式ストライプ 2 の履歴を管理する為のワークです。<br />ストライプの履歴数に比例して確保サイズが増加します。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_91194043_h3_3">GpuBuffer</h3>
+<p>Gpuバッファは、Gpuが直接参照するアトリビュートデータや頂点バッファなどを配置する為のバッファです。<br />VFXランタイム内部では、以下の用途でテンポラリバッファからワークが確保されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パーティクル描画用アトリビュート</th>
+      <td>個々のパーティクルの位置や速度、回転、スケールなどのパラメータを記録する為のアトリビュートを確保します。<br />１パーティクル辺り消費するサイズは、各パーティクルの設定によってさまざまですが、１パーティクルあたり 最少で 96Byte、最大で 224Byte になります。</td>
+    </tr>
+    <tr>
+      <th>ストライプ描画用頂点バッファ</th>
+      <td>ストライプを描画する為の頂点バッファです。<br />エミッタ単位でGpuバッファから頂点バッファが確保され、確保されるサイズは同時に描画するストライプ数や各ストライプの最大長で増減します。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_91194043_h3_4">TemporaryBuffer</h3>
+<p>描画時にそのフレーム内で有効なGPUが参照するコンスタントバッファを確保する為に利用されます。<br />VFXランタイム内部では、以下の用途でテンポラリバッファからワークが確保されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>ビュー情報</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__vfx__System__SetViewParam">nn::vfx::System::SetViewParam</span> を呼び出すごとに、テンポラリバッファを消費します。</p>
+        <p>１つのビューの情報で アライメント領域も含めて 512Byte テンポラリバッファを消費します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>カスタムシェーダ内で利用する</p>
+        <p>コンスタントバッファ</p>
+      </th>
+      <td>
+        <p>カスタムシェーダ内で ユーザー独自のコンスタントバッファを使いたい場合、テンポラリバッファを利用することができます。<br />基本的に、エミッタ単位でテンポラリバッファからワークを切り出す為、カスタムシェーダを利用して描画するエミッタの数に比例して消費するテンポラリバッファのサイズが増加します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>ストライプ</th>
+      <td>
+        <p>ストライプ1本単位の描画情報をGpuで参照する為に、テンポラリバッファを利用します。</p>
+        <p>再生中のストライプ数に比例して、消費するテンポラリバッファサイズが増加します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_91194043_h2_3">EmitterSet とバッファの関係</h2>
+<p>EmitterSet 生成時に、<strong>パーティクルデータ</strong>をダイナミックヒープから、<strong>パーティクル描画用アトリビュート</strong> をGpuバッファから 確保します。描画時は、ストライプ描画時やカスタムシェーダを利用したエミッタを描画時にテンポラリバッファからワークを確保します。パーティクルデータ、パーティクル描画用アトリビュートは、エミッタが放出するパーティクル数に比例して確保するワークサイズが大きくなります。</p>
+<p>
+  <strong>
+    <u>パーティクルの場合</u>
+  </strong>
+</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_91194043/205901594.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <strong>
+    <u>ストライプの場合</u>
+  </strong>
+</p>
+<p>ストライプの場合は、パーティクルの場合に加えて EmitterSet 生成時に ストライプ履歴管理用のバッファをダイナミックヒープから、ストライプ描画用のバッファをGpuバッファから、また、描画時に個々のストライプ固有のデータをテンポラリバッファから確保します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_91194043/205902382.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__Config__SetEffectHeap', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_config.html#ac20025a5ed3c90e12a243d297fcf9c07' )
+SetUrl( 'ApiLink_nn__vfx__Config', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_config.html' )
+// ApiLink_nn__Config__SetResourceCount
+// ApiLink_nn__Config__SetEmitterSetCount
+// ApiLink_nn__Config__SetEmitterCount
+// ApiLink_nn__Config__SetStripeCount
+SetUrl( 'ApiLink_nn__vfx__System', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html' )
+SetUrl( 'ApiLink_nn__vfx__Resource__OutputResourceInfo', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_resource.html#a835237c4d797396c08b1951c8030f871' )
+SetUrl( 'ApiLink_nn__vfx__Config__SetEffectDynamicHeap', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_config.html#a48478372c0d3ba9e7841b64ec7e5fc17' )
+SetUrl( 'ApiLink_nn__vfx__System__SetViewParam', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#ad7641401cb70b8e58b6cbedd4117371d' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

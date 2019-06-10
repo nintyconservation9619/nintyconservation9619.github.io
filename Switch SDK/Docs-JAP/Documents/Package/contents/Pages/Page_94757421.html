@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>独自のビルドシステムを構築する (NX 開発機環境)</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 独自のビルドシステムを構築する (NX 開発機環境) -->
+<div class="pagetitle" id="PageId_94757421">独自のビルドシステムを構築する (NX 開発機環境)</div>
+<div class="text_separate">
+<!--Remove-->
+<h1 id="Anchor_94757421_h1_1">はじめに</h1>
+<h2 id="Anchor_94757421_h2_1">このページについて</h2>
+<p>このページは、NintendoSDK が提供する VSI を使用せずに独自のビルドシステムを構築しようとする方を対象として、NX 開発機環境用のアプリケーションを作成するために必要な情報を提供します。</p>
+<h2 id="Anchor_94757421_h2_2">関連項目</h2>
+<p>独自のビルドシステムで生成されたアプリケーションのデバッグ方法については、<a href="../Pages/Page_126569850.html">ビルド済プログラムをデバッグする</a>&nbsp;を参照してください。&nbsp;</p>
+<h2 id="Anchor_94757421_h2_3">記法について</h2>
+<p>各ビルド手順の説明では下記に示すコマンドラインオプション記法を使用しています。</p>
+<ul>
+  <li>&lt; &gt; で囲まれた箇所は、&lt; &gt; で説明される適切なオプションに置き換える必要があることを意味します。</li>
+  <li>[ ] で囲まれた箇所は、[ ] 内のオプションを使用するかどうかを選択可能であることを意味します。</li>
+  <li>... が付加された箇所は、付加された項目を複数回記述可能であることを意味します。</li>
+</ul>
+<p>なお、コマンドラインオプションの例では見やすさのために改行をしている箇所がありますが、実際のコマンドには改行を含めてはいけません。</p>
+<h2 id="Anchor_94757421_h2_4">注意事項</h2>
+<p>本ページには将来の NintendoSDK のリリースに伴って変更される可能性の高い情報が含まれています。新しい NintendoSDK がリリースされた場合はビルドシステムの変更履歴に関連する項目がないかどうか必ずご確認ください。</p>
+<h1 id="Anchor_94757421_h1_2">ビルドツール</h1>
+<h2 id="Anchor_94757421_h2_5">コンパイラツールチェイン</h2>
+<p>NX 開発機環境用のコンパイラツールチェインは次のディレクトリにインストールされます。</p>
+<ul>
+  <li>%NINTENDO_SDK_ROOT%\Compilers\NX</li>
+</ul>
+<p>ツールチェインは複数存在します。作成するアプリケーションにあわせて以下のターゲット用のツールチェインをお使いください。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th>ターゲット名</th>
+    </tr>
+    <tr>
+      <th>32bit アプリケーション</th>
+      <td>armv7l-nintendo-nx-eabihf</td>
+    </tr>
+    <tr>
+      <th>64bit アプリケーション</th>
+      <td>aarch64-nintendo-nx-elf</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_94757421_h2_6">その他のツール</h2>
+<p>コンパイラツールチェイン以外のビルドツールは次のディレクトリにインストールされます。</p>
+<ul>
+  <li>%NINTENDO_SDK_ROOT%\Tools</li>
+</ul>
+<h1 id="Anchor_94757421_h1_3">ビルド手順</h1>
+<h2 id="Anchor_94757421_h2_7">概要</h2>
+<p>ソースファイルから最終的なアプリケーションイメージを作成するまでの全体のビルド手順は次のとおりです。</p>
+<ol>
+  <li>
+    <a href="#Anchor_94757421_object-file">オブジェクトファイル作成</a>
+  </li>
+  <li>
+    <a href="#Anchor_94757421_static-library">静的ライブラリ作成</a>
+  </li>
+  <li>
+    <a href="#Anchor_94757421_dynamic-library">動的モジュール作成</a>
+  </li>
+  <li>
+    <a href="#Anchor_94757421_application-program">アプリケーションプログラム作成</a>
+  </li>
+  <li>
+    <a href="#Anchor_94757421_application-image">アプリケーションイメージ作成</a>
+  </li>
+</ol>
+<p>なお、静的ライブラリ作成と動的モジュール作成はアプリケーションイメージの作成に必須ではありません。</p>
+<p>各ビルド手順の説明で使用されている図の凡例は次のとおりです。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995236.png" class="embedded-image" />
+  </span>
+</p>
+<p>青い四角形は、その手順における入力ファイルです。このファイルは、開発者が作成する必要があります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995237.png" class="embedded-image" />
+  </span>
+</p>
+<p>橙色の四角形は、その手順における出力ファイルです。このファイルは、他のビルド手順の実施時やアプリケーションの実行時に必要となります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995239.png" class="embedded-image" />
+  </span>
+</p>
+<p>緑色の中抜きの四角形は、その手順における中間生成物です。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995240.png" class="embedded-image" />
+  </span>
+</p>
+<p>緑色の大きな四角形は、ビルドツールを表します。</p>
+<h2 id="Anchor_94757421_h2_8">オブジェクトファイル作成<a name="Anchor_94757421_object-file"></a></h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995241.png" class="embedded-image" />
+  </span>
+</p>
+<p>ソースファイルをコンパイルしてオブジェクトファイルを作成します。</p>
+<p>詳細な手順は <a href="../Pages/Page_170694349.html">ビルド手順: オブジェクトファイル作成</a> を参照してください。</p>
+<h2 id="Anchor_94757421_h2_9">静的ライブラリ作成<a name="Anchor_94757421_static-library"></a></h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995242.png" class="embedded-image" />
+  </span>
+</p>
+<p>オブジェクトファイルおよび他の静的ライブラリファイルをアーカイブして新たに静的ライブラリを作成します。</p>
+<p>開発者が静的ライブラリの作成を必要としない場合、この手順は省略可能です。</p>
+<p>詳細な手順は <a href="../Pages/Page_170694496.html">ビルド手順: 静的ライブラリ作成</a> を参照してください。</p>
+<h2 id="Anchor_94757421_h2_10">動的モジュール作成<a name="Anchor_94757421_dynamic-library"></a></h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995243.png" class="embedded-image" />
+  </span>
+</p>
+<p>オブジェクトファイルおよび静的ライブラリファイルから、NintendoSDK の <a href="../Pages/Page_161307762.html">RO ライブラリ</a> で使用可能な動的モジュール (共有ライブラリ) を作成します。</p>
+<p>開発者が RO ライブラリの機能を必要としない場合、この手順は省略可能です。</p>
+<p>詳細な手順は <a href="../Pages/Page_170694375.html">ビルド手順: 動的モジュール作成</a> を参照してください。</p>
+<h2 id="Anchor_94757421_h2_11">アプリケーションプログラム作成<a name="Anchor_94757421_application-program"></a></h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995244.png" class="embedded-image" />
+  </span>
+</p>
+<p>オブジェクトファイル、静的ライブラリファイルなどをリンクしてアプリケーションプログラムを作成します。</p>
+<p>詳細な手順は <a href="../Pages/Page_170694365.html">ビルド手順: アプリケーションプログラムの作成</a> を参照してください。</p>
+<h2 id="Anchor_94757421_h2_12">アプリケーションイメージの作成<a name="Anchor_94757421_application-image"></a></h2>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_94757421/171995245.png" class="embedded-image" />
+  </span>
+</p>
+<p>アプリケーションプログラム、動的モジュールファイル等から、最終的に NX 開発機で実行可能なアプリケーションイメージを作成します。VSI で作成可能な nsp ファイルと RAW 形式のイメージを作成できます。</p>
+<p>詳細な手順は <a href="../Pages/Page_170694395.html">ビルド手順: アプリケーションイメージの作成</a> を参照してください。</p>
+<h1 id="Anchor_94757421_h1_4">コンパイラ・リンカオプション</h1>
+<p>NintendoSDK ではいくつかのコンパイラオプションやリンカオプションの指定、非指定を前提としています。これらのオプションの指定ルールに従わない場合、ビルドエラーの原因や、正常に実行されないアプリケーションが作成される原因となります。オプションの指定ルールは、ビルドフローの各詳細手順のページに記載されています。</p>
+<p>なお、コンパイラオプション、リンカオプションは将来の NintendoSDK のリリースにおいて変更される可能性があります。特定のコンパイルオプション、リンカオプションに依存した機能を実装したい場合は、NintendoSDK のサポート窓口までご相談ください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

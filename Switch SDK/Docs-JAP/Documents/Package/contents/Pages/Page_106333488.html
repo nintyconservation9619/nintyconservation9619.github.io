@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ガンマ補正</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ガンマ補正 -->
+<div class="pagetitle" id="PageId_106333488">ガンマ補正</div>
+<div class="text_separate">
+<h2 id="Anchor_106333488_h2_1">概要</h2>
+<p>リニア空間ではシェーダで正確に色計算を行うことができます。 ガンマ空間で作られたテクスチャは GPU の sRGB テクスチャフェッチを使い、フレームバッファの書き出しは sRGB 書き出しを使すことで、 シェーダーで計算した結果を精度を落とさずにガンマ空間の値として書き出すことが出来るため、こちらの方を使うことが推奨されています。 しかし、sRGB テクスチャフェッチは一部フォーマットしか対応されていないために、&nbsp;テクスチャコンバータを用いることで、事前にガンマ値 1.0 のテクスチャ（リニアフェッチテクスチャ）に変換することができます。 圧縮テクスチャフォーマットの対応状況を示します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>圧縮テクスチャフォーマット</th>
+      <th>リニアフェッチテクスチャ</th>
+      <th>sRGB フェッチテクスチャ</th>
+    </tr>
+    <tr>
+      <td>bc1</td>
+      <td>○</td>
+      <td>○</td>
+    </tr>
+    <tr>
+      <td>bc2</td>
+      <td>○</td>
+      <td>○</td>
+    </tr>
+    <tr>
+      <td>bc3</td>
+      <td>○</td>
+      <td>○</td>
+    </tr>
+    <tr>
+      <td>bc4</td>
+      <td>○</td>
+      <td>&times;</td>
+    </tr>
+    <tr>
+      <td>bc5</td>
+      <td>○</td>
+      <td>&times;</td>
+    </tr>
+  </tbody>
+</table>
+<p>上記の通り、リニアフェッチテクスチャはどのフォーマットでも利用可能ですが、事前にコンバートすることで精度が低下します。 以下にフォーマットによる精度の低下の例を示します。シェーダコンバートはシェーダ内でソフトウェア的にガンマ補正 2.2 を行った例です。 各フォーマットの見え方はモニターの設定次第で変化しますのでご注意ください。 参考程度にしていただき、フォーマット選択の際には実機で確認することを推奨します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>圧縮テクスチャフォーマット</th>
+      <th>リニアフェッチテクスチャ</th>
+      <th>sRGB フェッチテクスチャ</th>
+      <th>シェーダコンバート</th>
+    </tr>
+    <tr>
+      <td>bc1</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430954.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430956.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430955.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>bc4</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430957.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>&nbsp;</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430958.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>リニアフェッチテクスチャは精度不足によるカラーバンディングが見えます。 リニア色空間で色計算するために、リニアフェッチテクスチャと sRGB フェッチテクスチャを組み合わせてワークフローを構築します。</p>
+<h2 id="Anchor_106333488_h2_2">ワークフロー</h2>
+<p>g3d では DCC プラグインのコンフィグ設定やテクスチャコンバータによって、リニアフェッチテクスチャ及び sRGB フェッチテクスチャを作成することができます。 それぞれの過程でのガンマ値の変化を下表にまとめます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>テクスチャ</th>
+      <th>元画像</th>
+      <th>テクスチャコンバータ</th>
+      <th>テクスチャフェッチ</th>
+    </tr>
+    <tr>
+      <td>sRGB テクスチャ</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430987.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430986.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430986.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>リニアフェッチテクスチャ</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430987.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430985.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430985.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>sRGB フェッチテクスチャ</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430987.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430986.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_106333488/106430985.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>sRGB カラープロファイルのモニターで作成された画像は「元画像」のようなカーブで表されるガンマ値を持つテクスチャとなります。 リニアフェッチテクスチャはこのテクスチャを DCC プラグインやテクスチャコンバータで補正を行い、リニア空間のテクスチャに変換します。 また、sRGBフェッチテクスチャはシェーダでテクスチャをフェッチする際に GPU でガンマ補正 2.2 が行われ、リニア空間のテクスチャとして扱われます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

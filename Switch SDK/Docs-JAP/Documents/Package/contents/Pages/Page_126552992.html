@@ -1,0 +1,795 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>顔モデル</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 顔モデル -->
+<div class="pagetitle" id="PageId_126552992">顔モデル</div>
+<div class="text_separate">
+<h1 id="Anchor_126552992_h1_1">顔モデル</h1>
+<p>顔モデルとは Mii の頭部分のモデルのことを指します。</p>
+<p>似顔絵ライブラリでは<a href="../Pages/Page_165752534.html"> Mii データ（CharInfo）</a>に設定されたパラメータに応じた顔モデルを描画するための仕組みを提供します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_126571516/125193503.png" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_126552992_h2_1">顔モデル構成パーツ</h2>
+<p>設定されたパラメータに応じた顔モデルを描画するため、 顔モデルは複数のシェイプの組み合わせで構成されます。1 体分の Mii の顔モデルを描画するためのシェイプとテクスチャのデータは <span class="ApiLink_nn__mii__CharModel">nn::mii::CharModel</span> で管理しています。</p>
+<p>顔モデルを構成する各パーツと <span class="ApiLink_nn__mii__CharModel__DrawType">nn::mii::CharModel::DrawType</span> 列挙型は関連しており、以下の種類があります。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パーツの種類</th>
+      <th>nn::mii::CharModel::DrawType</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td>&nbsp;<a href="#Anchor_126552992_beard">顎鬚</a></td>
+      <td>nn::mii::CharModel::DrawType_Beard</td>
+      <td>Mii によっては顎鬚パーツがない場合があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_126552992_faceline">顔輪郭</a>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Faceline</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <a href="#Anchor_126552992_forehead">おでこ</a>
+        </p>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Forehead</td>
+      <td>Mii によってはおでこパーツがない場合があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_126552992_hair">髪の毛</a>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Hair</td>
+      <td>Mii によっては髪の毛パーツがない場合があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_126552992_hat">帽子</a>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Hat</td>
+      <td>Miii によっては帽子パーツがない場合があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_126552992_nose">鼻</a>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Nose</td>
+      <td>Mii によっては鼻パーツがない場合があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_126552992_mask">マスク</a>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Mask</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_126552992_noseline">鼻の輪郭線</a>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Noseline</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <a href="#Anchor_126552992_glass">メガネ</a>
+        </p>
+      </td>
+      <td>nn::mii::CharModel::DrawType_Glass</td>
+      <td>Mii によってはメガネパーツがない場合があります。</td>
+    </tr>
+  </tbody>
+</table>
+<p>顔モデルを構成するパーツの中には、その Mii に不要なパーツもあります。例えば、メガネや顎鬚などのパーツは Mii によっては描画するパーツがない場合があります。不要なパーツに関する実装上の注意点に関しては<a href="../Pages/Page_126918954.html"> CharModel の機能説明のページ</a>を確認してください。</p>
+<p>以下に各パーツの変調の種類とパラメータとともにシェイプ、テクスチャのサンプルを示します。変調とは Mii の顔モデルパーツの色替えのための仕組みのことを指します。詳しくは<a href="../Pages/Page_126563820.html">変調ページ</a>を参照してください。</p>
+<h3 id="Anchor_126552992_h3_1">顎鬚<a name="Anchor_126552992_beard"></a></h3>
+<p>顎鬚には、シェイプとして表現される顎鬚とテクスチャとして表現される顎鬚があります。顎鬚パーツとして扱われるのはシェイプとして表現される顎鬚です。詳しくは<a href="#Anchor_126552992_warnBeardType">注意事項</a>を確認してください。</p>
+<p>顎鬚の変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__mii__DrawType__ModulateType_Constant">nn::mii::DrawType::ModulateType_Constant</span>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>ひげの色</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193930.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>テクスチャなし</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_2">顔輪郭<a name="Anchor_126552992_faceline"></a></h3>
+<p>顔輪郭テクスチャは、複数のテクスチャを組み合わせて一つのテクスチャとして動的にレンダリングしたテクスチャです。</p>
+<p>顔輪郭テクスチャには顔の右側部分だけがレンダリングされています。ミラーモードでテクスチャを貼ることで左側も描画するようになっています。顔輪郭テクスチャの構成に関しては<a href="../Pages/Page_126557702.html">顔輪郭テクスチャページ</a>を参照してください。</p>
+<p>顔輪郭パーツの変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Texture">nn::mii::DrawType::ModulateType_Texture</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>顔輪郭テクスチャ</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193932.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125194284.png" width="128" height="256" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_3">おでこ<a name="Anchor_126552992_forehead"></a></h3>
+<p>おでこの変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Constant">nn::mii::DrawType::ModulateType_Constant</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>肌の色</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193933.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>テクスチャなし</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_4">髪の毛<a name="Anchor_126552992_hair"></a></h3>
+<p>髪の毛パーツ描画の変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Constant">nn::mii::DrawType::ModulateType_Constant</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>髪の毛の色</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>
+        <p>-</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193935.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>テクスチャなし</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h3 id="Anchor_126552992_h3_5">帽子<a name="Anchor_126552992_hat"></a></h3>
+<p>帽子パーツには帽子だけでなく髪留めも含まれます。詳しくは<a href="#Anchor_126552992_warnCapKind">注意事項</a>を確認してください。</p>
+<p>帽子パーツの変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_AlphaOpa">nn::mii::DrawType::ModulateType_AlphaOpa</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>帽子の色（お気に入りの色）</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプのサンプル</th>
+      <th>テクスチャサンプル</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193931.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193973.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_6">鼻<a name="Anchor_126552992_nose"></a></h3>
+<p>鼻パーツ描画の変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Constant">nn::mii::DrawType::ModulateType_Constant</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>鼻の色</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193941.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>テクスチャなし</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_7">マスク<a name="Anchor_126552992_mask"></a></h3>
+<p>マスクテクスチャは、複数のテクスチャを組み合わせて一つのテクスチャとしてレンダリングしたテクスチャです。</p>
+<p>マスクテクスチャの構成に関しては<a href="../Pages/Page_126557713.html">マスクテクスチャページ</a>を参照してください。</p>
+<p>マスクパーツの変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Texture">nn::mii::DrawType::ModulateType_Texture</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>マスクテクスチャ</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>
+        <p>シェイプ（Mask のみ）</p>
+      </th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193936.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193937.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125194324.png" width="256" height="256" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_8">鼻の輪郭線<a name="Anchor_126552992_noseline"></a></h3>
+<p>鼻の輪郭線パーツの変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Alpha">nn::mii::DrawType::ModulateType_Alpha</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>
+        <p>鼻の輪郭線の色（固定値）</p>
+      </td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>鼻の輪郭線テクスチャ</td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャのサンプルです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193940.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193984.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_9">メガネ<a name="Anchor_126552992_glass"></a></h3>
+<p>メガネパーツの変調に関するパラメータです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータの種類</th>
+      <th>値</th>
+    </tr>
+    <tr>
+      <td>modulate</td>
+      <td>
+        <span class="ApiLink_nn__mii__DrawType__ModulateType_Glass">nn::mii::DrawType::ModulateType_Glass</span>
+      </td>
+    </tr>
+    <tr>
+      <td>const0</td>
+      <td>メガネの色</td>
+    </tr>
+    <tr>
+      <td>const1</td>
+      <td>アルファ調整用の値</td>
+    </tr>
+    <tr>
+      <td>const2</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>texture</td>
+      <td>
+        <p>メガネテクスチャ</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>シェイプとテクスチャ例です。テクスチャのサンプル画像では、左側がテクスチャのカラーを表し、右側がアルファを表しています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ</th>
+      <th>テクスチャ</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193934.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193980.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_126552992_h2_2">顔モデルの種類</h2>
+<p>顔モデルには、通常のモデルに加え、帽子などの装飾品を被らせるためのモデルなどいくつか種類があります。</p>
+<p>似顔絵ライブラリでは用途に合わせた顔モデルを生成する機能を提供しています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>顔モデルの種類</th>
+      <th>サンプル</th>
+      <th>解説</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__CreateModelType_Normal">nn::mii::CreateModelType_Normal</span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193503.png" width="150" class="embedded-image" />
+        </span>
+      </td>
+      <td>通常の顔モデルとして生成します。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__CreateModelType_Hat">nn::mii::CreateModelType_Hat</span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193972.png" width="150" class="embedded-image" />
+        </span>
+      </td>
+      <td>帽子用顔モデルとしてモデルを生成します。帽子、髪の毛、おでこのパーツが通常モデルと異なります。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__CreateModelType_FaceOnly">nn::mii::CreateModelType_FaceOnly</span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193971.png" width="150" class="embedded-image" />
+        </span>
+      </td>
+      <td>被り物用顔モデルとして生成します。帽子、髪の毛、おでこのパーツが描画されません。</td>
+    </tr>
+  </tbody>
+</table>
+<p>さらに、フルフェイスのヘルメットのような被り物用に鼻の高さを制限した顔モデルの生成可能です。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>鼻の種類</th>
+      <th>サンプル</th>
+      <th>解説</th>
+    </tr>
+    <tr>
+      <td>&nbsp;<span class="ApiLink_nn__mii__CreateNoseType_Normal">nn::mii::CreateNoseType_Normal</span></td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125194915.png" width="150" class="embedded-image" />
+        </span>
+      </td>
+      <td>通常の鼻の高さのモデルを生成します。</td>
+    </tr>
+    <tr>
+      <td>&nbsp;<span class="ApiLink_nn__mii__CreateNoseType_Flatten">nn::mii::CreateNoseType_Flatten</span></td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125194916.png" width="150" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <p>鼻の高さを調整してモデルを生成します。鼻の高さが制限され、一定の値以下に調整されたモデルになります。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>顔モデルのモデルの種類（<span class="ApiLink_nn__mii__CreateModelType">nn::mii::CreateModelType</span>）と鼻の高さの種類（<span class="ApiLink_nn__mii__CreateNoseType">nn::mii::CreateNoseType</span>）は組み合わせて指定することが可能です。詳しくは、<a href="../Pages/Page_126918954.html">CharModel の機能説明のページ</a>の顔モデルの生成条件の項目を参照してください。</p>
+<h2 id="Anchor_126552992_h2_3">注意事項</h2>
+<h3 id="Anchor_126552992_h3_10">顎鬚の種類<a name="Anchor_126552992_warnBeardType"></a></h3>
+<p>顎鬚には、シェイプとして表現される顎鬚とテクスチャとして表現される顎鬚があります。</p>
+<p>シェイプで表現される顎鬚の場合、顔モデルのパーツの一つとして表現されます。テクスチャで表現される顎鬚の場合、<a href="../Pages/Page_126557702.html">顔輪郭テクスチャ</a>の一部として表現されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>シェイプ顎鬚</th>
+      <th>テクスチャ顎鬚</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193930.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193967.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126552992_h3_11">帽子の種類<a name="Anchor_126552992_warnCapKind"></a></h3>
+<p>帽子パーツとして描画されるものには、帽子以外に髪留めがあります。</p>
+<p>髪留めも帽子として扱っています。帽子モデルでも髪留めが描画されることに注意してください。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>通常モデル</th>
+      <th>帽子モデル</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193968.png" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_126571516/125193969.png" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__CharModel', '../../../Api/HtmlNX/classnn_1_1mii_1_1_char_model.html' )
+SetUrl( 'ApiLink_nn__mii__CharModel__DrawType', '../../../Api/HtmlNX/classnn_1_1mii_1_1_char_model.html#a84d199c740845263c39c52bd429be87a' )
+// ApiLink_nn__mii__DrawType__ModulateType_Constant
+// ApiLink_nn__mii__DrawType__ModulateType_Texture
+// ApiLink_nn__mii__DrawType__ModulateType_AlphaOpa
+// ApiLink_nn__mii__DrawType__ModulateType_Alpha
+// ApiLink_nn__mii__DrawType__ModulateType_Glass
+SetUrl( 'ApiLink_nn__mii__CreateModelType_Normal', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a19f550cb89b2b095417f135888953bb3a10757d3c753282cab6b9b8f25b94dd95' )
+SetUrl( 'ApiLink_nn__mii__CreateModelType_Hat', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a19f550cb89b2b095417f135888953bb3ab25405fd92709528292b2af8d3a0677f' )
+SetUrl( 'ApiLink_nn__mii__CreateModelType_FaceOnly', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a19f550cb89b2b095417f135888953bb3abfabdee6846db8001b6f6937f0fbdaf5' )
+SetUrl( 'ApiLink_nn__mii__CreateNoseType_Normal', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ab1d08064d4a8b9788b5b123bd6a22b21a428e4df9474f8f20a39ddcc01007b244' )
+SetUrl( 'ApiLink_nn__mii__CreateNoseType_Flatten', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ab1d08064d4a8b9788b5b123bd6a22b21aa4be938946bcd3e75b17d676f4f9c206' )
+SetUrl( 'ApiLink_nn__mii__CreateModelType', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a19f550cb89b2b095417f135888953bb3' )
+SetUrl( 'ApiLink_nn__mii__CreateNoseType', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ab1d08064d4a8b9788b5b123bd6a22b21' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

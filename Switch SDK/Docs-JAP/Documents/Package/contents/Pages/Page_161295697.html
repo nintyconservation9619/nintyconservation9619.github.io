@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ポリゴンリダクション</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ポリゴンリダクション -->
+<div class="pagetitle" id="PageId_161295697">ポリゴンリダクション</div>
+<div class="text_separate">
+<h1 id="Anchor_161295697_h1_1">はじめに</h1>
+<p>ここでは LOD モデルの生成について説明します。下記の項目について説明する事で、平易にご利用頂ける事を目的としています。</p>
+<ul>
+  <li>モデル毎に起こり得る問題</li>
+  <li>モデル毎の適切なパラメーター設定</li>
+</ul>
+<p>主に、地形データを用いた説明を行いますが、同様の考え方でキャラクタデータのリダクションも行う事が出来ます。説明にあたり、下記ドキュメントの内容を適宜引用します。</p>
+<h2 id="Anchor_161295697_h2_1">詳細ドキュメント</h2>
+<p>
+  <a href="../Pages/Page_162186377.html">ポリゴンリダクション説明書</a>&nbsp;に、リダクションの実装情報やパラメーターについての詳細な解説があります。</p>
+<h2 id="Anchor_161295697_h2_2">コマンドラインツール・ヘルプドキュメントについて</h2>
+<p>実行時パラメーターについては、<a href="../Pages/Page_83955705.html#Anchor_83955705_polygon_reductionポリゴンリダクション">中間ファイルオプティマイザ</a>&nbsp;に記載されています。</p>
+<h1 id="Anchor_161295697_h1_2">チュートリアルの概要</h1>
+<p>このチュートリアルでは、</p>
+<p>&quot;%NINTENDO_SDK_ROOT%\Samples\Sources\Applications\G3dDemo\Resources\town\bg_WhiteTown\bg_WhiteTown.fmdb&quot;</p>
+<p>(以下 <strong>Town モデル</strong>、または単に&nbsp;<strong>Town&nbsp;</strong>と呼びます)</p>
+<p>に対して適切なリダクションを行うにあたって、どのようにしてパラメーターを適用していくか？を実際の実行結果と図を用いて説明していきます。</p>
+<p>最終的な実行結果は、図1_1 の様になることを目的とします。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_161295697/258576429.png" width="500" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </th>
+      <th>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_161295697/258576436.png" width="500" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </th>
+    </tr>
+    <tr>
+      <td>図1_0　リダクション前（137687 ポリゴン）</td>
+      <td>図1_1　リダクション結果（34368 ポリゴン）</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_161295697_h1_3">パラメーター決定フローチャート</h1>
+<p>ここで、最初にパラメーター決定のためのフローチャートを示します。</p>
+<p>フローチャート中のパラメーター名はチュートリアルの各ステップで示されるパラメーターと対応しています。フローチャート中のステップ番号は、このドキュメントのステップ番号に対応しています。</p>
+<p>各ステップにパラメーターについて、効果を図を交えて説明しています。また、各ステップのリンクから詳細な技術情報および、コマンドラインパラメーターについて参照できます。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_161295697/flowchart_1.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>デフォルトパラメーター適用後の、パラメーター決定フローチャート</p>
+        <p>
+          <br />
+        </p>
+        <p>破線矢印：優先度低めだが効果のあるパラメーター</p>
+        <p>赤矢印：特に重要なパラメーター</p>
+        <p>青矢印：チュートリアルでは詳細解説を行っていない。使う場面は少ないと想定しているパラメーター</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>以下にフローチャート中で与えられたパラメーターについて掲示します。それぞれのパラメーターについては、各ステップで再度、提示し解説を加えます。</p>
+<div class="expand-container" id="expander-161295697-1">
+  <div class="expand-control" id="expander-control-161295697-1">
+    <span class="expand-control-icon collapsed-icon"> </span>
+    <span class="expand-control-text">ここをクリックすると展開されます...</span>
+  </div>
+  <div class="expand-content expand-hidden" id="expander-content-161295697-1">
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>デフォルトパラメーター</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);"> &quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag Position --optimize-position-policy OptimalOnSpace&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターB</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position<span style="color: rgb(255,0,0);">|UV</span></span> --optimize-position-policy OptimalOnSpace&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターC</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position|UV</span> --optimize-position-policy OptimalOnSpace <span style="color: rgb(255,0,0);">--uv-weight 0.1</span>&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターC2</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position|UV</span> --optimize-position-policy <span style="color: rgb(255,0,0);">OptimalOnEdge</span> --uv-weight 0.1&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターC3</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position|UV<span style="color: rgb(255,0,0);">|Normal</span></span> --optimize-position-policy OptimalOnSpace --uv-weight 0.1 <span style="color: rgb(255,0,0);">--normal-weight 0.1</span>&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターC3_1</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag Position|UV<span style="color: rgb(255,0,0);">|Normal</span> --optimize-position-policy OptimalOnSpace --uv-weight 0.1<span style="color: rgb(255,0,0);"> --normal-weight 0.0001</span>&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターC4</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position|UV</span> --optimize-position-policy OptimalOnSpace <span style="color: rgb(255,0,0);">--open-edge-lock-angle 89</span> --uv-weight 0.1&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターC4_1</b>
+      </div>
+      <div class="panelContent">
+        <p style="text-align: left;">3dIntermediateFileOptimizer.exe bg_WhiteTown.fmdb --polygon-reduction --polygon-reduction-options <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 <span style="color: rgb(51,153,102);">--target-rate-lod-level2 0.25 </span>--property-flag Position|UV --optimize-position-policy OptimalOnSpace --open-edge-lock-angle 89 </span> <span style="color: rgb(51,153,102);">--uv-weight 0.1 <span style="color: rgb(255,0,0);">--feature-angle 89</span>&quot;</span> &nbsp;</p>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターD</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position|UV</span> --optimize-position-policy OptimalOnSpace --open-edge-lock-angle 89 --uv-weight 0.1 <span style="color: rgb(255,0,0);">--lock-uv-hard-edge 89</span>&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターE</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag <span style="color: rgb(51,153,102);">Position|UV|Normal</span> --optimize-position-policy OptimalOnSpace --uv-weight 0.04 --lock-uv-hard-edge 89&quot;</span>
+      </div>
+    </div>
+    <div class="panel" style="border-width: 1px;">
+      <div class="panelHeader" style=" border-bottom-width: 1px;">
+        <b>パラメーターF</b>
+      </div>
+      <div class="panelContent">
+        <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag Position|UV|Normal --optimize-position-policy OptimalOnSpace --lock-uv-hard-edge 89 --feature-angle 89 <span style="color: rgb(255,0,0);">--smoothing</span>&quot;</span>
+      </div>
+    </div>
+  </div>
+</div>
+<p>以下のフォルダに含まれているバッチファイルにモデル中間ファイルをドラッグ &amp; ドロップすることにより、任意のファイルに対して各パラメーターでポリゴンリダクションを実行する事が出来ます。</p>
+<p>%NINTENDO_SDK_ROOT%\Samples\Sources\Tools\3dTools\3dIntermediateFileOptimizer\PolygonReductionTutorial</p>
+<p>様々なパラメーターセットの組み合わせを試す前に、<strong>パラメーターEをほどほどの結果が得られるプリセットとして、削減率を必要に応じて変更し、リダクションを試してみてください。</strong></p>
+<p>
+  <strong> <br /> </strong>
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

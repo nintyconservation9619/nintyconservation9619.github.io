@@ -1,0 +1,598 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>HlslCrossCompiler</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- HlslCrossCompiler -->
+<div class="pagetitle" id="PageId_233735395">HlslCrossCompiler</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_233735395_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_233735395_h1_2">シェーダーモデル</a>
+    </li>
+    <li>
+      <a href="#Anchor_233735395_h1_3">留意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_233735395_h2_1">HLSLCC_FLAG_SEPARABLE_SHADER_OBJECTS 使用時の in/out 変数ロケーション番号</a>
+      </li>
+      <li>
+        <a href="#Anchor_233735395_h2_2">コンバートできない組み込み関数</a>
+      </li>
+      <li>
+        <a href="#Anchor_233735395_h2_3">SamplerState のコンバート</a>
+      </li>
+      <li>
+        <a href="#Anchor_233735395_h2_4">SampleCmpZero() のコンバート</a>
+      </li>
+      <li>
+        <a href="#Anchor_233735395_h2_5">cbuffer 内に宣言されたユーザー定義構造体の配列のインデックスに関する制約</a>
+      </li>
+      <li>
+        <a href="#Anchor_233735395_h2_6">cbuffer 内に宣言されたネストされたユーザー定義型配列に関する制約</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_233735395_h1_4">使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_233735395_h2_7">NVIDIA HLSL Extension</a>
+      </li>
+      <li>
+        <a href="#Anchor_233735395_h2_8">オプション</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_233735395_h3_1">--shader-model</a>
+        </li>
+        <li>
+          <a href="#Anchor_233735395_h3_2">--entry-point</a>
+        </li>
+        <li>
+          <a href="#Anchor_233735395_h3_3">--hlslcc-option-flags</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_233735395_h4_1">各フラグの詳細</a>
+          </li>
+          <ul>
+            <li>
+              <a href="#Anchor_233735395_h5_1">HLSLCC_FLAG_FORCE_DECLARED_ORDER_ATTRIB_LOCATION</a>
+            </li>
+            <li>
+              <a href="#Anchor_233735395_h5_2">HLSLCC_FLAG_USE_REGISTER_NUMBER_AS_RAW_STRUCTURED_BUFFER_BINDING</a>
+            </li>
+            <li>
+              <a href="#Anchor_233735395_h5_3">HLSLCC_FLAG_TYPED_SSBO</a>
+            </li>
+            <li>
+              <a href="#Anchor_233735395_h5_4">HLSLCC_FLAG_COMBINE_TEX_SAMP_BINDLESS</a>
+            </li>
+            <li>
+              <a href="#Anchor_233735395_h5_5">HLSLCC_FLAG_GS_ENABLED、HLSLCC_FLAG_TESS_ENABLED</a>
+            </li>
+          </ul>
+        </ul>
+        <li>
+          <a href="#Anchor_233735395_h3_4">--hlsl-compile-option-flags</a>
+        </li>
+        <li>
+          <a href="#Anchor_233735395_h3_5">--preprocessor-definition</a>
+        </li>
+        <li>
+          <a href="#Anchor_233735395_h3_6">--include-directory</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_233735395_h1_5">ライセンス</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_233735395_h1_1">はじめに</h1>
+<p>HlslCrossCompiler (Tools/Graphics/GraphicsTools/HlslCrossCompiler.exe) は HLSL から GLSL へ変換するツールです。HLSLcc (<a href="https://github.com/Unity-Technologies/HLSLcc">https://github.com/Unity-Technologies/HLSLcc</a>) からフォークした hlslcc.dll (Tools/Graphics/GraphicsTools/hlslcc.dll) を利用しており、独自に幾つかの改善を加えています。</p>
+<h1 id="Anchor_233735395_h1_2">シェーダーモデル</h1>
+<p>サポートしているシェーダーモデルは下記の通りです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>NintendoSDK</th>
+      <th>シェーダーモデル</th>
+    </tr>
+    <tr>
+      <td>3.x</td>
+      <td>cs_5_0, vs_5_0, ps_5_0</td>
+    </tr>
+    <tr>
+      <td>4.0.0</td>
+      <td>cs_5_0, vs_5_0, gs_5_0, ps_5_0</td>
+    </tr>
+    <tr>
+      <td>4.1.0</td>
+      <td>cs_5_0, vs_5_0, hs_5_0, ds_5_0, gs_5_0, ps_5_0</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_233735395_h1_3">留意事項</h1>
+<h2 id="Anchor_233735395_h2_1">HLSLCC_FLAG_SEPARABLE_SHADER_OBJECTS 使用時の in/out 変数ロケーション番号</h2>
+<p>in/out 変数にアサインされるロケーション番号の挙動がバージョンにより異なります。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>NintendoSDK</th>
+      <th>in/out 変数ロケーション番号</th>
+    </tr>
+    <tr>
+      <td>4.x.x 以前</td>
+      <td>
+        <div class="content-wrapper">
+          <p>ロケーション番号は DXBC 内で in/out 変数が宣言 ( dcl_input/output ) された順番に割り振られます。</p>
+          <p>これはオリジナルの hlslcc と同じ挙動です。</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>5.0.0</td>
+      <td>
+        <p>ロケーション番号を割り振りません。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>5.1.0</td>
+      <td>
+        <div class="content-wrapper">
+          <p>ロケーション番号は HLSL 内のセマンティックインデックスが割り振られます。</p>
+          <div class="warn_new">
+            <div class="warn_new_left">警告：</div>
+            <div class="warn_new_right">
+              <p>頂点シェーダの in 変数はこれまで dcl_input された順番にロケーションがアサインされましたが本バージョン以降はセマンティックインデックスが割り振られます。</p>
+              <p>NintendoSDK5.3.0 で追加された HLSLCC_FLAG_FORCE_DECLARED_ORDER_ATTRIB_LOCATION (0x800000) を使用する事で従来の挙動になります。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_233735395_h2_2">コンバートできない組み込み関数</h2>
+<ul>
+  <li>Msad4()</li>
+  <li>
+    <p>F32ToF16()</p>
+    <div class="info_new">
+      <div class="info_new_left">参考：</div>
+      <div class="info_new_right">
+        <p>NintendoSDK 5.0.0 から F32ToF16() のコンバートに対応しました。</p>
+      </div>
+    </div>
+  </li>
+</ul>
+<h2 id="Anchor_233735395_h2_3">SamplerState のコンバート</h2>
+<p>HLSL で 1 つのテクスチャに対して複数の SamplerState を使用した場合は期待した結果にならない場合があります。例えば下記の様なコードです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Texture2D&lt;float4&gt; tex0;
+SamplerState samplerState0;
+SamplerState samplerState1;
+float4 color0 = tex0.Sample( samplerState0, IN.Texcoord0 );
+float4 color1 = tex0.Sample( samplerState1, IN.Texcoord1 );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>下記、--hlslcc-option-flags の何れかを使用する事で対応可能です。詳細は --hlslcc-option-flags の項をご覧ください。</p>
+<table class="wrapped">
+  <colgroup>
+    <col style="width: 339.0px;" />
+    <col style="width: 627.0px;" />
+    <col style="width: 146.0px;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>フラグ</th>
+      <th>機能</th>
+      <th>対応 NintendoSDK</th>
+    </tr>
+    <tr>
+      <td>HLSLCC_FLAG_COMBINE_TEXTURE_SAMPLERS</td>
+      <td>HLSL 内で使用されている Texture、SamplerState の組み合わせの数だけ uniform sampler を生成</td>
+      <td>3.x 以降</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#Anchor_233735395_HLSLCC_FLAG_COMBINE_TEX_SAMP_BINDLESS">HlslCrossCompiler</a>
+      </td>
+      <td>GL_NV_bindless_texture を使用</td>
+      <td>4.0.0 以降</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_233735395_h2_4">SampleCmpZero() のコンバート</h2>
+<p>通常は textureLod(ShadowSamplerType, ...) にコンバートし SampleCmpLevelZero() と同様にミップレベル 0 からのテクセルフェッチを強制しますが下記の GLSL サンプラタイプについては textureLod() のオーバーロード関数が存在しないため texture() にコンバートします。</p>
+<ul>
+  <li>samplerCubeShadow</li>
+  <li>sampler2DRectShadow</li>
+  <li>sampler2DArrayShadow</li>
+  <li>samplerCubeArrayShadow</li>
+</ul>
+<p>なのでミップマップが用意されている場合はミップレベル 0 以外からテクセルフェッチされる可能性がある点にご留意下さい。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK 4.0.0 からの挙動です。それ以前は全てのシャドウサンプラを textureLod() にコンバートするためコンパイルできない場合があります。</p>
+  </div>
+</div>
+<h2 id="Anchor_233735395_h2_5">cbuffer 内に宣言されたユーザー定義構造体の配列のインデックスに関する制約</h2>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本項目は NintendoSDK 4.2.0 以前で発生する不具合に対するワークアラウンドです。</p>
+    <p>NintendoSDK 4.2.0 以降は本不具合は発生しません。</p>
+  </div>
+</div>
+<p>HLSL でユーザー定義構造体型の配列を使用しているとその配列のインデックス計算が間違っている場合があります。</p>
+<p>DXBC は cbuffer は float4 の配列としてアクセスするため、HLSL に記述した配列のインデックスを HLSL コンパイラが再計算します。</p>
+<p>下記に例として HLSL とコンパイルした DXBC を示します。</p>
+<ul>
+  <li>
+    <p>HLSL</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>#undef HLSLCC_GLSL
+#ifndef HLSLCC_GLSL
+cbuffer u_InstancedMV : register( b0 )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;struct {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4 u_modelviewMtx0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4 u_modelviewMtx1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4 u_modelviewMtx2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4 u_modelviewMtx3;
+&nbsp;&nbsp;&nbsp;&nbsp;} mv[25];                   // MaxFieldInstances from main.cpp
+};
+#else
+cbuffer u_InstancedMV : register( b0 )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;struct {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4 row;
+&nbsp;&nbsp;&nbsp;&nbsp;} mv[100];                   // MaxFieldInstances from main.cpp
+};
+#endif
+&nbsp;.
+&nbsp;.
+VertexShaderOutput main( VertexShaderInput input )
+{
+&nbsp;.
+&nbsp;.
+#ifndef HLSLCC_GLSL
+&nbsp;&nbsp;&nbsp;&nbsp;int instanceId = input.instanceId;
+&nbsp;&nbsp;&nbsp;&nbsp;matrix modelviewMtx = matrix( mv[ instanceId ].u_modelviewMtx0,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mv[ instanceId ].u_modelviewMtx1,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mv[ instanceId ].u_modelviewMtx2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mv[ instanceId ].u_modelviewMtx3 );
+#else
+&nbsp;&nbsp;&nbsp;&nbsp;int mtxIdx = 4 * input.instanceId;
+&nbsp;&nbsp;&nbsp;&nbsp;matrix modelviewMtx = matrix( mv[ mtxIdx + 0 ].row,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mv[ mtxIdx + 1 ].row,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mv[ mtxIdx + 2 ].row,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mv[ mtxIdx + 3 ].row );
+#endif
+&nbsp;&nbsp;&nbsp;&nbsp;modelviewMtx = transpose( modelviewMtx );
+&nbsp;.
+&nbsp;.
+}</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>DXBC</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>dcl_constantbuffer CB0[100], dynamicIndexed // u_InstancedMV の DXBC 上での定義
+dcl_input_sgv v2.x, instance_id
+&nbsp;.
+&nbsp;.
+ishl r0.x, v2.x, l(2) // HLSL コンパイラが挿入したインデックス計算　... ( 1 )
+mul r1.xyzw, v0.yyyy, cb0[r0.x + 1].xyzw  // u_InstancedMV へアクセス
+&nbsp;.
+&nbsp;.</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+<p>HLSLcc は DXBC の各命令をそのまま GLSL に変換するため GLSL 上では不要なインデックス計算が含まれてしまいます。( DXBC コード内 ( 1 ) )</p>
+<p>出力された GLSL を手修正するか上述の HLSl 例の様に HLSL 内の配列を float4 の配列に書き直す等の対応が必要です。</p>
+<h2 id="Anchor_233735395_h2_6">cbuffer 内に宣言されたネストされたユーザー定義型配列に関する制約</h2>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK 5.0.0 以降のバージョンを対象とした項目です。</p>
+    <p>それ以前のバージョンではコンパイル可能な GLSL が出力されない事があります。</p>
+  </div>
+</div>
+<p>ユーザー定義型構造体でネストされたメンバ変数を参照する際に下記の条件を全て満たす時に配列のインデックスが正しく計算されないため、</p>
+<p>下記の条件を全て満たす cbuffer が存在する HLSL は正しい GLSL が生成されません。</p>
+<ol>
+  <li>ネストされたメンバ変数に 2 つ以上の配列が存在する</li>
+  <li>そのうち 1 つでも動的インデックスで配列を参照している</li>
+</ol>
+<p>下記にコード例を示します。OK になっている配列参照であれば適切なインデックスにコンバートされます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>struct BufType1
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float4 pos[3];
+&nbsp;&nbsp;&nbsp;&nbsp;float f;
+&nbsp;&nbsp;&nbsp;&nbsp;float4x4 scale;
+};
+
+struct BufType2
+{
+&nbsp;&nbsp;&nbsp;&nbsp;BufType1 buf1Array[3];
+};
+
+struct BufType3
+{
+&nbsp;&nbsp;&nbsp;&nbsp;BufType2 buf2;
+};
+
+struct OutBuf
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float fval[4];
+};
+
+cbuffer Value
+{
+&nbsp;&nbsp;&nbsp;&nbsp;BufType3 buf3;
+};
+
+RWStructuredBuffer&lt;OutBuf&gt; Out;
+numthreads(1, 1, 1)]
+void main( uint3 thId : SV_DispatchThreadID )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;int idx = thId.x;
+&nbsp;&nbsp;&nbsp;&nbsp;Out[idx].fval[0] = buf3.buf2.buf1Array[0].pos0[0].x;    // a) OK, as no dynamic indexing is present
+&nbsp;&nbsp;&nbsp;&nbsp;Out[idx].fval[1] = buf3.buf2.buf1Array[idx].scale[0].x;    // b) OK, as this doesn't meet failure condition, &quot;scale&quot; isn't declared as float4x4 array.
+&nbsp;&nbsp;&nbsp;&nbsp;Out[idx].fval[2] = buf3.buf2.buf1Array[idx].pos0[0].x;    // c) NG, as this meets all failure condition but HLSLcc assign dynamic indexing part onto last of array.
+&nbsp;&nbsp;&nbsp;&nbsp;Out[idx].fval[3] = buf3.buf2.buf1Array[0].pos0[idx].x;    // d) NG but generated GLSL may be correct as HLSLcc tries to assign dynamic index part onto last array.
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この制約は DXBC の cbuffer 参照の仕様から来ています。</p>
+<p>動的インデックス使用時の DXBC 内での cbuffer の参照は cb0[dynamic + immediate_value] という記述が使われます。</p>
+<p>HLSL の記述上でネストされたメンバ変数に配列が複数存在する場合に &quot;dynamic&quot; の項がどの配列のインデックスに</p>
+<p>相当するのかを特定するのがコンパイラの最適化等から困難なために本制約を設けています。</p>
+<p>
+  <br />
+</p>
+<p>HLSLcc では上述の条件をすべて満たす時は最後の配列にインデックスを付加します。</p>
+<h1 id="Anchor_233735395_h1_4">使用方法</h1>
+<p>--help オプションを入力する事で使用方法を確認できますがここでは重要なオプションについての説明をします。</p>
+<h2 id="Anchor_233735395_h2_7">NVIDIA HLSL Extension</h2>
+<p>NVIDIA HLSL Extension (&nbsp;<a href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/coresdk/nvapi/nvHLSLExtns_8h.html">nvHLSLExtns.h</a> ) のコンバートに対応しています。</p>
+<p>NVIDIA HLSL Extension によって HLSL が標準でサポートしていない NVIDIA GPU の機能を使用できます。</p>
+<p>HLSLcc が対応している NVIDIA HLSL Extension は GLSL の NVIDIA 拡張組み込み関数にコンバートされます。</p>
+<p>対応している NVIDIA HLSL Extension は<a href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/coresdk/nvapi/nvHLSLExtns_8h.html"> nvHLSLExtns.h</a> で宣言されている NvInterlocked*()、NvLoadUavTyped() 以外の関数です。</p>
+<p>
+  <a href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/coresdk/nvapi/nvHLSLExtns_8h.html">nvHLSLExtns.h</a> を HLSL にインクルードする事で使用できます。</p>
+<h2 id="Anchor_233735395_h2_8">オプション</h2>
+<h3 id="Anchor_233735395_h3_1">--shader-model</h3>
+<p>シェーダーモデルを指定します。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>HlslCrossCompiler.exe simple.hlsl --shader-model cs_5_0</p>
+  </div>
+</div>
+<h3 id="Anchor_233735395_h3_2">--entry-point</h3>
+<p>エントリーポイントを指定します。何も指定しない場合は main をエントリーポイントとします。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>&nbsp;HlslCrossCompiler.exe simple.hlsl --entry-point &quot;CSMain&quot; --shader-model cs_5_0</p>
+  </div>
+</div>
+<h3 id="Anchor_233735395_h3_3">--hlslcc-option-flags</h3>
+<p>HLSLcc のコンバートオプションを指定します。フォーク元の HLSLCC_FLAG <a href="https://github.com/Unity-Technologies/HLSLcc/blob/5f8fc4367513076189ad3b91f6d56059e065fcc5/include/hlslcc.h#L377"> <span style="color: rgb(51,102,255);">(hlslcc.h)</span> </a>に加えて下記を指定する事が出来ます。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>フラグ名</th>
+      <th>フラグ値</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>HLSLCC_FLAG_FORCE_DECLARED_ORDER_ATTRIB_LOCATION</td>
+      <td>0x800000</td>
+      <td>If set, this shader uses attribute location declared order.</td>
+    </tr>
+    <tr>
+      <td>HLSLCC_FLAG_USE_REGISTER_NUMBER_AS_RAW_STRUCTURED_BUFFER_BINDING</td>
+      <td>0x4000000</td>
+      <td>If set, this shader uses register number as binding index for structured and raw buffer.</td>
+    </tr>
+    <tr>
+      <td>HLSLCC_FLAG_TYPED_SSBO</td>
+      <td>0x40000000</td>
+      <td>if set, use struct type rather than uint array for ssbo</td>
+    </tr>
+    <tr>
+      <td>HLSLCC_FLAG_STD140_UBO</td>
+      <td>0x80000000</td>
+      <td>if set, use std140 layout for uniform buffers</td>
+    </tr>
+    <tr>
+      <td>HLSLCC_FLAG_COMBINE_TEX_SAMP_BINDLESS</td>
+      <td>0x10000000</td>
+      <td>if set, combine texture and sampler at runtime via bindless textures (64 bit objects)</td>
+    </tr>
+  </tbody>
+</table>
+<p>以下に HLSLCC_FLAG_STD140_UBO と HLSLCC_FLAG_COMBINE_TEX_SAMP_BINDLESS をセットする例を示します</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>&nbsp;HlslCrossCompiler.exe simple.hlsl --hlslcc-option-flags=&quot;0x80000000&quot; --hlslcc-option-flags=&quot;0x10000000&quot; --shader-model ps_5_0</p>
+  </div>
+</div>
+<h4 id="Anchor_233735395_h4_1">各フラグの詳細</h4>
+<p>ここでは挙動について注意が必要なフラグについて説明します。</p>
+<h5 id="Anchor_233735395_h5_1">HLSLCC_FLAG_FORCE_DECLARED_ORDER_ATTRIB_LOCATION</h5>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK 5.3.0 から利用できる機能です。</p>
+  </div>
+</div>
+<p>頂点シェーダの input ロケーションにセマンティクスインデクスが使用されるオプションフラグを</p>
+<p>使用した場合でも dcl_input された順番にロケーションをアサインします。</p>
+<h5 id="Anchor_233735395_h5_2">HLSLCC_FLAG_USE_REGISTER_NUMBER_AS_RAW_STRUCTURED_BUFFER_BINDING</h5>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK 5.1.0 から利用できる機能です。</p>
+  </div>
+</div>
+<p>本フラグを使用する事で ByteAddressBuffer、StructuredBuffer のコンバート後のバインディングインデックスにレジスタ番号を使用します。</p>
+<p>ByteAddressBuffer、StructuredBuffer で使用しているレジスタ番号が RW*Buffer で使用しているレジスタ番号と一致していた場合はエラーになります。</p>
+<p>未指定の状態では RW*Buffer で未使用のレジスタ番号から順番にバインディングインデックスが割り振られます。</p>
+<h5 id="Anchor_233735395_h5_3">HLSLCC_FLAG_TYPED_SSBO</h5>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK 5.0.0 から利用できる機能です。</p>
+  </div>
+</div>
+<p>従来、RWStructuredBuffer&lt;type&gt; は uint 配列にコンバートされていましたが本フラグを使用する事で type の配列にコンバートします。</p>
+<p>これによりコンパイル後の実行コードが最適化される場合があります。</p>
+<p>制約として type のメンバ変数が全て float4 である必要があります。</p>
+<h5 id="Anchor_233735395_h5_4">HLSLCC_FLAG_COMBINE_TEX_SAMP_BINDLESS<a name="Anchor_233735395_HLSLCC_FLAG_COMBINE_TEX_SAMP_BINDLESS"></a></h5>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK 4.0.0 から利用できる機能です。</p>
+  </div>
+</div>
+<p>本フラグをセットすると GL_NV_bindless_texture の機能を使用した GLSL ソースコードが生成されます。</p>
+<p>GLSL ソースコード内に _SampTex_ というテクスチャ、サンプラのハンドラを保持するユニフォームブロックが</p>
+<p>付加されるのでランタイムで取得したテクスチャ、サンプラのハンドラの値を _SampTex_&nbsp; の各メンバにセットして下さい。</p>
+<h5 id="Anchor_233735395_h5_5">HLSLCC_FLAG_GS_ENABLED、HLSLCC_FLAG_TESS_ENABLED</h5>
+<p>次の条件の時に本フラグを付加する必要があります。</p>
+<ol>
+  <li>ジオメトリシェーダーまたはテッセレーションコントロールシェーダーの出力を受け取るステージのコンバート<br />　HLSLcc は out 変数名のサフィックスとして各ステージ毎に vs, hs, ds, gs, ps を付加します。<br />またピクセルシェーダーは頂点シェーダーの出力を受け取るのをデフォルトにしているため、<br />フラグ指定が無い場合はピクセルシェーダーの in 変数名は頂点シェーダーの out 変数名になります。<br />　ジオメトリシェーダーまたはテッセレーションコントロールシェーダーの出力を受け取るステージを<br />コンバートする際は本フラグを指定する 事で適切な in 変数名が宣言されます。<br /><br /></li>
+  <li>
+    <p>次のステージがピクセルシェーダ以外の時の頂点シェーダーのコンバート<br />　頂点シェーダーの整数型 out 変数に対して flat 修飾子を付加するかどうかの判定に使用されます。<br />HLSLcc は頂点シェーダー、ピクセルシェーダーのみを持つパイプラインをデフォルトにしているため、<br />本フラグの指定が無い場合は整数型の out 変数には flat 修飾子が付加されます。本フラグによりそれを抑制します。</p>
+    <div class="info_new">
+      <div class="info_new_left">参考：</div>
+      <div class="info_new_right">
+        <p>NintendoSDK 5.0.0 からの挙動です。それ以前は頂点シェーダー内の整数型 out 変数には本フラグの有無に関わらず強制的に flat 修飾子が付加されます。</p>
+      </div>
+    </div>
+  </li>
+</ol>
+<h3 id="Anchor_233735395_h3_4">--hlsl-compile-option-flags</h3>
+<p>HLSL のコンパイルオプションを指定します。指定可能な値は WindowsSDK10 内の d3dcompiler.h に定義されています。</p>
+<p>下記に D3DCOMPILE_WARNINGS_ARE_ERRORS 0x40000 と D3DCOMPILE_DEBUG 0x1 をセットする例を示します。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>HlslCrossCompiler.exe simple.hlsl --hlsl-option-flags=&quot;0x40000&quot; --hlsl-option-flags=&quot;0x1&quot; --shader-model cs_5_0</p>
+  </div>
+</div>
+<h3 id="Anchor_233735395_h3_5">--preprocessor-definition</h3>
+<p>HLSL に付加するプリプロセッサ定義を指定します。</p>
+<p>値は必ず = に続けて記述して下さい。値を何も指定しない場合は 1 がセットされます。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>HlslCrossCompiler.exe simple.hlsl --preprocessor-definition=&quot;FOO&quot; --preprocessor-definition=&quot;BAR=1&quot; --shader-model cs_5_0</p>
+  </div>
+</div>
+<h3 id="Anchor_233735395_h3_6">--include-directory</h3>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本オプションは NintendoSDK 5.0.0 から使用可能です。</p>
+  </div>
+</div>
+<p>HLSL のインクルードディレクトリーを指定します。</p>
+<p>相対パス・絶対パスが指定でき、相対パスが指定された場合は exe の実行ディレクトリーからの相対パスを探索します。</p>
+<p>インクルードファイルの探索順番は、下記の様になっています。</p>
+<ol>
+  <li>#include が記述されているファイルが存在するディレクトリー</li>
+  <li>--include-directory で追加したディレクトリー ( --include-directory で追加した順番に探索されます。 )</li>
+</ol>
+<h1 id="Anchor_233735395_h1_5">ライセンス</h1>
+<p>hlslcc.dll は MIT、BSD ライセンスです。ライセンス条文はこちらです。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>Documents/Licenses/Hlslcc/license.txt</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

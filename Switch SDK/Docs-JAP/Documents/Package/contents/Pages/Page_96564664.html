@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ビルド条件のカスタマイズ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ビルド条件のカスタマイズ -->
+<div class="pagetitle" id="PageId_96564664">ビルド条件のカスタマイズ</div>
+<div class="text_separate">
+<h1 id="Anchor_96564664_h1_1">はじめに</h1>
+<p>本章では、Visual Studio 上の設定を変更することで可能なビルド条件の変更について説明します。</p>
+<h2 id="Anchor_96564664_h2_1">大きいサイズのアドレス</h2>
+<p>64bit Windows 環境では、WOW64 にて 32bit アプリケーションを実行しています。</p>
+<p>32bit アプリケーションでは「<a href="../Pages/Page_93357496.html">アプリケーションの動作環境</a>」に記載の通り、ユーザランドで使用可能なアドレス空間が 2GB、<span class="ApiLink_nn__os">nn::os</span> ライブラリのメモリヒープ最大サイズが 1GB となります。ここでは、このアドレス空間サイズをより大きな空間に変更する方法を説明します。</p>
+<h3 id="Anchor_96564664_h3_1">アドレス空間の大きさを広くする方法</h3>
+<p>以下のように、プロジェクトのプロパティで「大きいサイズのアドレス」を「はい」に変更します。</p>
+<ol>
+  <li>プロパティマネージャから、大きいサイズのアドレスを指定したいプロジェクトのプロパティを開く</li>
+  <li>「構成プロパティ」&rarr;「リンカー」&rarr;「システム」&rarr;「大きいサイズのアドレス」の項目を「<strong>はい（/LARGEADDRESSAWARE）</strong>」に変更する<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_96564664/96641484.png" width="500" class="embedded-image" /></span></li>
+  <li>OK を押して、プロパティページのウィンドウを閉じる</li>
+</ol>
+<p>上記設定後に再度ビルドを行なって下さい。</p>
+<p>なお、本設定は「構成」や「プラットフォーム」ごとに設定が可能な項目であるため、他のビルド条件でも同様に設定を変更したい場合には、各ビルド条件に適用されるように変更を行なって下さい。</p>
+<h3 id="Anchor_96564664_h3_2">アドレス空間の大きさの違い</h3>
+<p>ユーザランドで使用できるアドレス空間サイズが以下のように変更されます。</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        <div class="tablesorter-header-inner">&nbsp;Win32 アプリケーション</div>
+      </th>
+      <th style="text-align: center;">
+        <div class="tablesorter-header-inner">/LARGEADDRESSAWARE 無効時</div>
+      </th>
+      <th style="text-align: center;">
+        <div class="tablesorter-header-inner">/LARGEADDRESSAWARE 有効時</div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>アドレス空間全体のサイズ</td>
+      <td colspan="2" style="text-align: center;">4 GB ( 32-bit )</td>
+    </tr>
+    <tr>
+      <td>ユーザランドで利用可能な空間サイズ</td>
+      <td style="text-align: center;">
+        <p>2 GB</p>
+      </td>
+      <td style="text-align: center;">
+        <p>4 GB</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__os">nn::os</span> のメモリヒープ最大サイズ</td>
+      <td style="text-align: center;">
+        <p>1GB（= 0x4000_0000 ）</p>
+      </td>
+      <td style="text-align: center;">
+        <p>2GB - 4MB（= 0x7FC0_0000）</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>/LARGEADDRESSAWARE</strong> オプションを有効にすると、<span class="ApiLink_nn__os">nn::os</span> ライブラリのメモリヒープ最大サイズは 2GB より 4MB 程度少ないサイズまで使用することが出来ます（この 4MB は Windows のアドレス空間管理に依存するため、実際に使用できるメモリヒープサイズは環境によって異なる場合があります）。</p>
+<p>また、上記に記載の「メモリヒープ最大サイズ」はあくまでアドレス空間に十分な空きがある場合に確保可能な最大サイズを表しています。Windows の DLL 読み込みや malloc などによるメモリ確保で一部のアドレス空間が使用された場合、上記の「メモリヒープ最大サイズ」よりも少ないメモリヒープしか確保できない場合もありますのでご注意ください。</p>
+<h3 id="Anchor_96564664_h3_3">注意事項</h3>
+<p>
+  <strong>/LARGEADDRESSAWARE</strong> オプションを有効にすると前記のようにアドレス空間サイズが広がりますが、以下のような制限が発生しますのでご注意ください。</p>
+<ul>
+  <li>WOW64 環境で動作したプログラムを開発機環境へ移植する場合には、開発機環境でもメモリヒープ最大サイズを変更しなければならない場合があります。開発機環境でメモリヒープ最大サイズを変更する方法、および、それに伴なう制限事項については別途開発機環境用のマニュアルを参照して下さい。</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os', '../../../Api/HtmlNX/namespacenn_1_1os.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

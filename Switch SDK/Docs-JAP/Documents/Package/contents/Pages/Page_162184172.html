@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Mii作成・編集アプレット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Mii作成・編集アプレット -->
+<div class="pagetitle" id="PageId_162184172">Mii作成・編集アプレット</div>
+<div class="text_separate">
+<p>Mii の新規作成や作成済みの Mii を編集するための機能を提供するライブラリアプレットです。</p>
+<p>ここでは、Mii 作成・編集アプレットを起動するまでの基本的な流れについて説明します。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>本アプレットを利用したROMを提出するには別途申請が必要になります。ROM提出<span style="color: rgb(51,51,51);">希望の方は、任天堂窓口まで問い合わせてください。</span></p>
+  </div>
+</div>
+<h1 id="Anchor_162184172_h1_1">ヘッダファイルのインクルード</h1>
+<p>プログラム中に下記コードを記述してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/mii.h&gt;
+</span><span class="err">または</span>
+<span class="cp">#include &lt;nn/mii/mii_Applet.h&gt;
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184172_h1_2">Mii 作成・編集アプレットの起動</h1>
+<p>Mii 作成・編集アプレットは Mii 追加モードで起動が可能です。</p>
+<h2 id="Anchor_162184172_h2_1">Mii 追加モード</h2>
+<p>Mii を 1 体データベースに追加するモードです。</p>
+<p>Mii 追加モードは以下の API を呼び出すことで起動します。この API はアプレットが終了するまで処理をブロックします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="n">AppendMii</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">pOutAppendIndex</span><span class="p">);</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>アプレットが終了すると上記 API から処理結果を取得できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>Result</th>
+      <th>結果内容</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span>
+      </td>
+      <td>Mii を 1 体追加してアプレットを閉じた。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__ResultCanceled">nn::mii::ResultCanceled</span>
+      </td>
+      <td>Mii が追加されずに終了した。</td>
+    </tr>
+  </tbody>
+</table>
+<p>結果が <span class="ApiLink_nn__ResultSccess">nn::ResultSccess</span> の時のみ、引数 pOutAppendIndex に追加した Mii のデータベース上のインデックスが設定されます。</p>
+<p>
+  <span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span> で Mii 作成・編集アプレットから戻った後は、データベースから Mii を再取得してください。<span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span> 以外の結果を取得した場合は、アプリケーションの仕様に応じて Mii の再取得を行ってください。</p>
+<p>正常系での呼び出しから呼び出し元のアプリケーションに戻るパターンと取得結果は以下の通りです。取得結果の値によらず、Mii が削除されている可能性があることに注意してください。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パターン</th>
+      <th>取得結果</th>
+    </tr>
+    <tr>
+      <td>Mii を 1 体追加してアプリケーションに戻る。</td>
+      <td>
+        <span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span>
+      </td>
+    </tr>
+    <tr>
+      <td>データベースが満杯のため Mii を 1 体削除後、Mii を 1 体追加してからアプリケーションに戻る。</td>
+      <td>
+        <span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span>
+      </td>
+    </tr>
+    <tr>
+      <td>データベースが満杯のため Mii を 1 体削除後、Mii を追加せずアプリケーションに戻る。</td>
+      <td>
+        <span class="ApiLink_nn__mii__ResultCanceled">nn::mii::ResultCanceled</span>
+      </td>
+    </tr>
+    <tr>
+      <td>Mii の追加や削除を行わずにアプリケーションに戻る。</td>
+      <td>nn::mii::ResultCanceled</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__ResultSuccess', '../../../Api/HtmlNX/classnn_1_1_result_success.html' )
+SetUrl( 'ApiLink_nn__mii__ResultCanceled', '../../../Api/HtmlNX/classnn_1_1mii_1_1_result_canceled.html' )
+// ApiLink_nn__ResultSccess
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

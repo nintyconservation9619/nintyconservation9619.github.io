@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エミッタビルボードを実装する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エミッタビルボードを実装する -->
+<div class="pagetitle" id="PageId_124941626">エミッタビルボードを実装する</div>
+<div class="text_separate">
+<h1 id="Anchor_124941626_h1_1">はじめに</h1>
+<p>エミッタにカメラに対してビルボードするようなマトリクスを設定し、エフェクト全体をカメラに対してビルボードさせることができます。<br />遠景に表示する花火エフェクトなどに利用できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">エミッタビルボード</th>
+      <th style="text-align: center;">エミッタY軸ビルボード</th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_124941626/215217195.gif" width="270" class="embedded-image" />
+          </span>
+        </p>
+        <p>( クリックして再生 )</p>
+      </td>
+      <td style="text-align: center;">
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_124941626/215217196.gif" width="270" class="embedded-image" />
+          </span>
+        </p>
+        <p>( クリックして再生 )</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_124941626_h1_2">実装方法</h1>
+<p>2通りの実装方法があります。</p>
+<ul>
+  <li>プログラマがエミッタセットにビルボードマトリクスを設定する</li>
+  <li>アーティストがカスタムアクションを利用してエミッタビルボードさせるエミッタを指定する</li>
+</ul>
+<h2 id="Anchor_124941626_h2_1">プログラマがエミッタセットにビルボードマトリクスを設定する</h2>
+<p>ビュー行列の逆行列 と エミッタセットの表示位置 を合成したマトリクスを生成し、エミッタセットに設定します。<br />この方法で実装した場合、エミッタセット全体がカメラ方向に向いてしまうという点に注意が必要です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::util::</span><span class="n">Matrix4x3fType</span> <span class="n">billboardMatrix</span><span class="p">;</span>
+<span class="nn">nn::util::</span><span class="n">MatrixInverse</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">billboardMatrix</span><span class="p">,</span> <span class="n">viewMatrix</span> <span class="p">);</span>
+<span class="nn">nn::util::</span><span class="n">Vector3fType</span> <span class="n">trans</span><span class="p">;</span>
+<span class="nn">nn::util::</span><span class="n">MatrixGetAxisW</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">trans</span><span class="p">,</span> <span class="n">drawMatrix</span> <span class="p">);</span>
+<span class="nn">nn::util::</span><span class="n">MatrixSetAxisW</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">billboardMatrix</span><span class="p">,</span> <span class="n">trans</span> <span class="p">);</span>
+<span class="n">emitterSet</span><span class="o">-&gt;</span><span class="n">SetMatrix</span><span class="p">(</span> <span class="n">billboardMatrix</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_124941626_h2_2">カスタムアクションを利用しエミッタビルボードさせるエミッタを指定する</h2>
+<p>カスタムアクションを利用することで、特定のエミッタに対してエミッタビルボード処理を行うことが可能です。<br />カスタムアクション利用時は、エミッタをビルボードさせる為のユーティリティメソッドの利用が可能です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エミッタ行列セットコールバック関数
+</span><span class="kt">void</span> <span class="nf">_EmitterMatrixSetCallback</span><span class="p">(</span> <span class="nn">nn::vfx::</span><span class="n">EmitterMatrixSetArg</span><span class="o">&amp;</span> <span class="n">arg</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーティリティメソッドを利用して ビルボード 行列の設定を行う
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetEmitterBillboardMatrix</span><span class="p">(</span> <span class="n">viewMtx</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーティリティメソッドを利用して Y軸ビルボード 行列の設定を行う
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">arg</span><span class="p">.</span><span class="n">SetEmitterYAxisBillboardMatrix</span><span class="p">(</span> <span class="n">viewMtx</span> <span class="p">);</span>
+ <span class="p">}</span>
+
+<span class="c1">// カスタムアクション１を指定した場合、
+// エミッタ行列セットコールバック関数を利用してビルボード処理を行う
+</span><span class="n">callbackSet</span><span class="p">.</span><span class="n">emitterMatrixSet</span> <span class="o">=</span> <span class="n">_EmitterMatrixSetCallback</span><span class="p">;</span>
+<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">SetCallback</span><span class="p">(</span> <span class="nn">nn::vfx::</span><span class="n">CallbackId_CustomAction1</span><span class="p">,</span> <span class="n">callbackSet</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955583.html">カスタムアクション</a>
+        </span>
+      </th>
+      <td>
+        <p>カスタムアクションに関するドキュメントです。</p>
+        <p>エフェクトメーカー上でのエミッタビルボードの有効無効指定させるＵＩなどの表示方法などは、こちらを参照ください。<br /></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

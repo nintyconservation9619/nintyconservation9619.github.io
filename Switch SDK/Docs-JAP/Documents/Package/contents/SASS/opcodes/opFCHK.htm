@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>FCHK</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    FCHK : Single Precision FP Divide Range Check<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Single Precision FP Divide Range Check" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "FCHK", subsection => 0 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>FCHK</b>{.DIVIDE}</code>   <code>Pu,{-}{|}Ra{|},{-}{|}Sb{|}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FCHK" } -->
+
+.DIVIDE     Division test
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Single precision FP sources are examined and the test results are stored in destination and condition code.
+Typically this instruction is placed at the beginning of a sequence of instructions for evaluating certain
+function such as division and used to predicate subsequent instructions in the routine.</p>
+<p>
+The result of the test specified by the suffix is stored in the destination
+predicate register Pu.</p>
+
+<p>
+In the following description, e<sub>Ra</sub>, e<sub>Sb</sub>, e<sub>min</sub>, e<sub>max</sub>, and N are unbiased exponents of Ra and Sb, -126, 127, 
+and 24 respectively.
+Unbiased exponets is calculated as:
+
+e<sub>Ra</sub> = Ra.exponent - EXPONENT_BIAS
+e<sub>Sb</sub> = Sb.exponent - EXPONENT_BIAS
+where EXPONENT_BIAS = 127
+
+Pu is set if one of the following conditions is satisfied.</p>
+
+<pre>
+1) .DIVIDE is present and
+1-1)   e<sub>Ra</sub> &lt;= e<sub>min</sub> + N - 1 or
+1-2)   e<sub>Ra</sub> &gt;= e<sub>max</sub> + 1 or
+1-3)   e<sub>Sb</sub> &lt;= e<sub>min</sub> or
+1-4)   e<sub>Sb</sub> &gt;= e<sub>max</sub> - 2 or
+1-5)   e<sub>Ra</sub> - e<sub>Sb</sub> &lt;= e<sub>min</sub> + 1 or
+1-6)   e<sub>Ra</sub> - e<sub>Sb</sub> &gt;= e<sub>max</sub>
+
+</pre>
+
+
+* Currently .DIVIDE is the only operation supported.  Illegal instructions will map to DIVIDE.
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>FCHK</b>.DIVIDE         P0,R0,R1
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

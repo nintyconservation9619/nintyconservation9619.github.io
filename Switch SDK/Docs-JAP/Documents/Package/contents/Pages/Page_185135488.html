@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>パッチのビルド、実行方法</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- パッチのビルド、実行方法 -->
+<div class="pagetitle" id="PageId_185135488">パッチのビルド、実行方法</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_185135488_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_185135488_h1_2">修正版アプリケーションの作成</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_185135488_h2_1">nmeta ファイルの修正</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_185135488_h1_3">パッチの作成</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_185135488_h2_2">makepatch コマンド</a>
+      </li>
+      <li>
+        <a href="#Anchor_185135488_h2_3">使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_185135488_h2_4">オンカードパッチ付き NX カードの容量・動作周波数の設定について</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_185135488_h1_4">初版アプリケーションの準備</a>
+    </li>
+    <li>
+      <a href="#Anchor_185135488_h1_5">パッチの準備</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_185135488_h2_5">インストール編</a>
+      </li>
+      <li>
+        <a href="#Anchor_185135488_h2_6">オンカードパッチ編</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_185135488_h1_6">パッチを適用した状態での実行</a>
+    </li>
+    <li>
+      <a href="#Anchor_185135488_h1_7">パッチの削除</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_185135488_h1_1">概要</h1>
+<p>パッチのビルドおよび実行には、下記のステップが必要です。</p>
+<ol>
+  <li>プログラムやリソースデータ等のアプリケーションに含まれるデータおよび nmeta ファイルを適切に修正し、修正版アプリケーションを作成する</li>
+  <li>初版アプリケーションと修正版アプリケーション、および存在する場合は直前のパッチを指定して、パッチを作成する</li>
+  <li>初版アプリケーションをカードに書き込むか、NAND あるいは SD カードにインストールする</li>
+  <li>パッチを NAND あるいは SD カードにインストールする</li>
+  <li>DevMenu / DevMenuCommand から実行</li>
+</ol>
+<p>以降で詳しく説明します。</p>
+<h1 id="Anchor_185135488_h1_2">修正版アプリケーションの作成</h1>
+<p>初版アプリケーション作成時の修正と同じようにプログラムやリソースデータの修正を行い、修正版 nsp を作成します。</p>
+<p>このとき、リソースデータの修正の仕方次第でパッチのサイズが大きくなることがあります。詳しくは&nbsp;<a href="../Pages/Page_185135554.html">最適化情報</a>&nbsp;も参照してください。</p>
+<h2 id="Anchor_185135488_h2_1">nmeta ファイルの修正</h2>
+<p>パッチ作成時の修正版 nsp を作成する際には、nmeta ファイルのリリースバージョンと&nbsp;DisplayVersion の修正が必須となります。各項目は、<a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a>&nbsp;を参照して修正してください</p>
+<h3 id="Anchor_185135488_h3_1">リリースバージョン</h3>
+<p>初版アプリケーションよりも高い値を設定する必要があります。開発時は任意の値を設定することができますが、最終的なパッチを作成するときには&nbsp;<a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a>&nbsp;の通り、Nintendo Developer Portal から発行された値を設定する必要があります。</p>
+<h3 id="Anchor_185135488_h3_2">DisplayVersion</h3>
+<p>初版アプリケーションとは異なる任意の値を設定する必要があります。DisplayVersion を設定すると、DevMenu や DevMenuCommand で表示されるアプリケーションのバージョンが修正した表示に変わります。また、その修正版アプリケーションを使って作成したパッチをインストールした場合にも、同じバージョンが表示されます。パッチをインストールした状態かを確認しやすくするためにも、あらかじめ変更しておくことを推奨します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>提出したパッチの元となった修正版アプリケーションは、パッチとともに保管してください。AuthoringEditor で修正を行うときなどには、修正版アプリケーションが必要となります。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_185135488_h1_3">パッチの作成</h1>
+<p>修正版アプリケーションと初版アプリケーションを元に、AuthoringTool でパッチを作成できます。AuthoringTool 実行に必要な環境は&nbsp;<a href="../Pages/Page_107320233.html">AuthoringTool</a>　を参照してください。</p>
+<p>パッチは VSI からの作成も可能です。VSI でのビルド方法は&nbsp;<a href="../Pages/Page_193046193.html">パッチの作成方法</a>&nbsp;を参照してください。ただし VSI ではパッチのビルドをできるのみです。パッチを適用しての実行は、本ページの説明に従ってください。</p>
+<p>ここでは、AuthoringTool を用いた作成方法を説明します。</p>
+<h2 id="Anchor_185135488_h2_2">makepatch コマンド</h2>
+<p>パッチの作成は makepatch コマンドで行います。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>コマンド名は将来変更する可能性があります。</p>
+  </div>
+</div>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;$ AuthoringTool.exe makepatch --help
+makepatch: Create patch file from Nintendo Submission Packages.
+Usage: AuthoringTool.exe makepatch [-o &lt;outputPath&gt;] [--meta &lt;metaFilePath&gt;] [--minimum-matching-size &lt;Size KiB&gt;] [--cache-directory &lt;cacheDirPath&gt;] --desc &lt;descFilePath&gt; --original &lt;originalNspPath&gt; --current &lt;currentNspPath&gt; [--previous &lt;previousNspPath&gt;]
+
+Options:
+&nbsp;&nbsp;-o &lt;outputPath&gt;                      File path to output. If directory path is specified, output to &lt;outputPath&gt;/output.nsp.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If omitted, output to ./output.nsp
+&nbsp;&nbsp;--meta &lt;metaFilePath&gt;                Location of .meta file to input.
+&nbsp;&nbsp;--minimum-matching-size &lt;Size KiB&gt;   Minimum matching size to refer original. If not specified, use 32KiB.
+&nbsp;&nbsp;--cache-directory &lt;cacheDirPath&gt;     Location of directory path to output matching cache.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;With specifying this option, making patch is accelarated if appropriate cache is generated.
+&nbsp;&nbsp;--desc &lt;descFilePath&gt;                Location of .desc file to current input. This cannot be omitted when create program content.
+&nbsp;&nbsp;--original &lt;originalNspPath&gt;         Original .nsp file path to input.
+&nbsp;&nbsp;--current &lt;currentNspPath&gt;           Current .nsp file path to input.
+&nbsp;&nbsp;--previous &lt;previousNspPath&gt;         Previous .nsp file path to input.</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_185135488_h3_3">オプション一覧</h3>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>-o</th>
+      <td>出力先のパスを指定します。指定しない場合、カレントディレクトリ以下に output.nsp として出力します。</td>
+    </tr>
+    <tr>
+      <th>--meta</th>
+      <td>パッチ用の nmeta ファイルを指定します。指定しない場合は修正版アプリケーションから自動生成するため、通常指定する必要はありません。</td>
+    </tr>
+    <tr>
+      <th>--minimum-matching-size</th>
+      <td>
+        <p>どの程度連続してデータが一致していたら初版アプリケーションのデータを参照するか、というサイズを指定します。</p>
+        <p>このサイズの詳細は <a href="../Pages/Page_185135554.html">最適化情報</a> を参照してください。</p>
+        <p>
+          <br />
+        </p>
+        <p>パッチ適用時の ROM 読み込みパフォーマンスに影響がない限りは、このオプションを指定する必要はありません。</p>
+        <p>パッチにしたときに、ファイルの中身が初版アプリケーションとパッチとで断片化し、パフォーマンスに影響するような場合に大きな値を指定してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>--cache-directory</th>
+      <td>
+        <p>NX Addon 4.3 から利用可能になるオプションです。</p>
+        <p>ここで指定したディレクトリに、二度目以降のパッチの作成で利用可能なキャッシュデータを保存するようにします。</p>
+        <p>また、ここで指定したディレクトリに適切なキャッシュデータが存在していたら、それを用いてパッチ作成を高速化します。</p>
+        <p>
+          <br />
+        </p>
+        <p>特に不都合が無ければ、常に指定することを推奨します。そうすることでパッチ作成が高速化されます。</p>
+        <p>
+          <br />
+        </p>
+        <p>なお作成されたキャッシュデータは、ツール実行中でなければ自由に削除してかまいません。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>--desc</th>
+      <td>修正版アプリケーションを作成するときに指定した、desc ファイルを指定します。このオプションは必須です。&nbsp;</td>
+    </tr>
+    <tr>
+      <th>--original</th>
+      <td>初版アプリケーションを指定します。このオプションは必須です。</td>
+    </tr>
+    <tr>
+      <th>--current</th>
+      <td>修正版アプリケーションを指定します。このオプションは必須です。</td>
+    </tr>
+    <tr>
+      <th>--previous</th>
+      <td>直前のパッチを指定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_185135488_h2_3">
+  <br />使用例</h2>
+<p>直前のパッチが存在しない場合。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ AuthoringTool.exe makepatch -o patch-v1.nsp --cache-directory d:/patch-cache --desc $NINTENDO_SDK_ROOT/Resources/SpecFiles/Application.desc --original application-v0.nsp --current application-v1.nsp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>直前のパッチが存在する場合。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ AuthoringTool.exe makepatch -o patch-v3.nsp --cache-directory d:/patch-cache --desc $NINTENDO_SDK_ROOT/Resources/SpecFiles/Application.desc --original application-v0.nsp --current application-v3.nsp --previous patch-v2.nsp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_185135488_h2_4">オンカードパッチ付き NX カードの容量・動作周波数の設定について</h2>
+<p>NX Addon 1.2.0 以降では、パッチ作成時にそのパッチをオンカードパッチとすることを想定した容量チェックが行われ、警告表示されたりエラーになることがあります。<br />作成したパッチに設定された値は、アプリケーションの場合と同様、nsp ファイルの中の cardspec.xml によって参照できます。詳細については&nbsp;<a href="../Pages/Page_177655843.html">NX 開発カード</a> を参照してください。&nbsp;</p>
+<h3 id="Anchor_185135488_h3_4">基本ルール</h3>
+<p>修正版アプリケーションに設定された NX カードの容量および動作周波数をオンカードパッチ付き NX カード用のパラメータとして、作成したパッチ nsp にも設定します。<br />ただし、修正版アプリケーションに設定された容量の値が自動設定されていて、オンカードパッチ付き NX カードに必要な容量の値より小さかった場合は、オンカードパッチ付き NX カードに必要な容量がパッチ nsp に自動設定されます。</p>
+<p>アプリケーションに&nbsp;NX カードの容量および動作周波数を手動設定するには、nmeta ファイルの CardSpec の項目を記述します。詳細については&nbsp;<a href="../Pages/Page_177655843.html">NX 開発カード</a>&nbsp;を参照してください。&nbsp;</p>
+<h3 id="Anchor_185135488_h3_5">警告表示されるケース</h3>
+<p>いずれも、オンカードパッチ付き NX カードの製造を予定していない場合は無視しても構いません。</p>
+<ul>
+  <li>初版アプリケーションに設定された動作周波数と、修正版アプリケーションに<strong>自動設定</strong>された動作周波数が異なっている<ul><li>&quot;Warning: Card clock rates differ between original nsp and current nsp.&quot;&nbsp;と表示されます。</li><li><p>警告を抑制するには、修正版アプリケーションの動作周波数を手動設定してください。</p><div class="tip"><div class="tip_left">参考：</div><div class="tip_right"><p>初版アプリケーションと修正版アプリケーションで NX カードの動作周波数が異なる場合、オンカードパッチ付き NX カードにおける<span style="color: rgb(51,51,51);">アプリケーションの挙動に影響を与える可能性があります。<br />このような設定のパッチにおいてオンカードパッチ付き NX カードの生産を検討する場合は、パッチの提出前にオンカードパッチ付き NX 開発カードでの検証を十分行ったうえでパッチを提出してください。</span><span style="color: rgb(51,51,51);">&nbsp;</span></p></div></div></li></ul></li>
+  <li>初版アプリケーションに設定された容量と、修正版アプリケーションとに<strong>自動設定</strong>された容量が異なっている<ul><li>&quot;Warning: Card sizes differ between original nsp and current nsp.&quot; と表示されます。</li><li>警告を抑制するには、修正版アプリケーションの容量を手動設定してください。</li></ul></li>
+  <li>修正版アプリケーションの容量として<strong>自動設定</strong>した値が、オンカードパッチ付き NX カードに必要な容量の値より小さかったため、パッチ作成時に再度自動設定した<br /><ul><li>&quot;Warning: On-card patch requires larger card than that of revised application. Card size is automatically adjusted.&quot; と表示されます。</li><li>警告を抑制するには、修正版アプリケーションの容量を手動設定してください。</li></ul></li>
+</ul>
+<h3 id="Anchor_185135488_h3_6">エラー表示されるケース</h3>
+<p>いずれも、オンカードパッチ付き NX カードの製造を予定している場合は値の修正やパッチサイズの最適化など、適切な対処が必要です。<br />オンカードパッチ付き NX カードの製造を予定していない場合は、修正版アプリケーションの動作周波数を自動設定にすることで回避できます。</p>
+<ul>
+  <li>修正版アプリケーションの容量として<strong>手動設定</strong>した値（Y）が、オンカードパッチ付き NX カードに必要な容量（X）の値より小さかった<ul><li>&quot;Error: This nsp requires CardSpec/Size = X, though it is set as Y.&quot;</li></ul></li>
+  <li>修正版アプリケーションの容量を<strong>手動設定</strong>していたが、オンカードパッチ付き NX カードに必要な容量が NX カードの最大容量を上回った<ul><li>&quot;Error: CardSpec/Size in nmeta is invalid value. Please remove CardSpec/Size to set the value automatically.&quot; と表示されます。</li><li>作成するパッチが大きすぎるため、オンカードパッチとして利用することができません。</li></ul></li>
+</ul>
+<h1 id="Anchor_185135488_h1_4">初版アプリケーションの準備</h1>
+<p>パッチを適用した状態で実行するには、初版アプリケーションを NX 開発カード、あるいは NAND や SD から実行できるようにする必要があります。</p>
+<p>詳しい手順は&nbsp;<a href="../Pages/Page_107779320.html">アプリケーションの開発機へのインストール</a>&nbsp;や&nbsp;<a href="../Pages/Page_166051528.html">NX 開発カードへの書き込み</a>&nbsp;を参照してください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Host PC 上の初版アプリケーション nsp を指定して実行しても、パッチは基本的に当たりません。NX 開発カードや NAND、SD にインストールを行ってください。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_185135488_h1_5">パッチの準備</h1>
+<p>パッチを利用するには、NAND あるいは SD にインストールするか、あるいはオンカードパッチとして NX 開発カードに書き込む必要があります。</p>
+<p>多くのユーザは NAND あるいは SD にインストールして使うことになるので、基本的にはこちらでデバッグすることになります。オンカードパッチは、パッチ適用済みの NX カードを再生産することを考えている場合に動作確認が必要となります。</p>
+<p>なお、最新のパッチ nsp にはすべての差分情報が含まれているため、パッチの準備の時点では古いパッチは一切必要ありません。古いパッチをインストールしておく必要もありません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>デバッグ環境としては、上記方法でパッチをインストールして確認すれば十分で、ダウンロードしての動作確認は必要ありません。また、ダウンロードして確認する環境も提供予定はありません。</p>
+  </div>
+</div>
+<h2 id="Anchor_185135488_h2_5">インストール編</h2>
+<p>パッチは、DevMenuCommand の patch コマンドでインストール、確認できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ RunOnTarget.exe $NINTENDO_SDK_ROOT/TargetTools/NX-NXFP2-a64/DevMenuCommand/Release/DevMenuCommand.nsp -- patch --help
+usage: DevMenuCommand patch install &lt;absolute_nsp_path&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DevMenuCommand patch list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DevMenuCommand patch uninstall &lt;application_id&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ RunOnTarget.exe $NINTENDO_SDK_ROOT/TargetTools/NX-NXFP2-a64/DevMenuCommand/Release/DevMenuCommand.nsp -- patch install absolute_patch_path/patch-v1.nsp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>デフォルトでは本体に NAND にインストールします。SD カードにインストールする場合は -s オプションで sdcard を指定してください。-s オプションの詳しい説明は、<a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ RunOnTarget.exe $NINTENDO_SDK_ROOT/TargetTools/NX-NXFP2-a64/DevMenuCommand/Release/DevMenuCommand.nsp -- patch install absolute_patch_path/patch-v1.nsp -s sdcard</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_185135488_h2_6">オンカードパッチ編</h2>
+<p>オンカードパッチ付き NX 開発カードを作成するには、DevMenuCommand の gamecard コマンドを利用します。初版アプリケーションと対象のパッチを用意し、下記のコマンドを実行して書き込みます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ RunOnTarget.exe $NINTENDO_SDK_ROOT/TargetTools/NX-NXFP2-a64/DevMenuCommand/Release/DevMenuCommand.nsp -- gamecard write absolute_app_path/app.nsp --on-card-patch absolute_patch_path/patch-v1.nsp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>オンカードパッチの動作確認は SDK1.2 以降で行うことができます。しかし、オンカードパッチ付き NX カードの製造が可能になるのはしばらく先の予定です。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_185135488_h1_6">パッチを適用した状態での実行</h1>
+<p>初版アプリケーション、パッチの準備ができたら、あとはカードやインストールしたアプリケーションを起動するときと同じく DevMenu や DevMenuCommand からアプリケーションを起動することで、パッチが適用された状態で起動します。</p>
+<p>オンカードパッチの場合も同様に、カードからアプリケーションを起動することで、パッチが適用された状態で起動します。</p>
+<p>詳しくは&nbsp;<a href="../Pages/Page_107779320.html">アプリケーションの開発機へのインストール</a>&nbsp;や&nbsp;<a href="../Pages/Page_166051528.html">NX 開発カードへの書き込み</a>&nbsp;を参照してください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>一度パッチを適用した状態で動作させた後、再び host 上のアプリケーションを VSI や RunOnTarget で動作させる時には、一度ターゲットの再起動を行ってください。行わないと、Host のアプリケーションに中途半端にパッチが当たった状態になってしまいます。</p>
+  </div>
+</div>
+<h1 id="Anchor_185135488_h1_7">
+  <br />パッチの削除</h1>
+<p>パッチの削除は、DevMenuCommand の patch uninstall コマンドで削除できます。</p>
+<p>application uninstall コマンドでもパッチの削除が可能ですが、application uninstall は初版アプリケーションがインストールされている場合はそちらもまとめて削除します。パッチだけを削除したい場合は、patch uninstall コマンドを利用してください。</p>
+<p>しかし、上記コマンドでパッチを単純に削除しただけでは、必須バージョンの仕組みによりパッチ未適用の状態でアプリケーションを動作させることはできません。パッチ未適用の状態で動作させるためには必須バージョンのリセットも行う必要があります。そちらは、DevMenuCommand の application reset-required-version で行ってください。</p>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>HomeMenu で必須バージョンに引っかかって起動できないときは、「<span style="color: rgb(51,51,51);">ソフトの更新が必要です｡更新データをダウンロードします｡</span>」と表示されます。開発環境ではここでダウンロードを押してもパッチはダウンロードできないので、必須バージョンのリセットか、あるいはパッチのインストールを行ってください。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>LOD</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- LOD -->
+<div class="pagetitle" id="PageId_106333688">LOD</div>
+<div class="text_separate">
+<h1 id="Anchor_106333688_h1_1">概要</h1>
+<p>g3d ライブラリでは、シェイプ LOD に対応しています。</p>
+<p>g3d ライブラリのシェイプ LOD は、描画時に LOD レベルに応じて <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_mesh.html">nn::g3d::ResMesh</a> だけを切り替えて使用します。ベースモデルと LOD モデルでマテリアルやスケルトン、シェーダ、アニメーションなどを共有する仕組みのため、LOD のために追加の初期化や各種ハンドリングが不要です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>const nn::g3d::ShapeObj* pShapeObj = ...;
+const nn::g3d::ResMesh* pResMesh = pShapeObj-&gt;GetResMesh(lodLevel);
+pResMesh-&gt;Draw();</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_106333688_h1_2">データの準備</h1>
+<p>LOD モデルを含むデータを用意する方法は以下の 2 種類の方法があります。</p>
+<h2 id="Anchor_106333688_h2_1">ポリゴンリダクション機能で LOD モデルを自動作成する</h2>
+<p>中間ファイルオプティマイザのポリゴンリダクション機能を利用することで、モデル中間ファイルに自動で LOD モデルを追加することが可能です。ポリゴンリダクションの利用方法については中間ファイルオプティマイザの&nbsp;<a href="../Pages/Page_83955705.html#Anchor_83955705_polygon_reduction">ポリゴンリダクションの項目</a>&nbsp;を参照してください。リダクションのアルゴリズムなど、機能の詳細については 3D プログラミングガイドの&nbsp;<a href="../Pages/Page_162186377.html">ポリゴンリダクション </a>を参照してください。</p>
+<p>ポリゴンリダクション機能を使う場合はサブメッシュの境界が維持された状態で LOD モデルが作成されます。これにより、後述するビューフラスタムカリングとの併用でサブメッシュ単位で LOD レベルを切り替えることが可能になります。</p>
+<h2 id="Anchor_106333688_h2_2">LOD モデル結合機能で任意の LOD モデルを結合する</h2>
+<p>別々に作成したベースモデルと LOD モデルの中間ファイルを中間ファイルオプティマイザの LOD モデルの結合機能で結合することで、LOD モデルを含むモデル中間ファイルを作成します。シェイプ以外の構造を共有するため、いくつかの制約を満たすようにモデルを作成する必要があります。詳しくは、Maya プラグインドキュメントの <a href="../Pages/Page_83956044.html#Anchor_83956044_modeling_limitation">LOD エクスポートのモデリングの制限</a>、もしくは中間ファイルオプティマイザドキュメントの&nbsp;<a href="../Pages/Page_83955705.html#Anchor_83955705_unite_lod_model_limitation">LOD モデルの結合の制約</a> を参照してください。</p>
+<p>LOD モデル結合機能を使う場合はサブメッシュの境界が維持されません。後述するビューフラスタムカリングと併用する場合は、シェイプ単位でのみ、LOD レベルの切り替えが可能です。</p>
+<h1 id="Anchor_106333688_h1_3">データ構造</h1>
+<p>LOD モデルはベースモデルと同一のモデルリソースに格納されます。シェイプ以外はベースモデルと LOD モデルで同一のものを使用します。頂点ストリームはベースモデルの頂点ストリームの後ろに LOD モデルの頂点ストリームが追加され、ベースモデルと全 LOD モデルを含め、単一の頂点ストリームとして存在します。メッシュは LOD レベルの数だけ存在します。メッシュを切り替えることで LOD レベルに応じたインデックスストリームで描画することができます。</p>
+<h1 id="Anchor_106333688_h1_4">
+  <a name="Anchor_106333688_view_frustum_culling_combination"></a>LOD とビューフラスタムカリングの併用</h1>
+<p>
+  <a href="../Pages/Page_106333662.html#Anchor_106333662_view_frustum_culling">ビューフラスタムカリング</a> と LOD を併用することができます。ビューフラスタムカリングと併用する場合、データの作り方によって制約が生じます。</p>
+<h2 id="Anchor_106333688_h2_3">ポリゴンリダクション機能を利用して LOD モデルを作成した場合</h2>
+<p>
+  <a href="../Pages/Page_83955705.html#Anchor_83955705_polygon_reduction">ポリゴンリダクション機能</a>&nbsp;を利用している場合、<a href="../Pages/Page_83955705.html#Anchor_83955705_divide_submesh">サブメッシュ分割</a>&nbsp;をしたベースモデルと LOD モデル間でサブメッシュの境界が維持されているため、ビューフラスタムカリングと LOD の併用について制約はありません。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ab64775081aa11a283658bfef401c7694">nn::g3d::ShapeObj::TestSubMeshLodIntersection</a> を利用することで以下の処理を行うことが可能です。</p>
+<ul>
+  <li>サブメッシュ単位でビューフラスタムカリングを行う</li>
+  <li>サブメッシュ単位で LOD レベルの切り替えを行う</li>
+</ul>
+<h2 id="Anchor_106333688_h2_4">LOD モデル結合機能を利用して任意の LOD モデルを結合した場合</h2>
+<p>
+  <a href="../Pages/Page_83955705.html#Anchor_83955705_unite_lod_model">LOD モデル結合機能</a> を利用して&nbsp;<a href="../Pages/Page_83955705.html#Anchor_83955705_divide_submesh">サブメッシュ分割</a>&nbsp;した任意の LOD モデルを結合した場合は、サブメッシュの境界がベースモデルと LOD モデル間で維持されていないため、サブメッシュ単位で LOD レベルを切り替えることができません。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#afc539bbe698f6a400f2e9f4fb1daeaea">nn::g3d::ShapeObj::CalculateSubMeshBounding</a> を利用することで以下の処理を行うことが可能です。</p>
+<ul style="list-style-type: square;">
+  <li>サブメッシュ単位でビューフラスタムカリングを行う</li>
+  <li>シェイプ単位で LOD レベルの切り替えを行う</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

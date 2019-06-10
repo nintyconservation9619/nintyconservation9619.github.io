@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Readers-Writer ロック</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Readers-Writer ロック -->
+<div class="pagetitle" id="PageId_100737284">Readers-Writer ロック</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_100737284_h1_1">Readers-Writer ロック機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_100737284_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_100737284_h2_2">Readers-Writer ロックの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_100737284_h2_3">Readers-Writer ロックの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_100737284_h2_4">Readers-Writer ロックの関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_100737284_h2_5">Readers-Writer ロック使用上の注意</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_100737284_h3_1">Readers ロック獲得後の Writer ロック獲得</a>
+        </li>
+        <li>
+          <a href="#Anchor_100737284_h3_2">Writer ロック獲得後 の Reader ロック獲得</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_100737284_h1_1">Readers-Writer ロック機能</h1>
+<h2 id="Anchor_100737284_h2_1">機能概要</h2>
+<p>Readers-Writer ロックは、複数<a href="../Pages/Page_83955697.html">スレッド</a>からアクセスされ得る共有リソースを「読み込み目的の複数スレッドによる Readers ロック」と「書き込み目的の単一スレッドによる Writer ロック」を使って排他制御を行なうための同期機能です。</p>
+<p>Readers-Writer ロック機能は <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_reader_writer_lock_type.html">nn::os::ReaderWriterLockType</a> 構造体オブジェクトを介して使用します。<span class="el">ReaderWriterLockType</span> オブジェクトは以下の状態をとります。 また、排他ロック状態では実際にロックを獲得している当該スレッドがロックオーナーとして管理されます。</p>
+<ul>
+  <li>未初期化状態</li>
+  <li>アンロック状態</li>
+  <li>共有ロック状態（ロックオーナーなし）</li>
+  <li>排他ロック状態（ロックオーナーあり）</li>
+</ul>
+<p>未初期化状態は、<span class="el">ReaderWriterLockType</span> オブジェクトを初期化する前の状態、もしくは、破棄した後の状態です。</p>
+<p>アンロック状態は、いずれのスレッドもロックを取得していない状態です。</p>
+<p>共有ロック状態は、ロックオーナーが未設定の状態で、一つ以上のスレッドが Readers ロックを獲得済みの状態です。 共有ロック状態は、アンロック状態から <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6fa888b2694902212ebc056ccaa4354b">AcquireReadLock()</a> もしくは <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac0ce54963ebf2636dd1c78a0d16125a8">TryAcquireReadLock()</a> された回数と同じ数だけ <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a4d8f51bbfa3341c9678758b191896a05">ReleaseReadLock()</a> が呼ばれた時にアンロック状態に戻ります。共有ロック状態中は、複数のスレッドが重ねて Readers ロックを獲得していくことができます。</p>
+<p>排他ロック状態は、ロックオーナーが設定された状態で、単一のスレッドが Readers ロックもしくは Writer ロックを獲得済みの状態です。 最初にロックオーナーが設定されるのは、単一のスレッドがアンロック状態から <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a97d3e3f946b214bcbf85e4aebb61699f">AcquireWriteLock()</a> もしくは <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad042341aecc3ba00473ab85466fa76a8">TryAcquireWriteLock()</a> に成功した時で、 呼出元のスレッドが&nbsp;<span class="el">ReaderWriterLockType</span> オブジェクトのロックオーナーとして設定されます。排他ロック状態中は、ロックオーナー以外のスレッドからは Readers ロックも Writer ロックも取得できずブロッキングします。</p>
+<p>一旦ロックオーナーとなったスレッドはさらに以下のような制御が可能になります。</p>
+<ul>
+  <li>追加の Readers ロックをブロッキングせずに重ねて取得できます。</li>
+  <li>追加の Writer ロックをブロッキングせずに重ねて取得できます。</li>
+  <li>全ての Readers/Writer ロックを解放した時点でロックオーナーが解除され、アンロック状態に戻ります。</li>
+</ul>
+<p>なお、Readers/Wirte ロックを取得する際にブロッキングしたスレッドは、 次にロックを取得できる条件が整った段階で自動的に再度ロック取得を試みます。この時、複数のスレッドによって Readers ロック要求と Writer ロック要求の両方が存在していた場合、Writer ロック要求が優先されます。</p>
+<p>Readers ロックもしくは Writer ロックを取得した状態で、そのスレッドが終了した場合の Readers-Writer ロックの状態は未定義です。スレッドを終了させる前に、正しくロックの開放を行なって下さい。<br /></p>
+<h2 id="Anchor_100737284_h2_2">Readers-Writer ロックの使用方法</h2>
+<p>Readers-Writer ロックを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_reader_writer_lock_type.html">nn::os::ReaderWriterLockType</a> 構造体オブジェクトを用意します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">ReaderWriterLockType</span>  <span class="n">g_ReaderWriterLock</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>Readers-Writer ロックを使用する前に、予め初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeReaderWriterLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、読み込みロックを行ない、一定の処理が終わったらロックを開放します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">AcquireReadLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 読み込み目的の処理を行なう
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">ReleaseReadLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、書き込みロックを行ない、一定の処理が終わったらロックを開放します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">AcquireWriteLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 書き込み目的の処理を行なう
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">ReleaseWriteLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>Readers-Writer ロックを使用し終わったら破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeReaderWriterLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_100737284_h2_3">Readers-Writer ロックの具体的な使用例</h2>
+<p>具体的な使用例は、&nbsp;&nbsp;<a href="../../../Api/HtmlNX/_page_sample_os_reader_writer_lock.html">Readers-Writer ロック機能サンプルプログラム</a> を参照して下さい。</p>
+<h2 id="Anchor_100737284_h2_4">Readers-Writer ロックの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a659d0526afb3df351ed0a95ddc0776fa">nn::os::InitializeReaderWriterLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6b179b4351145d32ec583bc5a52452bb">nn::os::FinalizeReaderWriterLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6fa888b2694902212ebc056ccaa4354b">nn::os::AcquireReadLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac0ce54963ebf2636dd1c78a0d16125a8">nn::os::TryAcquireReadLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a4d8f51bbfa3341c9678758b191896a05">nn::os::ReleaseReadLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a97d3e3f946b214bcbf85e4aebb61699f">nn::os::AcquireWriteLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad042341aecc3ba00473ab85466fa76a8">nn::os::TryAcquireWriteLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae30220320ff7ba5af52183fd5fbe1312">nn::os::ReleaseWriteLock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a434e0c862bf65234e1eee8756edbabf4">nn::os::IsReadLockHeld()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6658b045d8ca185b5108ddb802f2440e">nn::os::IsWriteLockHeldByCurrentThread()</a>
+  </li>
+  <li>
+    <span class="el">
+      <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ace3bf890340f587ab633cd1804a93e0b">nn::os::IsReaderWriterLockOwnerThread()</a>
+    </span>
+  </li>
+</ul>
+<h2 id="Anchor_100737284_h2_5">Readers-Writer ロック使用上の注意</h2>
+<h3 id="Anchor_100737284_h3_1">Readers ロック獲得後の Writer ロック獲得</h3>
+<p>特定のスレッド上で、Readers ロックを獲得後に、Writer ロックを獲得しようとするとデッドロックしますので注意して下さい。</p>
+<p>このような場合には、最初から Writer ロックを獲得取得するようにするか、もしくは、一度読み込みロックを開放してから書き込みロックを取得するようにして下さい。</p>
+<h3 id="Anchor_100737284_h3_2">Writer ロック獲得後 の Reader ロック獲得</h3>
+<p>NX Addon 4.1 以降では、特定のスレッド上で、Writer ロック獲得後に Readers ロックを獲得することができるようになりました。</p>
+<p>NX Addon 4.0 以前までは上記の操作を行おうとするとデッドロックするため注意が必要です。実装の都合でこのような状況が発生する場合、以下のように Readers ロックを獲得する側の実装で、自スレッド上で Writer ロックを獲得済みかどうかを判別するようにして下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">writeLocked</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">IsWriteLockHeldByCurrentThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">writeLocked</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">AcquireReadLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 読み込み目的の処理を行なう
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">writeLocked</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">ReleaseReadLock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_ReaderWriterLock</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

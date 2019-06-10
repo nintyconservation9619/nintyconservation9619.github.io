@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>RGB を二乗して取得</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- RGB を二乗して取得 -->
+<div class="pagetitle" id="PageId_96406875">RGB を二乗して取得</div>
+<div class="text_separate">
+<h1 id="Anchor_96406875_h1_1">RGB を二乗して取得</h1>
+<p>ここでは登録したテクスチャを二乗する機能「RGB を二乗して取得」について説明します。</p>
+<h2 id="Anchor_96406875_h2_1">概要</h2>
+<p>「RGB を二乗して取得」は、登録したテクスチャの輝度を二乗することにより、リニア変換時の結果に近似できる機能です。<br />登録するテクスチャがグレースケールのアルファ付き画像の時にこの機能を利用することで、以下の利点があります。</p>
+<h3 id="Anchor_96406875_h3_1">テクスチャサイズの削減が期待できる</h3>
+<p>カラーとアルファで同じ画を用いる場合、カラーはリニア、アルファはノンリニアで持つことになり、 テクスチャは 2 チャンネル分の情報が必要でした。</p>
+<p>本機能は、エフェクトシェーダ内で RGB カラーをリニア化することで 1 チャンネルの情報でもカラーとアルファに対応できます。<br />以下はガンマ補正前のリニアテクスチャと「RGB を二乗して取得」を利用した場合のテクスチャのチャンネル内容です。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th class="highlight-red" colspan="2" style="text-align: center;">リニアテクスチャを使用</th>
+      <th class="highlight-blue" colspan="2" style="text-align: center;">ノンリニアテクスチャを使用</th>
+    </tr>
+    <tr>
+      <th style="text-align: center;">RGB = リニア</th>
+      <th style="text-align: center;">A = ノンリニア</th>
+      <th style="text-align: center;">RGB = ノンリニア</th>
+      <th>A = ノンリニア</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_83956195/100928893.png" width="100" class="embedded-image image-center" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83956195/100928894.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td style="text-align: center;">
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83956195/100928894.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td style="text-align: center;">
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_83956195/100928894.png" width="100" class="embedded-image image-center" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="text-align: center;">テクスチャは 2 チャンネル分を使用</td>
+      <td colspan="2" style="text-align: center;">テクスチャは 1 チャンネルのみ使用</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="text-align: center;">テクスチャ容量：<strong>346KB</strong></td>
+      <td colspan="2" style="text-align: center;">&nbsp;テクスチャ容量：<strong>173KB</strong></td>
+    </tr>
+  </tbody>
+</table>
+<p>「RGB を二乗して取得」を ON に設定すると、以下のように RGB 側が 2 乗されます。<br />その結果、テクスチャサイズを押さえた状態で RGB 側の見た目はリニアテクスチャを使用したときに近似できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th class="highlight-blue" colspan="2" style="text-align: center;">ノンリニアテクスチャを使用<br />「RGB を二乗して取得」を適用</th>
+    </tr>
+    <tr>
+      <th style="text-align: center;">RGB = リニア</th>
+      <th style="text-align: center;">A = ノンリニア</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83956195/100928893.png" width="100" class="embedded-image" />
+        </span>
+      </td>
+      <td style="text-align: center;">
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_83956195/100928894.png" width="100" class="embedded-image image-center" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_96406875_h3_2">暗い側の階調をより細かく保持できる</h3>
+<p>テクスチャの階調をノンリニアで保持することで、暗い階調をより細かく保存でます。<br />以下は階調がリニアなテクスチャとノンリニアなテクスチャを「RGB を二乗して取得」によりシェーダ内でリニア変換した場合の出力結果を比較した画像です。<br />（画像をクリックすることで拡大した状態で確認できます。）</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956195/102172098.png" width="300" class="embedded-image" />
+  </span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">A</span>
+      </th>
+      <td>暗部の階調が落ちています。</td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">B</span>
+      </th>
+      <td>
+        <span style="color: rgb(255,0,0);"> <strong>A</strong> </span> より <span style="color: rgb(255,0,0);"> <strong>B</strong> </span> の方が暗い方の階調が綺麗に見えます。</td>
+    </tr>
+  </tbody>
+</table>
+<p>以下は、階調がリニアなテクスチャとノンリニアなテクスチャで保持する階調情報を比較したグラフです。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956195/99853256.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">A</span>
+      </th>
+      <th>リニアな階調</th>
+      <td>均一な階調です。</td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);">B</span>
+      </th>
+      <th>ノンリニアな階調</th>
+      <td>
+        <span style="color: rgb(255,0,0);"> <strong>A</strong> </span> より <span style="color: rgb(255,0,0);"> <strong>B</strong> </span> の方が暗い方の階調をより多く保持していることが解ります。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span> 以下は関連ページへのリンクです。 </p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83956122.html">リニア空間</a>
+      </th>
+      <td>EffectMaker におけるニア編集モードについて説明します。</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_164340138.html">テクスチャフォーマットの選び方</a>
+      </th>
+      <td>エフェクトでおすすめのテクスチャフォーマットを紹介します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>以下は「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" class="embedded-image" /></span> 設定項目」の概要です。</p>
+<h3 id="Anchor_96406875_h3_3">RGB を二乗して取得</h3>
+<p>登録したテクスチャのRGB値に対しで二乗するかを ON / OFF で設定します。</p>
+<h2 id="Anchor_96406875_h2_2">設定例</h2>
+<p>以下はリニアテクスチャと「RGB を二乗して取得」を ON / OFF した時の比較画像です。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955557/100928537.gif" width="450" class="embedded-image" />
+  </span>
+</p>
+<p>以下はsRGB テクスチャのリニア変換方式について、「リニアテクスチャ」と「RGB を二乗して取得」を適用した時とで階調の変化を比較したグラフです。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956195/99853241.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span style="color: rgb(255,0,0);"> A </span>
+      </th>
+      <th>リニアテクスチャ</th>
+      <td>DCC ツールから出力する時にリニア変換する方式です。</td>
+    </tr>
+    <tr>
+      <th> <span style="color: rgb(255,0,0);">B</span> </th>
+      <th>
+        <p>「RGB を二乗して取得」を適用</p>
+      </th>
+      <td>「RGB を二乗して取得」によりテクスチャフェッチする時にリニア変換する方式です。<br />この機能を&nbsp;ON にして適用した時 <strong>A</strong> のリニアテクスチャに近似していることが解ります。</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

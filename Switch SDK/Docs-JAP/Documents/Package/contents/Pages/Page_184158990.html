@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>データ通信</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- データ通信 -->
+<div class="pagetitle" id="PageId_184158990">データ通信</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_184158990_h1_1">データ通信</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_184158990_h2_1">IPv4 アドレスの取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_184158990_h2_2">SOCKET ライブラリの使用</a>
+      </li>
+      <li>
+        <a href="#Anchor_184158990_h2_3">通信経路</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_184158990_h3_1">ユニキャスト</a>
+        </li>
+        <li>
+          <a href="#Anchor_184158990_h3_2">ブロードキャスト</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_184158990_h2_4">通信量の制限</a>
+      </li>
+      <li>
+        <a href="#Anchor_184158990_h2_5">通信範囲</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_184158990_h1_1">データ通信</h1>
+<h2 id="Anchor_184158990_h2_1">IPv4 アドレスの取得</h2>
+<p>LDN ライブラリが提供する機能はネットワークの構築と探索・接続に限定されており、構築されたネットワーク上で実際に通信を行うためには SOCKET ライブラリを使用します。</p>
+<p>SOCKET ライブラリで通信相手を指定するためには IPv4 アドレスが必要です。自分自身の IPv4 アドレスを取得するためには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a47685f7002ba6bae7d749ea8bd9bcd07" style="text-decoration: underline;">nn::ldn::GetIpv4Address()</a>&nbsp;を使用します。この API はアクセスポイントとしてネットワークを構築した&nbsp;<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f" rel="nofollow">nn::ldn::State_AccessPointCreated</a>&nbsp;状態、あるいはステーションでネットワークに接続した&nbsp;<a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a4f1ac10f7434907fa2443f84fb5f9233" rel="nofollow">nn::ldn::State_StationConnected</a>&nbsp;状態のいずれかで使用できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ldn::</span><span class="n">Ipv4Address</span> <span class="n">address</span><span class="p">;</span>
+<span class="nn">nn::ldn::</span><span class="n">SubnetMask</span> <span class="n">mask</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">GetIpv4Address</span><span class="p">(</span><span class="o">&amp;</span><span class="n">address</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mask</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nn">nn::ldn::ResultInvalidState::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ネットワークから切断されました。
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>LDN ライブラリでは IPv4 アドレスを&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_ipv4_address.html">nn::ldn::Ipv4Address</a>&nbsp;構造体で、サブネットマスクを <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_subnet_mask.html">nn::ldn::SubnetMask</a>&nbsp;構造体で扱います。現在の LDN ライブラリの仕様では IPv4 アドレスは 169.254.x.y/24 (1 &lt;= x, y &lt;= 127) となります。ブロードキャストアドレスの生成には以下に示す通り <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a473c973a5c8e9d3443902cc4cbf1cc6e">nn::ldn::MakeBroadcastAddress()</a>&nbsp;を使用してください。この API は Directed Broadcast Address (169.254.x.255) を生成します。NintendoSDK の SOCKET ライブラリでは Limited Broadcast Address (255.255.255.255) は扱えませんので注意してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ldn::</span><span class="n">Ipv4Address</span> <span class="n">broadcastAddress</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">MakeBroadcastAddress</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">mask</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>自分以外の IPv4 アドレスを取得するには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a3d7236430d0f89d87e6b64827ed8fb0c">nn::ldn::GetNetworkInfo()</a> を取得します。この API の詳細については<a href="../Pages/Page_184158816.html">ネットワークの監視</a>を参照してください。</p>
+<h2 id="Anchor_184158990_h2_2">SOCKET ライブラリの使用</h2>
+<p>LDN ライブラリでネットワークを構築した後は一般的なネットワーク・プログラミングと同じように SOCKET ライブラリを使用できます。ただし、以下に示す通り、いくつかの注意事項があります。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_ipv4_address.html">nn::ldn::Ipv4Address</a>&nbsp;構造体で表される IPv4 アドレスは SOCKET ライブラリで解釈できる形式に変換する必要がある</li>
+  <li>TCP 通信でも UDP 通信でも 0-1023 番のポートはシステムによって予約されているためアプリケーションは使用できません。</li>
+  <li>ブロードキャストを使用する場合には <a href="../../../Api/HtmlNX/namespacenn_1_1socket.html#a92711556ee5f0122c71d8aedfe8399d7">nn::socket::SetSockOpt()</a> で明示的に有効化する必要がある</li>
+</ul>
+<p>以下にデータ通信の例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="nf">CreateSocket</span><span class="p">(</span><span class="kt">int</span> <span class="n">port</span><span class="p">)</span> <span class="n">NN_NOEXCEPT</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_MINMAX</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">65535</span><span class="p">)</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">socket</span> <span class="o">=</span> <span class="nn">nn::socket::</span><span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">socket</span> <span class="o">!=</span> <span class="nn">nn::socket::</span><span class="n">InvalidSocket</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">sockaddr_in</span> <span class="n">addr</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">addr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">addr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="nn">nn::socket::</span><span class="n">InetHtons</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">port</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">addr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">INADDR_ANY</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::socket::</span><span class="n">Bind</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">sockaddr</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">addr</span><span class="p">),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">addr</span><span class="p">));</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">isEnabled</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::socket::</span><span class="n">SetSockOpt</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_BROADCAST</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">isEnabled</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">isEnabled</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">socket</span><span class="p">;</span>    
+<span class="p">}</span>
+ 
+<span class="kt">int</span> <span class="n">SendTo</span><span class="p">(</span><span class="kt">int</span> <span class="n">socket</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">Ipv4Address</span> <span class="n">dst</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">data</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">dataSize</span><span class="p">)</span> <span class="n">NN_NOEXCEPT</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_NOT_EQUAL</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="nn">nn::socket::</span><span class="n">InvalidSocket</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_MINMAX</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">65535</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_MINMAX</span><span class="p">(</span><span class="n">dataSize</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1472</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">sockaddr_in</span> <span class="n">addr</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">addr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">addr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="nn">nn::socket::</span><span class="n">InetHtons</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint16_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">port</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">addr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="nn">nn::socket::</span><span class="n">InetHtonl</span><span class="p">(</span><span class="n">dst</span><span class="p">.</span><span class="n">raw</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nn">nn::socket::</span><span class="n">SendTo</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dataSize</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">sockaddr</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">addr</span><span class="p">),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">addr</span><span class="p">));</span>
+<span class="p">}</span>
+ 
+<span class="kt">ssize_t</span> <span class="n">RecvFrom</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">buffer</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">Ipv4Address</span><span class="o">*</span> <span class="n">pOutAddress</span><span class="p">,</span> <span class="kt">int</span> <span class="n">socket</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">bufferSize</span><span class="p">)</span> <span class="n">NN_NOEXCEPT</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_NOT_NULL</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_NOT_NULL</span><span class="p">(</span><span class="n">pOutAddress</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">sockaddr_in</span> <span class="n">src</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">socklen_t</span> <span class="n">length</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">src</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">ssize_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="nn">nn::socket::</span><span class="n">RecvFrom</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">socket</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">sockaddr</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">src</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">length</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">ret</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pOutAddress</span><span class="o">-&gt;</span><span class="n">raw</span> <span class="o">=</span> <span class="nn">nn::socket::</span><span class="n">InetNtohl</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_184158990_h2_3">通信経路</h2>
+<p>ローカル通信では、特定の端末に負荷が集中することを避けるために通信経路を意識する必要があります。</p>
+<h3 id="Anchor_184158990_h3_1">ユニキャスト</h3>
+<p>アクセスポイントからステーションに対して送信されるユニキャスト・パケットは、直接ステーションに届きます。ステーションからアクセスポイントに対して送信されるユニキャスト・パケットについても同様です。しかし、<strong>ステーションからステーションに対して送信されるユニキャスト・パケットはアクセスポイントが仲介します</strong>。このため、ステーション・ステーション間のユニキャストを多用すると、アクセスポイントに負荷が集中する、空間に排出されるパケットが倍増して通信品質が低下するといった問題が発生する可能性があります。</p>
+<p>例えば、8 台の端末が自分以外の 7 台の端末に対してユニキャストを 1 つずつ送信する例を考えます。ステーションはユニキャストを他の 7 台の端末に対して送信し、他の 7 台の端末から送信されたユニキャストを受信することになりますので、計 7 個のパケットの送信と 7 個のパケットの受信を処理します。アクセスポイントではこれに加えて、ステーションを送信元とし、ステーションを宛先とする 42 個のパケットを中継する必要があるため、自分自身を送信元・宛先とするパケットを含めて、計 49 個のパケットの送信と 49 個のパケットの受信を処理しなければならないことになります。</p>
+<p>なお、ユニキャスト・パケットは L2 で数回再送されるため、UDP であっても非常に高い確率で宛先に到達します。</p>
+<h3 id="Anchor_184158990_h3_2">ブロードキャスト</h3>
+<p>ユニキャストとは異なり、<strong>ブロードキャストではアクセスポイントが仲介することはありません</strong>。アクセスポイントからブロードキャスト・パケットを送信する場合も、ステーションからブロードキャスト・パケットを送信する場合も、同じローカル・ネットワークに属する全ての端末に直接届けられます。</p>
+<p>ブロードキャスト・パケットは L2 の再送が無いためパケット損失に対する耐性が低いものの、ユニキャストよりも低い負荷で送信できます。</p>
+<h2 id="Anchor_184158990_h2_4">通信量の制限</h2>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>検討中の情報を含んでいます。</p>
+  </div>
+</div>
+<p>ローカル通信の特性上、パケットの総量を減らすことが非常に重要です。ブロードキャストを使用することで空間に送出されるパケットの総数を大きく減らせる場合は積極的にブロードキャストを使用してください。その一方で、ユニキャストは通信速度、パケット損失に対する耐性、到達距離など様々な面でブロードキャストより勝れています。通信量が十分に少ない場合は全ての通信をユニキャストにすることで安定性が大きく向上します。</p>
+<h2 id="Anchor_184158990_h2_5">通信範囲</h2>
+<p>ローカル通信で有効な通信範囲は約 5 メートルです。ブロードキャストはアクセスポイントを経由せずに直接届けられるため、アクセスポイントを中心に 5 メートル以内に収まっていたとしても、ステーションとステーションの間の距離がそれ以上に離れていれば通信が不安定になる可能性があります。</p>
+<p>また、この数値はあくまでも目安であり、障害物の有無など環境によって大きく変化することがありますので注意が必要です。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

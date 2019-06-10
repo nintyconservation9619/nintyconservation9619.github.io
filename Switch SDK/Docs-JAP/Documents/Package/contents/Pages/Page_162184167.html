@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ソフトウェアキーボードアプレット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ソフトウェアキーボードアプレット -->
+<div class="pagetitle" id="PageId_162184167">ソフトウェアキーボードアプレット</div>
+<div class="text_separate">
+<p>名前やパスワードなど、アプリケーションがユーザーからの文字入力を必要とする際に呼び出すライブラリアプレットです。</p>
+<p>入力に応じて予測変換を出す機能、文字数カウント機能、入力を禁止したい文字を塞ぐ機能などがあります。オプションの指定を簡単にするプリセットも用意しており、アプリからの呼び出し時に指定することが可能です。 &nbsp;</p>
+<p>ここでは、ソフトウェアキーボードアプレットを起動するまでの基本的な流れについて説明します。&nbsp;</p>
+<h1 id="Anchor_162184167_h1_1">ヘッダファイルのインクルード</h1>
+<p>プログラム中に下記のコードを記述してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/swkbd/swkbd_Api.h&gt;
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>nn/swkbd/swkbd_Api.h は以下に配置されています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$NINTENDO_SDK_ROOT/Include/nn/swkbd/swkbd_Api.h</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184167_h1_2">起動パラメータの設定</h1>
+<p>ソフトウェアキーボードアプレットを起動する前に、引数として渡す <span class="ApiLink_nn__swkbd__KeyboardConfig">nn::swkbd::KeyboardConfig</span>&nbsp;構造体の設定と、結果を格納する出力用バッファの準備を行ってください。<br />以下の項目では上記の設定方法について説明しています。<br />より詳細な設定については&nbsp;swkbd_AppearArg.h を参照してください。</p>
+<h2 id="Anchor_162184167_h2_1">プリセットの指定</h2>
+<p>起動パラメータの設定を行う際、始めに <span class="ApiLink_nn__swkbd__MakePreset">nn::swkbd::MakePreset</span>() 関数を呼んでパラメータの初期設定を行ってください。<br />この関数は、以降で説明する関数より前に呼び出してください。<br />プリセットの種類は <span class="ApiLink_nn__swkbd__Preset">nn::swkbd::Preset</span> 列挙型を参照してください。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::swkbd::</span><span class="n">ShowKeyboardArg</span> <span class="n">showKeyboardArg</span><span class="p">;</span>
+<span class="nn">nn::swkbd::</span><span class="n">MakePreset</span><span class="p">(</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">showKeyboardArg</span><span class="p">.</span><span class="n">keyboardConfig</span><span class="p">),</span> <span class="nn">nn::swkbd::</span><span class="n">Preset_Default</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_162184167_h2_2">プリセット内容の変更</h2>
+<p>
+  <span class="ApiLink_nn__swkbd__MakePreset">nn::swkbd::MakePreset</span>() で指定したプリセットを元に、<span class="ApiLink_nn__swkbd__KeyboardConfig">nn::swkbd::KeyboardConfig</span>&nbsp;構造体をカスタマイズしてください。<br />特に変更の必要がない場合は、この手順を踏む必要はありません。<br /><span class="ApiLink_nn__swkbd__KeyboardConfig">nn::swkbd::KeyboardConfig</span>&nbsp;構造体についての詳細は swkbd_AppearArg.h を参照してください。</p>
+<h2 id="Anchor_162184167_h2_3">UTF-8 での文字列の受け取り</h2>
+<p>ソフトウェアキーボードアプレットは、標準では入力結果が UTF-16 でエンコーディングされた文字列として返ります。<br />これを UTF-8 でエンコーディングされた形で受け取るようにするには、<span class="ApiLink_nn__swkbd__KeyboardConfig">nn::swkbd::KeyboardConfig</span>&nbsp;構造体を以下のように設定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">showKeyboardArg</span><span class="p">.</span><span class="n">keyboardConfig</span><span class="p">.</span><span class="n">isUseUtf8</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_162184167_h2_4">ヘッダー用文字列・サブテキスト用文字列・ガイド文字列の設定</h2>
+<p>ソフトウェアキーボードアプレットを表示中に説明用の文章を表示したい場合は、以下の方法で文字列を設定してください。<br />ただしヘッダー用文字列とサブテキスト用文字列はプレビュー欄が複数行表示になっている場合は表示されません。<br />各文字列の説明と表示に関する詳細は本体機能ガイドおよび&nbsp;swkbd_AppearArg.h 構造体を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">guideString</span> <span class="o">=</span> <span class="kt">u8</span><span class="s">&quot;sample.&quot;</span><span class="p">;</span>
+<span class="nn">nn::swkbd::</span><span class="n">SetGuideTextUtf8</span><span class="p">(</span> <span class="o">&amp;</span><span class="p">(</span> <span class="n">showKeyboardArg</span><span class="p">.</span><span class="n">keyboardConfig</span> <span class="p">),</span> <span class="n">guideString</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>それぞれの入力可能な最大文字列は <span class="ApiLink_nn__swkbd__HeaderTextMaxLength">nn::swkbd::HeaderTextMaxLength</span> など定数で定義していますが、<br />「W」のように文字幅の大きな文字の組み合わせ次第では表示可能範囲を超えてしまい、表示されなくなる可能性があります。<br />上記のようにヘッダー用文字列・サブテキスト用文字列・ガイド文字列を設定したら、それらが正しく表示されているかを確認してください。</p>
+<h2 id="Anchor_162184167_h2_5">初期入力文字列格納用バッファの割り当て</h2>
+<p>ソフトウェアキーボードアプレットを立ち上げた時に、始めにプレビュー欄に表示される文字を設定できます。<br />以下の方法で初期入力文字列の設定を行ってください。&nbsp;<br />初期入力文字列を設定する前に、事前にメモリ領域の設定をする必要があります。<br />必要なメモリサイズは <span class="ApiLink_nn__swkbd__GetRequiredWorkBufferSize">nn::swkbd::GetRequiredWorkBufferSize</span>() から取得してください。<br />メモリ領域のアドレスとサイズは <span class="ApiLink_nn__os__MemoryPageSize">nn::os::MemoryPageSize</span> でアライメントされている必要があります。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">char</span> <span class="n">heapBuffer</span><span class="p">[</span><span class="mi">256</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">];</span>
+<span class="nn">nn::mem::</span><span class="n">StandardAllocator</span> <span class="n">allocator</span><span class="p">(</span> <span class="n">heapBuffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span> <span class="n">heapBuffer</span> <span class="p">)</span> <span class="p">);</span>
+ 
+<span class="kt">size_t</span> <span class="n">workHeapSize</span> <span class="o">=</span> <span class="nn">nn::swkbd::</span><span class="n">GetRequiredWorkBufferSize</span><span class="p">(</span> <span class="nb">false</span> <span class="p">);</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">workBuffer</span> <span class="o">=</span> <span class="n">allocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span> <span class="n">workHeapSize</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MemoryPageSize</span> <span class="p">);</span>
+
+<span class="n">showKeyboardArg</span><span class="p">.</span><span class="n">workBuf</span> <span class="o">=</span> <span class="n">workBuffer</span><span class="p">;</span>
+<span class="n">showKeyboardArg</span><span class="p">.</span><span class="n">workBufSize</span> <span class="o">=</span> <span class="n">workHeapSize</span><span class="p">;</span>
+ 
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">initText</span> <span class="o">=</span> <span class="kt">u8</span><span class="s">&quot;初期値&quot;</span><span class="p">;</span>
+<span class="nn">nn::swkbd::</span><span class="n">SetInitialTextUtf8</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">showKeyboardArg</span><span class="p">,</span> <span class="n">initText</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_162184167_h2_6">入力結果文字列格納用バッファの割り当て</h2>
+<p>入力結果の文字列はアプリケーションが渡したメモリ領域に直接書き込まれます。<br />以下の方法で出力用のメモリ領域を設定してください。&nbsp;<br />必要なメモリサイズは <span class="ApiLink_nn__swkbd__GetRequiredStringBufferSize">nn::swkbd::GetRequiredStringBufferSize</span>() から取得してください。<br />出力先のメモリ領域のアドレスとサイズは <span class="ApiLink_nn__os__MemoryPageSize">nn::os::MemoryPageSize</span> でアライメントされている必要があります。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">size_t</span> <span class="n">stringHeapSize</span> <span class="o">=</span> <span class="nn">nn::swkbd::</span><span class="n">GetRequiredStringBufferSize</span><span class="p">();</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">stringBuffer</span> <span class="o">=</span> <span class="n">allocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span> <span class="n">stringHeapSize</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MemoryPageSize</span> <span class="p">);</span>
+ 
+<span class="nn">nn::swkbd::</span><span class="n">String</span> <span class="n">outputString</span><span class="p">;</span>
+<span class="n">outputString</span><span class="p">.</span><span class="n">ptr</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char16_t</span><span class="o">*&gt;</span><span class="p">(</span> <span class="n">stringBuffer</span> <span class="p">);</span>
+<span class="n">outputString</span><span class="p">.</span><span class="n">bufSize</span> <span class="o">=</span> <span class="n">stringHeapSize</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184167_h1_3">ソフトウェアキーボードアプレットの起動</h1>
+<p>起動パラメータの設定を終えたのち、<span class="ApiLink_nn__swkbd__ShowKeyboard">nn::swkbd::ShowKeyboard</span>() に起動パラメータを渡して呼ぶことで、ソフトウェアキーボードアプレットが起動します。<br />この関数はソフトウェアキーボードアプレットが終了するまで処理をブロックします。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::Result result = nn::swkbd::ShowKeyboard( &amp;outputString, showKeyboardArg );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184167_h1_4">入力結果文字列の受け取り</h1>
+<p>ソフトウェアキーボードアプレットを閉じると、 <span class="ApiLink_nn__swkbd__ShowKeyboard">nn::swkbd::ShowKeyboard</span>() を抜け出します。<br />この時、出力用のメモリ領域にソフトウェアキーボードアプレットでの入力結果が格納されます。</p>
+<h1 id="Anchor_162184167_h1_5">具体的な使用例</h1>
+<p>具体的な使用例は、SWKBD ライブラリの起動サンプルプログラムを参照してください。<br />なお、Windows 用には SWKBD ライブラリのサンプルプログラムは提供されていません。&nbsp;</p>
+<p>
+  <br />
+</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__swkbd__KeyboardConfig', '../../../Api/HtmlNX/structnn_1_1swkbd_1_1_keyboard_config.html' )
+SetUrl( 'ApiLink_nn__swkbd__MakePreset', '../../../Api/HtmlNX/namespacenn_1_1swkbd.html#a44c5beaea4acb2e24b0b47698a2a335c' )
+SetUrl( 'ApiLink_nn__swkbd__Preset', '../../../Api/HtmlNX/namespacenn_1_1swkbd.html#a50c3c6ed5888415f52dd585184186d01' )
+SetUrl( 'ApiLink_nn__swkbd__HeaderTextMaxLength', '../../../Api/HtmlNX/namespacenn_1_1swkbd.html#afc5ce6d6a99070935c7b5c9284217e7e' )
+SetUrl( 'ApiLink_nn__swkbd__GetRequiredWorkBufferSize', '../../../Api/HtmlNX/namespacenn_1_1swkbd.html#a3272ce224068d4ab8b54456f947b44a8' )
+SetUrl( 'ApiLink_nn__os__MemoryPageSize', '../../../Api/HtmlNX/namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236' )
+SetUrl( 'ApiLink_nn__swkbd__GetRequiredStringBufferSize', '../../../Api/HtmlNX/namespacenn_1_1swkbd.html#a3876daad79ba50d639cae2a84864da68' )
+SetUrl( 'ApiLink_nn__swkbd__ShowKeyboard', '../../../Api/HtmlNX/namespacenn_1_1swkbd.html#ab06b6d8de087ecc445003cb95935e1ea' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

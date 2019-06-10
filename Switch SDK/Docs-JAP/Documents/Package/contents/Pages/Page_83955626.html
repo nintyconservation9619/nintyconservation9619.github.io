@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>クラス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- クラス -->
+<div class="pagetitle" id="PageId_83955626">クラス</div>
+<div class="text_separate">
+<h1 id="Anchor_83955626_h1_1">クラス</h1>
+<p>GFX において、ほとんどの機能はクラスとして提供されます。</p>
+<p>ここでは、GFX におけるほとんどのクラスに共通な内容について説明します。</p>
+<h2 id="Anchor_83955626_h2_1">粒度</h2>
+<p>グラフィックスのそれぞれの機能について、ある程度の粒度でまとめてクラスとして提供しています。</p>
+<p>それぞれの低レベルグラフィックス API の違いを吸収するために、粒度は低レベルグラフィックス API に比べて相対的に大きい傾向にあります。</p>
+<h2 id="Anchor_83955626_h2_2">構成</h2>
+<p>クラスは、データ構造体を継承するアクセサーとして構成されます。</p>
+<p>それぞれについて以下で説明します。</p>
+<h2 id="Anchor_83955626_h2_3">データ</h2>
+<p>データは、変数をまとめた構造体であり、アクセサーに依存しておらず、単体で完結しています。</p>
+<p>その名前に &quot;Data&quot; 接尾辞をもっています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::*Data</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>データは Plain Old Data であることが保証されており、これにより、リソースファイルとして保存し、それをロードしたものをそのままキャストして使うことができます。</p>
+<p>データはメンバー関数などのインターフェイスをもっていません。</p>
+<p>基本的にデータには直接アクセスせずに、アクセサーを経由してアクセスするようにしてください。</p>
+<p>データに直接アクセスして変数を参照・変更する場合、その動作や互換性については保証されません。</p>
+<h2 id="Anchor_83955626_h2_4">アクセサー</h2>
+<p>アクセサーは、データを継承したクラスであり、いくつかインターフェイスをもっています。</p>
+<p>データと異なり、アクセサーは特有の接尾辞をもっていません。</p>
+<p>基本的にデータは使わず、アクセサーだけを使ってください。</p>
+<p>アクセサーは以下を保証しています。</p>
+<ul>
+  <li>アクセサーのレイヤーで変数をもっていない</li>
+  <li>仮想関数テーブルをもっていない</li>
+</ul>
+<p>また、共通して以下のインターフェイスをもっています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>インターフェイス</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>DataType</td>
+      <td>対応するデータの型定義</td>
+    </tr>
+    <tr>
+      <td>コンストラクター</td>
+      <td>データの内容をゼロ初期化</td>
+    </tr>
+    <tr>
+      <td>ToData()</td>
+      <td>対応するデータ型に変換</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955626_h2_5">データとアクセサーの相互変換</h2>
+<p>データはアクセサーに、アクセサーはデータに、お互いに変換することができます。</p>
+<p>特に、アクセサーをデータに変換することにより、アクセサーが使用するあらゆる変数を参照することが可能です。</p>
+<p>これにより、たとえば低レベルグラフィックス API のハンドルを参照するなど、GFX が管理しているあらゆる内容にアクセスすることができます。</p>
+<p>この機能は主に、GFX と低レベルグラフィックス API を併用する際に利用できます。</p>
+<h3 id="Anchor_83955626_h3_1">データからアクセサーへの変換</h3>
+<p>GFX におけるすべてのデータは、以下の関数により対応するアクセサー型の参照またはポインターに変換することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::DataToAccessor();</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この関数は引数としてデータの参照またはポインターを受け取ります。</p>
+<p>この関数の返り値は、対応するアクセサーの参照またはポインターで受け取ってください。</p>
+<p>例として、デバイスのデータからデバイスのアクセサーへの変換は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::DeviceData deviceData;
+nn::gfx::Device&amp; device = nn::gfx::DataToAccessor( deviceData );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955626_h3_2">アクセサーからデータへの変換</h3>
+<p>GFX におけるすべてのアクセサーは、以下の関数により対応するデータ型の参照またはポインターに変換することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::AccessorToData();</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この関数は引数としてアクセサーの参照またはポインターを受け取ります。</p>
+<p>この関数の返り値は、対応するデータの参照またはポインターで受け取ってください。</p>
+<p>例として、デバイスのアクセサーからデバイスのデータへの変換は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::Device device;
+nn::gfx::Device::DataType&amp; deviceData = nn::gfx::AccessorToData( device );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955626_h3_3">変換における制限</h3>
+<p>変換は static_cast として行われるため、型修飾子を失う変換は許可されません。</p>
+<h2 id="Anchor_83955626_h2_6">メモリー確保</h2>
+<p>GFX のクラスは、その下にある低レベルグラフィックス API が行う場合を除き、基本的に内部で動的にメモリーを確保しません。&nbsp;<br />必要なメモリーはアプリケーションから受け取る方針で設計されています。&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

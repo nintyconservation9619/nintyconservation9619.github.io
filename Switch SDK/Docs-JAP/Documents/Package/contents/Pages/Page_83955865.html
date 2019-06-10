@@ -1,0 +1,678 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>多重待ち</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 多重待ち -->
+<div class="pagetitle" id="PageId_83955865">多重待ち</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955865_h1_1">多重待ち機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955865_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955865_h3_1">nn::os::MultiWaitType 構造体 </a>
+        </li>
+        <li>
+          <a href="#Anchor_83955865_h3_2">nn::os::MultiWaitHolderType 構造体</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955865_h2_2">多重待ちの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955865_h2_3">多重待ちの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955865_h2_4">多重待ちの関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955865_h2_5">多重待ち使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955865_h3_3">スレッド安全性について</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955865_h3_4">多重待ち後の分岐</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_83955865_h1_2">ユーティリティ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955865_h2_6">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955865_h2_7">バリエーション</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955865_h1_1">多重待ち機能</h1>
+<h2 id="Anchor_83955865_h2_1">機能概要</h2>
+<p>複数の同期オブジェクトのいずれかがシグナル状態になるのを一度に待機することができる同期機能です。</p>
+<p>「同期オブジェクトのシグナル状態」 とは以下のいずれかの状態のことを指し、これら複数の状態変化を同時に待つことが出来ます。</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_83955697.html">スレッド</a>が終了した状態</li>
+  <li>
+    <a href="../Pages/Page_83955700.html">セマフォ</a>が獲得できる状態</li>
+  <li>
+    <a href="../Pages/Page_83955790.html">イベント</a>がシグナル化した状態</li>
+  <li>
+    <a href="../Pages/Page_83955748.html">メッセージキュー</a>のバッファが &rdquo;空ではない&rdquo; 状態</li>
+  <li>
+    <a href="../Pages/Page_83955748.html">メッセージキュー</a>のバッファが &quot;満杯ではない&quot; 状態</li>
+  <li>
+    <a href="../Pages/Page_83955843.html">システムイベント</a>がシグナル化した状態</li>
+</ul>
+<p>多重待ちは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> を発行することで行ないます。多重待ちによってシグナル状態を検出しても、対象オブジェクトの状態を変化させずに呼出し元にリターンします。そのため、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> から復帰後、シグナル化した対象オブジェクトに対する操作が別途必要になります。</p>
+<h3 id="Anchor_83955865_h3_1">
+  <span style="color: rgb(51,51,51);">nn::os::MultiWaitType 構造体<br /> </span>
+</h3>
+<p>多重待ちを行なう時に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> に渡すオブジェクトの構造体です。</p>
+<p>多重待ちを行なうには、まず後述の <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> を必要なオブジェクト数だけ用意し、この <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">nn::os::MultiWaitType</a> にリストとして接続します。多重待ち対象となる <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> を全てリストで接続したら、リストヘッダである <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">nn::os::MultiWaitType</a> オブジェクトを <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> に渡して多重待ちを行ないます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a>&nbsp;はシグナル化を検出した <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> オブジェクトへのポインタを返します。これにより、どの同期オブジェクトがシグナル化したのかを検知することが出来ます。</p>
+<h3 id="Anchor_83955865_h3_2">
+  <span style="color: rgb(51,51,51);">nn::os::MultiWaitHolderType 構造体</span>
+</h3>
+<p>多重待ちを行なう対象となる同期オブジェクトと関連付けるための構造体です。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">InitializeMultiWaitHolder()</a> によって、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> オブジェクトと同期オブジェクトを関連付けます。関連付けられる同期オブジェクトは、<a href="../Pages/Page_83955697.html">スレッド</a>、<a href="../Pages/Page_83955700.html">セマフォ</a>、<a href="../Pages/Page_83955790.html">イベント</a>、<a href="../Pages/Page_83955748.html">メッセージキュー</a>、<a href="../Pages/Page_83955843.html">システムイベント</a> のいずれかです。</p>
+<p>関連付けられた <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> オブジェクトを前述の <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">nn::os::MultiWaitType</a> オブジェクトのリストに繋げることで、同期オブジェクトを多重待ちの対象にすることが出来ます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> にはユーザデータを設定／取得する機能があります。１つのオブジェクトにつき、１つの uintptr_t 型のユーザデータを格納しておくことができます。この機能は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> の返値から然るべき処理へ場合分けする時に利用することを想定しています。詳細は、後述の「多重待ち後の分岐」もしくは、   <a href="../../../Api/HtmlNX/_page_sample_os_multi_wait.html">多重待ち機能サンプルプログラム</a>    を参照して下さい。</p>
+<h2 id="Anchor_83955865_h2_2">多重待ちの使用方法</h2>
+<p>多重待ちを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">nn::os::MultiWaitType</a> 構造体オブジェクトを用意します。また、多重待ち対象となる同期オブジェクトの数だけ、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> 構造体オブジェクトも同時に用意します。オブジェクトを定義する場所に特に制限はありません。</p>
+<p>また、多重待ち対象となる <a href="../Pages/Page_83955697.html">スレッド</a>、<a href="../Pages/Page_83955700.html">セマフォ</a>、<a href="../Pages/Page_83955790.html">イベント</a>、<a href="../Pages/Page_83955748.html">メッセージキュー</a> などは別途オブジェクトを初期化して用意しておく必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">MultiWaitType</span>        <span class="n">g_MultiWait</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span>  <span class="n">g_MultiWaitHolder1</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span>  <span class="n">g_MultiWaitHolder2</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>多重待ち機能を使用する前に、予めオブジェクトを初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeMultiWait</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>次に、多重待ち対象オブジェクトと <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">MultiWaitHolderType</a> を関連付けて、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">MultiWaitType</a> のリストに繋ぎます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// g_semaphore と関連付ける
+</span><span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Semaphore</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span> <span class="p">);</span>
+
+<span class="c1">// g_messageQueue と関連付ける
+</span><span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MessageQueue</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MessageQueueWaitType_WaitForNotEmpty</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、多重待ちを行ないます。返値によってその後の処理を場合分けします。<br />場合分けは、ユーザデータ機能を使うことで効率よく行なうことも出来ます。詳細は <strong>    <a href="../../../Api/HtmlNX/_page_sample_os_multi_wait.html">多重待ち機能サンプルプログラム</a>    </strong>を参照して下さい。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span><span class="o">*</span>  <span class="n">holder</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">WaitAny</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span> <span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span> <span class="n">holder</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// g_Semaphore に対する操作
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span> <span class="n">holder</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// g_MessageQueue に対する操作
+</span><span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>多重待ち関連オブジェクトを使用し終わったら、破棄します。<br />関連付けられた スレッド、セマフォ、イベント、メッセージキュー などはこの後に破棄して下さい。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">UnlinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">UnlinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span> <span class="p">);</span>
+
+<span class="nn">nn::os::</span><span class="n">FinalizeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">FinalizeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span> <span class="p">);</span>
+
+<span class="nn">nn::os::</span><span class="n">FinalizeMultiWait</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955865_h2_3">多重待ちの具体的な使用例</h2>
+<p>具体的な使用例は、   <a href="../../../Api/HtmlNX/_page_sample_os_multi_wait.html">多重待ち機能サンプルプログラム</a>    を参照して下さい。</p>
+<p>また、上記サンプルプログラムを後述のユーティリティ機能を使ってシンプルに記述した<a href="../../../Api/HtmlNX/_page_sample_os_multi_wait_utility.html"> 多重待ち機能ユーティリティを使ったサンプルプログラム</a> もあわせて参照して下さい。</p>
+<h2 id="Anchor_83955865_h2_4">多重待ちの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a48e6662e7fdf9f78bcae79ba94d64a93">nn::os::InitializeMultiWait</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a60873f9b623e014948a9ea53a611da4c">nn::os::FinalizeMultiWait</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">nn::os::WaitAny</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#add056696d279031175e9053145c82677">nn::os::TryWaitAny</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6a76f1be743cfc8791d2a139c7409470">nn::os::TimedWaitAny</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a72d36b7ef64f2c1e82f03d895fdd5609">nn::os::InitializeMultiWaitHolder （スレッド用）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0e0b40464c9936df7d8cb77dadffcbd9">nn::os::InitializeMultiWaitHolder （セマフォ用）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a4f8d998425d067cb5fec2604ae7845dc">nn::os::InitializeMultiWaitHolder （イベント用）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a241484ed12a060d60eeb234db88484d0">nn::os::InitializeMultiWaitHolder （メッセージキュー用）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2de358e6bfa261b74c399b5b59c0da1d">nn::os::FinalizeMultiWaitHolder</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7cd9b25e14bee063959eb9e7f62a4aa8">nn::os::LinkMultiWaitHolder</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a07c9c7bbc51249b69dc2361957fd650b">nn::os::UnlinkMultiWaitHolder</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a05af1a7e142f1ece42a53fe41085f53b">nn::os::SetMultiWaitHolderUserData</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9e8c73312415fc00c72808fcc00fea33">nn::os::GetMultiWaitHolderUserData</a>
+  </li>
+</ul>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_83955865_h2_5">多重待ち使用上の注意事項</h2>
+<h3 id="Anchor_83955865_h3_3">スレッド安全性について</h3>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">nn::os::MultiWaitType</a> および <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> に対する操作を複数<a href="../Pages/Page_83955697.html">スレッド</a>から同時に行なわないで下さい。これらのオブジェクトは単一のスレッドからのみ利用されることを前提としています。</p>
+<p>１つの多重待ちリストを２つ以上のスレッドで効率よく捌きたい場合は、多重待ちの使い方に少し工夫が必要です。以下のコードは、管理用の<a href="../Pages/Page_83955748.html">メッセージキュー</a>と<a href="../Pages/Page_83955800.html">ミューテックス</a>を１つずつ使うことで、１つの多重待ちリストを複数スレッドに対応させた多重待ち実装のサンプルです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">MutexType</span>            <span class="n">g_Mutex</span><span class="p">;</span>                  <span class="c1">// 多重待ちリストの排他用
+</span><span class="nn">nn::os::</span><span class="n">MultiWaitType</span>        <span class="n">g_MultiWait</span><span class="p">;</span>              <span class="c1">// 多重待ちリスト
+</span>
+<span class="k">const</span> <span class="kt">size_t</span>                 <span class="n">g_MessageCount</span> <span class="o">=</span> <span class="mi">16</span><span class="p">;</span>                <span class="c1">// 必要に応じて調整が必要
+</span><span class="kt">uintptr_t</span>                    <span class="n">g_MessageBuffer</span><span class="p">[</span> <span class="n">g_MessageCount</span> <span class="p">];</span>  <span class="c1">// 管理用メッセージキューバッファ
+</span><span class="nn">nn::os::</span><span class="n">MessageQueueType</span>     <span class="n">g_Message</span><span class="p">;</span>                          <span class="c1">// 管理用メッセージキュー
+</span><span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span>  <span class="n">g_MessageQueueHolder</span><span class="p">;</span>               <span class="c1">// 管理用メッセージキューのホルダー
+</span>
+<span class="kt">void</span>  <span class="nf">InitializeWaitAnyThreadSafe</span><span class="p">()</span>
+<span class="p">{</span>
+ &nbsp; &nbsp;<span class="nn">nn::os::</span><span class="n">InitializeMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Message</span><span class="p">,</span> <span class="n">g_MessageBuffer</span><span class="p">,</span> <span class="n">g_MessgeCount</span> <span class="p">);</span>
+ &nbsp; &nbsp;<span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MessageQueueHolder</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Message</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MessageQueueWaitType_NotEmpty</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 多重待ちリストに g_messageQueueHolder をリンク
+</span> &nbsp; &nbsp;<span class="nn">nn::os::</span><span class="n">InitializeMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">InitializeMultiWait</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MessageQueueHolder</span> <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span><span class="o">*</span>  <span class="n">WaitAnyThreadSafe</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span><span class="o">*</span>  <span class="n">holder</span><span class="p">;</span>
+
+ &nbsp; &nbsp;<span class="nn">nn::os::</span><span class="n">LockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">while</span> <span class="p">(</span> <span class="nb">true</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+ &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">holder</span> <span class="o">=</span> <span class="n">WaitAny</span><span class="p">(</span> <span class="n">g_MultiWait</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span> <span class="n">holder</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">g_MessageQueueHolder</span> <span class="p">)</span>                         <span class="c1">// ... (A)
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// g_MessageQueueHolder 以外ならループを抜ける
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// g_MessageQueueHolder ならデータを受信して、多重待ちリストにリンクして再度多重待ちへ
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uintptr_t</span>  <span class="n">data</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">ReceiveMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Message</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span> <span class="n">g_MultiWait</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="nl">nn</span><span class="p">:</span><span class="nn">os::</span><span class="n">MultiWaitHolderType</span><span class="o">*&gt;</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span> <span class="p">);</span>            
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp; <span class="nn">nn::os::</span><span class="n">UnlinkMultiWaitHolder</span><span class="p">(</span> <span class="n">holder</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">UnlockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span>  <span class="n">holder</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span>  <span class="n">RelinkWaitAnyList</span><span class="p">(</span> <span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span><span class="o">*</span> <span class="n">holder</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">SendMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Message</span><span class="p">,</span> <span class="n">holder</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記のコードの特徴は以下の通りです。</p>
+<ul>
+  <li>複数のスレッドから WaitAnyThreadSafe() を発行することが出来ます。<ul><li>実際に多重待ちに入れるスレッドは g_Mutex によって１つのスレッドに制限されます。</li></ul></li>
+  <li>WaitAnyThreadSafe() の返値として、多重待ちリストから外された <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a>* が返ります。<ul><li>リストから外された <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> は、その間、他のスレッドで多重待ちされることがありません。</li><li>再びリストに戻したい場合は RelinkWaitAnyList() を発行して下さい。<ul><li>その時多重待ちしていたスレッドがその要求を受理し、多重待ちリストにリンクした上で再度多重待ちに入ります。</li><li>その時多重待ちしていたスレッドがない場合、次に多重待ちに入るスレッドが同様の処理を行ないます。</li></ul></li></ul></li>
+</ul>
+<p>
+  <br />
+</p>
+<h3 id="Anchor_83955865_h3_4">多重待ち後の分岐</h3>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> の返値は <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a>* 型であるため、多重待ちからの返値を使って関連付けられている同期オブジェクトを識別するのはあまり効率が良くありません。</p>
+<p>そこで、ユーザデータを使って効率よく場合分けするためのサンプルを示します。</p>
+<p>まず初期化と共に、 <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> オブジェクトにユーザデータとして関数エントリをセットしておきます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">typedef</span>  <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">WorkerFunction</span><span class="p">)()</span><span class="p">;</span>
+<span class="k">extern</span> <span class="kt">void</span> <span class="nf">WorkOfSemaphore</span><span class="p">()</span><span class="p">;</span>             <span class="c1">// セマフォの多重待ちを処理する関数
+</span><span class="k">extern</span> <span class="kt">void</span> <span class="nf">WorkOfMessageQueue</span><span class="p">()</span><span class="p">;</span>          <span class="c1">// メッセージキューの多重待ちを処理する関数
+</span>
+<span class="c1">// g_semaphore と関連付ける
+</span><span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Semaphore</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">SetMultiWaitHolderUserData</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">intptr_t</span><span class="o">&gt;</span><span class="p">(</span> <span class="n">WorkOfSemaphore</span> <span class="p">)</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder1</span> <span class="p">);</span>
+
+<span class="c1">// g_messageQueue と関連付ける
+</span><span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MessageQueue</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MessageQueueWaitType_WaitForNotEmpty</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">SetMultiWaitHolderUserData</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">intptr_t</span><span class="o">&gt;</span><span class="p">(</span> <span class="n">WorkOfMessageQueue</span> <span class="p">)</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MultiWaitHolder2</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>準備が整ったら、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a> の返値からユーザデータを取得し、それを関数ポインタとしてコールバックします。<br />これにより、各 <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a> に関連付けられた独自の関数に処理が移るため、そこで各々の処理を行なうことが出来ます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span><span class="o">*</span>  <span class="n">holder</span> <span class="o">=</span> <span class="n">WaitAny</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MultiWait</span> <span class="p">);</span>
+<span class="n">WorkerFunction</span>  <span class="n">func</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span> <span class="n">WorkerFunction</span> <span class="o">&gt;</span><span class="p">(</span> <span class="nn">nn::os::</span><span class="n">GetMultiWaitHolderUserData</span><span class="p">(</span> <span class="n">holder</span> <span class="p">)</span> <span class="p">);</span>
+<span class="n">func</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>ユーザデータには何を設定しても OS ライブラリは関与しません。そのため、ユーザは任意の用途で使用することができます。</p>
+<p>また、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#add056696d279031175e9053145c82677">TryWaitAny()</a> および <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6a76f1be743cfc8791d2a139c7409470">TimedWaitAny()</a> では返値として NULL が返ることがあるため、ユーザデータを取得する前に事前チェックが必要です。</p>
+<h1 id="Anchor_83955865_h1_2">ユーティリティ</h1>
+<h2 id="Anchor_83955865_h2_6">概要</h2>
+<p>多重待ち機能を使用する際にはユーティリティ関数があります。通常の&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9b837eb53fa2c8a9610cec2b69666fd">WaitAny()</a>&nbsp;などは、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html">MultiWaitType</a>&nbsp;にリンクされた待機可能オブジェクトだけしか待つことができませんが、ユーティリティを使用すると、直接オブジェクトを待機することができます。</p>
+<p>2 つの&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_event_type.html">EventType</a>&nbsp;である e1, e2 を多重待ちする例を考えます。ユーティリティを使用しない場合には、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">MultiWaitType</span> <span class="n">multiWait</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">InitializeMultiWait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">);</span>
+ 
+<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span> <span class="n">holder1</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span> <span class="n">holder2</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">holder1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e1</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">InitializeMultiWaitHolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">holder2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e2</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">holder1</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">LinkMultiWaitHolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">holder2</span><span class="p">);</span>
+ 
+<span class="nn">nn::os::</span><span class="n">MultiWaitHolderType</span><span class="o">*</span> <span class="n">signaled</span> <span class="o">=</span> <span class="n">WaitAny</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">);</span>
+ 
+<span class="k">if</span> <span class="p">(</span><span class="n">signaled</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">holder1</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e1 がシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">signaled</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">holder2</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e2 がシグナルされた
+</span><span class="p">}</span>
+
+<span class="nn">nn::os::</span><span class="n">UnlinkMultiWaitHolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">holder2</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">UnlinkMultiWaitHolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">holder1</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">FinalizeMultiWaitHiolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">holder2</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">FinalizeMultiWaitHiolder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">holder1</span><span class="p">);</span>
+ 
+<span class="nn">nn::os::</span><span class="n">FinalizeMultiWait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>となります。</p>
+<p>これをユーティリティを使用した場合には、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">signaled</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">WaitAny</span><span class="p">(</span><span class="o">&amp;</span><span class="n">e1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e2</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">signaled</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e1 がシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">signaled</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e2 がシグナルされた
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>のように書くことができます。ユーティリティ関数には、待機可能オブジェクトを直接指定することができ、シグナルされたオブジェクトはインデックスとして返り値で取得することができます。</p>
+<p>指定可能なのは、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html">nn::os::MultiWaitHolderType</a>&nbsp;holder に対し、InitializeMultiWaitHolder(holder, x); の呼び出しが可能であるような x で、具体的には、</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>&nbsp;へのポインタ</li>
+  <li>
+    <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_semaphore_type.html">nn::os::SemaphoreType</a>&nbsp;へのポインタ</li>
+  <li>
+    <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_event_type.html">nn::os::EventType</a>&nbsp;へのポインタ</li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1os_1_1_semaphore.html">nn::os::Semaphore</a>&nbsp;や&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1os_1_1_event.html">nn::os::Event</a>&nbsp;の GetBase()</li>
+</ul>
+<p>などを指定できます。</p>
+<p>また、<a href="../../../Api/HtmlNX/structnn_1_1os_1_1_message_queue_type.html">nn::os::MessageQueueType</a>* pMessageQueue に対しては、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0a434b3b646d4fafdc951f63fa3a4689">ユーティリティ演算子 &amp;</a>&nbsp;が用意してあり、</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">signaled1</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">WaitAny</span><span class="p">(</span><span class="o">&amp;</span><span class="n">e1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e2</span><span class="p">,</span> <span class="n">pMessageQueue</span> <span class="o">&amp;</span> <span class="nn">nn::os::</span><span class="n">MessageQueueWaitType_WaitForNotFull</span><span class="p">);</span>  <span class="c1">// pMessageQueue の空きができるのを待つ
+</span><span class="kt">int</span> <span class="n">signaled2</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">WaitAny</span><span class="p">(</span><span class="o">&amp;</span><span class="n">e1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e2</span><span class="p">,</span> <span class="n">pMessageQueue</span> <span class="o">&amp;</span> <span class="nn">nn::os::</span><span class="n">MessageQueueWaitType_WaitForNotEmpty</span><span class="p">);</span> <span class="c1">// pMessageQueue にエンキューされるのを待つ
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>のように、&amp; 演算子に続いて <span class="ApiLink_nn__os__">nn::os::</span><a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3271c9fc6c46cffdb076b966f15a80bc">MessageQueueWaitType</a>&nbsp;を指定することで待機する種別を選択することが可能です。</p>
+<h2 id="Anchor_83955865_h2_7">バリエーション</h2>
+<p>多重待ちユーティリティ関数には、</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__os__WaitAny">nn::os::WaitAny</span>()</li>
+  <li>
+    <span class="ApiLink_nn__os__TryWaitAny">nn::os::TryWaitAny</span>()</li>
+  <li>
+    <span class="ApiLink_nn__os__TimedWaitAny">nn::os::TimedWaitAny</span>()</li>
+</ul>
+<p>があり、いずれも引数に</p>
+<ul>
+  <li>0 個か 1 個の&nbsp;<span class="ApiLink_nn__os__MultiWaitType">nn::os::MultiWaitType</span>*</li>
+  <li>0 個以上の追加の待機可能オブジェクト</li>
+</ul>
+<p>を順番に指定することが可能です。<span class="ApiLink_nn__os__MultiWaitType">nn::os::MultiWaitType</span> と追加の待機オブジェクトの双方を指定した場合には、双方に含まれるすべての待機可能オブジェクトが待機対象となります。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th rowspan="2">
+        <br />
+      </th>
+      <th colspan="2">nn::os::MultiWaitType* 引数の有無</th>
+    </tr>
+    <tr>
+      <th>あり</th>
+      <th>なし</th>
+    </tr>
+    <tr>
+      <th>待機</th>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a547f598078ce4b3fd6d25f8cf2339631">WaitAny(MultiWaitType* pMultiWait, Args&amp;&amp;... args)</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a13e2d082ce0e2cd4e8eac49ab5a8347d">WaitAny(Args&amp;&amp;... args)</a>
+      </td>
+    </tr>
+    <tr>
+      <th>ポーリング</th>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a5d5be969099705ab608e826ac52ed6d0">TryWaitAny(MultiWaitType* pMultiWait, Args&amp;&amp;... args)</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a76d6121699d50103ea2cb44658122a08">TryWaitAny(Args&amp;&amp;... args)</a>
+      </td>
+    </tr>
+    <tr>
+      <th>タイムアウト付き待機</th>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab3f8a8f45f9e0a8ef118c9fcf81d1d15">TimedWaitAny(MultiWaitType* pMultiWait, TimeSpan timeout, Args&amp;&amp;... args)</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7680123d43331cc6b512cfc4463e072b">TimedWaitAny(TimeSpan timeout, Args&amp;&amp;... args)</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>返り値は、指定した引数に応じて以下のようになります。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th colspan="2" rowspan="2">引数の有無</th>
+      <th colspan="2">追加の待機オブジェクト</th>
+    </tr>
+    <tr>
+      <th>なし</th>
+      <th>あり</th>
+    </tr>
+    <tr>
+      <th rowspan="2">nn::os::MultiWaitType</th>
+      <th>なし</th>
+      <td>-</td>
+      <td>
+        <ul>
+          <li>型: int</li>
+          <li>値: インデックス(0 始まり)<ul><li>シグナルなし時: -1</li></ul></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>あり</th>
+      <td>
+        <ul>
+          <li>型: <span class="ApiLink_nn__os__MultiWaitHolderType">nn::os::MultiWaitHolderType</span>*</li>
+          <li>値: シグナルされたホルダーへのポインタ<ul><li>シグナルなし時: nullptr</li></ul></li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>型: std::pair&lt;<span class="ApiLink_nn__os__MultiWaitHolderType">nn::os::MultiWaitHolderType</span>*, int&gt;</li>
+          <li>値: シグナルされたいずれか一方<ul><li>シグナルされなかったほう: nullptr か -1</li><li>いずれもシグナルなし時: { nullptr, -1 }</li></ul></li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__os__MultiWaitType">nn::os::MultiWaitType</span> と追加の待機可能オブジェクトの同時待ち例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">MultiWaitType</span> <span class="n">multiWait</span><span class="p">;</span>
+<span class="c1">// multiWait に適切に MultiWaitHolderType がリンクされているとする
+</span> 
+<span class="k">auto</span> <span class="n">signaled</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">WaitAny</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e2</span><span class="p">);</span> <span class="c1">// std::pair&lt;nn::os::MultiWaitHolderType*, int&gt; signaled
+</span><span class="k">if</span> <span class="p">(</span><span class="n">signaled</span><span class="p">.</span><span class="n">first</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">p</span> <span class="o">=</span> <span class="n">signaled</span><span class="p">.</span><span class="n">first</span><span class="p">;</span> <span class="c1">// nn::os::MultiWaitHolderType* p
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// p に関連付けられた待機可能オブジェクトがシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">signaled</span><span class="p">.</span><span class="n">second</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e1 がシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">signaled</span><span class="p">.</span><span class="n">second</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e2 がシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ここには来ないはず
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__os__TimedWaitAny">nn::os::TimedWaitAny</span>() におけるタイムアウト値は、双方の間に指定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">MultiWaitType</span> <span class="n">multiWait</span><span class="p">;</span>
+<span class="c1">// multiWait に適切に MultiWaitHolderType がリンクされているとする
+</span><span class="nn">nn::</span><span class="n">TimeSpan</span> <span class="n">timeout</span> <span class="o">=</span> <span class="p">...;</span>
+ 
+<span class="k">auto</span> <span class="n">signaled</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">TimedWaitAny</span><span class="p">(</span><span class="o">&amp;</span><span class="n">multiWait</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e2</span><span class="p">);</span> <span class="c1">// std::pair&lt;nn::os::MultiWaitHolderType*, int&gt; signaled
+</span><span class="k">if</span> <span class="p">(</span><span class="n">signaled</span><span class="p">.</span><span class="n">first</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">p</span> <span class="o">=</span> <span class="n">signaled</span><span class="p">.</span><span class="n">first</span><span class="p">;</span> <span class="c1">// nn::os::MultiWaitHolderType* p
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// p に関連付けられた待機可能オブジェクトがシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">signaled</span><span class="p">.</span><span class="n">second</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e1 がシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">signaled</span><span class="p">.</span><span class="n">second</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// e2 がシグナルされた
+</span><span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// タイムアウトした
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__', '../../../Api/HtmlNX/namespacenn_1_1os.html' )
+SetUrl( 'ApiLink_nn__os__WaitAny', '../../../Api/HtmlNX/namespacenn_1_1os.html#a547f598078ce4b3fd6d25f8cf2339631' )
+SetUrl( 'ApiLink_nn__os__TryWaitAny', '../../../Api/HtmlNX/namespacenn_1_1os.html#add056696d279031175e9053145c82677' )
+SetUrl( 'ApiLink_nn__os__TimedWaitAny', '../../../Api/HtmlNX/namespacenn_1_1os.html#a7680123d43331cc6b512cfc4463e072b' )
+SetUrl( 'ApiLink_nn__os__MultiWaitType', '../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_type.html' )
+SetUrl( 'ApiLink_nn__os__MultiWaitHolderType', '../../../Api/HtmlNX/structnn_1_1os_1_1_multi_wait_holder_type.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

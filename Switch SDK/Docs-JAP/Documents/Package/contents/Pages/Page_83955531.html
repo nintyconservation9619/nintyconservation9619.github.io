@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>条件変数</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 条件変数 -->
+<div class="pagetitle" id="PageId_83955531">条件変数</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955531_h1_1">条件変数機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955531_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955531_h2_2">条件変数の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955531_h2_3">条件変数の具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955531_h2_4">条件変数の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955531_h2_5">条件変数使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955531_h3_1">spurious wakeup について</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955531_h3_2">シグナルの取りこぼし対策について</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955531_h1_1">条件変数機能</h1>
+<h2 id="Anchor_83955531_h2_1">機能概要</h2>
+<p style="color: rgb(51,51,51);">条件変数は、複数<a href="../Pages/Page_83955697.html">スレッド</a>間で共有リソースが特定の条件を満たすまでスレッドを待機させるための同期オブジェクト機能です。<span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">&nbsp;</span> </span>条件変数を待機するには、共有リソースへのアクセスを排他するための<a href="../Pages/Page_83955800.html">ミューテックス</a>資源を事前にロックして利用します。</p>
+<p>具体的にはまず、共有リソース排他用のミューテックスを <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> でロックします。次に、共有リソースの内容を確認し、期待した状態でなければ、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> にて条件変数待ちへ移行します。この時、対応するミューテックスも同時に指定し、条件変数待ちとミューテックスのアンロックを同時に行ないます。</p>
+<p>他のスレッドでは、共有リソースを制御する中で一定の条件が揃ったところで、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">SignalConditionVariable()</a> もしくは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1588e76fa05096006c0dcba27f9c95bf">BroadcastConditionVariable()</a> にて条件変数の待機スレッドを起床させます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> で待機していたスレッドが起床される時、待機時にアンロックしたミューテックスを再び自動的にロックします。そのため、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1588e76fa05096006c0dcba27f9c95bf">BroadcastConditionVariable()</a> にて複数のスレッドが起床される場合でも、実際に動き出すことが出来るのは１つのスレッドだけです。</p>
+<p>起床したスレッドは、ミューテックスを再度ロックしてから動き出すため、共有リソースへは安全にアクセスできる状態が保障されます。この状態で、再度共有リソースの状態を確認し、やはり期待する値でなければ <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> にて条件変数待ちへ遷移させます。一方、共有リソースが期待する状態であった場合は、必要な処理を行なった後に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> 関数にてロックを手放します。</p>
+<p>上記のようにして、ミューテックスのロック期間中に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> にて条件変数待機を行ないます。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955531_h2_2">条件変数の使用方法</h2>
+<p>条件変数を使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_condition_variable_type.html">nn::os::ConditionVariableType</a> 構造体オブジェクトを使用します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">MutexType</span>               <span class="n">g_Mutex</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">ConditionVariableType</span>   <span class="n">g_Cond</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>条件変数待機を行なうスレッド A では、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>まず最初に、ミューテックスと条件変数を予め初期化します。<br />ミューテックスは recursive == false でなければなりません。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">InitializeConditionVariable</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Cond</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>共有リソースの状態を確認するため、まずミューテックスをロックします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">LockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>共有リソースの状態を確認するループを形成し、条件変数待機を行ないます。<br />仮に spurious wakeup で起床しても共有リソースの状態を確認し、期待する値になるまで条件変数待機を繰り返します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="k">while</span> <span class="p">(</span><span class="n">sharedResource</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">WaitConditionVariable</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Cond</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>共有リソースが期待する値になれば、上記ループから抜け出すため、必要な処理を行なった後にミューテックスをアンロックします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">UnlockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>全ての処理を終えたら、ミューテックスと条件変数を破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeConditionVariable</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Cond</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">FinalizeMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<p>&nbsp;</p>
+<p>条件変数の通知を行なう スレッドB では、以下のような手順で使用します。</p>
+<ol>
+  <li>スレッド&nbsp;A が&nbsp;ミューテックス および 条件変数 を初期化し終えるまで、スレッド B のこれ以降の処理が行なわれないようにします。</li>
+  <li>
+    <p>スレッド&nbsp;B のメイン処理では、共有リソースのためのミューテックスをロックした上で、共有リソースを制御します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">LockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span>
+
+<span class="c1">// 共有リソースの制御
+</span><span class="n">sharedResource</span> <span class="o">=</span> <span class="n">GetNextStateOfSharedResource</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>共有リソースの状態が条件を満たすようであれば、待機スレッドに対して条件変数通知を行ないます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="k">if</span> <span class="p">(</span><span class="n">sharedResource</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 条件変数通知
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SignalConditionVariable</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Cond</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>最後にミューテックスをアンロックします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">UnlockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955531_h2_3">条件変数の具体的な使用例</h2>
+<p>具体的な使用例は、   <a href="../../../Api/HtmlNX/_page_sample_os_condition_variable.html">条件変数機能サンプルプログラム</a>    を参照して下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955531_h2_4">条件変数の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1ea1d7b36ec1844ed9e05729e832f6c3">nn::os::InitializeConditionVariable</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a817379cd29b11b49b185d0dc6afdc5c6">nn::os::FinalizeConditionVariable</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">nn::os::WaitConditionVariable</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2643c34ccfd738890fdd0c546b61c7a8">nn::os::TimedWaitConditionVariable</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">nn::os::SignalConditionVariable</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1588e76fa05096006c0dcba27f9c95bf">nn::os::BroadcastConditionVariable</a>
+  </li>
+  <li>
+    <span class="external-link"> <a href="../../../Api/HtmlNX/os___condition_variable_api_8h.html#aa662896cf5af9d678aadcc17399c55e1">NN_OS_CONDITION_VARIABLE_INITIALIZER</a> </span> （マクロ）</li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955531_h2_5">条件変数使用上の注意事項</h2>
+<h3 id="Anchor_83955531_h3_1">spurious wakeup について</h3>
+<p>spurious wakeup とは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> による条件変数待機において、他スレッドからの条件変数通知がないにも関わらず待ちが解除されてしまう現象のことを指します。これは、OS ライブラリの内部実装や同期プリミティブからは関与できない原因によって生じます。</p>
+<p>このような不意の待ち解除に対しても正しく制御できるように実装するため、条件変数を利用する場合には以下のような設計にしておく必要があります。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> から復帰後、必ずもう一度共有リソースの状態を確認し、期待した状態になっているかどうかを確認する。</li>
+  <li>共有リソースが期待した状態でなければ再度 <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVairbale()</a> 待機する。</li>
+</ul>
+<p>具体的な実装例は、   <a href="../../../Api/HtmlNX/_page_sample_os_condition_variable.html">条件変数機能サンプルプログラム</a>    を参照して下さい。</p>
+<p>&nbsp;</p>
+<h3 id="Anchor_83955531_h3_2">シグナルの取りこぼし対策について</h3>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> 待機しているスレッドに対して <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">SignalConditionVariable()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1588e76fa05096006c0dcba27f9c95bf">BroadcastConditionVariable()</a> を行なう場合、これらの処理に対して <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> 側と同じミューテックスのロック区間を構築しないと、これらのシグナル通知を取りこぼす危険性があります。</p>
+<p>具体的には、スレッド A が <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> 発行後に共有リソースの状態を確認して <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionvariable()</a> を発行するまでの間に、スレッド B が <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> を発行せずに <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">SignalConditionVariable()</a> を発行すると、このシグナル通知はパルス的なものであるため&nbsp;スレッド A はこのシグナル通知を認識できずにそのまま条件変数待ちへ移行してしまいます。</p>
+<p>同様に、spurious wakeup 等で起床したスレッド A が、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> から復帰後に再度共有リソースの状態を確認し、再度 <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a69a1e2e570d09ebd7cdbaa9da2d7b187">WaitConditionVariable()</a> を発行するまでの間に、スレッド B が <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> を行なわずに <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">SignalConditionVariable()</a> を発行しても、同様の取りこぼしの原因となります。</p>
+<p>このような取りこぼし現象を回避するため、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">SignalConditionVariable()</a> を発行する前後で、対象ミューテックスに対して <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a>, <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> を発行してロック区間を形成するようにして下さい。</p>
+<p>この現象は、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae609d8150763b000d77f75d27fd44ac2">SignalConditionVariable()</a> だけでなく、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1588e76fa05096006c0dcba27f9c95bf">BroadcastConditionVariable()</a> でも同様です。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ノード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ノード -->
+<div class="pagetitle" id="PageId_83956070">ノード</div>
+<div class="text_separate">
+<p>本マニュアルで単に「ノード」といった場合、3D モデルの階層構造を構成する単位を指します。これは Maya 上の transform ノード、joint ノードなどに相当します。<br /> モデル中間ファイルでは、Maya 上のノードはボーンとして出力されます。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956070_h1_1">ノード名</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956070_h1_2">ルートボーン</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956070_h1_3">出力されないノード</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956070_h1_4">モデルの表示に必要でないノードの圧縮機能</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956070_h1_5">transform ノード</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956070_h1_6">joint ノード</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956070_h1_7">カメラ／ライト／フォグのノード</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83956070_h1_1">ノード名</h1>
+<p>Maya 上では親ノードが異なれば、複数のノードに同じ名前を付けることができますが、中間ファイルではボーン名が重複することはありません。</p>
+<p>同じ名前のノードが複数存在する場合、階層の一番浅いノードはそのままの名前で出力され、その他のノードはノード名の後ろに &quot;<strong>_1</strong>&quot;、&quot;<strong>_2</strong>&quot; のようにアンダーバーと数字が付加されます。<br /> 同じ深さの階層に複数の同名ノードがある場合、アウトライナでソート順（Sort Order）を「シーンの階層構造（Scene Hierarchy）」にしたときに一番上に表示されるノードがそのままの名前で出力され、その他のノードはアンダーバーと数字が付加されます（上から順に数字が割り当てられます）。</p>
+<h1 id="Anchor_83956070_h1_2">ルートボーン</h1>
+<p>モデル中間ファイルでは 1 つのモデルに対して、1 つだけルートボーンが存在します。</p>
+<p>Maya 上にルートノードが複数ある場合、それらをグループ化する <strong>nw4f_root</strong> という名前のボーンをプラグインが中間ファイルに追加して出力します。</p>
+<h1 id="Anchor_83956070_h1_3">出力されないノード</h1>
+<p>transform ノード、joint ノード は <strong>テンプレート（Template）アトリビュートが ON</strong> のときや<strong>ディスプレイレイヤで非表示</strong>になっているときは出力されません（インフルエンスオブジェクトは例外的に出力されます）。<br /> 出力されないノードの子ノードはすべて出力されません。</p>
+<p>子ノードを持たない transform ノード（ロケータ、空のグループなど）は出力されません。<br /> mesh ノード の<strong>一次可視性（Primary Visibility）アトリビュートが OFF</strong> または<strong>テンプレートアトリビュートが ON</strong> または<strong>中間オブジェクト（Intermediate Object）アトリビュートが ON</strong> のときは、親の transform ノードを mesh のないノードとして出力します（ポリゴンデータは出力されません）。<br /> ディスプレイレイヤのシェーディング（Shading）アトリビュートが OFF （常にワイヤーフレーム表示）であるノードは出力されません。<br /> ブレンドシェイプのターゲットシェイプは出力されません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <a href="../Pages/Page_83955859.html">ノード圧縮不可設定プラグイン</a>で圧縮不可フラグが設定されているノードは、上記の条件に関係なく常に出力されます。</div>
+</div>
+<h1 id="Anchor_83956070_h1_4">モデルの表示に必要でないノードの圧縮機能</h1>
+<p>エクスポートプラグインのオプション <a href="../Pages/Page_83956186.html#Anchor_83956186_compress_bone">Compress Bone</a> を <strong>Cull</strong> または <strong>Merge</strong> にすると、上記の出力されないノードの他にモデルの表示に必要でないノードを圧縮して出力することができます。<br /> また、地形データなどで階層構造が不要な場合は、Compress Bone を <strong>Unite All</strong> にすることによって、ノードを 1 つにまとめて出力することができます。</p>
+<h1 id="Anchor_83956070_h1_5">transform ノード</h1>
+<p>注意する必要のあるアトリビュートについて説明します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>ピボット（Pivot） </th>
+      <td>
+        <p>回転ピボット（Rotate Pivot）とスケールピボット（Scale Pivot）は同じにすることを推奨します。<br />異なる場合、アニメーションデータ量が大きくなることがあります。</p>
+        <p>中間ファイル出力時にスケールピボットをローカル座標の原点とみなします。</p>
+        <p>ピボットが全フレームで一定でないと正しく出力できません。 ( ピボットをアニメーションさせないでください )</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シア（Shear）  </th>
+      <td>シアは (0, 0, 0) にしてください。(0, 0, 0) でないと正しく出力できません。</td>
+    </tr>
+    <tr>
+      <th>回転順序（Rotate Order） </th>
+      <td>
+        <p>回転順序は xyz を推奨します。<br />xyz でない場合、アニメーションデータ量が大きくなることがあります。<br />ただし、カメラの transform ノードの回転順序は zxy を推奨します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>回転軸（Rotate Axis） </th>
+      <td>回転軸は (0, 0, 0) にすることを推奨します。<br />(0, 0, 0) でない場合、アニメーションデータ量が大きくなることがあります。</td>
+    </tr>
+    <tr>
+      <th>トランスフォームの継承（Inherits Transform） </th>
+      <td>トランスフォームの継承は ON にしてください。<br />OFF だと正しく出力できません。 例外として、スキニングを設定したシェイプの transform ノードのみ、トランスフォームの継承を OFF にしても構いません。</td>
+    </tr>
+    <tr>
+      <th>可視性（Visibility）</th>
+      <td>
+        <p>transform ノードの可視性を OFF にすると、下の階層のノードもすべて非表示になります。特定の階層のポリゴンオブジェクトだけ非表示にしたい場合は、mesh ノードの可視性を OFF にしてください。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>NintendoSDK 0.16.x 以前のバージョンでは、Maya 上の可視性は fmd ファイルに反映されません。常に true が出力されます。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_83956070_h1_6">joint ノード</h1>
+<p>注意する必要のあるアトリビュートについて説明します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>回転順序（Rotate Order） </th>
+      <td>回転順序は xyz を推奨します。<br />xyz でない場合、アニメーションデータ量が大きくなることがあります。</td>
+    </tr>
+    <tr>
+      <th>回転軸（Rotate Axis） </th>
+      <td>回転軸は (0, 0, 0) にすることを推奨します。<br />(0, 0, 0) でない場合、アニメーションデータ量が大きくなることがあります。</td>
+    </tr>
+    <tr>
+      <th>トランスフォームの継承（Inherits Transform） </th>
+      <td>トランスフォームの継承は ON にしてください。OFF だと正しく出力できません。</td>
+    </tr>
+    <tr>
+      <th>ジョイントの方向（Joint Orient） </th>
+      <td>ジョイントの方向は (0, 0, 0) にすることを推奨します。<br />(0, 0, 0) でない場合、アニメーションデータ量が大きくなることがあります。</td>
+    </tr>
+    <tr>
+      <th>セグメントスケール補正（Segment Scale Compensate）</th>
+      <td>
+        <p>fmd ファイルを出力するときと fsk ファイルを出力するときとで、セグメントスケール補正の値を変えないでください。</p>
+        <p>このアトリビュートが ON であっても、親ノードが joint ノードでなければ、中間ファイルには OFF として出力されます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span style="color: rgb(0,51,102);">サイド（Side）、タイプ（Type）、その他のタイプ（Other Type）<br /></span>
+      </th>
+      <td>fmd ファイルの &lt;bone&gt; の side と type に反映されます。<br />タイプが「その他」の場合、その他のタイプに入力した文字列が type に反映されます。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_83956070_h1_7">カメラ／ライト／フォグのノード</h1>
+<p>カメラ／ライト／フォグのノードは fsn ファイルにのみ出力されます。</p>
+<p>通常のノードをカメラ／ライト／フォグのノードの子にしても、カメラ／ライト／フォグのノードの移動・回転・スケールは反映されません。<br /> 通常のノードの動きをカメラ／ライト／フォグのノードに追従させたい場合は、ペアレント（Parent）コンストレインなどを使用してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>分散コンパイル</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 分散コンパイル -->
+<div class="pagetitle" id="PageId_297036649">分散コンパイル</div>
+<div class="text_separate">
+<h1 id="Anchor_297036649_h1_1">分散コンパイル</h1>
+<p>ここでは大規模なシェーダーを復数のマシンで分散コンパイルすることによってそのコンパイル時間を短縮する方法を説明します。</p>
+<h2 id="Anchor_297036649_h2_1">概要</h2>
+<p>シェーダーのコンパイル時、キャッシュを使うオプションを指定することによって、コンパイル結果をディスク上に保存しておくことができます。次回のコンパイル時に入力が変わっていない場合、コンパイルを行うかわりにキャッシュ結果を読み込むだけの処理になるため、コンパイル時間を大幅に短縮することができます。</p>
+<p>シェーダーキャッシュはそれ単体でも利用価値がありますが、この機能を応用することによって復数のマシンで並列に分散コンパイルすることが可能です。すなわち、たくさんのバリエーションを含むシェーダーについて、復数のマシンがバリエーションの一部をそれぞれコンパイルします。最後に、それぞれのマシンによって生成されたシェーダーキャッシュを一箇所に集めて、それを使ってすべてのバリエーションをコンパイルします。このとき、シェーダーキャッシュを使った最後のコンパイルはすぐに完了するため、おおよそマシン数に反比例したコンパイル時間を実現することができます。</p>
+<p>ツールによっては、コンバート処理を行わずコンパイル処理だけ行うオプションを指定することもできます。これにより、それぞれのマシンではシェーダーキャッシュを作るまでにとどめて、不要なバイナリーを生成する時間を省くことができます。コンパイル部分を復数のマシンで並列に行い、コンバート部分を最後にひとつのマシンで行うイメージです。</p>
+<h2 id="Anchor_297036649_h2_2">使い方</h2>
+<p>例として、バリエーションが 100 個あるシェーダーを、5 つのマシンを使って並列にコンパイルする場合を考えます。作業量は均等に分割することにします。</p>
+<p>処理の流れは以下のようになります。</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_297036649/flowchart_1.svg" />
+</div>
+<p>
+  <br />
+</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_1">コンパイル1 ~ コンパイル5</h3>
+<p>それぞれひとつのマシンがひとつのコンパイルを担当します。</p>
+<p>--shader-cache-directory を指定して、シェーダーキャッシュを出力します。</p>
+<p>必須ではありませんが、--skip-convert を使えるツールの場合は指定するとコンパイル時間が短くなります。</p>
+<p>それぞれのマシンについて、バリエーションの一部をコンパイルするよう指定します。指定の仕方は各ツールによって異なります。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_2">コンバート</h3>
+<p>ひとつのマシンが代表して最後のコンバートを担当します。</p>
+<p>コンパイル1 ~ コンパイル5 で生成されたシェーダーキャッシュを一箇所に集めた後、最後のコンバート処理の --shader-cache-directory オプションでその場所を指定します。</p>
+<h2 id="Anchor_297036649_h2_3">ツールごとのバリエーション分割方法</h2>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_3">
+  <a href="../Pages/Page_89981854.html">シェーダーコンパイラー</a>の場合</h3>
+<p>nngfxToolShaderCompilerComileArg の variationCount と pVariationValueArray を編集することによってバリエーションの一部を指定します。</p>
+<p>もともとコンパイルしか行わないため、コンバート処理の省略については関係ありません。</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_297036649/flowchart_2.svg" />
+</div>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_4">
+  <a href="../Pages/Page_89982310.html">シェーダーコンバーター (.dll)</a> の場合</h3>
+<p>バリエーション構造体を自作する場合は ShaderCompiler.dll と同様です。</p>
+<p>nngfxToolShaderConverterCreateConvertArg によりバリエーションファイルからバリエーション情報を構築する場合は、構築前に ShaderConverter.exe と同じ方法で分割するか、もしくは構築後に ShaderCompiler.dll と同じ方法で分割します。</p>
+<p>nngfxToolShaderConverterSerialize を呼ばないことでコンバート処理を省略できます。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_5">
+  <a href="../Pages/Page_89982392.html">シェーダーコンバーター (.exe)</a> の場合</h3>
+<p>
+  <a href="../Pages/Page_236829010.html">バリエーションファイル</a>の ShaderVariationValueArray を書き換えることによりバリエーションの一部を指定します。</p>
+<p>length で指定した以上の要素が存在していても無視されるため、配列の前半だけ削り、後半はそのままでも問題ありません。</p>
+<p>現在コンバート処理をスキップする機能はありません。</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_297036649/flowchart_3.svg" />
+</div>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_6">3D シェーダーコンバーター (NintendoWare) の場合</h3>
+<p>--variation-begin-ratio と --variation-end-ratio オプションによりバリエーションの一部を全体に対する割合で指定します。</p>
+<p>--skip-convert オプションを指定することによりコンバート処理を省略できます。</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_297036649/flowchart_4.svg" />
+</div>
+<h2 id="Anchor_297036649_h2_4">注意点</h2>
+<h3 style="margin-left: 0.5em;" id="Anchor_297036649_h3_7">バリエーション定数のキャッシュへの影響</h3>
+<p>プリプロセッサーではなく、バリエーション定数を使ってバリエーションを生成している箇所については、生成されるシェーダーキャッシュがバリエーションごとではなく、ある程度まとまったバリエーションについてひとつのキャッシュが生成される場合があります。それぞれのマシン向けにバリエーションを区切るときに、このまとまりの単位をまたいでいると、その部分については最後のコンバート時にキャッシュが使えなくなり、一部コンパイルが行われる可能性があります。</p>
+<p>3dShaderConverter.exe では、シェーダーオプションに uniform 変数を結びつけている場合に、内部的にバリエーション定数を使ってバリエーションを生成します。ただし、--user-preprocessor-variation オプションを指定した場合は、すべてプリプロセッサーを使ってバリエーションを生成します。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

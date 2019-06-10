@@ -1,0 +1,331 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: GlSimple.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">GlSimple.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_gl_simple.html">GlSimple</a> および <a class="el" href="_gl_simple_8cpp.html" title="Basic example of initializing and using OpenGL. ">GlSimple.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/hid.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;GraphicsHelper.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined( NN_BUILD_TARGET_PLATFORM_OS_NN ) &amp;&amp; defined( NN_BUILD_APISET_NX )</span></div>
+<div class="line"><span class="preprocessor">    #ifdef USE_OPENGL_ES</span></div>
+<div class="line"><span class="preprocessor">        #include &lt;GLES3/gl32.h&gt;</span></div>
+<div class="line"><span class="preprocessor">        #define DECL_SPEC GL_APIENTRY</span></div>
+<div class="line"><span class="preprocessor">    #else</span></div>
+<div class="line"><span class="preprocessor">        #define GL_GLEXT_PROTOTYPES</span></div>
+<div class="line"><span class="preprocessor">        #include &lt;GL/gl.h&gt;</span></div>
+<div class="line"><span class="preprocessor">        #define DECL_SPEC APIENTRY</span></div>
+<div class="line"><span class="preprocessor">    #endif</span></div>
+<div class="line"><span class="preprocessor">#else</span></div>
+<div class="line"><span class="preprocessor">    #include &lt;GL/glew.h&gt;</span></div>
+<div class="line"><span class="preprocessor">    #define DECL_SPEC GLAPIENTRY</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace</span></div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>* VertexShaderSource =</div>
+<div class="line">        <span class="stringliteral">&quot;#version 320 es\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;precision highp float;\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;layout( location = 0 ) in vec2 a_position;\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;uniform float u_time;\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;void main() {\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;    mat2 xform = mat2(cos(u_time), sin(u_time),\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;                      -sin(u_time), cos(u_time));\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;    gl_Position = vec4(xform * a_position, 0.0, 1.0);\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;}\n&quot;</span>;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>* FragmentShaderSource =</div>
+<div class="line">        <span class="stringliteral">&quot;#version 320 es\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;precision highp float;\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;layout( location = 0 ) out vec4 o_Color;\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;void main() {\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;    o_Color = vec4(0.0, 1.0, 0.0, 1.0);\n&quot;</span></div>
+<div class="line">        <span class="stringliteral">&quot;}\n&quot;</span>;</div>
+<div class="line"></div>
+<div class="line">    GraphicsHelper s_GraphicsHelper;</div>
+<div class="line"></div>
+<div class="line">    GLuint s_PosLocation;</div>
+<div class="line">    GLuint s_TimeLocation;</div>
+<div class="line"></div>
+<div class="line">    GLuint s_VertexShaderId;</div>
+<div class="line">    GLuint s_FragmentShaderId;</div>
+<div class="line">    GLuint s_ShaderProgramId;</div>
+<div class="line">    GLuint s_VertexBufferId;</div>
+<div class="line">    GLuint s_VaoId;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> DECL_SPEC <a name="a0"></a><a class="code" href="group__nvn__cpp__funcptrs.html#ga1702f082fd2917bebd7419011ce2ab37">DebugCallbackFunc</a>(GLenum source, GLenum type, GLuint <span class="keywordtype">id</span>, GLenum severity, GLsizei length, <span class="keyword">const</span> GLchar* message, <span class="keyword">const</span> <span class="keywordtype">void</span>* userParam)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a1"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(length);</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(userParam);</div>
+<div class="line"></div>
+<div class="line">        <a name="a2"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;GL Debug Callback:\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  source:       0x%08x\n&quot;</span>, source);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  type:         0x%08x\n&quot;</span>, type);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  id:           0x%08x\n&quot;</span>, <span class="keywordtype">id</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  severity:     0x%08x\n&quot;</span>, severity);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  message:      %s\n&quot;</span>, message);</div>
+<div class="line"></div>
+<div class="line">        <a name="a3"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(type != GL_DEBUG_TYPE_ERROR, <span class="stringliteral">&quot;GL Error occurs.&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">} <span class="comment">// namespace</span></div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="namespacenv.html#aacadc57952b370f2286108f5835ce726">InitializeGraphics</a>()</div>
+<div class="line">{</div>
+<div class="line">    s_GraphicsHelper.Initialize();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeDebugCallback()</div>
+<div class="line">{</div>
+<div class="line">    glDebugMessageCallback(<a class="code" href="group__nvn__cpp__funcptrs.html#ga1702f082fd2917bebd7419011ce2ab37">DebugCallbackFunc</a>, NULL);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeShaders()</div>
+<div class="line">{</div>
+<div class="line">    GLint result;</div>
+<div class="line">    GLchar shaderLog[1024];</div>
+<div class="line">    GLsizei shaderLogSize;</div>
+<div class="line"></div>
+<div class="line">    s_VertexShaderId = glCreateShader(GL_VERTEX_SHADER);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(s_VertexShaderId != 0, <span class="stringliteral">&quot;Failed to create vertex shader\n&quot;</span>);</div>
+<div class="line">    glShaderSource(s_VertexShaderId, 1, &amp;VertexShaderSource, 0);</div>
+<div class="line">    glCompileShader(s_VertexShaderId);</div>
+<div class="line">    glGetShaderiv(s_VertexShaderId, GL_COMPILE_STATUS, &amp;result);</div>
+<div class="line">    <span class="keywordflow">if</span> (!result)</div>
+<div class="line">    {</div>
+<div class="line">        glGetShaderInfoLog(s_VertexShaderId, <span class="keyword">sizeof</span>(shaderLog), &amp;shaderLogSize, shaderLog);</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(<span class="keyword">false</span>, <span class="stringliteral">&quot;Failed to compile vertex shader: %s\n&quot;</span>, shaderLog);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    s_FragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(s_FragmentShaderId != 0, <span class="stringliteral">&quot;Failed to create fragment shader\n&quot;</span>);</div>
+<div class="line">    glShaderSource(s_FragmentShaderId, 1, &amp;FragmentShaderSource, 0);</div>
+<div class="line">    glCompileShader(s_FragmentShaderId);</div>
+<div class="line">    glGetShaderiv(s_FragmentShaderId, GL_COMPILE_STATUS, &amp;result);</div>
+<div class="line">    <span class="keywordflow">if</span> (!result)</div>
+<div class="line">    {</div>
+<div class="line">        glGetShaderInfoLog(s_FragmentShaderId, <span class="keyword">sizeof</span>(shaderLog), &amp;shaderLogSize, shaderLog);</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(<span class="keyword">false</span>, <span class="stringliteral">&quot;Failed to compile fragment shader: %s\n&quot;</span>, shaderLog);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    s_ShaderProgramId = glCreateProgram();</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(s_ShaderProgramId != 0, <span class="stringliteral">&quot;Failed to create shader program\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    glAttachShader(s_ShaderProgramId, s_VertexShaderId);</div>
+<div class="line">    glAttachShader(s_ShaderProgramId, s_FragmentShaderId);</div>
+<div class="line">    glLinkProgram(s_ShaderProgramId);</div>
+<div class="line">    glUseProgram(s_ShaderProgramId);</div>
+<div class="line"></div>
+<div class="line">    s_PosLocation = glGetAttribLocation(s_ShaderProgramId, <span class="stringliteral">&quot;a_position&quot;</span>);</div>
+<div class="line">    s_TimeLocation = glGetUniformLocation(s_ShaderProgramId, <span class="stringliteral">&quot;u_time&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeVertexData()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">static</span> <span class="keyword">const</span> GLfloat VERTEX_DATA[] = {</div>
+<div class="line">        -0.5, -0.5,</div>
+<div class="line">        0.5, -0.5,</div>
+<div class="line">        0.0, 1.0,</div>
+<div class="line">    };</div>
+<div class="line"></div>
+<div class="line">    glGenVertexArrays(1, &amp;s_VaoId);</div>
+<div class="line">    glBindVertexArray(s_VaoId);</div>
+<div class="line">    glGenBuffers(1, &amp;s_VertexBufferId);</div>
+<div class="line">    glBindBuffer(GL_ARRAY_BUFFER, s_VertexBufferId);</div>
+<div class="line">    glBufferData(GL_ARRAY_BUFFER, <span class="keyword">sizeof</span>(VERTEX_DATA), VERTEX_DATA, GL_STATIC_DRAW);</div>
+<div class="line">    glEnableVertexAttribArray(s_PosLocation);</div>
+<div class="line">    glVertexAttribPointer(s_PosLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);</div>
+<div class="line">    glBindBuffer(GL_ARRAY_BUFFER, 0);</div>
+<div class="line">    glBindVertexArray(0);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> SetupScene()</div>
+<div class="line">{</div>
+<div class="line">    glClearColor(0.4f, 0.55f, 0.6f, 1.0f);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> RenderScene(<span class="keywordtype">float</span> time)</div>
+<div class="line">{</div>
+<div class="line">    glClear(GL_COLOR_BUFFER_BIT);</div>
+<div class="line"></div>
+<div class="line">    glUseProgram(s_ShaderProgramId);</div>
+<div class="line"></div>
+<div class="line">    glUniform1f(s_TimeLocation, time);</div>
+<div class="line">    glBindVertexArray(s_VaoId);</div>
+<div class="line">    glDrawArrays(GL_TRIANGLES, 0, 3);</div>
+<div class="line">    glBindVertexArray(0);</div>
+<div class="line"></div>
+<div class="line">    glUseProgram(0);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> SwapBuffers()</div>
+<div class="line">{</div>
+<div class="line">    s_GraphicsHelper.SwapBuffers();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> Destroy()</div>
+<div class="line">{</div>
+<div class="line">    glDetachShader(s_ShaderProgramId, s_VertexShaderId);</div>
+<div class="line">    glDetachShader(s_ShaderProgramId, s_FragmentShaderId);</div>
+<div class="line"></div>
+<div class="line">    glDeleteShader(s_VertexShaderId);</div>
+<div class="line">    glDeleteShader(s_FragmentShaderId);</div>
+<div class="line"></div>
+<div class="line">    glDeleteProgram(s_ShaderProgramId);</div>
+<div class="line"></div>
+<div class="line">    glDeleteBuffers(1, &amp;s_VertexBufferId);</div>
+<div class="line">    glDeleteVertexArrays(1, &amp;s_VaoId);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="namespacenv.html#a368247e862f5ffc59a38af42658d7b38">FinalizeGraphics</a>()</div>
+<div class="line">{</div>
+<div class="line">    s_GraphicsHelper.Finalize();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a4"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="namespacenv.html#aacadc57952b370f2286108f5835ce726">InitializeGraphics</a>();</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;GL_VERSION: %s\n&quot;</span>, glGetString(GL_VERSION));</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;GL_SHADING_LANGUAGE_VERSION: %s\n&quot;</span>, glGetString(GL_SHADING_LANGUAGE_VERSION));</div>
+<div class="line"></div>
+<div class="line">    InitializeDebugCallback();</div>
+<div class="line">    InitializeShaders();</div>
+<div class="line">    InitializeVertexData();</div>
+<div class="line">    SetupScene();</div>
+<div class="line"></div>
+<div class="line">    <a name="_a5"></a><a class="code" href="classnn_1_1os_1_1_tick.html">nn::os::Tick</a> frameTime(<a name="a6"></a><a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(0));</div>
+<div class="line">    <a class="code" href="classnn_1_1os_1_1_tick.html">nn::os::Tick</a> frameTimePrev = <a name="a7"></a><a class="code" href="namespacenn_1_1os.html#a79e29821bfb2b0c3a5c222488e90cc89">nn::os::GetSystemTick</a>();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize touch screen for user exit */</span></div>
+<div class="line">    <a name="a8"></a><a class="code" href="namespacenn_1_1hid.html#a1d814d34915eac7cfc9b9f92ac3ccc40">nn::hid::InitializeTouchScreen</a>();</div>
+<div class="line">    <a name="_a9"></a><a class="code" href="structnn_1_1hid_1_1_touch_screen_state.html">nn::hid::TouchScreenState&lt;1&gt;</a> touchScreenState;</div>
+<div class="line">    <span class="keywordtype">int</span> touchCount = 0;</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Touching the Touch Screen on NX will exit the program.\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;------------------------------------------------------\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    int64_t currTime = 0;</div>
+<div class="line">    <span class="keywordflow">while</span> (<a name="a10"></a><a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>(<span class="keyword">true</span>))</div>
+<div class="line">    {</div>
+<div class="line">        frameTime = <a class="code" href="namespacenn_1_1os.html#a79e29821bfb2b0c3a5c222488e90cc89">nn::os::GetSystemTick</a>();</div>
+<div class="line">        int64_t frameDiff = frameTime.ToTimeSpan().GetMilliSeconds() - frameTimePrev.<a name="a11"></a><a class="code" href="classnn_1_1os_1_1_tick.html#aae2542ec136248db4dc662cbdf95f3ad">ToTimeSpan</a>().<a name="a12"></a><a class="code" href="classnn_1_1_time_span.html#a5c2c7f5af7b80454e0a2f8bc11eae473">GetMilliSeconds</a>();</div>
+<div class="line">        currTime += frameDiff;</div>
+<div class="line"></div>
+<div class="line">        RenderScene(static_cast&lt;float&gt;(currTime) * 0.0005f);</div>
+<div class="line">        SwapBuffers();</div>
+<div class="line"></div>
+<div class="line">        frameTimePrev = frameTime;</div>
+<div class="line"></div>
+<div class="line">        touchCount = <a name="a13"></a><a class="code" href="namespacenn_1_1hid.html#a25c328faac65ac47bec4b4cf6a2e1422">nn::hid::GetTouchScreenStates</a>(&amp;touchScreenState, 1);</div>
+<div class="line">        <span class="keywordflow">if</span> (touchScreenState.<a name="a14"></a><a class="code" href="structnn_1_1hid_1_1_touch_screen_state.html#ac4b8fc65076b1bd75607fb477ec9814b">count</a> &gt; 0)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">    };</div>
+<div class="line"></div>
+<div class="line">    Destroy();</div>
+<div class="line">    <a class="code" href="namespacenv.html#a368247e862f5ffc59a38af42658d7b38">FinalizeGraphics</a>();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span>;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

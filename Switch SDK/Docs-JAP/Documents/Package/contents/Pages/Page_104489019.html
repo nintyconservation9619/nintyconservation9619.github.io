@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>振動ノード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 振動ノード -->
+<div class="pagetitle" id="PageId_104489019">振動ノード</div>
+<div class="text_separate">
+<h1 id="Anchor_104489019_h1_1">振動ノード</h1>
+<h2 id="Anchor_104489019_h2_1">概要</h2>
+<p>振動ノードは、<a href="../Pages/Page_104489003.html">振動値</a>の流れを制御する有向グラフ（振動値フローの有向グラフ）を構築するために用意された機能です。</p>
+<p>
+  <br />
+</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html">VibrationNode</a> は、振動ノードの基底クラスです。<br /><a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html">VibrationNode</a>&nbsp;の派生クラスのインスタンスが、振動フローの有向グラフにおいて頂点（ノード）として機能します。</p>
+<p>各振動ノードは、内部に振動値を保持しており、現在の振動値を <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#aab4cd7a0eda977da43c004174c575a00">VibrationNode::GetCurrentVibration()</a> 関数で取得することができます。</p>
+<p>派生クラスとしては、振動の発生源としての機能を持つ <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_player.html">VibrationPlayer</a> および <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_writer.html">VibrationWriter</a> 、振動のミキサーとしての機能を持つ <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_mixer.html">VibrationMixer </a>、そして振動の送信先としての機能を持つ <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_target.html">VibrationTarget </a>が提供されます。</p>
+<p>
+  <br />
+</p>
+<p>振動ノード間を接続することにより、振動ノードから別の振動ノードに振動値を伝搬させることができます。</p>
+<p>振動ノード間の接続は <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node_connection.html">VibrationNodeConnection </a>クラスで表されます。</p>
+<p>各接続に対して調整係数を設定できるので、単一の振動ノードから送信先ごとに異なる振動値を伝えることができます。</p>
+<p>
+  <br />
+</p>
+<p>プログラム内で生成された振動ノードはすべて単一の有向グラフに属しており、 <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a73ea3eaf1cd9063985edcfa008e6796f">VibrationNode::Update()</a> 関数を呼ぶことですべての振動ノードが一度に更新されます。</p>
+<p>
+  <a href="../Pages/Page_104488991.html">VibrationDevice</a> と対応関係にある&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_target.html">VibrationTarget&nbsp;</a>クラスのインスタンスが有向グラフに含まれている場合には、 <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a73ea3eaf1cd9063985edcfa008e6796f">VibrationNode::Update()</a>&nbsp;関数の呼び出しによって、自動的に <a href="../Pages/Page_104488991.html">VibrationDevice</a> に振動値が送信されます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a73ea3eaf1cd9063985edcfa008e6796f">VibrationNode::Update()</a>&nbsp;関数は、 <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a86dbfc4b0d07247170570f9cf8d2456a">VibrationNode::DefaultVibrationSampleInterval</a> 間隔で呼ぶことが推奨されます。</p>
+<h2 id="Anchor_104489019_h2_2">振動ノードの使用方法</h2>
+<ol>
+  <li>
+    <p>利用したい振動ノードと振動ノード間接続のインスタンスを生成して、振動フローの有向グラフを構築します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Vibration.h&gt;
+</span> 
+<span class="nn">nn::hid::</span><span class="n">VibrationDeviceHandle</span> <span class="n">vibrationDeviceA</span><span class="p">;</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationDeviceHandle</span> <span class="n">vibrationDeviceB</span><span class="p">;</span>
+ 
+<span class="cm">/* VibrationDeviceHandle を取得する処理 */</span>
+ 
+<span class="c1">// 振動ノードのインスタンスを生成
+</span><span class="nn">nn::hid::</span><span class="n">VibrationPlayer</span> <span class="n">player</span><span class="p">;</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationWriter</span> <span class="n">writer</span><span class="p">;</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationMixer</span> <span class="n">mixer</span><span class="p">;</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationTarget</span> <span class="n">targetA</span><span class="p">(</span><span class="n">vibrationDeviceA</span><span class="p">);</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationTarget</span> <span class="n">targetB</span><span class="p">(</span><span class="n">vibrationDeviceB</span><span class="p">);</span>
+ 
+<span class="c1">// 接続のインスタンスを生成
+</span><span class="nn">nn::hid::</span><span class="n">VibrationNodeConnection</span> <span class="n">connectionFromPlayerToMixer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">player</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mixer</span><span class="p">);</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationNodeConnection</span> <span class="n">connectionFromWriterToMixer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">writer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mixer</span><span class="p">);</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationNodeConnection</span> <span class="n">connectionFromMixerToTargetA</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mixer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">targetA</span><span class="p">);</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationNodeConnection</span> <span class="n">connectionFromMixerToTargetB</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mixer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">targetB</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>この時点で、以下の図のような有向グラフが構築されたことになります。<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_104489019/112035258.png" class="embedded-image" /></span><br /><br /></p>
+  </li>
+  <li>
+    <p>振動ノード更新用のスレッドを用意して、 <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a73ea3eaf1cd9063985edcfa008e6796f">VibrationNode::Update()</a>&nbsp;関数が <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a86dbfc4b0d07247170570f9cf8d2456a">VibrationNode::DefaultVibrationSampleInterval</a>&nbsp;間隔で呼ばれるようにします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/os/os_Thread.h&gt;
+#include &lt;nn/os/os_SystemEvent.h&gt;
+#include &lt;nn/hid/hid_Vibration.h&gt;
+</span> 
+<span class="nn">nn::os::</span><span class="n">TimerEventType</span> <span class="n">timerEvent</span><span class="p">;</span>
+ 
+<span class="c1">// 振動ノード更新用スレッドで実行される関数
+</span><span class="kt">void</span> <span class="nf">ThreadFunction</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span><span class="p">(;;)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">WaitTimerEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timerEvent</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::VibrationNode::</span><span class="n">Update</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span>
+ 
+<span class="cm">/* ============================================= */</span>
+ 
+<span class="cm">/* ThreadFunction 関数を実行するスレッドを開始する処理 */</span>
+ 
+<span class="c1">// 振動ノード更新用のタイマーを設定
+</span><span class="nn">nn::os::</span><span class="n">InitializeTimerEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timerEvent</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">EventClearMode_AutoClear</span><span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">StartPeriodicTimerEvent</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">timerEvent</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::VibrationNode::</span><span class="n">DefaultVibrationSampleInterval</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::VibrationNode::</span><span class="n">DefaultVibrationSampleInterval</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>任意のタイミングで、必要に応じてそれぞれの振動ノードを制御します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Vibration.h&gt;
+</span> 
+<span class="c1">// (例) VibrationPlayer の制御
+</span><span class="n">player</span><span class="o">-&gt;</span><span class="n">Play</span><span class="p">();</span>
+ 
+<span class="c1">// (例) VibrationWriter の制御
+</span><span class="n">writer</span><span class="o">-&gt;</span><span class="n">Write</span><span class="p">(</span><span class="n">vibrationValue</span><span class="p">);</span>
+ 
+<span class="c1">// (例) 調整係数の制御
+</span><span class="n">mixer</span><span class="o">-&gt;</span><span class="n">SetModulationTo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">targetA</span><span class="p">,</span> <span class="n">modulationA</span><span class="p">);</span>
+<span class="n">mixer</span><span class="o">-&gt;</span><span class="n">SetModulationTo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">targetB</span><span class="p">,</span> <span class="n">modulationB</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_104489019_h2_3">振動ノードのサンプル</h2>
+<p>Samples/Sources/Applications/HidVibrationPlayer に配置されているサンプルを参照してください。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_104489019_h2_4">振動ノードの使用時の注意点</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1hid_1_1_vibration_node.html#a73ea3eaf1cd9063985edcfa008e6796f">VibrationNode::Update()</a>&nbsp;関数の中で、すべての VibrationNode の派生クラスの更新処理を行います。</p>
+<p>各ノードは接続していなくても更新処理が発生しますので、インスタンスを大量に生成するとその分だけ処理に時間がかかります。</p>
+<p>不必要なインスタンスの生成は避けるようにしてください。</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

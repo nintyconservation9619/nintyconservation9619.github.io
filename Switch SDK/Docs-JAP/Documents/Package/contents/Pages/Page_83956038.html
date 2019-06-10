@@ -1,0 +1,434 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メモリー管理</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メモリー管理 -->
+<div class="pagetitle" id="PageId_83956038">メモリー管理</div>
+<div class="text_separate">
+<h1 id="Anchor_83956038_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956038_h2_1">サウンドヒープの使い方</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83956038_h3_1">すべてクリア</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_2">前の状態に戻す</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_83956038_h2_2">サウンドヒープの応用</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83956038_h3_3">無効サウンドの自動停止機能</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_4">複数のサウンドヒープ</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_5">SoundMemoryAllocatable クラス</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_83956038_h2_3">プレイヤーヒープ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83956038_h3_6">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_7">プレイヤーヒープの使い方</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_8">プレイヤーヒープ用のメモリー</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_9">異なるプレイヤーでの再生時の注意</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_10">プレイヤーヒープにロードされるデータ</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_83956038_h2_4">メモリプール</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83956038_h3_11">AUDIO ライブラリの対象データとの関係</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_12">メモリプールへのアタッチ、デタッチ</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_13">メモリプールからの自動デタッチ</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956038_h3_14"> 「アプリケーション側でメモリプールの管理が不要なデータ」をアプリケーション側で管理する</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83956038_h1_2">メモリー管理</h1>
+<p>
+  <a href="../../../Api/HtmlNX/_page_sample_atk_simple.html">AtkSimple サンプル</a> では、メモリー管理についてほとんど触れられていません。初期化時にサウンドヒープを構築し、後はサウンドヒープへデータをロードしただけでした</p>
+<p>ここでは、もう少し詳しくメモリー管理の方法について説明していきます。</p>
+<h2 id="Anchor_83956038_h2_1">サウンドヒープの使い方</h2>
+<p>サウンドヒープクラス&nbsp;<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;はスタック形式&nbsp;(後入れ先出し)&nbsp;のため、確保は上から順番に行い、解放は下から順に行います。</p>
+<p>ヒープからのメモリーの確保は、サウンドデータをロードするときに自動的に行われます。これは、<span class="ApiLink_nn__atk__SoundDataManager__LoadData">nn::atk::SoundDataManager::LoadData</span>&nbsp;関数で行われます。</p>
+<p>一方、不要になったサウンドデータを削除するには、メモリー領域を解放します。メモリー領域の解放は、次の&nbsp;2&nbsp;つの方法で行います。</p>
+<ul>
+  <li>すべてクリア</li>
+  <li>前の状態に戻す</li>
+</ul>
+<h3 id="Anchor_83956038_h3_1">すべてクリア</h3>
+<p>単純に全部のサウンドデータを消して、最初の状態に戻すことができます。</p>
+<p>すべてクリアするためには、<span class="ApiLink_nn__atk__SoundHeap__Clear">nn::atk::SoundHeap::Clear</span>&nbsp;関数を呼びます。</p>
+<h3 id="Anchor_83956038_h3_2">前の状態に戻す</h3>
+<p>不要なデータのみを削除するためには、こちらの方法を使います。</p>
+<p>まずは、<span class="ApiLink_nn__atk__SoundHeap__SaveState">nn::atk::SoundHeap::SaveState</span>&nbsp;関数で、現在の状態を保存します。返り値として、保存後の階層レベルが返ります。階層レベルとは、保存した状態を指し示す値で、この値を使って、サウンドヒープを保存した状態に戻すことができます。</p>
+<p>いくつかのサウンドデータをロードした後、<span class="ApiLink_nn__atk__SoundHeap__LoadState">nn::atk::SoundHeap::LoadState</span>&nbsp;関数に先ほどの階層レベルの値を入れて呼ぶと、<span class="ApiLink_nn__atk__SoundHeap__SaveState">nn::atk::SoundHeap::SaveState</span>&nbsp;関数を呼んだ直後の状態に戻すことができます。<br />すなわち、<span class="ApiLink_nn__atk__SoundHeap__SaveState">nn::atk::SoundHeap::SaveState</span>&nbsp;関数を呼んだ後にロードしたデータが削除されます。</p>
+<p>図&nbsp;3&nbsp;LoadState&nbsp;関数で前の状態に戻すことができる</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83956038/83080908.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p>この時、ロード済みサウンドデータを使って再生されているサウンドは、鳴らし続けることができます。</p>
+<p>また、<span class="ApiLink_nn__atk__SoundHeap__SaveState">nn::atk::SoundHeap::SaveState</span>&nbsp;関数は繰り返し呼ぶことができ、呼ぶたびに階層レベルの値は大きくなります。</p>
+<h2 id="Anchor_83956038_h2_2">サウンドヒープの応用</h2>
+<p>サウンドヒープを応用すると以下のようなことが可能になります。</p>
+<h3 id="Anchor_83956038_h3_3">
+  <span style="background-color: rgb(255,255,255);">無効サウンドの自動停止機能</span>
+</h3>
+<p>サウンドヒープ上のデータを使ってサウンドを再生中に、そのデータが格納されている領域を破棄した場合、その再生中の音は自動的に停止します。</p>
+<p>したがって、メモリー領域を破棄する前にアプリケーションが再生中のサウンドが完全に停止したかどうかを確認する必要はありません。</p>
+<p>ただし、自動停止は即座に行われますので、不自然な停止に聞こえる場合があります。そのような場合は、アプリケーション側で、あらかじめフェードアウトをかけるなどの対処を行ってください。</p>
+<h3 id="Anchor_83956038_h3_4">複数のサウンドヒープ</h3>
+<p>サウンドヒープを複数用意することで、各ヒープの状態の保存及び復帰を独立して行うことができます。</p>
+<p>複数のサウンドヒープを使うためには、<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;のインスタンスを複数生成し、<span class="ApiLink_nn__atk__SoundHeap__Create">nn::atk::SoundHeap::Create</span>&nbsp;関数で各サウンドヒープを構築するだけです。<span class="ApiLink_nn__atk__SoundDataManager__LoadData">nn::atk::SoundDataManager::LoadData</span>&nbsp;関数にはサウンドヒープを渡す必要がありますので、どのサウンドヒープからメモリーを確保するのかを指定することができます。</p>
+<h3 id="Anchor_83956038_h3_5">SoundMemoryAllocatable&nbsp;クラス</h3>
+<p>これまで、<span class="ApiLink_nn__atk__SoundDataManager__LoadData">nn::atk::SoundDataManager::LoadData</span>&nbsp;にサウンドヒープを渡す必要がある、と説明してきましたが、厳密には、<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;クラスではなく&nbsp;<span class="ApiLink_nn__atk__SoundMemoryAllocatable">nn::atk::SoundMemoryAllocatable</span>&nbsp;クラスを渡す必要があります。<br />ただし、<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;クラスは&nbsp;<span class="ApiLink_nn__atk__SoundMemoryAllocatable">nn::atk::SoundMemoryAllocatable</span>&nbsp;クラスを継承していますので、<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;クラスをそのまま渡すことができます。</p>
+<p>
+  <span class="ApiLink_nn__atk__SoundMemoryAllocatable">nn::atk::SoundMemoryAllocatable</span>&nbsp;クラスは、Allocate 関数が純粋仮想関数として定義されたインターフェイスクラスです。</p>
+<p>アプリケーションが独自に&nbsp;Allocate クラスを実装することで、<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;クラス以外のヒープからメモリーを確保することができるようになります。<br />ただし、<span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>&nbsp;クラスを使わない場合、上記「無効サウンドの自動停止機能」が働かないことに注意してください。この場合、使用中のサウンドデータを誤って破棄すると、予期せぬ暴走などを引き起こす可能性があります。</p>
+<h2 id="Anchor_83956038_h2_3">
+  <a name="Anchor_83956038_PLAYER_HEAP"></a>プレイヤーヒープ</h2>
+<h3 id="Anchor_83956038_h3_6">概要</h3>
+<p>サウンドヒープとは別に、プレイヤーヒープと呼ばれるものも用意されています。</p>
+<p>プレイヤーヒープは、サウンドの再生中だけ一時的にデータを格納しておくためのヒープで、サウンドの再生開始時に自動的に確保され、再生停止時に自動的に破棄されます。</p>
+<p>プレイヤーヒープへは、すべてのサウンドデータをロードすることができます。</p>
+<h3 id="Anchor_83956038_h3_7">プレイヤーヒープの使い方</h3>
+<p>プレイヤーヒープの確保・解放はライブラリ内で自動的に行われるため、プログラマーがプレイヤーヒープを管理する必要はありません。<br />また、プレイヤーヒープを使用するかどうかは、サウンドデザイナーが作成したサウンドアーカイブで決められています。</p>
+<p>プレイヤーヒープを使用するサウンドを再生すると、自動的にデータロードが行われます。</p>
+<p>データロード処理は、サウンド再生開始関数 （<span class="ApiLink_nn__atk__SoundArchivePlayer__StartSound">nn::atk::SoundArchivePlayer::StartSound</span>&nbsp;など） を呼び出したスレッドではなく、<span class="ApiLink_nn__atk__SoundSystem__Initialize">nn::atk::SoundSystem::Initialize</span>&nbsp;関数で作成されるタスクスレッドで、非同期に行われます。<br />したがって、サウンド再生開始関数を呼び出した直後に音は鳴りませんが、データロードが完了すると自動的に音が鳴り始めます。<br />音が鳴り始めるタイミングを制御したい場合は、StartSound&nbsp;関数の代わりに&nbsp;PrepareSound&nbsp;関数を使うことができます。PrepareSound&nbsp;関数については、「<a href="../Pages/Page_83956051.html#Anchor_83956051_SND_PREPARE">クイックスタート - サウンドのプリペア (再生準備)</a>」を参照してください。</p>
+<h3 id="Anchor_83956038_h3_8">プレイヤーヒープ用のメモリー</h3>
+<p>プレイヤーヒープ用のメモリー領域は、<span class="ApiLink_nn__atk__SoundArchivePlayer__Initialize">nn::atk::SoundArchivePlayer::Initialize</span>&nbsp;関数で確保されます。<br />プレイヤーヒープにどの程度のメモリーを割り当てるかは、SoundMaker&nbsp;のプレイヤーリスト上で設定する「ヒープサイズ」および「サウンドリミット」が関係します。</p>
+<p>「ヒープサイズ」および「サウンドリミット」は<span class="ApiLink_nn__atk__SoundArchive__ReadPlayerInfo">nn::atk::SoundArchive::ReadPlayerInfo</span>&nbsp;関数で取得することができます。<br />また、これらの値を元に算出されたプレイヤーヒープ用のメモリーサイズは、<span class="ApiLink_nn__atk__SoundArchivePlayer__GetRequiredMemSize">nn::atk::SoundArchivePlayer::GetRequiredMemSize</span>関数で得られる値に反映されます。</p>
+<p>プレイヤーヒープは、そのプレイヤーで再生できるサウンド最大再生数の数だけ確保されます。</p>
+<h3 id="Anchor_83956038_h3_9">異なるプレイヤーでの再生時の注意</h3>
+<p>サウンドを再生するとき、<span class="ApiLink_nn__atk__SoundStartable__StartInfo">nn::atk::SoundStartable::StartInfo</span>&nbsp;構造体を渡すと、この中で設定された&nbsp;playerId&nbsp;のプレイヤーでサウンドを再生することができます。</p>
+<p>この場合は、SoundMaker&nbsp;で指定したプレイヤーを使わず、プログラム上でプレイヤーを指定して再生させることができますが、プレイヤーヒープを使っている場合は注意が必要です。</p>
+<p>プレイヤーヒープは、それぞれのプレイヤーごとに管理されますので、プレイヤーヒープの有無やプレイヤーヒープのサイズはプレイヤーごとに異なります。<br />したがって、プレイヤーヒープを使用するサウンドを、プレイヤーヒープが無い、もしくはプレイヤーヒープのサイズが不十分なプレイヤーで再生しようとすると、再生に失敗します。</p>
+<h3 id="Anchor_83956038_h3_10">プレイヤーヒープにロードされるデータ</h3>
+<p>プレイヤーヒープを使用する場合は再生時に自動的にデータロードが行われますが、サウンドだけではなく参照するバンクや波形アーカイブもロードが行われます。</p>
+<p>また波形アーカイブの個別ロード機能使用時は必要な波形データが個別にロードされます。</p>
+<p>ロードされるデータの合計サイズがプレイヤーヒープのメモリサイズを上回ると再生に失敗します。<br />ただし、ロードされるデータはサウンドの種類や個別ロードの有無によって異なるため注意が必要です。本項ではどのような設定でどのデータがロードされるか、また再生に失敗する場合にどのように対処すればよいかを紹介します。</p>
+<h4 id="Anchor_83956038_h4_1">ウェーブサウンド&nbsp;(個別ロードを使用しない場合)</h4>
+<p>波形アーカイブの個別ロード機能を使用しない場合、再生に必要な波形データは波形アーカイブに含まれます。そのためロードされるデータは以下の２つになります。</p>
+<ul>
+  <li>バイナリウェーブサウンドデータ&nbsp;(.bfwsd)</li>
+  <li>バイナリ波形アーカイブデータ&nbsp;(.bfwar)</li>
+</ul>
+<h4 id="Anchor_83956038_h4_2">ウェーブサウンド&nbsp;(個別ロードを使用する場合)</h4>
+<p>波形アーカイブの個別ロード機能を使用する場合、再生に必要な波形データだけ、別途読み込みを行います。そのためロードされるデータは以下の３つになります。</p>
+<ul>
+  <li>バイナリウェーブサウンドデータ&nbsp;(.bfwsd)</li>
+  <li>バイナリ波形アーカイブデータ&nbsp;(.bfwar)&nbsp;のヘッダ情報</li>
+  <li>ウェーブサウンドが参照するバイナリ波形データ&nbsp;(.bfwav)</li>
+</ul>
+<h4 id="Anchor_83956038_h4_3">シーケンスサウンド&nbsp;(個別ロードを使用しない場合)</h4>
+<p>シーケンスデータは最大４つのバンクデータを参照します。またバンクデータはそれぞれ波形アーカイブデータを参照するため、ロードされるデータは以下の３種類、最大９つになります。</p>
+<ul>
+  <li>バイナリシーケンスデータ&nbsp;(.bfseq)</li>
+  <li>最大４つのバイナリバンクデータ&nbsp;(.bfbnk)</li>
+  <li>最大４つのバイナリ波形アーカイブデータ&nbsp;(.bfwar)</li>
+</ul>
+<h4 id="Anchor_83956038_h4_4">(非推奨)&nbsp;シーケンスサウンド&nbsp;(個別ロードを使用する場合)</h4>
+<p>プレイヤーヒープでロードできるファイルの個数は最大９つとなっており、この上限を越えた場合は再生が正しく行われない可能性があります。</p>
+<p>シーケンスサウンドでは１つのバンクデータが複数の波形データを参照する場合があり、波形アーカイブの個別ロード機能を使用するとこの上限を越える可能性があります。</p>
+<p>ロードされるデータは以下の４種類ですが、上限を越えない範囲で個別ロードを使用するか、もしくは個別ロードを使用しないことを推奨します。</p>
+<ul>
+  <li>バイナリシーケンスデータ&nbsp;(.bfseq)</li>
+  <li>最大４つのバイナリバンクデータ&nbsp;(.bfbnk)</li>
+  <li>最大４つのバイナリ波形アーカイブデータ&nbsp;(.bfwar)&nbsp;のヘッダ情報</li>
+  <li>バンクが参照する、バイナリ波形データ&nbsp;(.bfwav)</li>
+</ul>
+<h4 id="Anchor_83956038_h4_5">プレイヤーヒープのメモリーが不足する場合の対処</h4>
+<p>メモリ不足で再生に失敗する場合は、プレイヤーヒープのメモリサイズを大きくするか、ロードされるデータのサイズを小さくすることで対処が可能です。</p>
+<p>ロードされるデータのサイズを小さくするには以下のような方法があります。前者はウェーブサウンド、後者はウェーブサウンド・シーケンスサウンド両方で使える手法です。</p>
+<ul>
+  <li>バイナリウェーブサウンドデータ&nbsp;(.bfwsd)&nbsp;のサイズは、ウェーブサウンドセットに含まれるウェーブサウンドの数が多くなると大きくなります。この場合はウェーブサウンドセットを分割することでサイズを小さくできます。</li>
+  <li>バイナリ波形アーカイブ&nbsp;(.bfwar)&nbsp;やそのヘッダ情報のサイズも同様で、波形アーカイブに含まれる波形の数が多くなると大きくなります。この場合は波形アーカイブを分割することでサイズを小さくできます。</li>
+</ul>
+<p>ただしアラインメントや管理領域によりバイナリデータのサイズよりも多くのメモリが必要になる場合があります。そのため以下の点にもご注意ください</p>
+<ul>
+  <li>プレイヤーヒープのロードでは、メモリは&nbsp;64&nbsp;バイトアラインメントで確保されます。</li>
+  <li>個別ロード設定時は、波形アーカイブ毎に&nbsp;(4 *&nbsp;波形の数&nbsp;+ 4)&nbsp;バイト、また波形を１つ個別ロードするごとに&nbsp;8&nbsp;バイトの管理領域が必要になります。</li>
+</ul>
+<h2 id="Anchor_83956038_h2_4">メモリプール</h2>
+<p>atk が管理しているメモリ領域について、一部が&nbsp;AUDIO ライブラリの提供するメモリプール機能に対応しています。<br />対応しているメモリ領域については、atk の初期化・更新・終了処理でメモリプールへのアタッチやデタッチが行われます。</p>
+<p>ただし、確保や破棄の範囲やタイミングをアプリケーション側で管理する必要のあるメモリ領域については、atk はメモリプールの管理を行いません。<br />そのような領域については、メモリプールの管理をアプリケーション側で行う必要があります。</p>
+<h3 id="Anchor_83956038_h3_11">AUDIO ライブラリの対象データとの関係</h3>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>AUDIO ライブラリの対象データ</th>
+      <th>atk で該当するデータ</th>
+      <th>アプリ側での管理</th>
+    </tr>
+    <tr>
+      <td rowspan="6">
+        <p>
+          <span class="ApiLink_nn__audio__WaveBuffer">nn::audio::WaveBuffer</span>.buffer および<br /><span class="ApiLink_nn__audio__WaveBuffer">nn::audio::WaveBuffer</span>.pContext に指定するバッファ</p>
+      </td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__atk__SoundArchivePlayer__Initialize">nn::atk::SoundArchivePlayer::Initialize</span>() に渡す pStreamBuffer</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Blue">必要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__atk__SoundStartable__StartInfo__WaveSoundInfo__waveAddress">nn::atk::SoundStartable::StartInfo::WaveSoundInfo::waveAddress</span> に渡す波形データ</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Blue">必要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__atk__MemorySoundArchive__Initialize">nn::atk::MemorySoundArchive::Initialize</span>() に渡す soundArchiveData</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Blue">必要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__atk__SoundDataManager__SetFileAddressInGroupFile">nn::atk::SoundDataManager::SetFileAddressInGroupFile</span>() に渡す groupFile</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Blue">必要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__atk__SoundHeap">nn::atk::SoundHeap</span>, PlayerHeap が管理する、波形データを含むファイル</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Grey">不要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>WSD, STRM, SEQ の ADPCM コンテキスト</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Grey">不要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__AcquireVoiceSlot">nn::audio::AcquireVoiceSlot</span>() で pParameter に渡すデータを格納するメモリ</p>
+      </td>
+      <td>
+        <p>WSD, STRM, SEQ の ADPCM コンテキスト</p>
+      </td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Grey">不要</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__AddDelay">nn::audio::AddDelay</span>() ・ <span class="ApiLink_nn__audio__AddReverb">nn::audio::AddReverb</span>() ・ <span class="ApiLink_nn__audio__AddAux">nn::audio::AddAux</span>() の</p>
+        <p>エフェクト追加関数で buffer として指定するエフェクトのワークバッファ</p>
+      </td>
+      <td>
+        <span class="ApiLink_nn__atk__SoundSystem__AppendEffect">nn::atk::SoundSystem::AppendEffect</span>() に渡す effectBuffer</td>
+      <td style="text-align: center;">
+        <span class="status_macro_base status_macro_Blue">必要</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83956038_h4_6">アプリケーション側でメモリプールの管理が必要なデータ</h4>
+<p>以下のデータについては、アプリケーション側でメモリ領域の確保や破棄の範囲やタイミングを管理する必要があるため、<br /> アプリケーション側でメモリプールを管理してください。実装の詳細につきましては atk の各種サンプルコードを参照してください。 </p>
+<ul>
+  <li>ストリームバッファ</li>
+  <li>ウェーブサウンドの StartInfo に指定する波形データのアドレス</li>
+  <li>メモリサウンドアーカイブとして使用するサウンドアーカイブデータのアドレス</li>
+  <li>ユーザー管理グループとして使用するグループデータのアドレス</li>
+  <li>エフェクトバッファ  <br /> </li>
+</ul>
+<h4 id="Anchor_83956038_h4_7">アプリケーション側でメモリプールの管理が不要なデータ</h4>
+<ul>
+  <li>サウンドヒープ、プレイヤーヒープ</li>
+</ul>
+<p>サウンドヒープやプレイヤーヒープには波形データを含むファイルの読み込みが行われますが、読込領域の確保・破棄を行うタイミングでメモリプールへのアタッチ・デタッチが行われます。</p>
+<ul>
+  <li>WSD, STRM, SEQ の ADPCM コンテキスト情報</li>
+</ul>
+<p>atk では圧縮オーディオ ADPCM の再生のためコンテキスト情報を保持するメモリ領域があるのですが、<br />これらは <span class="ApiLink_nn__atk__SoundSystem">nn::atk::SoundSystem</span> や <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span> に渡したバッファで確保され、初期化・終了処理のタイミングでメモリプールへのアタッチ・デタッチが行われます。</p>
+<ul>
+  <li>ストリームサウンドのファイルリードキャッシュ</li>
+</ul>
+<p>ストリームサウンドのファイルリードキャッシュは FS からアクセスされるバッファで、AUDIO ライブラリから直接参照されることはないため、メモリプールで管理する必要はありません。</p>
+<h3 id="Anchor_83956038_h3_12">メモリプールへのアタッチ、デタッチ</h3>
+<p>アプリケーション側でメモリプールの管理が必要なデータについては、<br /> データを読み込んだメモリ領域を使用する前に、必ずメモリプールへのアタッチを行ってください。<br /> 詳細につきましては AUDIO のドキュメントの&nbsp; <a href="../Pages/Page_124010227.html">メモリプール </a> の項目やサンプルをご確認ください。</p>
+<p>アタッチに必要な <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> は <span class="ApiLink_nn__atk__SoundSystem__GetAudioRendererConfig">nn::atk::SoundSystem::GetAudioRendererConfig</span>() で取得できます。<br />ただし <span class="ApiLink_nn__atk__SoundSystem__Initialize">nn::atk::SoundSystem::Initialize</span>()&nbsp;が呼ばれた後でなければメモリプールへのアタッチは行えませんので、初期化後に取得するようご注意ください。</p>
+<p>また、メモリプールのアタッチ要求を行ったあと、実際にメモリプールへアタッチが行われるまでに少し時間差があります。<br />atk はサウンドスレッドでオーディオフレーム (約 5ms) に一度レンダラの更新処理を行っており、そのタイミングでメモリプールへのアタッチが完了します。</p>
+<p>データの使用が完了しましたら、メモリプールのデタッチが必要になります。<br />デタッチ要求につきましても、アタッチ要求と同様に実際にデタッチされるまでには時間差がありますのでご注意ください。</p>
+<p>メモリプールにアタッチされていない領域を使用した後に FS など他のモジュールからその領域にアクセスが発生すると<br />停止する場合がありますので、必ずメモリプールで管理を行ってください。</p>
+<h3 id="Anchor_83956038_h3_13">メモリプールからの自動デタッチ</h3>
+<p>
+  <span class="ApiLink_nn__atk__SoundSystem__GetAudioRendererConfig">nn::atk::SoundSystem::GetAudioRendererConfig</span>() で取得した&nbsp;<span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> でメモリプールにアタッチした領域は、<br /><span class="ApiLink_nn__atk__SoundSystem__Finalize">nn::atk::SoundSystem::Finalize</span>()&nbsp;を呼んだ際に、自動的にメモリプールからデタッチされているため、明示的にデタッチ処理を行う必要はありません。<br />これは <span class="ApiLink_nn__atk__SoundSystem__Finalize">nn::atk::SoundSystem::Finalize</span>() が内部で呼んでいる <span class="ApiLink_nn__audio__CloseAudioRenderer">nn::audio::CloseAudioRenderer</span>() の機能によるものです。</p>
+<p>AUDIO のドキュメントの&nbsp; <a href="../Pages/Page_124010227.html">メモリプール </a> の項目や&nbsp;<span class="ApiLink_nn__audio__RequestDetachMemoryPool">nn::audio::RequestDetachMemoryPool</span>() の API リファレンスも併せてご確認ください。</p>
+<h3 id="Anchor_83956038_h3_14"> 「アプリケーション側でメモリプールの管理が不要なデータ」をアプリケーション側で管理する</h3>
+<p>通常、<span class="ApiLink_nn__atk__SoundSystem">nn::atk::SoundSystem</span> と <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span> の内部で使用するバッファのメモリプールの管理はライブラリ内部で行われますが、<br />初期化時にアプリケーション側からメモリプール管理されるバッファを渡すことで、ライブラリ内部でメモリプールの管理を行わないようにすることができます。</p>
+<h4 id="Anchor_83956038_h4_8">アプリケーション側で管理するメリット</h4>
+<p>
+  <strong> <br /></strong>アプリケーション側でメモリプール管理するメモリ領域からバッファを確保して渡すような使い方をした場合は、ライブラリ内部で個別にメモリプール管理が行われる場合と比べて以下のメリットがあります。</p>
+<ul>
+  <li>メモリプール管理するために必要なバッファのアライメントやサイズ制限によって生じる未使用領域を減らすことができます。</li>
+  <li>メモリプールのアタッチ・デタッチに伴う待ち時間をアプリケーション側が管理できるようになります。</li>
+</ul>
+<h4 id="Anchor_83956038_h4_9">アプリケーション側で管理する方法</h4>
+<p>以下の API のリファレンスを参照してください。</p>
+<ul>
+  <li>memoryPoolMem と memoryPoolMemSize の引数を持つ <span class="ApiLink_nn__atk__SoundSystem__Initialize">nn::atk::SoundSystem::Initialize</span>() 関数</li>
+  <li>
+    <span class="ApiLink_nn__atk__SoundArchivePlayer__InitializeParam">nn::atk::SoundArchivePlayer::InitializeParam</span> を使用する <span class="ApiLink_nn__atk__SoundArchivePlayer__Initialize">nn::atk::SoundArchivePlayer::Initialize</span>() 関数</li>
+  <li>
+    <span class="ApiLink_nn__atk__SoundArchivePlayer__GetRequiredStreamInstanceSize">nn::atk::SoundArchivePlayer::GetRequiredStreamInstanceSize</span>() 関数</li>
+</ul>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__SoundHeap', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_heap.html' )
+SetUrl( 'ApiLink_nn__atk__SoundDataManager__LoadData', '../../../Api/HtmlNX/classnn_1_1atk_1_1detail_1_1_sound_archive_loader.html#a3c8676a9807a4940a79a5c39546ab4f0' )
+SetUrl( 'ApiLink_nn__atk__SoundHeap__Clear', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_heap.html#a6afa8711def33b1181ae78a1e07a7ce0' )
+SetUrl( 'ApiLink_nn__atk__SoundHeap__SaveState', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_heap.html#a33e51be66dfc6630008515579022ec48' )
+SetUrl( 'ApiLink_nn__atk__SoundHeap__LoadState', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_heap.html#a128f40417297c0dcfaa5063525f42422' )
+SetUrl( 'ApiLink_nn__atk__SoundHeap__Create', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_heap.html#ab63a16b64673cf18a429c41b21be1b2f' )
+SetUrl( 'ApiLink_nn__atk__SoundMemoryAllocatable', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_memory_allocatable.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__StartSound', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_startable.html#af7259f5cb7f4c89ebae54d2c102e1a9e' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a90af35a47a6cba54503302105cebd49a' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html#aa2de65567087f698294d36e91fd9b9f9' )
+SetUrl( 'ApiLink_nn__atk__SoundArchive__ReadPlayerInfo', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive.html#a1dfb383f62515dbedd63ec63ba793c06' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__GetRequiredMemSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html#a69ae9eba7e9ffd8b45b2714bb721f9aa' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartInfo', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_startable_1_1_start_info.html' )
+SetUrl( 'ApiLink_nn__audio__WaveBuffer', '../../../Api/HtmlNX/structnn_1_1audio_1_1_wave_buffer.html' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartInfo__WaveSoundInfo__waveAddress', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_startable_1_1_start_info_1_1_wave_sound_info.html#aa954ad6c0640c64ec12045e3a92b1a99' )
+SetUrl( 'ApiLink_nn__atk__MemorySoundArchive__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_memory_sound_archive.html#a7f08bdd4e7dcf0b135795f4a18ec50f5' )
+SetUrl( 'ApiLink_nn__atk__SoundDataManager__SetFileAddressInGroupFile', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_data_manager.html#ae0d5197b5f263c5b17fa4455bfaa0674' )
+SetUrl( 'ApiLink_nn__audio__AcquireVoiceSlot', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a3bca63fcdf6dc8330e4e5e2e9a7d2d47' )
+SetUrl( 'ApiLink_nn__audio__AddDelay', '../../../Api/HtmlNX/namespacenn_1_1audio.html#af017e28e2d405e595fc79f2647659ebb' )
+SetUrl( 'ApiLink_nn__audio__AddReverb', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a456c672612f218fff1e42df08b2b5577' )
+SetUrl( 'ApiLink_nn__audio__AddAux', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a072f1f600ce24ffad45496403212a42a' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__AppendEffect', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a7594cfa0806084411ce1716e88b1684d' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html' )
+SetUrl( 'ApiLink_nn__audio__AudioRendererConfig', '../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_config.html' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__GetAudioRendererConfig', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#ac7206f0c25066cc10d5d96e5f2dd25e2' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__Finalize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a886dcd68a20e0dbb8dd7e3fe312bb069' )
+SetUrl( 'ApiLink_nn__audio__CloseAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a53a495cb3c91182f9400c8ee6640ea95' )
+SetUrl( 'ApiLink_nn__audio__RequestDetachMemoryPool', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ad4f04f3d5bf2d369b07d6b559d559436' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__InitializeParam', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_archive_player_1_1_initialize_param.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__GetRequiredStreamInstanceSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html#ab19f8f15307c045093434d81cc832da0' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

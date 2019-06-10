@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プログラマー向けニュース</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プログラマー向けニュース -->
+<div class="pagetitle" id="PageId_286741183">プログラマー向けニュース</div>
+<div class="text_separate">
+<h1 id="Anchor_286741183_h1_1">プログラマー向けニュース </h1>
+<p>NintendoSDK 5.1.0 で行われたプログラマー向けの変更点を紹介します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_286741183_h1_1">プログラマー向けニュース </a>
+    </li>
+    <li>
+      <a href="#Anchor_286741183_h1_2">全般</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_286741183_h2_1">bc1 / bc2 / bc3 フォーマットのテクスチャーに変換する際の問題について</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_286741183_h3_1">問題１：非対応 GPU で bc1 / bc2 / bc3 フォーマットのテクスチャーに正しく変換できない</a>
+        </li>
+        <li>
+          <a href="#Anchor_286741183_h3_2">問題２：bc3 フォーマットで A 成分の圧縮品質が低下する</a>
+        </li>
+      </ul>
+    </ul>
+    <li>
+      <a href="#Anchor_286741183_h1_3"> nn::g3d ニュース</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_286741183_h2_2">3D テクスチャーコンバーターでリサイズをパーセンテージ指定できるように</a>
+      </li>
+      <li>
+        <a href="#Anchor_286741183_h2_3">アサインユーティリティーで既存のシェーダーパラメーター値を引き継ぎつつ、異なるシェーダーを割り当てることができるように</a>
+      </li>
+      <li>
+        <a href="#Anchor_286741183_h2_4">シェイプ圧縮機能の改善</a>
+      </li>
+      <li>
+        <a href="#Anchor_286741183_h2_5">リジッドボディーからリジッドスキニングへの変換機能の改善</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_286741183_h1_4"> nn::vfx ニュース</a>
+    </li>
+    <li>
+      <a href="#Anchor_286741183_h1_5"> nn::ui2d ニュース</a>
+    </li>
+    <li>
+      <a href="#Anchor_286741183_h1_6"> nn::font ニュース</a>
+    </li>
+    <li>
+      <a href="#Anchor_286741183_h1_7"> nn::atk ニュース</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_286741183_h2_6">サウンドスレッド、タスクスレッドのスレッド優先度のデフォルト値変更</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_286741183_h1_8"> nn::spy ニュース</a>
+    </li>
+  </ul>
+</p>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_286741183_h1_2">全般</h1>
+<h2 id="Anchor_286741183_h2_1">bc1 / bc2 / bc3 フォーマットのテクスチャーに変換する際の問題について</h2>
+<p>NintendoSDK 5.0.0 から導入された、新しい bc1 / bc2 / bc3 フォーマットのエンコーダー（更新履歴の、5-0-0S56: (TOOL) テクスチャーコンバーターで、bc1 / bc2 / bc3 フォーマットに変換する際の品質の改善）に関連して起こる問題と対処方法について案内します。</p>
+<p>問題は大きく 2 つあり、2&nbsp;つ同時に対処する方法は、環境変数 NINTENDO_TEXTURE_CONVERTER_NVTT_BC123 を値 0 で定義した状態で NintendoWare のツールを使用する方法だけです。<br /></p>
+<h3 id="Anchor_286741183_h3_1">問題１：非対応 GPU で bc1 / bc2 / bc3 フォーマットのテクスチャーに正しく変換できない</h3>
+<ul>
+  <li>bc1 / bc2 / bc3 フォーマットのエンコーダーが変更された影響で、NVIDIA の Kepler 世代以降の GPU でないと正しく変換できません</li>
+  <li>NVIDIA 以外の GPU なら自動的に CPU で変換しますが、NVIDIA の非対応 GPU では、エラー表示などなく、テクスチャーが不定な値で出力されます（たとえば、真っ黒なテクスチャーとして出力されます）</li>
+</ul>
+<h4 id="Anchor_286741183_h4_1">対処方法</h4>
+<ul>
+  <li>以前のエンコーダーを使用する（環境変数 NINTENDO_TEXTURE_CONVERTER_NVTT_BC123 を値 0 で定義します）</li>
+  <li>3D テクスチャーコンバーターのオプションで&nbsp;GPU エンコーディング を OFF にする（--gpu-encoding false）<ul><li>NintendoWare の各モジュールからこのオプションを指定する方法については、それぞれのマニュアルを参照してください</li></ul></li>
+  <li>Kepler&nbsp;世代以降の GPU を使用する（NintendoSDK では&nbsp;Maxwell 第1世代以降を推奨しています）</li>
+</ul>
+<h4 id="Anchor_286741183_h4_2">NintendoSDK 5.2.0 で予定している対応</h4>
+<ul>
+  <li>3D テクスチャーコンバーターで、非対応 GPUを正しく判定できるようにします</li>
+  <li>3D&nbsp;テクスチャーコンバーターで、--gpu-encoding（GPU でエンコードするかどうか）オプションを拡張します<ul><li>--gpu-encoding true が指定されている場合、非対応 GPU ならエラー（NVIDIA 以外の GPU なら常にエラー）</li><li>--gpu-encoding false が指定されている場合、常に CPU でエンコード（これまで通り）</li><li>--gpu-encoding auto が指定されている場合、可能なら GPU でエンコードし、不可能なら CPU でエンコード（これまでの true の動作）</li><li>--gpu-encoding オプション自体が指定されていない場合（デフォルト）は、--gpu-encoding true が指定されている場合と同じ動作</li></ul></li>
+  <li>NintendoWare の各モジュールで上記の --gpu-encoding を利用できるような対処をとります</li>
+</ul>
+<h3 id="Anchor_286741183_h3_2">問題２：bc3 フォーマットで A 成分の圧縮品質が低下する</h3>
+<ul>
+  <li>bc3 フォーマットのエンコーダーが変更された影響で、A 成分が 0 だったピクセルが 0 でない微小な値になる場合があります<br />次の画像では違いをわかりやすくするため、A 成分（0～255）をしきい値 1 で 2 階調化しています<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_286741183/289926826.png" class="embedded-image" /></span></li>
+</ul>
+<h4 id="Anchor_286741183_h4_3">対処方法</h4>
+<ul>
+  <li>以前のエンコーダーを使用する（環境変数 NINTENDO_TEXTURE_CONVERTER_NVTT_BC123 を値 0 で定義します）</li>
+</ul>
+<h4 id="Anchor_286741183_h4_4">NintendoSDK 5.2.0 で予定している対応</h4>
+<ul>
+  <li>新しいエンコーダーで、bc3 フォーマットの&nbsp;A 成分の圧縮品質を改善します</li>
+</ul>
+<h1 id="Anchor_286741183_h1_3">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_286741183/286741154.png" class="embedded-image" />
+  </span>&nbsp;nn::g3d ニュース</h1>
+<h2 id="Anchor_286741183_h2_2">3D テクスチャーコンバーターでリサイズをパーセンテージ指定できるように</h2>
+<!--Remove-->
+<p>
+  <a href="../Pages/Page_239574379.html">3D テクスチャーコンバーター </a>の --resize-w、--resize-h オプションで入力画像のパーセンテージでサイズを指定することができるようになりました。</p>
+<h2 id="Anchor_286741183_h2_3">アサインユーティリティーで既存のシェーダーパラメーター値を引き継ぎつつ、異なるシェーダーを割り当てることができるように</h2>
+<!--Remove-->
+<p>
+  <a href="../Pages/Page_83956043.html">アサインユーティリティー </a>の assign サブコマンドに --keep-existing-values というオプションを追加しました。このオプションを指定すると入力モデル中間ファイルにもともと含まれていたシェーダーパラメーターの値を ID と型情報が一致するものについて、新しく割り当てるシェーダーに引き継ぐようになります。</p>
+<h2 id="Anchor_286741183_h2_4">シェイプ圧縮機能の改善</h2>
+<!--Remove-->
+<p>中間ファイルオプティマイザーのシェイプ圧縮時に --ignore-skinning-count オプションを指定した際に、もともと連続していたシェイプだったにも関わらず、スキニング方式が異なる事により、シェイプ間に隙間が生じる問題があり、これを改善しました。この変更により、連続するシェイプ間のスキニング方式が統一されるようになりますが、その代わりにデータサイズが増える場合があります。</p>
+<h2 id="Anchor_286741183_h2_5">リジッドボディーからリジッドスキニングへの変換機能の改善</h2>
+<!--Remove-->
+<p>中間ファイルオプティマイザーのリジッドボディーからリジッドスキニングへの変換機能を使用した際に、圧縮可能(compress_enable=true)に設定されたボーンに関連するリジッドボディーのシェイプはすべてルートボーンに関連付けられる仕様になっていたため、リジッドスキニングに変換されたシェイプに対してボーンビジビリティーアニメーションを適用するにはそのシェイプに紐づくボーンを圧縮不可(compress_enable=false)に設定するしか方法がありませんでしたが、これだと、変換されたシェイプに対してシェイプ圧縮が行えませんでした。</p>
+<p>変換されたシェイプが親ボーンを辿って最初に見つかった圧縮不可のボーンに関連付けするように仕様変更することで、圧縮不可に設定したボーン以下に所属するシェイプ同士のシェイプ圧縮が効くようになりました。以下に例を示します。</p>
+<p>
+  <br />
+</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>変換前</td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_286741183/flowchart_1.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>これまでの変換結果</td>
+      <td style="text-align: center;">
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_286741183/flowchart_2.svg" />
+          </div>
+          <p style="text-align: left;">
+            <br />
+            <br />
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: left;">NintendoSDK 5.1.0 以降の変換結果</td>
+      <td>
+        <div class="content-wrapper">
+          <div class="flowchart-svg-inline">
+            <img src="../Attachments/Attach_286741183/flowchart_3.svg" />
+          </div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_286741183_h1_4">
+  <br />
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_286741183/286741155.png" class="embedded-image" />
+  </span> nn::vfx ニュース</h1>
+<p>特にありません。</p>
+<h1 id="Anchor_286741183_h1_5">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_286741183/286741156.png" class="embedded-image" />
+  </span>&nbsp;nn::ui2d ニュース</h1>
+<p>特にありません。</p>
+<h1 id="Anchor_286741183_h1_6">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_286741183/286741157.png" class="embedded-image" />
+  </span>&nbsp;nn::font ニュース</h1>
+<p>特にありません。</p>
+<h1 id="Anchor_286741183_h1_7">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_286741183/286741158.png" class="embedded-image" />
+  </span>&nbsp;nn::atk ニュース</h1>
+<h2 id="Anchor_286741183_h2_6">サウンドスレッド、タスクスレッドのスレッド優先度のデフォルト値変更</h2>
+<p>サウンドスレッド、タスクスレッドのスレッド優先度のデフォルト値を以下の表のように変更し、優先度を引き下げる修正を行いました。&nbsp;</p>
+<table class="relative-table wrapped" style="width: 51.35%;">
+  <colgroup>
+    <col style="width: 57.91%;" />
+    <col style="width: 24.24%;" />
+    <col style="width: 17.81%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>スレッド優先度</th>
+      <th>変更前</th>
+      <th>変更後</th>
+    </tr>
+    <tr>
+      <td>サウンドスレッドのスレッド優先度<br />(<span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam__DefaultSoundThreadPriority">nn::atk::SoundSystem::SoundSystemParam::DefaultSoundThreadPriority</span>)</td>
+      <td>
+        <span class="ApiLink_nn__os__HighestThreadPriority">nn::os::HighestThreadPriority</span>
+      </td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>タスクスレッドのスレッド優先度<br />(<span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam__DefaultTaskThreadPriority">nn::atk::SoundSystem::SoundSystemParam::DefaultTaskThreadPriority</span>)</td>
+      <td>
+        <span class="ApiLink_nn__os__HighestThreadPriority">nn::os::HighestThreadPriority</span>
+      </td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+<p>デフォルトのスレッド優先度を使用していて、 5.1.0 以前のスレッド優先度に戻したい場合は、 <span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam__soundThreadPriority">nn::atk::SoundSystem::SoundSystemParam::soundThreadPriority</span> および <span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam__taskThreadPriority">nn::atk::SoundSystem::SoundSystemParam::taskThreadPriority</span> を <span class="ApiLink_nn__os__HighestThreadPriority">nn::os::HighestThreadPriority</span> に引き上げる必要がある点にご注意ください。</p>
+<h1 id="Anchor_286741183_h1_8">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_286741183/286741159.png" class="embedded-image" />
+  </span> nn::spy ニュース</h1>
+<p>特にありません。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam__DefaultSoundThreadPriority', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html#af187ffc682507337dc0bfa0f08102fb4' )
+SetUrl( 'ApiLink_nn__os__HighestThreadPriority', '../../../Api/HtmlNX/namespacenn_1_1os.html#a44ed3b4dddf9ebfb69bc33167369b816' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam__DefaultTaskThreadPriority', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html#a67d65bca7e18f3c538295015be8d8a7e' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam__soundThreadPriority', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html#a4c0298a2aac4f2db64857006cb19ab35' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam__taskThreadPriority', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html#a1afdb7cf195715fb5ba43785f966b384' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

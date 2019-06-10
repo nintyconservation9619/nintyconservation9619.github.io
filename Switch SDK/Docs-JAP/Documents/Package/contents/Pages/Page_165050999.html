@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ポインティングモード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ポインティングモード -->
+<div class="pagetitle" id="PageId_165050999">ポインティングモード</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_165050999_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_165050999_h1_2">ポインティングモード</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165050999_h2_1">概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_165050999_h3_1">再帰性反射材バーの仕様</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_165050999_h2_2">設定項目</a>
+      </li>
+      <li>
+        <a href="#Anchor_165050999_h2_3">出力フォーマット</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_165050999_h1_3">ポインティングモードの使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165050999_h2_4">ポインティングモードのサンプル</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_165050999_h1_1">はじめに</h1>
+<p>ポインティングモードは、 画面の付近に置いた専用の再帰性反射材バーをモーションIRカメラで検出して、画面をポインティングするモードです。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>使用する再帰性反射材バーが、本ライブラリが要求する仕様を満たしていない場合、原則ポインティングモードのサポート対象外となります。<br />特に製品版で使用する場合は、マスタリングの際に任天堂のモーションIRカメラ開発チームの確認が必要となりますので、必ず事前に開発チームにお問い合わせください。</p>
+  </div>
+</div>
+<h1 id="Anchor_165050999_h1_2">ポインティングモード</h1>
+<h2 id="Anchor_165050999_h2_1">概要</h2>
+<p>反射材を 3 点並べた反射材バーを検出します。その 3 点の座標から中心点をポインティング座標として出力します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>入射した光を入射してきた方向に効率的に反射させる構造を持った素材のことで、モーションIRカメラのような点光源からの発光をその付近のIRカメラで捉える構成において、特徴点となるマーカーとして適しています。<br />ポインティング機能においては、反射効率がよいほど反射材バーから離れた位置からでも検出できるようになります。</p>
+  </div>
+</div>
+<p>出力されるデータの座標系については、「<a href="../Pages/Page_112902609.html#Anchor_112902609_IR センサーのデータ座標系">IR センサーのデータ座標系</a>」を参照してください。</p>
+<h3 id="Anchor_165050999_h3_1">再帰性反射材バーの仕様</h3>
+<p>以下のようなハードウェア構成となっています。 高さは 1cm です。 このバーをポインティングする対象の画面付近（画面上部など）に配置します。<br />下図の薄いグレーの部分には、ノイズとなる可能性があるため、できるかぎり光を反射しない素材を使用してください。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_165050999/258028150.png" height="187" class="embedded-image" />
+  </span>
+</p>
+<p>また、要求する認識可能距離は 4m 以上となりますので、これを満たすような再帰性反射材を選定する必要があります。</p>
+<p>例としては、以下のような物になります。</p>
+<ul style="list-style-type: square;">
+  <li>左写真：プラスチックで作成した自立する再帰性反射材バー</li>
+  <li>右写真：モニタの上部に再帰性反射材バーを乗せた状態</li>
+</ul>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_165050999/258036485.JPG" height="250" class="embedded-image" />
+  </span>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_165050999/258036458.JPG" height="250" class="embedded-image" />
+  </span>
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本ライブラリが動作保証する反射材バーの仕様は上記のように規定されていますが、不明な点がありましたら、開発チームに問い合わせください。</p>
+  </div>
+</div>
+<h2 id="Anchor_165050999_h2_2">設定項目</h2>
+<p>ポインティングモードにはアプリ側から設定する項目がなく、コントローラと反射材バーの距離の変化などに伴うカメラの明るさ調整などの対応はシステム側で自動設定します。</p>
+<p>&nbsp;単純に <span class="ApiLink_nn__irsensor__RunPointingProcessor">nn::irsensor::RunPointingProcessor</span> 関数を呼び出すことでポインティングモードを起動することができます。</p>
+<h2 id="Anchor_165050999_h2_3">出力フォーマット</h2>
+<p>ポインティングモードの出力は以下の様なフォーマットになります。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>samplingNumber</td>
+      <td>処理結果を受け取る度に増加する値です。</td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>timeStamp</td>
+      <td>
+        <p>前回取得したデータからの経過時間です。</p>
+      </td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>pointingStatus</td>
+      <td>検出したポインティング座標の状態です。<br />正常でない場合はエラーの要因が出力されます。</td>
+      <td>PointingStatus_DataValid,<br />PointingStatus_LackOfObjects</td>
+    </tr>
+    <tr>
+      <td>
+        <p>position</p>
+      </td>
+      <td>正規化されたポインティング座標です。<br />中心を (0.0f, 0.0f) として右上を (1.0f, 1.0f), アスペクト比4:3 で正規化された値です。</td>
+      <td>(-1.0,-1.0) ~ (1.0, 1.0)</td>
+    </tr>
+  </tbody>
+</table>
+<p>各クラスタの詳細は以下のフォーマットになります。</p>
+<p>これらの出力値は、 <span class="ApiLink_nn__irsensor__PointingProcessorState">nn::irsensor::PointingProcessorState</span> 構造体のメンバとして持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">PointingProcessorState</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int64_t</span> <span class="n">samplingNumber</span><span class="p">;</span>         <span class="c1">//!&lt; ポインティングプロセッサから処理結果を得る度に増加する値です（0 以上）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::</span><span class="n">TimeSpanType</span> <span class="n">deltaTime</span><span class="p">;</span>   <span class="c1">//!&lt; 処理開始時点から処理結果を取得した時点までの時間情報です。過去データの時間との差分をとって扱います（0 以上）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">PointingStatus</span> <span class="n">pointingStatus</span><span class="p">;</span>  <span class="c1">//!&lt; 検出したポインティングデータの状態です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::util::</span><span class="n">Float2</span> <span class="n">position</span><span class="p">;</span>    <span class="c1">//!&lt; 正規化されたポインティングの位置座標です。（中心を (0.0f, 0.0f) として、右上を (1.0f, 1.0f)、アスペクト比4:3 で正規化されています。)
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの出力データは、 <span class="ApiLink_nn__irsensor__GetPointingProcessorStates">nn::irsensor::GetPointingProcessorStates</span> に出力フォーマットのバッファを渡して、呼び出すことで取得することができます。</p>
+<h1 id="Anchor_165050999_h1_3">ポインティングモードの使用方法</h1>
+<p>ポインティングモードは以下のような流れで使用します。</p>
+<ol>
+  <li>
+    <p>
+      <span class="ApiLink_nn__hid__NpadIdType">nn::hid::NpadIdType</span> を元に、<span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を取得し、モーションIRカメラを初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/irsensor.h&gt;
+</span>
+<span class="nn">nn::irsensor::</span><span class="n">IrCameraHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">GetIrCameraHandle</span><span class="p">(</span><span class="n">npadIdType</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>取得した <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、&nbsp; <span class="ApiLink_nn__irsensor__RunPointingProcessor">nn::irsensor::RunPointingProcessor</span> 関数を呼び、キャプチャを開始します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre> <span class="nn">nn::irsensor::</span><span class="n">RunPointingProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>出力用の <span class="ApiLink_nn__irsensor__PointingProcessorState">nn::irsensor::PointingProcessorState</span> のバッファを準備して、 <span class="ApiLink_nn__irsensor__GetPointingProcessorStates">nn::irsensor::GetPointingProcessorStates</span> 関数を呼びます。&nbsp; <br />&nbsp;<span class="ApiLink_nn__irsensor__GetPointingProcessorStates">nn::irsensor::GetPointingProcessorStates</span> 関数では一度に最大&nbsp;<span class="ApiLink_nn__irsensor__PointingProcessorStateCountMax">nn::irsensor::PointingProcessorStateCountMax</span> 個の処理結果を取得できます。<br />呼び出した時点の最新の処理結果を取得しますが、コントローラの BT 転送の都合上最速でも15ms 間隔での更新になるため、<br />例えば、ゲームフレームなどと同期する形で、ポーリング方式で使用することを推奨します。<br />一方、内部的には 5ms 間隔でデータの更新を行っていますので、理想的には 15ms 間隔で 3個 の新しいデータを取得することができます。<br />軌跡の描画などを行う際には、より多くの情報を使用することを推奨します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">PointingProcessorState</span> <span class="n">state</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+<span class="nn">nn::irsensor::</span><span class="n">GetPointingProcessorStates</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>停止したい <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、 <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を呼び、ポインティングモードを停止します。<br />その後、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を呼び、 モーションIRカメラを終了します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">StopImageProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Finalize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="Anchor_165050999_h2_4">ポインティングモードのサンプル</h2>
+    <p>Samples\Sources\Applications\IrSensorPointingBasic に配置されているサンプルを参照してください。<br /><br /></p>
+  </li>
+</ol>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__irsensor__RunPointingProcessor
+// ApiLink_nn__irsensor__PointingProcessorState
+// ApiLink_nn__irsensor__GetPointingProcessorStates
+SetUrl( 'ApiLink_nn__hid__NpadIdType', '../../../Api/HtmlNX/namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraHandle', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_handle.html' )
+// ApiLink_nn__irsensor__PointingProcessorStateCountMax
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3052171f2c63aafc0e4a164366ae22d7' )
+SetUrl( 'ApiLink_nn__irsensor__Finalize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6265f5c6e6d6fc0e67fc6882a8945284' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

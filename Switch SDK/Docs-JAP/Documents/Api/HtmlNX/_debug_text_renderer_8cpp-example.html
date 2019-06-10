@@ -1,0 +1,1218 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: DebugTextRenderer.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">DebugTextRenderer.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_debug_text_renderer_8cpp.html" title="This file defines a singleton class that renders text to the screen. ">DebugTextRenderer.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_debug_text_renderer_8h.html">nvntutorial/DebugTextRenderer.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_asset_file_data_holder_8h.html">nvntutorial/AssetFileDataHolder.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_asset_file_loading_helper_8h.html">nvntutorial/AssetFileLoadingHelper.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_texture_i_d_manager_8h.html">nvntutorial/TextureIDManager.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_debug_text_data_8h.html">nvntutorial/DebugTextData.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nvntutorial/ShaderHeaders/FontShaderDataHelper.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_tutorial_util_8h.html">nvntutorial/TutorialUtil.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> uint32_t g_CommandMemorySize = 65536;</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> uint32_t g_ControlMemorySize = 65536;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer Constructor</span></div>
+<div class="line"><span class="comment"> * -----------------------------</span></div>
+<div class="line"><span class="comment"> * Set initial values, initialize font data.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"></div>
+<div class="line">DebugTextRenderer::DebugTextRenderer() :</div>
+<div class="line">    m_pDevice(NULL),</div>
+<div class="line">    m_pQueue(NULL),</div>
+<div class="line">    m_pManagedCommandBuffer(NULL),</div>
+<div class="line">    m_pCommandMemoryPool(NULL),</div>
+<div class="line">    m_pControlPool(NULL),</div>
+<div class="line">    m_UsingSyncManager(NULL),</div>
+<div class="line">    m_pVertexDataPool(NULL),</div>
+<div class="line">    m_pUniformBufferPool(NULL),</div>
+<div class="line">    m_pFontTexturePool(NULL),</div>
+<div class="line">    m_pFontTextureBufferPool(NULL),</div>
+<div class="line">    m_pTextureIDManager(NULL)</div>
+<div class="line">{</div>
+<div class="line">    memset(m_StringSize,                0, <span class="keyword">sizeof</span>(m_StringSize));</div>
+<div class="line">    memset(m_FontPositionData,          0, <span class="keyword">sizeof</span>(m_FontPositionData));</div>
+<div class="line">    memset(m_FontTextureCoordinateData, 0, <span class="keyword">sizeof</span>(m_FontTextureCoordinateData));</div>
+<div class="line">    memset(m_FontMagScale,              0, <span class="keyword">sizeof</span>(m_FontMagScale));</div>
+<div class="line">    memset(m_FontColor,                 0, <span class="keyword">sizeof</span>(m_FontColor));</div>
+<div class="line">    memset(m_FontUniformDataVS,         0, <span class="keyword">sizeof</span>(m_FontUniformDataVS));</div>
+<div class="line">    memset(m_FontUniformDataPSColor,    0, <span class="keyword">sizeof</span>(m_FontUniformDataPSColor));</div>
+<div class="line">    memset(m_FontUniformDataPSSampler,  0, <span class="keyword">sizeof</span>(m_FontUniformDataPSSampler));</div>
+<div class="line">    memset(m_FontTexture,               0, <span class="keyword">sizeof</span>(m_FontTexture));</div>
+<div class="line">    memset(&amp;m_FontIndexData,            0, <span class="keyword">sizeof</span>(m_FontIndexData));</div>
+<div class="line"></div>
+<div class="line">    GetFontCharData(&amp;m_FontF, s_FontHeaderF, (uint32_t*)s_CharDataF, s_FontImageDataF);</div>
+<div class="line">    GetFontCharData(&amp;m_FontP, s_FontHeaderP, (uint32_t*)s_CharDataP, s_FontImageDataP);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::Init</span></div>
+<div class="line"><span class="comment"> * -----------------------</span></div>
+<div class="line"><span class="comment"> * Sets up NVN data (command buffer, font textures, vertex buffers,</span></div>
+<div class="line"><span class="comment"> * uniform buffers, render states), loads the font shader, and sets</span></div>
+<div class="line"><span class="comment"> * some default values for text rendering.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::Init(<a name="_a0"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice, <a name="_a1"></a><a class="code" href="struct_n_v_nqueue.html">NVNqueue</a>* pQueue, TextureIDManager* pTextureIDManager, FrameBufferedSyncManager* pSyncManager)</div>
+<div class="line">{</div>
+<div class="line">    m_pDevice = pDevice;</div>
+<div class="line">    m_pQueue = pQueue;</div>
+<div class="line">    m_pTextureIDManager = pTextureIDManager;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Queries the device for the proper control and command</span></div>
+<div class="line"><span class="comment">         * memory alignment for a command buffer.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferCommandAlignment = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferControlAlignment = 0;</div>
+<div class="line">    <a name="a2"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(pDevice, <a name="a3"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ada72f2b5ef4df11606b61aaa86f6f22c">NVN_DEVICE_INFO_COMMAND_BUFFER_COMMAND_ALIGNMENT</a>, &amp;commandBufferCommandAlignment);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(pDevice, <a name="a4"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a743ea42e337a76b9d8ed34181a0d802e">NVN_DEVICE_INFO_COMMAND_BUFFER_CONTROL_ALIGNMENT</a>, &amp;commandBufferControlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * If a sync manager is provided, allow it to properly manage the command memory</span></div>
+<div class="line"><span class="comment">         * swapping through its own syncs.  Otherwise, manage swapping ourselves</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (pSyncManager)</div>
+<div class="line">    {</div>
+<div class="line">        m_UsingSyncManager = <span class="keyword">true</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_UsingSyncManager)</div>
+<div class="line">    {</div>
+<div class="line">        m_pManagedCommandBuffer = <span class="keyword">new</span> ManagedCommandBuffer(pDevice, g_CommandMemorySize, g_ControlMemorySize);</div>
+<div class="line">        pSyncManager-&gt;RegisterMemoryManager(m_pManagedCommandBuffer);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (!<a name="a5"></a><a class="code" href="group__nvn__c__functions.html#gab146b70a699dfee69d0724e430d5694e">nvnCommandBufferInitialize</a>(&amp;m_CommandBuffer, m_pDevice))</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a6"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0 &amp;&amp; <span class="stringliteral">&quot;nvnCommandBufferInitialize failed&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Setup the command buffer memory. */</span></div>
+<div class="line">        m_pCommandMemoryPool = <span class="keyword">new</span> <a name="a7"></a><a class="code" href="namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5">MemoryPool</a>();</div>
+<div class="line">        m_pCommandMemoryPool-&gt;Init(</div>
+<div class="line">            NULL,</div>
+<div class="line">            Align(g_CommandMemorySize, commandBufferCommandAlignment),</div>
+<div class="line">            <a name="a8"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a name="a9"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">            pDevice);</div>
+<div class="line"></div>
+<div class="line">        m_CommandPoolOffset = m_pCommandMemoryPool-&gt;GetNewMemoryChunkOffset(g_CommandMemorySize, commandBufferCommandAlignment);</div>
+<div class="line">        m_pControlPool = AlignedAllocate(g_ControlMemorySize, commandBufferControlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <a name="a10"></a><a class="code" href="group__nvn__c__functions.html#ga2c0d758cfa73c25f2a34486353f46d92">nvnCommandBufferAddCommandMemory</a>(&amp;m_CommandBuffer, m_pCommandMemoryPool-&gt;GetMemoryPool(), m_CommandPoolOffset, g_CommandMemorySize);</div>
+<div class="line">        <a name="a11"></a><a class="code" href="group__nvn__c__functions.html#ga8de6ce290ee0180d9bcd700c1d08d0bf">nvnCommandBufferAddControlMemory</a>(&amp;m_CommandBuffer, m_pControlPool, g_ControlMemorySize);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (!<a name="a12"></a><a class="code" href="group__nvn__c__functions.html#gad8eeff0f19eaa7bb9b57ea8134411baa">nvnSyncInitialize</a>(&amp;m_CommandBufferSync, m_pDevice))</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;nvnSyncInitialize failed&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Setup the render states. */</span></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Blend State */</span></div>
+<div class="line">    <a name="a13"></a><a class="code" href="group__nvn__c__functions.html#gad0c043334f5f7eb94883fc0465f18e4f">nvnBlendStateSetDefaults</a>(&amp;m_BlendState);</div>
+<div class="line">    <a name="a14"></a><a class="code" href="group__nvn__c__functions.html#gafe4427881d956cf1db9fc536bb9586ce">nvnBlendStateSetBlendTarget</a>(&amp;m_BlendState, 0);</div>
+<div class="line">    <a name="a15"></a><a class="code" href="group__nvn__c__functions.html#gad8c227afe934866f7758f9158ebe1f9f">nvnBlendStateSetBlendEquation</a>(&amp;m_BlendState, <a name="a16"></a><a class="code" href="group__nvn__c__enum.html#gga127348ecf50d7e4c7197ed7e989c5e60af7626fb9998de54f77c5dc495b4c3cc3">NVNblendEquation::NVN_BLEND_EQUATION_ADD</a>, <a class="code" href="group__nvn__c__enum.html#gga127348ecf50d7e4c7197ed7e989c5e60af7626fb9998de54f77c5dc495b4c3cc3">NVNblendEquation::NVN_BLEND_EQUATION_ADD</a>);</div>
+<div class="line">    <a name="a17"></a><a class="code" href="group__nvn__c__functions.html#ga8f1f669fc90892348eb5763a6d173c60">nvnBlendStateSetBlendFunc</a>(&amp;m_BlendState, <a name="a18"></a><a class="code" href="group__nvn__c__enum.html#ggaa7cd27129fc2e2357fda1f14d9ba60aaacf31260a7bb1522aeb0bcae55ce270d4">NVNblendFunc::NVN_BLEND_FUNC_SRC_ALPHA</a>, <a name="a19"></a><a class="code" href="group__nvn__c__enum.html#ggaa7cd27129fc2e2357fda1f14d9ba60aaa6e0f1afc9d3e48e0422180439a85a5c0">NVNblendFunc::NVN_BLEND_FUNC_ONE_MINUS_SRC_ALPHA</a>,</div>
+<div class="line">                                             <a class="code" href="group__nvn__c__enum.html#ggaa7cd27129fc2e2357fda1f14d9ba60aaacf31260a7bb1522aeb0bcae55ce270d4">NVNblendFunc::NVN_BLEND_FUNC_SRC_ALPHA</a>, <a class="code" href="group__nvn__c__enum.html#ggaa7cd27129fc2e2357fda1f14d9ba60aaa6e0f1afc9d3e48e0422180439a85a5c0">NVNblendFunc::NVN_BLEND_FUNC_ONE_MINUS_SRC_ALPHA</a>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Channel Mask State */</span></div>
+<div class="line">    <a name="a20"></a><a class="code" href="group__nvn__c__functions.html#gafc110d97cce3482f715d26e83413adfc">nvnChannelMaskStateSetDefaults</a>(&amp;m_ChannelMaskState);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Color State */</span></div>
+<div class="line">    <a name="a21"></a><a class="code" href="group__nvn__c__functions.html#ga1b5549b5bc5384456dda61010d85b5c2">nvnColorStateSetDefaults</a>(&amp;m_ColorState);</div>
+<div class="line">    <a name="a22"></a><a class="code" href="group__nvn__c__functions.html#ga4c1c99c2ad31d66b2a6c170b8d8b324c">nvnColorStateSetBlendEnable</a>(&amp;m_ColorState, 0, <a name="a23"></a><a class="code" href="group__nvn__c__defines.html#ga48151b7e768a13685d77d1a4c464a33b">NVN_TRUE</a>);</div>
+<div class="line">    <a name="a24"></a><a class="code" href="group__nvn__c__functions.html#ga34d488b77453064ee98fd042c5f8f9df">nvnColorStateSetLogicOp</a>(&amp;m_ColorState, <a name="a25"></a><a class="code" href="group__nvn__c__enum.html#gga13d92b26dc58a3c92b79e217e1d81786a32b2015eabb649101676f7562fd573cb">NVNlogicOp::NVN_LOGIC_OP_COPY</a>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Depth Stencil State */</span></div>
+<div class="line">    <a name="a26"></a><a class="code" href="group__nvn__c__functions.html#ga2f659011ea2a0c713e64022959b865e2">nvnDepthStencilStateSetDefaults</a>(&amp;m_DepthStencilState);</div>
+<div class="line">    <a name="a27"></a><a class="code" href="group__nvn__c__functions.html#ga8a0a2454a1b00a8889d1d34fd8a7da69">nvnDepthStencilStateSetDepthTestEnable</a>(&amp;m_DepthStencilState, <a name="a28"></a><a class="code" href="group__nvn__c__defines.html#gad12fb86930f09043843be6b39c78bb1b">NVN_FALSE</a>);</div>
+<div class="line">    <a name="a29"></a><a class="code" href="group__nvn__c__functions.html#ga363282d1d17b72e5553651d7b2c367cf">nvnDepthStencilStateSetDepthWriteEnable</a>(&amp;m_DepthStencilState, <a class="code" href="group__nvn__c__defines.html#gad12fb86930f09043843be6b39c78bb1b">NVN_FALSE</a>);</div>
+<div class="line">    <a name="a30"></a><a class="code" href="group__nvn__c__functions.html#ga0127f672494691efb62b594091eeddee">nvnDepthStencilStateSetStencilTestEnable</a>(&amp;m_DepthStencilState, <a class="code" href="group__nvn__c__defines.html#gad12fb86930f09043843be6b39c78bb1b">NVN_FALSE</a>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Multisample state */</span></div>
+<div class="line">    <a name="a31"></a><a class="code" href="group__nvn__c__functions.html#ga0d649ca21de18dd8b544c8006d6612d8">nvnMultisampleStateSetDefaults</a>(&amp;m_MultisampleState);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Polygon state */</span></div>
+<div class="line">    <a name="a32"></a><a class="code" href="group__nvn__c__functions.html#ga47c2200da77cbb2c0d7279ecb9311525">nvnPolygonStateSetDefaults</a>(&amp;m_PolygonState);</div>
+<div class="line">    <a name="a33"></a><a class="code" href="group__nvn__c__functions.html#ga3520bbbee9b5089521912dacdbdbb4b6">nvnPolygonStateSetCullFace</a>(&amp;m_PolygonState, <a name="a34"></a><a class="code" href="group__nvn__c__enum.html#gga258b4f915ce6b9b20d57763d617278dfa31eec9eec788ac370a4a89491376e43e">NVNface::NVN_FACE_NONE</a>);</div>
+<div class="line">    <a name="a35"></a><a class="code" href="group__nvn__c__functions.html#ga0de647048323e5c7b6fe8d93a0875cca">nvnPolygonStateSetFrontFace</a>(&amp;m_PolygonState, <a name="a36"></a><a class="code" href="group__nvn__c__enum.html#gga77dcac47ffba6330842afbc0c57db3c3a171a73f1463236c1cc74be65247e2eb1">NVNfrontFace::NVN_FRONT_FACE_CCW</a>);</div>
+<div class="line">    <a name="a37"></a><a class="code" href="group__nvn__c__functions.html#gae5d89993b3e9b7adcee98d5846052cb5">nvnPolygonStateSetPolygonMode</a>(&amp;m_PolygonState, <a name="a38"></a><a class="code" href="group__nvn__c__enum.html#ggae34b6e4f02d0dae7198337f940340ec6afa5ffe77479c77c1d43668353cf58e91">NVNpolygonMode::NVN_POLYGON_MODE_FILL</a>);</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the builders */</span></div>
+<div class="line">    <a name="a39"></a><a class="code" href="group__nvn__c__functions.html#ga7504233cce44b1f5a7223f322b76a84d">nvnSamplerBuilderSetDevice</a>(&amp;m_SamplerBuilder, m_pDevice);</div>
+<div class="line">    <a name="a40"></a><a class="code" href="group__nvn__c__functions.html#ga889b306858059648c66e88a226391acc">nvnSamplerBuilderSetDefaults</a>(&amp;m_SamplerBuilder);</div>
+<div class="line"></div>
+<div class="line">    <a name="a41"></a><a class="code" href="group__nvn__c__functions.html#ga7f1e5a40cc9b049892a527b95ac9b9fc">nvnBufferBuilderSetDevice</a>(&amp;m_BufferBuilder, m_pDevice);</div>
+<div class="line">    <a name="a42"></a><a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line"></div>
+<div class="line">    <a name="a43"></a><a class="code" href="group__nvn__c__functions.html#ga3125b10128cdf01e0c489ebf9644cc36">nvnTextureBuilderSetDevice</a>(&amp;m_TextureBuilder, m_pDevice);</div>
+<div class="line">    <a name="a44"></a><a class="code" href="group__nvn__c__functions.html#ga6287f82327692478ee9040e4fe73dd36">nvnTextureBuilderSetDefaults</a>(&amp;m_TextureBuilder);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Load the font shader asset file. */</span></div>
+<div class="line">    m_pAssetLoader = <span class="keyword">new</span> AssetFileLoadingHelper(m_pDevice, NULL);</div>
+<div class="line">    m_pDataHolder = m_pAssetLoader-&gt;LoadAssetFile(<span class="stringliteral">&quot;fontShader.out&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Setup the position vertex attribute. */</span></div>
+<div class="line">    m_PositionLocation = FontShader::Attributes::GetAttributeLocation(<span class="stringliteral">&quot;a_position&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_PositionLocation &gt;= 0, <span class="stringliteral">&quot;Position Vertex Attribute index is negative\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a45"></a><a class="code" href="struct_n_v_nvertex_attrib_state.html">NVNvertexAttribState</a>* positionAttribute = &amp;m_VertexAttributeStates[m_PositionLocation];</div>
+<div class="line">    <a name="a46"></a><a class="code" href="group__nvn__c__functions.html#ga8e71254f0f8cd7eb8fa2aa8e8909779f">nvnVertexAttribStateSetDefaults</a>(positionAttribute);</div>
+<div class="line">    <a name="a47"></a><a class="code" href="group__nvn__c__functions.html#ga447b6bbe81e21c3bff3dbf10bc15d80e">nvnVertexAttribStateSetFormat</a>(positionAttribute, <a name="a48"></a><a class="code" href="group__nvn__c__enum.html#gga99463f5b9af6151e604b01dfdd5fecababeba6c57385cda6b11aee8d9986f26db">NVNformat::NVN_FORMAT_RGB32F</a>, 0);</div>
+<div class="line">    <a name="a49"></a><a class="code" href="group__nvn__c__functions.html#gab96f74226c1d22d01c186d908eff14ab">nvnVertexAttribStateSetStreamIndex</a>(positionAttribute, m_PositionLocation);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a50"></a><a class="code" href="struct_n_v_nvertex_stream_state.html">NVNvertexStreamState</a>* positionStream = &amp;m_VertexStreamStates[m_PositionLocation];</div>
+<div class="line">    <a name="a51"></a><a class="code" href="group__nvn__c__functions.html#ga9a72c7499ec4a36d8cc38d0b5d575c90">nvnVertexStreamStateSetStride</a>(positionStream, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 3);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Setup the texture coordinate vertex attribute. */</span></div>
+<div class="line">    m_TextureCoordinateLocation = FontShader::Attributes::GetAttributeLocation(<span class="stringliteral">&quot;a_texCoord&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_TextureCoordinateLocation &gt;= 0, <span class="stringliteral">&quot;Texture Coordinate Vertex Attribute index is negative\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="struct_n_v_nvertex_attrib_state.html">NVNvertexAttribState</a>* textureCoordinateAttribute = &amp;m_VertexAttributeStates[m_TextureCoordinateLocation];</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga8e71254f0f8cd7eb8fa2aa8e8909779f">nvnVertexAttribStateSetDefaults</a>(textureCoordinateAttribute);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga447b6bbe81e21c3bff3dbf10bc15d80e">nvnVertexAttribStateSetFormat</a>(textureCoordinateAttribute, <a name="a52"></a><a class="code" href="group__nvn__c__enum.html#gga99463f5b9af6151e604b01dfdd5fecaba282f468096b9b50cba1b5d85adae7bb9">NVNformat::NVN_FORMAT_RG32F</a>, 0);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#gab96f74226c1d22d01c186d908eff14ab">nvnVertexAttribStateSetStreamIndex</a>(textureCoordinateAttribute, m_TextureCoordinateLocation);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="struct_n_v_nvertex_stream_state.html">NVNvertexStreamState</a>* textureCoordinateStream = &amp;m_VertexStreamStates[m_TextureCoordinateLocation];</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga9a72c7499ec4a36d8cc38d0b5d575c90">nvnVertexStreamStateSetStride</a>(textureCoordinateStream, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2);</div>
+<div class="line"></div>
+<div class="line">    uint32_t indexElements = g_FontMaxBufferSize * 6;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the vertex data memory pool. */</span></div>
+<div class="line">    m_pVertexDataPool = <span class="keyword">new</span> <a class="code" href="namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5">MemoryPool</a>();</div>
+<div class="line">    m_pVertexDataPool-&gt;Init(</div>
+<div class="line">        NULL,</div>
+<div class="line">        (<span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 3 + <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2) * 4 * g_FontMaxBufferSize * g_MaxNumLines + <span class="keyword">sizeof</span>(uint16_t) * indexElements,</div>
+<div class="line">        <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">        m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the uniform buffer memory pool. */</span></div>
+<div class="line">    m_pUniformBufferPool = <span class="keyword">new</span> <a class="code" href="namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5">MemoryPool</a>();</div>
+<div class="line">    m_pUniformBufferPool-&gt;Init(</div>
+<div class="line">        NULL,</div>
+<div class="line">       (Align(<span class="keyword">sizeof</span>(FontShader::BlockColorFSUniformBlockData), 256) +</div>
+<div class="line">        Align(<span class="keyword">sizeof</span>(FontShader::BlockSamplerFSUniformBlockData), 256) +</div>
+<div class="line">        Align(<span class="keyword">sizeof</span>(FontShader::BlockVSUniformBlockData), 256)) * g_MaxNumLines,</div>
+<div class="line">        <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">        m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the vertex buffers for the font. */</span></div>
+<div class="line">    <span class="keywordflow">for</span>(uint32_t i = 0; i &lt; g_MaxNumLines; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        ptrdiff_t vertexPoolOffset = m_pVertexDataPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 3 * 4 * g_FontMaxBufferSize, 4);</div>
+<div class="line">        CreateBuffer(&amp;m_FontPositionData[i], m_pVertexDataPool-&gt;GetMemoryPool(), <span class="keyword">sizeof</span>(float) * 3 * 4 * g_FontMaxBufferSize, vertexPoolOffset);</div>
+<div class="line"></div>
+<div class="line">        vertexPoolOffset = m_pVertexDataPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2 * 4 * g_FontMaxBufferSize, 4);</div>
+<div class="line">        CreateBuffer(&amp;m_FontTextureCoordinateData[i], m_pVertexDataPool-&gt;GetMemoryPool(), <span class="keyword">sizeof</span>(float) * 2 * 4 * g_FontMaxBufferSize, vertexPoolOffset);</div>
+<div class="line"></div>
+<div class="line">        ptrdiff_t uniformPoolOffset = m_pUniformBufferPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(FontShader::BlockVSUniformBlockData), 256);</div>
+<div class="line">        CreateBuffer(&amp;m_FontUniformDataVS[i], m_pUniformBufferPool-&gt;GetMemoryPool(), <span class="keyword">sizeof</span>(FontShader::BlockVSUniformBlockData), uniformPoolOffset);</div>
+<div class="line"></div>
+<div class="line">        uniformPoolOffset = m_pUniformBufferPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(FontShader::BlockColorFSUniformBlockData), 256);</div>
+<div class="line">        CreateBuffer(&amp;m_FontUniformDataPSColor[i], m_pUniformBufferPool-&gt;GetMemoryPool(), <span class="keyword">sizeof</span>(FontShader::BlockColorFSUniformBlockData), uniformPoolOffset);</div>
+<div class="line"></div>
+<div class="line">        uniformPoolOffset = m_pUniformBufferPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(FontShader::BlockSamplerFSUniformBlockData), 256);</div>
+<div class="line">        CreateBuffer(&amp;m_FontUniformDataPSSampler[i], m_pUniformBufferPool-&gt;GetMemoryPool(), <span class="keyword">sizeof</span>(FontShader::BlockSamplerFSUniformBlockData), uniformPoolOffset);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the index buffer. */</span></div>
+<div class="line">    CreateBuffer(&amp;m_FontIndexData,</div>
+<div class="line">                 m_pVertexDataPool-&gt;GetMemoryPool(),</div>
+<div class="line">                 <span class="keyword">sizeof</span>(uint16_t) * indexElements,</div>
+<div class="line">                 m_pVertexDataPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(uint16_t) * indexElements, 2));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Setup the indices. */</span></div>
+<div class="line">    uint16_t remap[] = { 0, 1, 3, 3, 0, 2 };</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; indexElements; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">reinterpret_cast&lt;</span>uint16_t*<span class="keyword">&gt;</span>(m_FontIndexData.m_pBufferMap)[i] = (uint16_t)(i / 6 * 4 + remap[i % 6]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Allocate memory for the font textures. */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> fontMemSize = Align(<span class="keyword">sizeof</span>(s_FontImageDataF), 512) + Align(<span class="keyword">sizeof</span>(s_FontImageDataP), 512);</div>
+<div class="line"></div>
+<div class="line">    m_pFontTexturePool = <span class="keyword">new</span> <a class="code" href="namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5">MemoryPool</a>();</div>
+<div class="line">    m_pFontTexturePool-&gt;Init(NULL, fontMemSize, <a name="a53"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654ae90d91fe770d2eb3e1476c404c003369">NVN_MEMORY_POOL_FLAGS_CPU_NO_ACCESS_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>, m_pDevice);</div>
+<div class="line"></div>
+<div class="line">    m_pFontTextureBufferPool = <span class="keyword">new</span> <a class="code" href="namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5">MemoryPool</a>();</div>
+<div class="line">    m_pFontTextureBufferPool-&gt;Init(NULL, fontMemSize, <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>, m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the font textures. */</span></div>
+<div class="line">    ptrdiff_t fontPOffset = m_pFontTextureBufferPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(s_FontImageDataP), 512);</div>
+<div class="line">    InitFontTexture(&amp;m_FontP, fontPOffset);</div>
+<div class="line"></div>
+<div class="line">    ptrdiff_t fontFOffset = m_pFontTextureBufferPool-&gt;GetNewMemoryChunkOffset(<span class="keyword">sizeof</span>(s_FontImageDataF), 512);</div>
+<div class="line">    InitFontTexture(&amp;m_FontF, fontFOffset);</div>
+<div class="line"></div>
+<div class="line">    uint32_t sizeP = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(m_FontP.m_FontTextureHeight * m_FontP.m_FontTextureWidth * m_FontP.m_Channel);</div>
+<div class="line">    uint32_t sizeF = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(m_FontF.m_FontTextureHeight * m_FontF.m_FontTextureWidth * m_FontF.m_Channel);</div>
+<div class="line"></div>
+<div class="line">    memcpy(m_FontP.m_FontTextureData.m_TextureBufferData.m_pBufferMap, m_FontP.m_pFontImageData, sizeP);</div>
+<div class="line">    memcpy(m_FontF.m_FontTextureData.m_TextureBufferData.m_pBufferMap, m_FontF.m_pFontImageData, sizeF);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a54"></a><a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a>* pCmdBuf = NULL;</div>
+<div class="line">    <span class="keywordflow">if</span> (!m_UsingSyncManager)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a55"></a><a class="code" href="group__nvn__c__functions.html#gae646129720b27503c239a22db9653fa0">nvnQueueFenceSync</a>(m_pQueue, &amp;m_CommandBufferSync, <a name="a56"></a><a class="code" href="group__nvn__c__enum.html#gga6ab26a343b68da722799167ea97ec69da81ae43677cd72903d494e5c37e061294">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</a>, 0);</div>
+<div class="line">        <a name="a57"></a><a class="code" href="group__nvn__c__functions.html#ga98feac9fc906eb1a9a5eb19ef4381b46">nvnQueueFlush</a>(m_pQueue);</div>
+<div class="line">        <a name="a58"></a><a class="code" href="group__nvn__c__functions.html#ga2e9deb5d068866fe0c32929a3f82baf3">nvnSyncWait</a>(&amp;m_CommandBufferSync, <a name="a59"></a><a class="code" href="group__nvn__c__defines.html#ga6c3444e501307a094f1d57abf1059aed">NVN_WAIT_TIMEOUT_MAXIMUM</a>);</div>
+<div class="line"></div>
+<div class="line">        pCmdBuf = &amp;m_CommandBuffer;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pCmdBuf = m_pManagedCommandBuffer-&gt;GetCommandBuffer();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Copy the font texture data into an NVNtexture. */</span></div>
+<div class="line">    <a name="a60"></a><a class="code" href="group__nvn__c__functions.html#gaeb763d2bdad2c058c75802190fef4748">nvnCommandBufferBeginRecording</a>(pCmdBuf);</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__handle.html#ga067da3a838f115226c89fad655278f80">NVNbufferAddress</a> fontPBufferAddress = <a name="a61"></a><a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(m_FontP.m_FontTextureData.m_TextureBufferData.m_pObject);</div>
+<div class="line">        <a name="_a62"></a><a class="code" href="struct_n_v_ncopy_region.html">NVNcopyRegion</a> fontPCopyRegion;</div>
+<div class="line">        fontPCopyRegion.<a name="a63"></a><a class="code" href="struct_n_v_ncopy_region.html#a62818971f7c2d1d8b50b4f2f17695a89">xoffset</a> = 0;</div>
+<div class="line">        fontPCopyRegion.<a name="a64"></a><a class="code" href="struct_n_v_ncopy_region.html#a5cf7bfd9a638b605b6dbb1925ec15579">yoffset</a> = 0;</div>
+<div class="line">        fontPCopyRegion.<a name="a65"></a><a class="code" href="struct_n_v_ncopy_region.html#a049973b5f7801c8f6077abd1bd10cdb5">zoffset</a> = 0;</div>
+<div class="line">        fontPCopyRegion.<a name="a66"></a><a class="code" href="struct_n_v_ncopy_region.html#a2760a2442f385cff3de39e1f43fb3d15">width</a>   = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(m_FontP.m_FontTextureWidth);</div>
+<div class="line">        fontPCopyRegion.<a name="a67"></a><a class="code" href="struct_n_v_ncopy_region.html#af7912a472ef5b80b2f57617046c52de7">height</a>  = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(m_FontP.m_FontTextureHeight);</div>
+<div class="line">        fontPCopyRegion.<a name="a68"></a><a class="code" href="struct_n_v_ncopy_region.html#a10692b82ad7fa9f6c9ecce2a653cf09f">depth</a>   = 1;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="group__nvn__c__enum.html#ga264a21eefa322cd0ad9acf4c2ab949ad">NVNcopyFlags</a> fontPCopyFlags = <a name="a69"></a><a class="code" href="group__nvn__c__enum.html#gga264a21eefa322cd0ad9acf4c2ab949ada2dcf02e35d39e7fbdd45f48d6a086286">NVN_COPY_FLAGS_NONE</a>;</div>
+<div class="line">        <a name="a70"></a><a class="code" href="group__nvn__c__functions.html#gaaa8c77d09aa827fbbced85deecec671e">nvnCommandBufferCopyBufferToTexture</a>(</div>
+<div class="line">            pCmdBuf,</div>
+<div class="line">            fontPBufferAddress,</div>
+<div class="line">            m_FontP.m_FontTextureData.m_pTexture,</div>
+<div class="line">            NULL,</div>
+<div class="line">            &amp;fontPCopyRegion,</div>
+<div class="line">            fontPCopyFlags);</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="group__nvn__c__handle.html#ga067da3a838f115226c89fad655278f80">NVNbufferAddress</a> fontFBufferAddress = <a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(m_FontF.m_FontTextureData.m_TextureBufferData.m_pObject);</div>
+<div class="line">        <a class="code" href="struct_n_v_ncopy_region.html">NVNcopyRegion</a> fontFCopyRegion;</div>
+<div class="line">        fontFCopyRegion.<a class="code" href="struct_n_v_ncopy_region.html#a62818971f7c2d1d8b50b4f2f17695a89">xoffset</a> = 0;</div>
+<div class="line">        fontFCopyRegion.<a class="code" href="struct_n_v_ncopy_region.html#a5cf7bfd9a638b605b6dbb1925ec15579">yoffset</a> = 0;</div>
+<div class="line">        fontFCopyRegion.<a class="code" href="struct_n_v_ncopy_region.html#a049973b5f7801c8f6077abd1bd10cdb5">zoffset</a> = 0;</div>
+<div class="line">        fontFCopyRegion.<a class="code" href="struct_n_v_ncopy_region.html#a2760a2442f385cff3de39e1f43fb3d15">width</a>   = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(m_FontF.m_FontTextureWidth);</div>
+<div class="line">        fontFCopyRegion.<a class="code" href="struct_n_v_ncopy_region.html#af7912a472ef5b80b2f57617046c52de7">height</a>  = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(m_FontF.m_FontTextureHeight);</div>
+<div class="line">        fontFCopyRegion.<a class="code" href="struct_n_v_ncopy_region.html#a10692b82ad7fa9f6c9ecce2a653cf09f">depth</a>   = 1;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="group__nvn__c__enum.html#ga264a21eefa322cd0ad9acf4c2ab949ad">NVNcopyFlags</a> fontFCopyFlags = <a class="code" href="group__nvn__c__enum.html#gga264a21eefa322cd0ad9acf4c2ab949ada2dcf02e35d39e7fbdd45f48d6a086286">NVN_COPY_FLAGS_NONE</a>;</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#gaaa8c77d09aa827fbbced85deecec671e">nvnCommandBufferCopyBufferToTexture</a>(</div>
+<div class="line">            pCmdBuf,</div>
+<div class="line">            fontFBufferAddress,</div>
+<div class="line">            m_FontF.m_FontTextureData.m_pTexture,</div>
+<div class="line">            NULL,</div>
+<div class="line">            &amp;fontFCopyRegion,</div>
+<div class="line">            fontFCopyFlags);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_CommandHandle = <a name="a71"></a><a class="code" href="group__nvn__c__functions.html#ga7d97d4cbf72259b6e867f3080f223b95">nvnCommandBufferEndRecording</a>(pCmdBuf);</div>
+<div class="line">    <a name="a72"></a><a class="code" href="group__nvn__c__functions.html#ga095fabdb4c81459bbe496ba45528211b">nvnQueueSubmitCommands</a>(m_pQueue, 1, &amp;m_CommandHandle);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set some default values for the renderer. */</span></div>
+<div class="line">    SetSpacing(<span class="keyword">true</span>);</div>
+<div class="line">    SetGridSize(60.0f, 24.0f);</div>
+<div class="line">    SetColor(1.0f, 1.0f, 1.0f, 1.0f);</div>
+<div class="line">    SetZValue(-1.0f);</div>
+<div class="line"></div>
+<div class="line">    m_Enabled = <span class="keyword">true</span>;</div>
+<div class="line">}<span class="comment">//NOLINT(impl/function_size)</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::InitFontTexture</span></div>
+<div class="line"><span class="comment"> * ----------------------------------</span></div>
+<div class="line"><span class="comment"> * Sets up the NVN data for the font texture.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::InitFontTexture(FontData* pData, ptrdiff_t poolOffset)</div>
+<div class="line">{</div>
+<div class="line">    uint32_t width   = (uint32_t)pData-&gt;m_FontTextureWidth;</div>
+<div class="line">    uint32_t height  = (uint32_t)pData-&gt;m_FontTextureHeight;</div>
+<div class="line">    uint32_t depth   = 1;</div>
+<div class="line">    uint32_t channel = (uint32_t)pData-&gt;m_Channel;</div>
+<div class="line">    uint32_t size    = width*height*depth*channel;</div>
+<div class="line"></div>
+<div class="line">    uint32_t samplerID, textureID;</div>
+<div class="line"></div>
+<div class="line">    if (!pData-&gt;m_FontTextureData.m_pSampler)</div>
+<div class="line">    {</div>
+<div class="line">        pData-&gt;m_FontTextureData.m_pSampler = <span class="keyword">new</span> <a name="_a73"></a><a class="code" href="struct_n_v_nsampler.html">NVNsampler</a>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <a name="a74"></a><a class="code" href="group__nvn__c__functions.html#ga82945a36dea04505dcd29e03442ed5a6">nvnSamplerFinalize</a>(pData-&gt;m_FontTextureData.m_pSampler);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the sampler, register it, and grab its ID. */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga889b306858059648c66e88a226391acc">nvnSamplerBuilderSetDefaults</a>(&amp;m_SamplerBuilder);</div>
+<div class="line">    <a name="a75"></a><a class="code" href="group__nvn__c__functions.html#ga0f634bd122e2b47cbebfeb16cda8352f">nvnSamplerBuilderSetMinMagFilter</a>(&amp;m_SamplerBuilder, <a name="a76"></a><a class="code" href="group__nvn__c__enum.html#gga41610125d2ee1e59db15c26f9a1288c5a46491b2e050963aebd1adca628936509">NVN_MIN_FILTER_LINEAR</a>, <a name="a77"></a><a class="code" href="group__nvn__c__enum.html#gga7f4e9b2ce71bbd9c4c2de6b3cfc293dca803ef983fc9050410c23c0362c58e2d0">NVN_MAG_FILTER_LINEAR</a>);</div>
+<div class="line">    <a name="a78"></a><a class="code" href="group__nvn__c__functions.html#ga63aec39a3ab8401a6e287d2024c74e2f">nvnSamplerBuilderSetWrapMode</a>(&amp;m_SamplerBuilder, <a name="a79"></a><a class="code" href="group__nvn__c__enum.html#ggae1db40da1d4ffe0bc8d43aa853380d5caf5b30191e20b3f8ec86d44387bdda385">NVN_WRAP_MODE_CLAMP</a>, <a class="code" href="group__nvn__c__enum.html#ggae1db40da1d4ffe0bc8d43aa853380d5caf5b30191e20b3f8ec86d44387bdda385">NVN_WRAP_MODE_CLAMP</a>, <a class="code" href="group__nvn__c__enum.html#ggae1db40da1d4ffe0bc8d43aa853380d5caf5b30191e20b3f8ec86d44387bdda385">NVN_WRAP_MODE_CLAMP</a>);</div>
+<div class="line">    <a name="a80"></a><a class="code" href="group__nvn__c__functions.html#ga5f3728966dc1ce72231c88bd3bca94ad">nvnSamplerInitialize</a>(pData-&gt;m_FontTextureData.m_pSampler, &amp;m_SamplerBuilder);</div>
+<div class="line">    samplerID = m_pTextureIDManager-&gt;RegisterSampler(pData-&gt;m_FontTextureData.m_pSampler);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!pData-&gt;m_FontTextureData.m_pTexture)</div>
+<div class="line">    {</div>
+<div class="line">        pData-&gt;m_FontTextureData.m_pTexture = <span class="keyword">new</span> <a name="_a81"></a><a class="code" href="struct_n_v_ntexture.html">NVNtexture</a>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <a name="a82"></a><a class="code" href="group__nvn__c__functions.html#gaa5741253f7ab5c9075a6821a68cfa351">nvnTextureFinalize</a>(pData-&gt;m_FontTextureData.m_pTexture);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the texture and get its ID. */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6287f82327692478ee9040e4fe73dd36">nvnTextureBuilderSetDefaults</a>(&amp;m_TextureBuilder);</div>
+<div class="line">    <a name="a83"></a><a class="code" href="group__nvn__c__functions.html#gaa7e80e3d31c6cffc51d255cbe86694b3">nvnTextureBuilderSetTarget</a>(&amp;m_TextureBuilder, <a name="a84"></a><a class="code" href="group__nvn__c__enum.html#gga7f247010f53480c7dd1f3b2ad638c431a856184892b54a04cd16ec7848108ec53">NVN_TEXTURE_TARGET_2D</a>);</div>
+<div class="line">    <a name="a85"></a><a class="code" href="group__nvn__c__functions.html#ga7b84b7b97960b702cd6e8438e0bc303b">nvnTextureBuilderSetLevels</a>(&amp;m_TextureBuilder, 1);</div>
+<div class="line">    <a name="a86"></a><a class="code" href="group__nvn__c__functions.html#gad83f59e208a24b5843543e1d0c7aec8a">nvnTextureBuilderSetFormat</a>(&amp;m_TextureBuilder, <a name="a87"></a><a class="code" href="group__nvn__c__enum.html#gga99463f5b9af6151e604b01dfdd5fecaba1b8221c2a207f0d16fb49c568040da0b">NVN_FORMAT_R8</a>);</div>
+<div class="line">    <a name="a88"></a><a class="code" href="group__nvn__c__functions.html#ga1eb945f455f851adf9b738be38cfb0bc">nvnTextureBuilderSetSize2D</a>(&amp;m_TextureBuilder, width, height);</div>
+<div class="line">    <a name="a89"></a><a class="code" href="group__nvn__c__functions.html#gad86f04179d66882fe758554678311e42">nvnTextureBuilderSetDepth</a>(&amp;m_TextureBuilder, depth);</div>
+<div class="line">    <a name="a90"></a><a class="code" href="group__nvn__c__functions.html#ga0d9a12fdb214af17acac6536d23cd911">nvnTextureBuilderSetSamples</a>(&amp;m_TextureBuilder, 0);</div>
+<div class="line">    uint64_t storage = <a name="a91"></a><a class="code" href="group__nvn__c__functions.html#ga1ba9cfd0600643dbb909eaa9c36abe26">nvnTextureBuilderGetStorageSize</a>(&amp;m_TextureBuilder);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(storage);</div>
+<div class="line">    <a name="a92"></a><a class="code" href="group__nvn__c__functions.html#gaf6530c01a016b836ad82434f6a793cd8">nvnTextureBuilderSetStorage</a>(&amp;m_TextureBuilder, m_pFontTexturePool-&gt;GetMemoryPool(), poolOffset);</div>
+<div class="line">    <a name="a93"></a><a class="code" href="group__nvn__c__functions.html#gad8c5cbaa3292721f1de9d521a66aac3e">nvnTextureInitialize</a>(pData-&gt;m_FontTextureData.m_pTexture, &amp;m_TextureBuilder);</div>
+<div class="line">    textureID = m_pTextureIDManager-&gt;RegisterTexture(pData-&gt;m_FontTextureData.m_pTexture);</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!pData-&gt;m_FontTextureData.m_TextureBufferData.m_pObject)</div>
+<div class="line">    {</div>
+<div class="line">        pData-&gt;m_FontTextureData.m_TextureBufferData.m_pObject = <span class="keyword">new</span> <a name="_a94"></a><a class="code" href="struct_n_v_nbuffer.html">NVNbuffer</a>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <a name="a95"></a><a class="code" href="group__nvn__c__functions.html#ga3e56941d8153c1e1b2ba861189ea993d">nvnBufferFinalize</a>(pData-&gt;m_FontTextureData.m_TextureBufferData.m_pObject);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the NVNbuffer to hold the texture data to be copied into an NVNtexture. */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line">    <a name="a96"></a><a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;m_BufferBuilder, m_pFontTextureBufferPool-&gt;GetMemoryPool(), poolOffset, size);</div>
+<div class="line">    <a name="a97"></a><a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(pData-&gt;m_FontTextureData.m_TextureBufferData.m_pObject, &amp;m_BufferBuilder);</div>
+<div class="line">    pData-&gt;m_FontTextureData.m_TextureBufferData.m_Address = <a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(pData-&gt;m_FontTextureData.m_TextureBufferData.m_pObject);</div>
+<div class="line">    pData-&gt;m_FontTextureData.m_TextureBufferData.m_pBufferMap = <a name="a98"></a><a class="code" href="group__nvn__c__functions.html#gaa3a80a57023737b594e83a9fa04282c6">nvnBufferMap</a>(pData-&gt;m_FontTextureData.m_TextureBufferData.m_pObject);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get the texture&#39;s combined texture handle. */</span></div>
+<div class="line">    pData-&gt;m_FontTextureData.m_TextureHandle = <a name="a99"></a><a class="code" href="group__nvn__c__functions.html#ga0ca6fe7fc102170723f5eccb14a25046">nvnDeviceGetTextureHandle</a>(m_pDevice, textureID, samplerID);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::CleanBufferData</span></div>
+<div class="line"><span class="comment"> * ----------------------------------</span></div>
+<div class="line"><span class="comment"> * Cleans up a given FontBufferData struct.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::CleanBufferData(FontBufferData&amp; bufferData)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span>(bufferData.m_pObject)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga3e56941d8153c1e1b2ba861189ea993d">nvnBufferFinalize</a>(bufferData.m_pObject);</div>
+<div class="line">        <span class="keyword">delete</span> bufferData.m_pObject;</div>
+<div class="line">        bufferData.m_pObject = NULL;</div>
+<div class="line">        bufferData.m_pBufferMap = NULL;</div>
+<div class="line">        bufferData.m_Address = 0;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::CleanUp</span></div>
+<div class="line"><span class="comment"> * --------------------------</span></div>
+<div class="line"><span class="comment"> * Cleans up all the NVN data and mempory allocated</span></div>
+<div class="line"><span class="comment"> * for the text renderer.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::CleanUp()</div>
+<div class="line">{</div>
+<div class="line">    m_pDevice = NULL;</div>
+<div class="line">    m_pQueue = NULL;</div>
+<div class="line">    m_pTextureIDManager = NULL;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span>(uint32_t i = 0; i &lt; g_MaxNumLines; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        CleanBufferData(m_FontPositionData[i]);</div>
+<div class="line">        CleanBufferData(m_FontTextureCoordinateData[i]);</div>
+<div class="line">        CleanBufferData(m_FontUniformDataVS[i]);</div>
+<div class="line">        CleanBufferData(m_FontUniformDataPSColor[i]);</div>
+<div class="line">        CleanBufferData(m_FontUniformDataPSSampler[i]);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span>(m_FontTexture[i] &amp;&amp; m_FontTexture[i]-&gt;m_pTexture)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="group__nvn__c__functions.html#gaa5741253f7ab5c9075a6821a68cfa351">nvnTextureFinalize</a>(m_FontTexture[i]-&gt;m_pTexture);</div>
+<div class="line">            <span class="keyword">delete</span> m_FontTexture[i]-&gt;m_pTexture;</div>
+<div class="line">            m_FontTexture[i]-&gt;m_pTexture = NULL;</div>
+<div class="line"></div>
+<div class="line">            m_FontTexture[i]-&gt;m_TextureHandle = 0;</div>
+<div class="line"></div>
+<div class="line">            CleanBufferData(m_FontTexture[i]-&gt;m_TextureBufferData);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (m_FontTexture[i] &amp;&amp; m_FontTexture[i]-&gt;m_pSampler)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="group__nvn__c__functions.html#ga82945a36dea04505dcd29e03442ed5a6">nvnSamplerFinalize</a>(m_FontTexture[i]-&gt;m_pSampler);</div>
+<div class="line">            <span class="keyword">delete</span> m_FontTexture[i]-&gt;m_pSampler;</div>
+<div class="line">            m_FontTexture[i]-&gt;m_pSampler = NULL;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_FontP.m_FontTextureData.m_pSampler)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga82945a36dea04505dcd29e03442ed5a6">nvnSamplerFinalize</a>(m_FontP.m_FontTextureData.m_pSampler);</div>
+<div class="line">        <span class="keyword">delete</span> m_FontP.m_FontTextureData.m_pSampler;</div>
+<div class="line">        m_FontP.m_FontTextureData.m_pSampler = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_FontP.m_FontTextureData.m_pTexture)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#gaa5741253f7ab5c9075a6821a68cfa351">nvnTextureFinalize</a>(m_FontP.m_FontTextureData.m_pTexture);</div>
+<div class="line">        <span class="keyword">delete</span> m_FontP.m_FontTextureData.m_pTexture;</div>
+<div class="line">        m_FontP.m_FontTextureData.m_pTexture = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    CleanBufferData(m_FontP.m_FontTextureData.m_TextureBufferData);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_FontF.m_FontTextureData.m_pSampler)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga82945a36dea04505dcd29e03442ed5a6">nvnSamplerFinalize</a>(m_FontF.m_FontTextureData.m_pSampler);</div>
+<div class="line">        <span class="keyword">delete</span> m_FontF.m_FontTextureData.m_pSampler;</div>
+<div class="line">        m_FontF.m_FontTextureData.m_pSampler = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_FontF.m_FontTextureData.m_pTexture)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#gaa5741253f7ab5c9075a6821a68cfa351">nvnTextureFinalize</a>(m_FontF.m_FontTextureData.m_pTexture);</div>
+<div class="line">        <span class="keyword">delete</span> m_FontF.m_FontTextureData.m_pTexture;</div>
+<div class="line">        m_FontF.m_FontTextureData.m_pTexture = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    CleanBufferData(m_FontF.m_FontTextureData.m_TextureBufferData);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_FontIndexData.m_pObject)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga3e56941d8153c1e1b2ba861189ea993d">nvnBufferFinalize</a>(m_FontIndexData.m_pObject);</div>
+<div class="line">        <span class="keyword">delete</span> m_FontIndexData.m_pObject;</div>
+<div class="line">        m_FontIndexData.m_pObject = NULL;</div>
+<div class="line">        m_FontIndexData.m_Address = 0;</div>
+<div class="line">        m_FontIndexData.m_pBufferMap = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_UsingSyncManager)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">delete</span> m_pManagedCommandBuffer;</div>
+<div class="line">        m_pManagedCommandBuffer = NULL;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (m_pControlPool)</div>
+<div class="line">        {</div>
+<div class="line">            AlignedDeallocate(m_pControlPool);</div>
+<div class="line">            m_pControlPool = NULL;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <a name="a100"></a><a class="code" href="group__nvn__c__functions.html#ga014c41d2335d4d9ff6c776c99bc70bfb">nvnCommandBufferFinalize</a>(&amp;m_CommandBuffer);</div>
+<div class="line"></div>
+<div class="line">        <a name="a101"></a><a class="code" href="group__nvn__c__functions.html#ga918f1f02b17ba89d048372ead736a929">nvnSyncFinalize</a>(&amp;m_CommandBufferSync);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (m_pCommandMemoryPool)</div>
+<div class="line">        {</div>
+<div class="line">            m_pCommandMemoryPool-&gt;Shutdown();</div>
+<div class="line">            <span class="keyword">delete</span> m_pCommandMemoryPool;</div>
+<div class="line">            m_pCommandMemoryPool = NULL;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pVertexDataPool)</div>
+<div class="line">    {</div>
+<div class="line">        m_pVertexDataPool-&gt;Shutdown();</div>
+<div class="line">        <span class="keyword">delete</span> m_pVertexDataPool;</div>
+<div class="line">        m_pVertexDataPool = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pUniformBufferPool)</div>
+<div class="line">    {</div>
+<div class="line">        m_pUniformBufferPool-&gt;Shutdown();</div>
+<div class="line">        <span class="keyword">delete</span> m_pUniformBufferPool;</div>
+<div class="line">        m_pUniformBufferPool = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pAssetLoader)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">delete</span> m_pAssetLoader;</div>
+<div class="line">        m_pAssetLoader = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pDataHolder)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">delete</span> m_pDataHolder;</div>
+<div class="line">        m_pDataHolder = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pFontTexturePool)</div>
+<div class="line">    {</div>
+<div class="line">        m_pFontTexturePool-&gt;Shutdown();</div>
+<div class="line">        <span class="keyword">delete</span> m_pFontTexturePool;</div>
+<div class="line">        m_pFontTexturePool = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pFontTextureBufferPool)</div>
+<div class="line">    {</div>
+<div class="line">        m_pFontTextureBufferPool-&gt;Shutdown();</div>
+<div class="line">        <span class="keyword">delete</span> m_pFontTextureBufferPool;</div>
+<div class="line">        m_pFontTextureBufferPool= NULL;</div>
+<div class="line">    }</div>
+<div class="line">}<span class="comment">//NOLINT(impl/function_size)</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer Destructor</span></div>
+<div class="line"><span class="comment"> * ----------------------------</span></div>
+<div class="line"><span class="comment"> * Empty destructor.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">DebugTextRenderer::~DebugTextRenderer()</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::GetFontCharData</span></div>
+<div class="line"><span class="comment"> * ----------------------------------</span></div>
+<div class="line"><span class="comment"> * Sets up the font data.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::GetFontCharData(FontData* pData, <span class="keyword">const</span> uint32_t* pFontHeader, <span class="keyword">const</span> uint32_t* pCharData, <span class="keyword">const</span> uint8_t* pFontImageData)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">float</span> lineHeight;</div>
+<div class="line">    <span class="keywordtype">float</span> maxCharWidth = 0.0f;</div>
+<div class="line">    <span class="keywordtype">float</span> maxCharHeight = 0.0f;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check Font Texture Data */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pFontHeader != NULL &amp;&amp; pCharData != NULL &amp;&amp; pFontImageData != NULL &amp;&amp; <span class="stringliteral">&quot;No texture data.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check char data buffer */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (pData-&gt;m_pCharDataBuffer)</div>
+<div class="line">    {</div>
+<div class="line">            <span class="comment">/* Skip Data Initialization */</span></div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set Font Texture Data Information */</span></div>
+<div class="line">    pData-&gt;m_FontTextureWidth  = (float)pFontHeader[0];</div>
+<div class="line">    pData-&gt;m_FontTextureHeight = (float)pFontHeader[1];</div>
+<div class="line">    pData-&gt;m_Channel           = (uint32_t)pFontHeader[2];</div>
+<div class="line">    lineHeight                 = (float)pFontHeader[4];</div>
+<div class="line">    pData-&gt;m_NumCharData       = pFontHeader[5];</div>
+<div class="line">    pData-&gt;m_GridOffsetX       = 0;</div>
+<div class="line">    pData-&gt;m_GridOffsetY       = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pData == &amp;m_FontP)</div>
+<div class="line">    {</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer = m_CharDataBufferP;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer = m_CharDataBufferF;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check the max number */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pData-&gt;m_NumCharData &lt;= g_MaxNumChars &amp;&amp; <span class="stringliteral">&quot;Font has over the max number of characters.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Format of data is: id, x, y, width, height, xOffset, yOffset, xAdvance */</span></div>
+<div class="line">    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; pData-&gt;m_NumCharData; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        uint32_t <span class="keywordtype">id</span>       = pCharData[i * 8 + 0];</div>
+<div class="line">        uint32_t x        = pCharData[i * 8 + 1];</div>
+<div class="line">        uint32_t y        = pCharData[i * 8 + 2];</div>
+<div class="line">        uint32_t w        = pCharData[i * 8 + 3];</div>
+<div class="line">        uint32_t h        = pCharData[i * 8 + 4];</div>
+<div class="line">        <span class="keywordtype">int</span> xOffset       = (int)pCharData[i * 8 + 5];</div>
+<div class="line">        <span class="keywordtype">int</span> yOffset       = (int)pCharData[i * 8 + 6];</div>
+<div class="line">        uint32_t xAdvance = pCharData[i * 8 + 7];</div>
+<div class="line">        <span class="keywordtype">float</span> charHeight  = (float)(h + yOffset);</div>
+<div class="line"></div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_Id       = id;</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MinS     = (float)x / pData-&gt;m_FontTextureWidth;</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MinT     = (<span class="keywordtype">float</span>)(pData-&gt;m_FontTextureHeight - h - y) / pData-&gt;m_FontTextureHeight;</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MaxS     = (<span class="keywordtype">float</span>)(x + w) / pData-&gt;m_FontTextureWidth;</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MaxT     = (<span class="keywordtype">float</span>)(pData-&gt;m_FontTextureHeight - y) / pData-&gt;m_FontTextureHeight;</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MinX     = (<span class="keywordtype">float</span>)xOffset;</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MinY     = (float)(lineHeight - yOffset - h);</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MaxX     = (float)(xOffset + w);</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_MaxY     = (float)(lineHeight - yOffset);</div>
+<div class="line">        pData-&gt;m_pCharDataBuffer[i].m_XAdvance = (float)xAdvance;</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Set max height of char in GL cordinate space */</span></div>
+<div class="line">        <span class="keywordflow">if</span>(charHeight &gt; maxCharHeight)</div>
+<div class="line">        {</div>
+<div class="line">            maxCharHeight = charHeight;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (pData-&gt;m_pCharDataBuffer[i].m_XAdvance &gt; maxCharWidth)</div>
+<div class="line">        {</div>
+<div class="line">            maxCharWidth = (float)pData-&gt;m_pCharDataBuffer[i].m_XAdvance;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set grid offsetX */</span></div>
+<div class="line">    pData-&gt;m_GridOffsetX = maxCharWidth;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set grid offsetY */</span></div>
+<div class="line">    pData-&gt;m_GridOffsetY = maxCharHeight;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set pointer of Font Image Data */</span></div>
+<div class="line">    pData-&gt;m_pFontImageData = (uint8_t*)pFontImageData;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::CreateBuffer</span></div>
+<div class="line"><span class="comment"> * -------------------------------</span></div>
+<div class="line"><span class="comment"> * Create an NVNbuffer with the specified structure.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::CreateBuffer(FontBufferData* pData, <a name="_a102"></a><a class="code" href="struct_n_v_nmemory_pool.html">NVNmemoryPool</a>* pPool, <span class="keywordtype">size_t</span> size, ptrdiff_t offset)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;m_BufferBuilder);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;m_BufferBuilder, pPool, offset, size);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (pData-&gt;m_pObject)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga3e56941d8153c1e1b2ba861189ea993d">nvnBufferFinalize</a>(pData-&gt;m_pObject);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pData-&gt;m_pObject = <span class="keyword">new</span> <a class="code" href="struct_n_v_nbuffer.html">NVNbuffer</a>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(pData-&gt;m_pObject, &amp;m_BufferBuilder))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize buffer&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    pData-&gt;m_Address = <a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(pData-&gt;m_pObject);</div>
+<div class="line">    pData-&gt;m_pBufferMap = <a class="code" href="group__nvn__c__functions.html#gaa3a80a57023737b594e83a9fa04282c6">nvnBufferMap</a>(pData-&gt;m_pObject);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::SetSpacing</span></div>
+<div class="line"><span class="comment"> * -----------------------------</span></div>
+<div class="line"><span class="comment"> * Sets the spacing for the file</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::SetSpacing(<span class="keywordtype">bool</span> proportional)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Check initialization. */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_FontP.m_pCharDataBuffer &amp;&amp; <span class="stringliteral">&quot;Need to call DebugTextRenderer::Init first&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Update proportional boolean. */</span></div>
+<div class="line">    m_Proportional = proportional;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Switch which scale we use. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (proportional)</div>
+<div class="line">    {</div>
+<div class="line">        m_Font.m_pCharMagScale = m_Font.m_CharMagScaleP;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        m_Font.m_pCharMagScale = m_Font.m_CharMagScaleF;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::SetGridSize</span></div>
+<div class="line"><span class="comment"> * ------------------------------</span></div>
+<div class="line"><span class="comment"> * Sets the size of the grid that the text is rendered in.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::SetGridSize(<span class="keywordtype">float</span> xGrid, <span class="keywordtype">float</span> yGrid)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Check initialization. */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_FontP.m_pCharDataBuffer &amp;&amp; <span class="stringliteral">&quot;Need to call DebugTextRenderer::Init first&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Update scale */</span></div>
+<div class="line">    UpdateScale(&amp;m_Font, xGrid, yGrid);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::UpdateScale</span></div>
+<div class="line"><span class="comment"> * ------------------------------</span></div>
+<div class="line"><span class="comment"> * Sets the scale of the text.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::UpdateScale(FontRenderData* pData, <span class="keywordtype">float</span> scaleX, <span class="keywordtype">float</span> scaleY)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Calculate char scale */</span></div>
+<div class="line">    pData-&gt;m_CharMagScaleF[0] = 2.0f / (scaleX * m_FontF.m_GridOffsetX);</div>
+<div class="line">    pData-&gt;m_CharMagScaleF[1] = 2.0f / (scaleY * m_FontF.m_GridOffsetY);</div>
+<div class="line"></div>
+<div class="line">    pData-&gt;m_CharMagScaleP[0] = 2.0f / (scaleX * m_FontP.m_GridOffsetX);</div>
+<div class="line">    pData-&gt;m_CharMagScaleP[1] = 2.0f / (scaleY * m_FontP.m_GridOffsetY);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::SetColor</span></div>
+<div class="line"><span class="comment"> * ---------------------------</span></div>
+<div class="line"><span class="comment"> * Sets the color of the text.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::SetColor(<span class="keywordtype">float</span> r, <span class="keywordtype">float</span> g, <span class="keywordtype">float</span> b, <span class="keywordtype">float</span> a)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/*  Check initialization */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_FontP.m_pCharDataBuffer &amp;&amp; <span class="stringliteral">&quot;Need to call DebugTextRenderer::Init first&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*  Update color */</span></div>
+<div class="line">    m_Font.m_Color[0] = r;</div>
+<div class="line">    m_Font.m_Color[1] = g;</div>
+<div class="line">    m_Font.m_Color[2] = b;</div>
+<div class="line">    m_Font.m_Color[3] = a;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::SetZValue</span></div>
+<div class="line"><span class="comment"> * ----------------------------</span></div>
+<div class="line"><span class="comment"> * Set the text&#39;s z value.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::SetZValue(<span class="keywordtype">float</span> zValue)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Check initialization */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_FontP.m_pCharDataBuffer &amp;&amp; <span class="stringliteral">&quot;Need to call DebugTextRenderer::Init first&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Update depth value */</span></div>
+<div class="line">    m_Font.m_Depth = zValue;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::UpdateVertexBuffers</span></div>
+<div class="line"><span class="comment"> * --------------------------------------</span></div>
+<div class="line"><span class="comment"> * Updates the vertex buffers for a new string of characters.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::UpdateVertexBuffers(<span class="keyword">const</span> <span class="keywordtype">char</span>* pStr, uint32_t strLength, <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y)</div>
+<div class="line">{</div>
+<div class="line">    uint32_t i = 0;</div>
+<div class="line">    <span class="keywordtype">float</span> cursorOffset = 0;</div>
+<div class="line">    <span class="keywordtype">float</span> gridOffset = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">static</span> <span class="keywordtype">float</span> s_PositionBuffer[g_FontMaxBufferSize * 3 * 4];</div>
+<div class="line">    <span class="keyword">static</span> <span class="keywordtype">float</span> s_TextureCoordinateBuffer[g_FontMaxBufferSize * 2 * 4];</div>
+<div class="line"></div>
+<div class="line">    FontRenderData* pFontData = &amp;m_Font;</div>
+<div class="line">    FontData* pFont = GetCurrentFont();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">while</span> (i &lt; strLength)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">for</span>(; i &lt; strLength; i++)</div>
+<div class="line">        {</div>
+<div class="line">                <span class="comment">/* Get character id */</span></div>
+<div class="line">            uint32_t <span class="keywordtype">id</span> = (uint32_t)pStr[i];</div>
+<div class="line">            uint32_t index = 0;</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">/* Set index offset of buffers */</span></div>
+<div class="line">            uint32_t posSt = i * 12;</div>
+<div class="line">            uint32_t texSt = i * 8;</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">/* Check &quot;\n&quot; */</span></div>
+<div class="line">            <span class="keywordflow">if</span>(<span class="keywordtype">id</span> == 10)</div>
+<div class="line">            {</div>
+<div class="line">                gridOffset -= (float)pFont-&gt;m_GridOffsetY;</div>
+<div class="line">                cursorOffset = 0;</div>
+<div class="line">                i++;</div>
+<div class="line">                <span class="keywordflow">break</span>;</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">else</span> <span class="keywordflow">if</span>(<span class="keywordtype">id</span> &gt;= 32 &amp;&amp; <span class="keywordtype">id</span> &lt;= 127)</div>
+<div class="line">            {</div>
+<div class="line">                    <span class="comment">/* Get index of character id */</span></div>
+<div class="line">                index = BSearchIndex(pFont, <span class="keywordtype">id</span>);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">/* Set Vertex position */</span></div>
+<div class="line">            s_PositionBuffer[posSt + 0] = (float)(pFont-&gt;m_pCharDataBuffer[index].m_MinX + cursorOffset + x);</div>
+<div class="line">            s_PositionBuffer[posSt + 3] = (float)s_PositionBuffer[posSt + 0];</div>
+<div class="line">            s_PositionBuffer[posSt + 6] = (float)(pFont-&gt;m_pCharDataBuffer[index].m_MaxX + cursorOffset + x);</div>
+<div class="line">            s_PositionBuffer[posSt + 9] = (float)s_PositionBuffer[posSt + 6];</div>
+<div class="line"></div>
+<div class="line">            cursorOffset += pFont-&gt;m_pCharDataBuffer[index].m_XAdvance;</div>
+<div class="line"></div>
+<div class="line">            s_PositionBuffer[posSt + 1] = (float)(pFont-&gt;m_pCharDataBuffer[index].m_MinY + gridOffset + y);</div>
+<div class="line">            s_PositionBuffer[posSt + 4] = (float)(pFont-&gt;m_pCharDataBuffer[index].m_MaxY + gridOffset + y);</div>
+<div class="line">            s_PositionBuffer[posSt + 7] = (float)s_PositionBuffer[posSt + 1];</div>
+<div class="line">            s_PositionBuffer[posSt + 10] = (float)s_PositionBuffer[posSt + 4];</div>
+<div class="line"></div>
+<div class="line">            s_PositionBuffer[posSt + 2] = (float)pFontData-&gt;m_Depth;</div>
+<div class="line">            s_PositionBuffer[posSt + 5] = (<span class="keywordtype">float</span>)pFontData-&gt;m_Depth;</div>
+<div class="line">            s_PositionBuffer[posSt + 8] = (float)pFontData-&gt;m_Depth;</div>
+<div class="line">            s_PositionBuffer[posSt + 11] = (<span class="keywordtype">float</span>)pFontData-&gt;m_Depth;</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">/* Set Texture coordinate */</span></div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 0] = (float)pFont-&gt;m_pCharDataBuffer[index].m_MinS;</div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 2] = (<span class="keywordtype">float</span>)pFont-&gt;m_pCharDataBuffer[index].m_MinS;</div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 4] = (float)pFont-&gt;m_pCharDataBuffer[index].m_MaxS;</div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 6] = (<span class="keywordtype">float</span>)pFont-&gt;m_pCharDataBuffer[index].m_MaxS;</div>
+<div class="line"></div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 1] = (float)pFont-&gt;m_pCharDataBuffer[index].m_MinT;</div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 3] = (<span class="keywordtype">float</span>)pFont-&gt;m_pCharDataBuffer[index].m_MaxT;</div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 5] = (float)pFont-&gt;m_pCharDataBuffer[index].m_MinT;</div>
+<div class="line">            s_TextureCoordinateBuffer[texSt + 7] = (<span class="keywordtype">float</span>)pFont-&gt;m_pCharDataBuffer[index].m_MaxT;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Fill vertex buffer with vertex data. */</span></div>
+<div class="line">    memcpy(m_FontPositionData[m_FontNumLines].m_pBufferMap, s_PositionBuffer, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 3 * 4 * strLength);</div>
+<div class="line">    memcpy(m_FontTextureCoordinateData[m_FontNumLines].m_pBufferMap, s_TextureCoordinateBuffer, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2 * 4 * strLength);</div>
+<div class="line"></div>
+<div class="line">    m_StringSize[m_FontNumLines] = strLength;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::UpdateTextureBuffer</span></div>
+<div class="line"><span class="comment"> * --------------------------------------</span></div>
+<div class="line"><span class="comment"> * Update the texture buffer with the current texture.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::UpdateTextureBuffer(FontTextureData* texture)</div>
+<div class="line">{</div>
+<div class="line">    m_FontTexture[m_FontNumLines] = texture;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::UpdateUniformBuffers</span></div>
+<div class="line"><span class="comment"> * ---------------------------------------</span></div>
+<div class="line"><span class="comment"> * Update the uniform buffers for the frame.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::UpdateUniformBuffers(<span class="keywordtype">float</span>* magScale, <span class="keywordtype">float</span>* color, <a class="code" href="group__nvn__c__handle.html#gaa1a1fc7a9e690ce93870bcd71ea6b446">NVNtextureHandle</a>* textureHandle)</div>
+<div class="line">{</div>
+<div class="line">    memcpy(m_FontUniformDataVS[m_FontNumLines].m_pBufferMap, magScale, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2);</div>
+<div class="line"></div>
+<div class="line">    memcpy(m_FontUniformDataPSColor[m_FontNumLines].m_pBufferMap, color, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 4);</div>
+<div class="line"></div>
+<div class="line">    memcpy(m_FontUniformDataPSSampler[m_FontNumLines].m_pBufferMap, textureHandle, <span class="keyword">sizeof</span>(<a class="code" href="group__nvn__c__handle.html#gaa1a1fc7a9e690ce93870bcd71ea6b446">NVNtextureHandle</a>));</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::BSearchIndex</span></div>
+<div class="line"><span class="comment"> * -------------------------------</span></div>
+<div class="line"><span class="comment"> * Find the index of a given character.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">uint32_t DebugTextRenderer::BSearchIndex(FontData* pFont, uint32_t <span class="keywordtype">id</span>)</div>
+<div class="line">{</div>
+<div class="line">    uint32_t first;</div>
+<div class="line">    uint32_t last;</div>
+<div class="line">    uint32_t index = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (<span class="keywordtype">id</span> &gt;= 32 &amp;&amp; id &lt; 32 + pFont-&gt;m_NumCharData &amp;&amp; pFont-&gt;m_pCharDataBuffer[<span class="keywordtype">id</span> - 32].m_Id == <span class="keywordtype">id</span>)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keywordtype">id</span> - 32;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    first = 0;</div>
+<div class="line">    last = pFont-&gt;m_NumCharData - 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">while</span>(first &lt;= last)</div>
+<div class="line">    {</div>
+<div class="line">        uint32_t mid = first + (last - first) / 2;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (pFont-&gt;m_pCharDataBuffer[mid].m_Id &lt; <span class="keywordtype">id</span>)</div>
+<div class="line">        {</div>
+<div class="line">            first = mid + 1;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (id &lt; pFont-&gt;m_pCharDataBuffer[mid].m_Id)</div>
+<div class="line">        {</div>
+<div class="line">            last = mid - 1;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span></div>
+<div class="line">        {</div>
+<div class="line">            index = mid;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">return</span> index;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::GetCurrentFont</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Get which font is in use.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">DebugTextRenderer::FontData* DebugTextRenderer::GetCurrentFont()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span>(m_Proportional)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> &amp;m_FontP;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> &amp;m_FontF;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::GetCharSize</span></div>
+<div class="line"><span class="comment"> * ------------------------------</span></div>
+<div class="line"><span class="comment"> * Get the current character size.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::GetCharSize(<span class="keywordtype">float</span>* pCharWidth, <span class="keywordtype">float</span>* pCharHeight)</div>
+<div class="line">{</div>
+<div class="line">    FontData* pFont = GetCurrentFont();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get size of font */</span></div>
+<div class="line">    *pCharWidth  = pFont-&gt;m_GridOffsetX;</div>
+<div class="line">    *pCharHeight = pFont-&gt;m_GridOffsetY;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::SetDrawEnable</span></div>
+<div class="line"><span class="comment"> * --------------------------------</span></div>
+<div class="line"><span class="comment"> * Enable/disable drawing.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::SetDrawEnable(<span class="keywordtype">bool</span> enable)</div>
+<div class="line">{</div>
+<div class="line">    m_Enabled = enable;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::IsEnabled</span></div>
+<div class="line"><span class="comment"> * ----------------------------</span></div>
+<div class="line"><span class="comment"> * Check whether text rendering is enabled.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">bool</span> DebugTextRenderer::IsEnabled()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_Enabled;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::Puts</span></div>
+<div class="line"><span class="comment"> * -----------------------</span></div>
+<div class="line"><span class="comment"> * Render a string of text at a given line/column.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::Puts(<span class="keywordtype">float</span> column, <span class="keywordtype">float</span> line, <span class="keyword">const</span> <span class="keywordtype">char</span>* pStr)</div>
+<div class="line">{</div>
+<div class="line">    uint32_t stringLength;</div>
+<div class="line">    <span class="keywordtype">float</span> offsetX;</div>
+<div class="line">    <span class="keywordtype">float</span> offsetY;</div>
+<div class="line">    FontData* pFont = GetCurrentFont();</div>
+<div class="line">    FontRenderData* pFontData = &amp;m_Font;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Don&#39;t draw if fonts are disabled */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (!m_Enabled)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Check the initialize */</span></div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pStr &amp;&amp; <span class="stringliteral">&quot;Need to initialize str.\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pFont-&gt;m_pCharDataBuffer &amp;&amp; <span class="stringliteral">&quot;Need to call DebugTextRenderer::Init first.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    stringLength = (uint32_t)(strlen((<span class="keyword">const</span> <span class="keywordtype">char</span> *)pStr));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Calculate offsets */</span></div>
+<div class="line">    offsetX = (float)(column * pFont-&gt;m_GridOffsetX);</div>
+<div class="line">    offsetY = -(float)(line * pFont-&gt;m_GridOffsetY);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Update Texture Buffer */</span></div>
+<div class="line">    UpdateTextureBuffer(&amp;pFont-&gt;m_FontTextureData);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Update Vertex Buffers */</span></div>
+<div class="line">    UpdateVertexBuffers(pStr, stringLength, offsetX, offsetY - pFont-&gt;m_GridOffsetY);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Update Uniform Buffers */</span></div>
+<div class="line">    UpdateUniformBuffers(pFontData-&gt;m_pCharMagScale, pFontData-&gt;m_Color, &amp;pFont-&gt;m_FontTextureData.m_TextureHandle);</div>
+<div class="line"></div>
+<div class="line">    ++m_FontNumLines;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::Printf</span></div>
+<div class="line"><span class="comment"> * -------------------------</span></div>
+<div class="line"><span class="comment"> * Render a formatted string of text at a given line/column.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::Printf(<span class="keywordtype">float</span> column, <span class="keywordtype">float</span> line, <span class="keyword">const</span> <span class="keywordtype">char</span>* pFmt, ...)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">char</span> str[g_FontMaxBufferSize];</div>
+<div class="line">    va_list args;</div>
+<div class="line">    <span class="keywordtype">int</span> stringSize;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Don&#39;t draw if fonts are disabled */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (!m_Enabled)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get string */</span></div>
+<div class="line">    va_start(args, pFmt);</div>
+<div class="line">    stringSize = vsnprintf(str, g_FontMaxBufferSize, pFmt, args);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Assert for over string size */</span></div>
+<div class="line">    <span class="keywordflow">if</span> ( stringSize &lt; 0 )</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(!<span class="stringliteral">&quot;String is too long\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    va_end(args);</div>
+<div class="line"></div>
+<div class="line">    Puts( column, line, str );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * DebugTextRenderer::Draw</span></div>
+<div class="line"><span class="comment"> * -----------------------</span></div>
+<div class="line"><span class="comment"> * Render the text to a given render target.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> DebugTextRenderer::Draw(<a class="code" href="struct_n_v_ntexture.html">NVNtexture</a>* renderTarget, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a>* pCmdBuf = NULL;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!m_UsingSyncManager)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#gae646129720b27503c239a22db9653fa0">nvnQueueFenceSync</a>(m_pQueue, &amp;m_CommandBufferSync, <a class="code" href="group__nvn__c__enum.html#gga6ab26a343b68da722799167ea97ec69da81ae43677cd72903d494e5c37e061294">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</a>, 0);</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga98feac9fc906eb1a9a5eb19ef4381b46">nvnQueueFlush</a>(m_pQueue);</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga2e9deb5d068866fe0c32929a3f82baf3">nvnSyncWait</a>(&amp;m_CommandBufferSync, <a class="code" href="group__nvn__c__defines.html#ga6c3444e501307a094f1d57abf1059aed">NVN_WAIT_TIMEOUT_MAXIMUM</a>);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Reset the command/control memory for the command buffer. */</span></div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga2c0d758cfa73c25f2a34486353f46d92">nvnCommandBufferAddCommandMemory</a>(&amp;m_CommandBuffer, m_pCommandMemoryPool-&gt;GetMemoryPool(), m_CommandPoolOffset, g_CommandMemorySize);</div>
+<div class="line">        <a class="code" href="group__nvn__c__functions.html#ga8de6ce290ee0180d9bcd700c1d08d0bf">nvnCommandBufferAddControlMemory</a>(&amp;m_CommandBuffer, m_pControlPool, g_ControlMemorySize);</div>
+<div class="line"></div>
+<div class="line">        pCmdBuf = &amp;m_CommandBuffer;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        pCmdBuf = m_pManagedCommandBuffer-&gt;GetCommandBuffer();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#gaeb763d2bdad2c058c75802190fef4748">nvnCommandBufferBeginRecording</a>(pCmdBuf);</div>
+<div class="line">    {</div>
+<div class="line">            <span class="comment">/* Set the sampler and texture pool. */</span></div>
+<div class="line">        m_pTextureIDManager-&gt;SetSamplerPool(pCmdBuf);</div>
+<div class="line">        m_pTextureIDManager-&gt;SetTexturePool(pCmdBuf);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Sets the render target. */</span></div>
+<div class="line">        <a name="a103"></a><a class="code" href="group__nvn__c__functions.html#gae3e9cdfa2eaad5ed0f5363598fa0ce7c">nvnCommandBufferSetRenderTargets</a>(pCmdBuf, 1, &amp;renderTarget, NULL, NULL, NULL);</div>
+<div class="line"></div>
+<div class="line">        <a name="a104"></a><a class="code" href="group__nvn__c__functions.html#gac6c38cac9330ae402f2f911d1e1aa757">nvnCommandBufferSetScissor</a>(pCmdBuf, 0, 0, width, height);</div>
+<div class="line">        <a name="a105"></a><a class="code" href="group__nvn__c__functions.html#gac4cadef7ff012bc4d218bfd9e510a888">nvnCommandBufferSetViewport</a>(pCmdBuf, 0, 0, width, height);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Bind the render states. */</span></div>
+<div class="line">        <a name="a106"></a><a class="code" href="group__nvn__c__functions.html#ga7c3895b442dc5055a3ba72b149389a90">nvnCommandBufferBindBlendState</a>(pCmdBuf, &amp;m_BlendState);</div>
+<div class="line">        <a name="a107"></a><a class="code" href="group__nvn__c__functions.html#gac468cb3593c0a9653515830e19800536">nvnCommandBufferBindChannelMaskState</a>(pCmdBuf, &amp;m_ChannelMaskState);</div>
+<div class="line">        <a name="a108"></a><a class="code" href="group__nvn__c__functions.html#ga6b957807821fbeac2c91ddfc34e9e941">nvnCommandBufferBindColorState</a>(pCmdBuf, &amp;m_ColorState);</div>
+<div class="line">        <a name="a109"></a><a class="code" href="group__nvn__c__functions.html#gae829ea8fc2209e876f64e9eaa7b21992">nvnCommandBufferBindDepthStencilState</a>(pCmdBuf, &amp;m_DepthStencilState);</div>
+<div class="line">        <a name="a110"></a><a class="code" href="group__nvn__c__functions.html#ga463e501c3151aab9e9cb737e6cbaba5d">nvnCommandBufferBindMultisampleState</a>(pCmdBuf, &amp;m_MultisampleState);</div>
+<div class="line">        <a name="a111"></a><a class="code" href="group__nvn__c__functions.html#gab5bee99214e32842654cbc22dd5f17bd">nvnCommandBufferBindPolygonState</a>(pCmdBuf, &amp;m_PolygonState);</div>
+<div class="line">        <a name="a112"></a><a class="code" href="group__nvn__c__functions.html#gadcba5a3b987a3f421ca0566a48dbf62e">nvnCommandBufferSetSampleMask</a>(pCmdBuf, static_cast&lt;uint32_t&gt;(~0));</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Bind the vertex states. */</span></div>
+<div class="line">        <a name="a113"></a><a class="code" href="group__nvn__c__functions.html#ga4f0e28ea8b574b0b7d3ee6bd2e94dcac">nvnCommandBufferBindVertexAttribState</a>(pCmdBuf, 2, m_VertexAttributeStates);</div>
+<div class="line">        <a name="a114"></a><a class="code" href="group__nvn__c__functions.html#ga8540a860937580eaa607cfa549667083">nvnCommandBufferBindVertexStreamState</a>(pCmdBuf, 2, m_VertexStreamStates);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Bind the shader program. */</span></div>
+<div class="line">        <a name="a115"></a><a class="code" href="group__nvn__c__functions.html#ga1f4b9d505338994b172c814ed32565c8">nvnCommandBufferBindProgram</a>(pCmdBuf, &amp;m_pDataHolder-&gt;GetProgramData()[0]-&gt;m_Program, m_pDataHolder-&gt;GetProgramData()[0]-&gt;m_ShaderStages);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Bind the vertex/uniform buffers and draw. */</span></div>
+<div class="line">        <span class="keywordflow">for</span>(uint32_t i = 0; i &lt; m_FontNumLines; ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a116"></a><a class="code" href="group__nvn__c__functions.html#ga328bba22810a4467865b444d17bec8e9">nvnCommandBufferBindVertexBuffer</a>(pCmdBuf, m_PositionLocation, m_FontPositionData[i].m_Address, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 3 * 4 * m_StringSize[i]);</div>
+<div class="line">            <a class="code" href="group__nvn__c__functions.html#ga328bba22810a4467865b444d17bec8e9">nvnCommandBufferBindVertexBuffer</a>(pCmdBuf, m_TextureCoordinateLocation, m_FontTextureCoordinateData[i].m_Address, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2 * 4 * m_StringSize[i]);</div>
+<div class="line"></div>
+<div class="line">            <a name="a117"></a><a class="code" href="group__nvn__c__functions.html#ga50631d9a85aca68db2ede52b0d13521e">nvnCommandBufferBindUniformBuffer</a>(pCmdBuf, (<a name="a118"></a><a class="code" href="group__nvn__c__enum.html#ggac99deb2b11df8b0358f73a92e2a2abdda5a6e5f69e0f338221cc5acf7882a21c7">NVNshaderStage::NVN_SHADER_STAGE_VERTEX</a>), FontShader::BlockVSUniformBlockData::GetBinding(<a class="code" href="group__nvn__c__enum.html#ggac99deb2b11df8b0358f73a92e2a2abdda5a6e5f69e0f338221cc5acf7882a21c7">NVNshaderStage::NVN_SHADER_STAGE_VERTEX</a>), m_FontUniformDataVS[i].m_Address, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 2);</div>
+<div class="line">            <a class="code" href="group__nvn__c__functions.html#ga50631d9a85aca68db2ede52b0d13521e">nvnCommandBufferBindUniformBuffer</a>(pCmdBuf, (<a name="a119"></a><a class="code" href="group__nvn__c__enum.html#ggac99deb2b11df8b0358f73a92e2a2abddaf979f751d1526164abb522c640c8eb06">NVNshaderStage::NVN_SHADER_STAGE_FRAGMENT</a>), FontShader::BlockColorFSUniformBlockData::GetBinding(<a class="code" href="group__nvn__c__enum.html#ggac99deb2b11df8b0358f73a92e2a2abddaf979f751d1526164abb522c640c8eb06">NVNshaderStage::NVN_SHADER_STAGE_FRAGMENT</a>), m_FontUniformDataPSColor[i].m_Address, <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>) * 4);</div>
+<div class="line">            <a class="code" href="group__nvn__c__functions.html#ga50631d9a85aca68db2ede52b0d13521e">nvnCommandBufferBindUniformBuffer</a>(pCmdBuf, (<a class="code" href="group__nvn__c__enum.html#ggac99deb2b11df8b0358f73a92e2a2abddaf979f751d1526164abb522c640c8eb06">NVNshaderStage::NVN_SHADER_STAGE_FRAGMENT</a>), FontShader::BlockSamplerFSUniformBlockData::GetBinding(<a class="code" href="group__nvn__c__enum.html#ggac99deb2b11df8b0358f73a92e2a2abddaf979f751d1526164abb522c640c8eb06">NVNshaderStage::NVN_SHADER_STAGE_FRAGMENT</a>), m_FontUniformDataPSSampler[i].m_Address, <span class="keyword">sizeof</span>(<a class="code" href="group__nvn__c__handle.html#gaa1a1fc7a9e690ce93870bcd71ea6b446">NVNtextureHandle</a>));</div>
+<div class="line"></div>
+<div class="line">            <a name="a120"></a><a class="code" href="group__nvn__c__functions.html#ga06f4d4765bf74d01809661766ac7df80">nvnCommandBufferDrawElements</a>(pCmdBuf, <a name="a121"></a><a class="code" href="group__nvn__c__enum.html#ggab22437710b6816a67a1263d0087ded72a18aa4d68281faa9aaba87e6251ecdc24">NVN_DRAW_PRIMITIVE_TRIANGLES</a>, <a name="a122"></a><a class="code" href="group__nvn__c__enum.html#ggaaf90e0c2dbdc1e42db8192f0c0cb1522a01b3069396b6d9c7ca2f6c7579627e32">NVN_INDEX_TYPE_UNSIGNED_SHORT</a>, m_StringSize[i] * 6, m_FontIndexData.m_Address);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab and submit the command handle. */</span></div>
+<div class="line">    m_CommandHandle = <a class="code" href="group__nvn__c__functions.html#ga7d97d4cbf72259b6e867f3080f223b95">nvnCommandBufferEndRecording</a>(pCmdBuf);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga095fabdb4c81459bbe496ba45528211b">nvnQueueSubmitCommands</a>(m_pQueue, 1, &amp;m_CommandHandle);</div>
+<div class="line"></div>
+<div class="line">    m_FontNumLines = 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

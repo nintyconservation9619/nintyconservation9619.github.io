@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アプリケーションの動作環境（開発機環境）</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アプリケーションの動作環境（開発機環境） -->
+<div class="pagetitle" id="PageId_107776143">アプリケーションの動作環境（開発機環境）</div>
+<div class="text_separate">
+<h1 id="Anchor_107776143_h1_1">アプリケーションの動作環境（開発機環境）</h1>
+<h2 id="Anchor_107776143_h2_1">はじめに</h2>
+<p>ここでは、NintendoSDK のプログラムが動作・実行するプラットフォーム環境について説明します。</p>
+<p>ここで言うプラットフォームとは、NintendoSDK のビルド環境ではなく、NintendoSDK を使ってビルドしたプログラムが実際に動作実行する環境のことを意味しています。</p>
+<p>ビルド作業を行なう PC 環境については「<a href="../Pages/Page_97640247.html">動作環境</a>」のページに別途記載しています。</p>
+<h2 id="Anchor_107776143_h2_2">プラットフォーム種別</h2>
+<p>NintendoSDK は Windows 環境と開発機環境で動作実行させることができます。本章では開発機環境について説明します。Windows 環境については、<a href="../Pages/Page_93357496.html">アプリケーションの動作環境（Windows 環境）</a>を参照してください（「<a href="../Pages/Page_106339384.html">アプリ開発環境の違い (NX Addon)</a>」のページも合わせて参照してください）。</p>
+<p>開発機環境の場合、Visual Studio のソリューションプラットフォーム種別として <strong>NX32</strong> と <strong>NX64</strong> のいずれかから選択することができます。</p>
+<h3 id="Anchor_107776143_h3_1">命令コードの違い</h3>
+<p>
+  <strong>NX32</strong> では AArch32 ステートの命令コードやレジスタセットを、<strong>NX64</strong> では AArch64 ステートの命令コードやレジスタセットが利用できます。</p>
+<h3 id="Anchor_107776143_h3_2">アドレス空間サイズの違い</h3>
+<p>ユーザランドのアドレス空間サイズは以下の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th style="text-align: center;">
+        <p>NX32</p>
+        <p>（予約領域あり）</p>
+      </th>
+      <th>
+        <p style="text-align: center;">NX32</p>
+        <p style="text-align: center;">（予約領域なし）</p>
+      </th>
+      <th style="text-align: center;">NX64</th>
+    </tr>
+    <tr>
+      <td>アドレス空間全体のサイズ（ビット幅）</td>
+      <td style="text-align: center;">32 bit</td>
+      <td style="text-align: center;">32 bit</td>
+      <td style="text-align: center;">64 bit</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__os">nn::os</span> のメモリヒープ空間サイズ</td>
+      <td style="text-align: center;">
+        <p>1.0 GiB</p>
+      </td>
+      <td style="text-align: center;">2.0 GiB</td>
+      <td style="text-align: center;">
+        <p>4.0 GiB</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>NX32（予約領域あり）</strong>環境の場合、32 bit 空間のうち最大 1 GiB 分（30 bit）の空間をメモリヒープ用の空間として予約します。<br /><strong>NX32（予約領域なし）</strong>環境の場合、32 bit 空間のうち最大 2 GiB 分（31 bit）の空間をメモリヒープ用の空間として予約します。<br /> <strong>NX64</strong> 環境の場合、64 bit 空間のうち最大 4 GiB 分（32 bit）の空間をメモリヒープ用の空間として予約します。</p>
+<p>予約領域については後述します。</p>
+<p>アプリケーションがアドレス値を扱う場合には、<strong>NX32</strong> 環境なら常に 32bit、<strong>NX64</strong> 環境なら常に 64bit のビット幅でアドレス値を扱うようにしてください。</p>
+<h3 id="Anchor_107776143_h3_3">利用可能メモリサイズ</h3>
+<p>
+  <strong>NX32</strong> 環境の場合は <strong>1.0 GiB</strong> もしくは <strong>2.0 GiB</strong>、<strong>NX64</strong> 環境の場合は <strong>3,285 MiB</strong> のメモリを利用することができます。</p>
+<p>このメモリサイズは、プログラム自身のサイズやメモリヒープサイズ、初期起動スレッドのスタック領域を含んだ合計サイズの上限です。そのため、アプリケーションプログラム自身のサイズが大きくなればなるほど、メモリヒープとして利用できるメモリサイズはその分だけ減少します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>現在使用中のメモリサイズ や 利用可能なメモリサイズ情報 は、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a79f2a489da0a124ebdc8130595c70b94">nn::os::QueryMemoryInfo()</a> にて取得することが可能です。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<p>
+  <strong>NX32</strong> 環境の場合、デフォルトでは「<strong>予約領域あり</strong>」の環境となっており、メモリヒープ空間の最大サイズは <strong>1.0 GiB</strong> となっています。これを「<strong>予約領域なし</strong>」としてメモリヒープ <strong>2.0 GiB</strong> を利用するには、以下のように nmeta ファイルを編集してアプリケーションをビルドし直して下さい。</p>
+<ol>
+  <li>
+    <a href="../Pages/Page_170694395.html">ビルド手順: アプリケーションイメージの作成</a>&nbsp;の「nmeta ファイルの準備」に記載の Application.arm.ilp32.nmeta を開きます。</li>
+  <li>
+    <p>以下のように &lt;ProcessAddressSpace&gt; ブロックの内容を「AddressSpace32BitNoReserved」に修正します。<br /><br /></p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9</td>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;Meta&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;Core&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Name&gt;</span>Application<span class="nt">&lt;/Name&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ApplicationId&gt;</span>0x0005000C10000000<span class="nt">&lt;/ApplicationId&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Is64BitInstruction&gt;</span>False<span class="nt">&lt;/Is64BitInstruction&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ProcessAddressSpace&gt;</span>AddressSpace32BitNoReserved<span class="nt">&lt;/ProcessAddressSpace&gt;</span>     // ← ここを修正する
+&nbsp;&nbsp;<span class="nt">&lt;/Core&gt;</span>
+<span class="nt">&lt;/Meta&gt;</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>アプリケーションをリビルドします。</li>
+</ol>
+<p>&nbsp;</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>予約領域とは、特定の機能や将来の機能拡張のために予約されているメモリ空間領域の一つです。<strong>NX32</strong> 環境ではこの領域をメモリヒープ用の領域として使用することで、通常では 1.0 GiB までしか利用できないメモリヒープを約 2.0 GiB まで利用できるようになります。</p>
+    <p>上記の方法で「AddressSpace32BitNoReserved」に変更した場合でも、アプリケーションがシステムのメモリ上限を圧迫することはありません。また、アプリケーションに対して機能的な制約が課されることもありません。ただし、特定の機能や将来的に追加される機能を使用した時にメモリ空間不足エラーが発生したり、それらの機能そのものが使用できないといった制約が課される可能性がありますのでご了承ください。</p>
+    <p>なお、<strong>NX64</strong> 環境でも予約領域はありますが、ユーザランド全体のメモリ空間が十分に広いため、このような指定はありません。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h3 id="Anchor_107776143_h3_4">データ型モデル</h3>
+<p>
+  <strong>NX32</strong> 環境では <strong>ilp32</strong>、<strong>NX64</strong> 環境では <strong>lp64</strong> のデータ型モデルとなります。以下に代表的な型サイズの一覧を示します。</p>
+<p>単位は ビット です。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>型</th>
+      <th style="text-align: center;">
+        <p>ilp32</p>
+        <p>(NX32)</p>
+      </th>
+      <th style="text-align: center;">llp64</th>
+      <th style="text-align: center;">
+        <p>lp64</p>
+        <p>(NX64)</p>
+      </th>
+      <th style="text-align: center;">ilp64</th>
+    </tr>
+    <tr>
+      <td class="highlight-blue">char</td>
+      <td style="text-align: right;">8</td>
+      <td style="text-align: right;">8</td>
+      <td style="text-align: right;">8</td>
+      <td style="text-align: right;">8</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">short</td>
+      <td style="text-align: right;">16</td>
+      <td style="text-align: right;">16</td>
+      <td style="text-align: right;">16</td>
+      <td style="text-align: right;">16</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">int</td>
+      <td style="text-align: right;">32</td>
+      <td style="text-align: right;">32</td>
+      <td style="text-align: right;">32</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">long</td>
+      <td style="text-align: right;">32</td>
+      <td style="text-align: right;">32</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">ポインタ</td>
+      <td style="text-align: right;">32</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+    </tr>
+  </tbody>
+</table>
+<p>上記に示す通り、データ型モデルによってそれぞれの型で扱えるデータ幅が異なります。<strong>NX32</strong> と <strong>NX64</strong> の両方に対応するコードを記述する際には、使用するデータ型に注意しなければなりません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Windows 環境では、<strong>Win32</strong> では <strong>ilp32</strong>、<strong>x64</strong> では <strong>llp64</strong> となります。<br />特に <strong>x64</strong> と <strong>NX64</strong> では long 型のサイズが異なるため注意が必要です。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h2 id="Anchor_107776143_h2_3">NX32 から NX64 環境移行時の注意事項</h2>
+<p>
+  <a href="../Pages/Page_93357758.html">環境移行時の注意事項</a> を参考にしてください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os', '../../../Api/HtmlNX/namespacenn_1_1os.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

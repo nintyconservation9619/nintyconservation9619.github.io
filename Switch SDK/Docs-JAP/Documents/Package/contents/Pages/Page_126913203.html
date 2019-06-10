@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>顔モデルの描画</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 顔モデルの描画 -->
+<div class="pagetitle" id="PageId_126913203">顔モデルの描画</div>
+<div class="text_separate">
+<h1 id="Anchor_126913203_h1_1">顔モデルの描画</h1>
+<p>ここでは、Mii の顔モデルの描画の流れを説明します。各機能説明ページも合わせて参照してください。</p>
+<ol>
+  <li>
+    <a href="#Anchor_126913203_似顔絵リソースの準備">Resource の準備</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_2">CharInfo の取得</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_3">CharModel の生成</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_4">Faceline の生成</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_5">Mask の生成</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_6">デスクリプタスロットの付与</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_7">テクスチャサンプラの生成</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_8">顔輪郭テクスチャのレンダリング</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_h2_9">マスクテクスチャのレンダリング</a>
+  </li>
+  <li>
+    <a href="#Anchor_126913203_Mask を使用して CharModel の Mask テクスチャに対してレンダリング">CharModel をアプリケーションのシェーダで描画</a>
+  </li>
+</ol>
+<h2 id="Anchor_126913203_h2_1">Resource の準備</h2>
+<p>Mii を描画するためのシェイプやテクスチャを保持する <a href="../Pages/Page_126918946.html">Resource</a> の準備を行います。Resource の初期化を行うことで他のクラスで使用する準備ができます。</p>
+<h2 id="Anchor_126913203_h2_2">CharInfo の取得</h2>
+<p>表示したい Mii のパラメータを持つ <a href="../Pages/Page_165752534.html">CharInfo</a> を取得します。CharInfo の取得方法については <a href="../Pages/Page_162939097.html">Mii データの取得ページ</a>を参照してください。</p>
+<h2 id="Anchor_126913203_h2_3">CharModel の生成</h2>
+<p>顔モデルを描画するために必要なデータを保持する <a href="../Pages/Page_126918954.html">CharModel</a> を生成します。</p>
+<p>初期化済みの <a href="../Pages/Page_126918946.html">Resource</a> と 取得した <span class="ApiLink_nn__mii__CharInfo">nn::mii::CharInfo</span>、さらに顔モデルの設定を持つ <span class="sv-pt-link"><span class="ApiLink_nn__mii__CharModelInfo">nn::mii::CharModelInfo</span></span> を元に CharModel の初期化を行います。CharModelInfo はテクスチャのフォーマットや、Mii が持つ表情の数、頭部装飾用の顔モデルのタイプかなどの顔モデルの設定を保持します。CharModelInfo に設定した値に応じて CharModel の初期化に必要となるメモリ量が異なります。</p>
+<p>初期化を行うことで、 CharInfo が保持するパラメータに合わせたシェイプやテクスチャなどの描画に必要なデータを取得できるようになります。CharModel 初期化の時点では、顔輪郭テクスチャとマスクテクスチャを保持していますが、何も描画されていません。これらのテクスチャは別途 <a href="../Pages/Page_126918959.html">Faceline</a>、<a href="../Pages/Page_126918972.html">Mask</a> を使用して CharModel の持つ 顔輪郭テクスチャとマスクテクスチャにレンダリングする必要があります。</p>
+<p>表情毎にマスクテクスチャが異なるため、CharModel では複数のマスクテクスチャを保持できます。複数の表情を顔モデルに保持させたい場合は、各表情のマスクテクスチャをレンダリングする必要があります。</p>
+<h2 id="Anchor_126913203_h2_4">Faceline の生成</h2>
+<p>顔輪郭テクスチャを生成するためのデータ保持する <a href="../Pages/Page_126918959.html">Faceline</a> を生成します。</p>
+<p>初期化済みの <a href="../Pages/Page_126918946.html">Resource</a> と <span class="ApiLink_nn__mii__CharInfo">nn::mii::CharInfo</span> を使用して Faceline の初期化を行います。初期化を行うことで、顔輪郭テクスチャを生成するためのシェイプやテクスチャなどの描画に必要なデータが取得可能になります。</p>
+<h2 id="Anchor_126913203_h2_5">Mask の生成</h2>
+<p>マスクテクスチャを生成するためのデータを保持する <a href="../Pages/Page_126918972.html">Mask</a> を生成します。</p>
+<p>初期化済みの <a href="../Pages/Page_126918946.html">Resource</a> と <span class="ApiLink_nn__mii__CharInfo">nn::mii::CharInfo</span> と表情の種類のフラグを使用して Mask の初期化を行います。初期化時に渡した表情フラグの設定によって、初期化時に必要になるメモリ量が変化することに注意してください。</p>
+<h2 id="Anchor_126913203_h2_6">デスクリプタスロットの付与</h2>
+<p>
+  <a href="../Pages/Page_126918954.html">CharModel</a>、<a href="../Pages/Page_126918959.html">Faceline</a>、<a href="../Pages/Page_126918972.html">Mask</a> の持つテクスチャをデスクリプタプールにセットします。</p>
+<p>各クラスの持つテクスチャビュー取得関数を使用してテクスチャビューを取得し、デスクリプタプールへセットします。設定したデスクリプタプールからデスクリプタスロットを取得し、各クラスの該当する DrawType 毎のデスクリプタスロットに設定してください。</p>
+<p>テクスチャビューの取得方法とデスクリプタスロットへの設定方法は機能説明以下の各クラスのページを参照してください。</p>
+<h2 id="Anchor_126913203_h2_7">テクスチャサンプラの生成</h2>
+<p>顔モデルの描画や 顔輪郭テクスチャ、マスクテクスチャのレンダリングには似顔絵ライブラリが提供するテクスチャサンプラの設定がされたサンプラを使用してください。</p>
+<p>
+  <span class="ApiLink_nn__mii__GetSamplerInfo">nn::mii::GetSamplerInfo</span>() 関数を使用することでサンプラの設定を取得できます。この関数で取得した <span class="ApiLink_nn__gfx__SamplerInfo">nn::gfx::SamplerInfo</span> を使用してテクスチャサンプラを作成してください。</p>
+<h2 id="Anchor_126913203_h2_8">顔輪郭テクスチャのレンダリング</h2>
+<p>初期化済みの <a href="../Pages/Page_126918959.html">Faceline</a> を使用して <a href="../Pages/Page_126918954.html">CharModel</a> が持つ顔輪郭テクスチャに対してレンダリングします。</p>
+<p>Mii 作成・編集アプレットで使用される Mii と同じ顔輪郭テクスチャをレンダリングしたい場合、似顔絵ライブラリが提供する <a href="../Pages/Page_126918987.html">TextureShader</a> を使用することでレンダリング可能です。</p>
+<p>肌の色をゾンビのようにするといったような特殊な肌にしたい場合は、アプリケーション独自でシェーダを用意して顔輪郭テクスチャをレンダリングすることも可能です。Faceline から取得できる 顔輪郭の <a href="../Pages/Page_126918978.html">DrawParam</a> を使用してレンダリングしてください。</p>
+<h2 id="Anchor_126913203_h2_9">マスクテクスチャのレンダリング</h2>
+<p>初期化済みの <a href="../Pages/Page_126918972.html">Mask</a> を使用して <a href="../Pages/Page_126918954.html">CharModel</a> の持つマスクテクスチャに対してレンダリングします。複数の表情を持つ CharModel の場合、各マスクテクスチャに任意の表情のマスクをレンダリングしてください。</p>
+<p>Mii 作成・編集アプレットで使用される Mii と同じマスクテクスチャをレンダリングしたい場合、似顔絵ライブラリが提供する <a href="../Pages/Page_126918987.html">TextureShader</a> を使用することで簡単にマスクテクスチャをレンダリングできます。</p>
+<p>Faceline 同様、アプリケーション独自のシェーダを用意してマスクテクスチャをレンダリングすることも可能です。Mask から取得できる <a href="../Pages/Page_126918978.html">DrawParam</a> を使用してレンダリングしてください。</p>
+<h2 id="Anchor_126913203_h2_10">CharModel をアプリケーションのシェーダで描画</h2>
+<p>
+  <a href="../Pages/Page_126918954.html">CharModel</a> をアプリケーションのシェーダを使用して描画します。CharModel から各パーツの <a href="../Pages/Page_126918978.html">DrawParam</a> を取得して描画してください。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__CharInfo', '../../../Api/HtmlNX/structnn_1_1mii_1_1_char_info.html' )
+SetUrl( 'ApiLink_nn__mii__CharModelInfo', '../../../Api/HtmlNX/classnn_1_1mii_1_1_char_model_info.html' )
+SetUrl( 'ApiLink_nn__mii__GetSamplerInfo', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a7b31fffe1758ba0a5ec80843410a0549' )
+SetUrl( 'ApiLink_nn__gfx__SamplerInfo', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_sampler_info.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

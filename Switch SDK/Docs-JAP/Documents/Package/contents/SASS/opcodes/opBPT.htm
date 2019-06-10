@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>BPT</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    BPT : BreakPoint/Trap<br>
+    <!-- SUMMARY_TABLE_INFO { description => "BreakPoint/Trap" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "BPT", subsection => 13 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code></code>   <code><b>BPT</b>.mode</code>   <code>{#ImmU20}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BPT" } -->
+
+ .mode: { <b>.DRAIN, .PAUSE, .TRAP, .INT</b> }
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+This instruction implements functionality associated with the SM trap handler and software debugger.</p>
+<dl>
+<dt>.DRAIN:</dt>
+<dd>
+<p>
+      The SM pipeline is drained to guarantee that all Warp Errors interrupts caused by previous 
+      instructions from the executing warp are taken before the next instruction.  Note that
+      BPT.DRAIN does not drain the memory pipeline beyond SM and provides no guarantee for L1
+      pipeline Error interrupts.</p>
+</dd>
+<dt>.PAUSE:</dt>
+<dd>
+<p>
+      Only allowed while in trap hander (otherwise it is treated as an ILLEGAL_INSTR_ENCODING error).  
+      Stop the current warp from continuing execution and unconditionally send a notification (interrupt) 
+      to the CPU that a warp has stopped.  
+      The warp will not continue execution until it has been woken by the CPU via an external signal.
+<p>
+      The CPU should only "wake-up" warps from the paused state after all warps on a given SM have
+      either paused or exited and while the SM is trapped.  Otherwise the system may be placed in an
+      inconsistent state.</p>
+<p>
+      Note: Execution of BPT.PAUSE does not guarantee that prior instructions have
+      completed.  If a guarantee of prior instruction completion is desired, SW should insert
+      BPT.DRAIN before BPT.PAUSE.</p>
+
+<p>
+<u>Intention of BPT.PAUSE:</u>
+BPT.PAUSE is a very powerful operation.  While all warps enter the trap handler when a BPT.TRAP or error 
+is encountered, they are not required to stop waiting for the CPU at the same time.  Warps are allowed to be 
+'peeled' off from the group of running warps individually by using BPT.PAUSE.</p>
+
+<p>
+Some example usage cases include:</p>
+<ul>
+<li> Qualifying a conditional BPT.PAUSE on the per-warp "TRAP" bit, to make only those warps that personally 
+     executed a BPT.TRAP stop. Other warps can return using RTT and continue execution (until they too hit a 
+     BPT.TRAP or the CPU gives up and issues a CPU_STOP command).</li>
+<li> While in single-step mode, a "Step-N-Times" operation can be implemented using BPT.PAUSE.  The CPU could 
+     load a piece of per-warp local memory with a count of how many step operations to perform.  Everytime the 
+     warp enters the trap handler it decrements this count and stops via a BPT.PAUSE when the count reaches 0
+     If it needs to keep going it can use an RTT to continue running another single step.</li>
+</ul>
+
+</dd>
+<dt>.TRAP:</dt>
+<dd>
+<p>
+      Initiates a Trap</p>
+<p>
+      No instructions past the BPT.TRAP will have been executed for this warp when it enters the trap handler.
+      It is a precise trap which will leave the PC pointing to the instruction immediately following the BPT.TRAP.
+</p>
+<p>   .TRAP takes a 3-bit immediate as a mechanism to allow software to differentiate between traps.  The 3-bit immediate 
+      is provided in a per-warp warp ESR so the trap handler can identify the BPT.TRAP type.  Furthermore, the global ESR 
+      broadcasts which BPT.TRAP types were encountered, if any.  BPT.TRAP with a 0 immediate value is illegal.
+</p>
+
+<p> 
+<b>SOFTWARE NOTE:</b> The motivation for providing an immediate for BPT.TRAP is to allow trapping for multiple reasons.
+      One trap immediate can be used as a debugger breakpoint while another can be used for all other SW initiated traps. 
+      Example use cases of non-debugger-breakpoint traps include system calls and CTA continuations.  
+      To differentiate between the non-breakpoint trap cases, SW will have to establish an ABI 
+      between user mode binaries and the kernel mode trap handler.  For example, SW could reserve per-warp words 
+      in global memory for this communication.  Per-thread local memory could be used as well, 
+      but BPT.TRAP is a warp-wide instruction so care must be taken to ensure that memory is initialized and set properly.  
+      Debugger breakpoints receive special treatment via their own dedicated BPT.TRAP since there is generally no room 
+      to insert additional store instructions to implement the ABI around the breakpoint.       
+      SPA 5.0 extends the two bit immediate trap reason to 3 bits. Also the trap reason 7 has is considered as non maskable 
+      exception and is processed  even when interrupts are masked with  IDE.EN/.DIS. 
+</p>
+
+<dt>.INT:</dt>
+<dd>
+<p>
+BPT.INT raises an interrupt to CPU.  It can be used both within and outside of the trap handler. It also sets up a bit in global ESR which 
+can only be cleared by the CPU. This bit is always read as 0 when read by an S2R instruction.  BPT.INT interrupts do not trap the SM.
+</p>
+</dd>
+</dl>
+<dt>.PAUSE_QUIET:</dt>
+<dd>
+<p>
+BPT.PAUSE_QUIET pauses the warp exactly like BPT.PAUSE does, except that it does not set the NV_PTPC_PRI_SM_HWW_GLOBAL_ESR_BPT_PAUSE, and therefore does not raise an interrupt. Additionally, if all live warps become paused by executing BPT.PAUSE_QUIET during a given trap event then the SM will return to user mode and allow launches to resume without needing any poke of the NV_PTPC_PRI_SM_DBGR_STATUS0_RUN_TRIGGER register bit (which would otherwise be required). 
+</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>BPT</b>.PAUSE;
+<b>BPT</b>.TRAP 1;
+<b>BPT</b>.DRAIN;
+<b>BPT</b>.INT;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

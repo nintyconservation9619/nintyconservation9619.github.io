@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ScalableViewport</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ScalableViewport -->
+<div class="pagetitle" id="PageId_299937950">ScalableViewport</div>
+<div class="text_separate">
+<h1 id="Anchor_299937950_h1_1">
+  <span style="color: rgb(117,117,117);">はじめに</span>
+</h1>
+<p>ScalableViewport は、ビューポートステートやシザーステートなどを 2 つのウインドウ座標間で変換を手軽に行うためのライブラリーです。</p>
+<p>レイアウトを行うウインドウ座標を定義し、実際にレンダリングするウインドウ座標を定義することで、動的にレンダリング解像度が変化する場合にレイアウトが崩れることなく描画することができます。</p>
+<h1 id="Anchor_299937950_h1_2">ScalableViewport</h1>
+<h2 id="Anchor_299937950_h2_1">ヘッダーファイル</h2>
+<p>nn/gfx/util/gfx_ScalableViewport.h をインクルードしてください。</p>
+<h2 id="Anchor_299937950_h2_2">使用方法</h2>
+<h3 id="Anchor_299937950_h3_1">ウインドウ座標を定義する</h3>
+<p>仮想ウインドウ座標と物理ウインドウ座標を定義します。</p>
+<p>仮想ウインドウ座標とはレイアウトを行う領域を表します。</p>
+<p>物理ウインドウ座標とは実際にレンダリングを行う領域を表します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/gfx/util/gfx_ScalableViewport.h&gt;
+</span>
+<span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">WindowCoordinate</span> <span class="n">virtualWindowCoord</span><span class="p">;</span>
+<span class="n">virtualWindowCoord</span><span class="p">.</span><span class="n">SetOriginMode</span><span class="p">(</span><span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">OriginMode_UpperLeft</span><span class="p">);</span>
+<span class="n">virtualWindowCoord</span><span class="p">.</span><span class="n">SetSize</span><span class="p">(</span><span class="mf">1280.0f</span><span class="p">,</span> <span class="mf">720.0f</span><span class="p">);</span>
+
+<span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">WindowCoordinate</span> <span class="n">physicalWindowCoord</span><span class="p">;</span>
+<span class="n">physicalWindowCoord</span><span class="p">.</span><span class="n">SetOriginMode</span><span class="p">(</span><span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">OriginMode_LowerLeft</span><span class="p">);</span>
+<span class="n">physicalWindowCoord</span><span class="p">.</span><span class="n">SetSize</span><span class="p">(</span><span class="mf">1920.0f</span><span class="p">,</span> <span class="mf">1080.0f</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>上記のソースコードは、1280 x 720 のウインドウサイズで左上を原点としたレイアウトを行い、</p>
+    <p>1920 x 1080 のウインドウサイズで左下を原点としてレンダリングする設定をしています。</p>
+  </div>
+</div>
+<h3 id="Anchor_299937950_h3_2">初期化する</h3>
+<p>Initialize 関数を呼び出し、 ScalableViewport を初期化します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::util::</span><span class="n">ScalableViewport</span> <span class="n">scalableViewport</span><span class="p">;</span>
+<span class="n">scalableViewport</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">virtualWindowCoord</span><span class="p">,</span> <span class="n">physicalWindowCoord</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_299937950_h3_3">仮想ウインドウ座標における描画範囲を設定する</h3>
+<p>仮想ウインドウ座標における描画範囲を設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">Rect</span> <span class="n">virtualRect</span><span class="p">;</span>
+<span class="n">virtualRect</span><span class="p">.</span><span class="n">originX</span> <span class="o">=</span> <span class="mf">640.0f</span><span class="p">;</span>
+<span class="n">virtualRect</span><span class="p">.</span><span class="n">originY</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
+<span class="n">virtualRect</span><span class="p">.</span><span class="n">width</span> <span class="o">=</span> <span class="mf">640.0f</span><span class="p">;</span>
+<span class="n">virtualRect</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">720.0f</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>はじめに 1280 x 720 で仮想ウインドウが定義されているため、上記で設定した描画範囲は画面の右半分に設定されています。</p>
+  </div>
+</div>
+<h3 id="Anchor_299937950_h3_4">描画範囲を物理ウインドウ座標における領域に変換する</h3>
+<p>実際にレンダリングするべき領域に変換します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">Rect</span> <span class="n">physicalRect</span><span class="p">;</span>
+<span class="n">scalableViewport</span><span class="p">.</span><span class="n">ConvertRectVirtualToPhysical</span><span class="p">(</span><span class="o">&amp;</span><span class="n">physicalRect</span><span class="p">,</span> <span class="n">virtualRect</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_299937950_h3_5">物理ウインドウ座標の領域からビューポートステートを設定する</h3>
+<p>物理ウインドウ座標の領域からビューポートステートを設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::</span><span class="n">ViewportStateInfo</span> <span class="n">viewportStateInfo</span><span class="p">;</span>
+<span class="n">scalableViewport</span><span class="p">.</span><span class="n">SetupViewportStateInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">viewportStateInfo</span><span class="p">,</span> <span class="n">physicalRect</span><span class="p">);</span>
+<span class="n">pCommandBuffer</span><span class="o">-&gt;</span><span class="n">SetViewports</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">viewportStateInfo</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span class="ApiLink_nn__gfx__util__ScalableViewport__SetupScissorStateInfo">nn::gfx::util::ScalableViewport::SetupScissorStateInfo</span>() を用いることでシザーステートも同様に設定することができます。</p>
+  </div>
+</div>
+<h3 id="Anchor_299937950_h3_6">物理ウインドウ座標を変更する</h3>
+<p>アプリケーションの実行中にレンダリング解像度の変更が発生した場合などには、物理ウインドウ座標を更新します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">WindowCoordinate</span> <span class="n">updatedPhysicalWindowCoord</span><span class="p">;</span>
+<span class="n">updatedPhysicalWindowCoord</span><span class="p">.</span><span class="n">SetOriginMode</span><span class="p">(</span><span class="nn">nn::gfx::util::ScalableViewport::</span><span class="n">OriginMode_LowerLeft</span><span class="p">);</span>
+<span class="n">updatedPhysicalWindowCoord</span><span class="p">.</span><span class="n">SetSize</span><span class="p">(</span><span class="mf">1280.0f</span><span class="p">,</span> <span class="mf">720.0f</span><span class="p">);</span>
+
+<span class="n">scalableViewport</span><span class="p">.</span><span class="n">SetPhysicalWindowCoordinate</span><span class="p">(</span><span class="n">updatedPhysicalWindowCoord</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_299937950_h2_3">注意事項</h2>
+<p>物理ウインドウ座標の原点は低レベルグラフィックス API に依存します。</p>
+<h2 id="Anchor_299937950_h2_4">API リファレンス</h2>
+<p>
+  <span class="ApiLink_nn__gfx__util">nn::gfx::util</span> 名前空間の ScalableViewport クラスを参照してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__util__ScalableViewport__SetupScissorStateInfo', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_scalable_viewport.html#aa937e273a78ea4641bb2c76513a8d5df' )
+SetUrl( 'ApiLink_nn__gfx__util', '../../../Api/HtmlNX/namespacenn_1_1gfx_1_1util.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

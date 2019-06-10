@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ファイバ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ファイバ -->
+<div class="pagetitle" id="PageId_92328412">ファイバ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_92328412_h1_1">ファイバ機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_92328412_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_92328412_h3_1">スレッドとファイバの関係</a>
+        </li>
+        <li>
+          <a href="#Anchor_92328412_h3_2">ファイバの切り替え</a>
+        </li>
+        <li>
+          <a href="#Anchor_92328412_h3_3">ファイバのスタック</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_92328412_h2_2">ファイバの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_92328412_h2_3">ファイバの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_92328412_h2_4">ファイバ機能の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_92328412_h2_5">ファイバ使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_92328412_h3_4">ファイバのスレッドセーフティに関する注意事項</a>
+        </li>
+        <li>
+          <a href="#Anchor_92328412_h3_5">ライブラリの中でファイバを使用する場合の注意事項</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_92328412_h1_1">ファイバ機能</h1>
+<h2 id="Anchor_92328412_h2_1">機能概要</h2>
+<p>ファイバとは、スレッド上で更に複数のコンテキストを切替えるための機能です。利用者が手動でスケジューリング契機を指定する必要があります。</p>
+<p>ファイバは既存の<a href="../Pages/Page_83955697.html">スレッド</a>コンテキスト上で動作し、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber()</a> を明示的に呼び出すことで切り替えることができます。スレッドと異なり、ファイバが他のファイバによって自動的にプリエンプトされることはありません。</p>
+<p>ファイバは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">InitializeFiber()</a> を使ってコンテキストを用意します。<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">InitializeFiber()</a> にはファイバ関数のエントリ、引数、スタック領域の先頭アドレス、スタックサイズなどを渡します。このようにして用意されたファイバは、スレッド上から <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber()</a> の呼び出しによって切り替えることが出来ます。ファイバからファイバへの遷移にも&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber()</a> を使用します。使用済みのファイバは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af54bbd489d9e733f72e8555d7ff940cf">FinalizeFiber()</a> で破棄できます。</p>
+<h3 id="Anchor_92328412_h3_1">スレッドとファイバの関係</h3>
+<p>全てのファイバは、元となる<a href="../Pages/Page_83955697.html">スレッド</a>コンテキスト上で動作します。ただし、プログラムコードとスタック領域だけはファイバ独自のコンテキストが使用され、優先度や<a href="../Pages/Page_83955692.html">スレッド固有領域</a>などはスレッドのコンテキストがそのまま使用されます。</p>
+<p style="color: rgb(51,51,51);">ファイバは、あらゆるスレッド上から&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber()</a> によって切り替えることが出来ます。スレッドからファイバへ切り替えられたコンテキスト上での <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad106866a5b13bc3d430104333966b479">GetCurrentThread()</a> は全て同じ値を返しますが、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a5bacafa4afccd548bb410d0f2fb3762e">GetCurrentFiber()</a> は異なる値を返します。</p>
+<p style="color: rgb(51,51,51);">全てのファイバは、元々のスレッドコンテキスト上で動作しているため、全てのスレッド関連機能をそのまま使用することが出来ます。<a href="../Pages/Page_83955800.html">ミューテックス</a>などの機能も使用できますが、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a>, <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> の所有権管理はスレッドに関連付けられていることに注意して下さい。つまり、とあるスレッド上で動作しているファイバ A 上で <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> したものを、同一スレッド上で切り替えられたファイバ B 上で <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> できることを意味しています。ただし、このような設計を複雑にする使い方は推奨しておりません。</p>
+<h3 style="color: rgb(51,51,51);" id="Anchor_92328412_h3_2">ファイバの切り替え</h3>
+<p style="color: rgb(51,51,51);">ファイバの切り替えは&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber()</a> もしくはファイバ関数からのリターンでのみ行なわれます（リターンする時には切替先のファイバを返値として指定します）。そのため、ファイバが他のファイバによって暗黙的にプリエンプトされることはありません。ただし、ファイバ実行中に他のスレッドによってプリエンプトされることはあります。その場合でも、再度自スレッドがスケジューリングされた際には、プリエンプトされる直前に動作していたファイバの続きから実行が継続されます。</p>
+<p style="color: rgb(51,51,51);">元々のスレッドからファイバへ切り替えを行なった場所に復帰したい場合は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber</a>( NULL ); のように切り替え先ファイバに NULL を指定して下さい（ファイバ関数からリターンする時に return NULL; のようにしても切り替え可能です）。</p>
+<p style="color: rgb(51,51,51);">一度リターンしたファイバ関数へは&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber()</a> で切り替えることはできません。一度リターンしたファイバは必ず <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af54bbd489d9e733f72e8555d7ff940cf">FinalizeFiber()</a> で破棄して下さい。</p>
+<h3 id="Anchor_92328412_h3_3">ファイバのスタック</h3>
+<p>ファイバは各コンテキストごとに独自のスタック領域を持ちます。元々のスレッドとも異なるスタックを持ちます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">InitializeFiber()</a> の fiberFlag 引数には <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a39b515dc6753642a34364d91b5813104">FiberFlag</a> 型の列挙子で示される各種フラグを論理和で指定します。この中にはスタックガード有無の指定があります。この fiberFlag に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a39b515dc6753642a34364d91b5813104ac2bbce12f37e3e01eb6a244e2ada14c7">FiberFlag_NoStackGuard</a> を指定しなければスタックガード有りになります。</p>
+<p>スタックガード有りの場合、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">InitializeFiber()</a> で指定したスタックアドレスがそのままスタック領域として使用されるわけではありません。指定されたスタックアドレスを一度他の空間にミラーリングし、その前後にメモリアクセス不可なガードページを設置した上で、その領域をスタック領域として使用します。ファイバが有効な間、最初に指定されたスタックアド レス（ミラーリング元のメモリ領域）は読み込み専用に変更されます。<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af54bbd489d9e733f72e8555d7ff940cf">FinalizeFiber()</a> が呼ばれると、このミラーリング先の領域が削除され、元のスタックアドレスのメモリ領域が通常使用可能な状態に戻ります。</p>
+<p>fiberFlag に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a39b515dc6753642a34364d91b5813104ac2bbce12f37e3e01eb6a244e2ada14c7">FiberFlag_NoStackGuard</a> を指定するとスタックガード無しになります。スタックガードが無い場合は、上記のようなミラーリングは行なわれず、指定されたスタックアドレスのメモリ領域を直接スタック領域として使用します。この場合は、ファイバ実行中のスタックオーバーフローに十分気を付けて下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_92328412_h2_2">ファイバの使用方法</h2>
+<p>ファイバを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a> 構造体のオブジェクトを使用します。ファイバで使用するスタック領域も予め用意しておきます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="k">const</span> <span class="kt">size_t</span>                       <span class="n">fiberStackSize</span> <span class="o">=</span> <span class="mi">8192</span><span class="p">;</span>
+<span class="n">NN_OS_ALIGNAS_FIBER_STACK</span> <span class="kt">uint8_t</span>  <span class="n">g_FiberStack</span><span class="p">[</span> <span class="n">fiberStackSize</span> <span class="p">];</span>
+<span class="nn">nn::os::</span><span class="n">FiberType</span>                  <span class="n">g_Fiber</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>また、ファイバはある特定の関数をファイバのエントリとして登録するため、以下のようにファイバ関数を定義しておきます。<br />ファイバ関数は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a00a0fffd9172c3779939c06927973bed">FiberFunction</a> 型をとり、以下のような形で記述します。返値が必要ですので return 文で切り替え先ファイバを指定するように実装して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">FiberType</span><span class="o">*</span> <span class="nf">UserFiberFunction</span><span class="p">(</span> <span class="kt">void</span> <span class="o">*</span><span class="n">arg</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ファイバの実処理
+</span>
+&nbsp; &nbsp; <span class="c1">// 元々のスレッドに戻る場合は NULL を返すようにする
+</span> &nbsp; &nbsp;<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>以上の準備が整った上で、ファイバは以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>まず最初に、ファイバオブジェクトを初期化します。<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a39b515dc6753642a34364d91b5813104">FiberFlag</a> に指定するものがない場合は 0 を指定して下さい。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeFiber</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Fiber</span><span class="p">,</span> <span class="n">UserFiberFunction</span><span class="p">,</span> <span class="n">g_FiberStack</span><span class="p">,</span> <span class="n">fiberStackSize</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>ファイバオブジェクトを初期化したら、スレッド関数の中から適切なタイミングでファイバに切り替えます。<br />以後、ファイバから他のファイバへ遷移する場合も以下の API で切り替えることができます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">SwitchToFiber</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Fiber</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>ファイバから元のスレッドに戻りたい場合は、以下のようにするか、ファイバ関数から return NULL; でリターンして下さい。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">SwitchToFiber</span><span class="p">(</span> <span class="nb">NULL</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>ファイバを破棄する場合は、そのファイバが実行中でない状態で破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeFiber</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Fiber</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_92328412_h2_3">ファイバの具体的な使用例</h2>
+<p>具体的な使用例は、 <a href="../../../Api/HtmlNX/_page_sample_os_fiber.html">ファイバ機能サンプルプログラム</a>  を参照して下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_92328412_h2_4">ファイバ機能の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">nn::os::InitializeFiber</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af54bbd489d9e733f72e8555d7ff940cf">nn::os::FinalizeFiber</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">nn::os::SwitchToFiber</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a5bacafa4afccd548bb410d0f2fb3762e">nn::os::GetCurrentFiber</a>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_92328412_h2_5">ファイバ使用上の注意事項</h2>
+<h3 id="Anchor_92328412_h3_4">ファイバのスレッドセーフティに関する注意事項</h3>
+<p>一つのファイバを複数のスレッドから同時に参照することのないように注意して下さい。このような使い方は事前条件違反になります。</p>
+<p>ファイバは通常、単一のスレッド上で高速にコンテキスト切り替えを行なうための機能です。そのため、単一のファイバオブジェクトに対する排他制御は OS ライブラリ内では行なっておりません。複数のスレッドから同期制御を正しく行なわずに単一のファイバを操作しようとすると不具合の原因となります。</p>
+<p>例えば、スレッド A とスレッド B からほぼ同時に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber</a>( &amp;g_Fiber ) のようなことを行なうと g_Fiber オブジェクトの操作が正しく行なわれません。本来はスレッド A およびスレッド B のどちらが g_Fiber オブジェクトを操作すべきかを別の排他手段や同期機構を使って管理しなければなりません。</p>
+<h3 id="Anchor_92328412_h3_5">ライブラリの中でファイバを使用する場合の注意事項</h3>
+<p>ライブラリの中でファイバを使用し、元のコンテキストに戻るような場合、ライブラリの中から直接 <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">SwitchToFiber</a>( NULL ); という形で遷移したり、ファイバ関数から return NULL; で戻るような実装を行なってはいけません。ライブラリの呼び出し元のコンテキストが既にファイバであることもあるため、そのような場合に正しく動作しなくなります。</p>
+<p>正しくは、ライブラリ内の関数を呼んだ現在のコンテキストがスレッドなのかファイバなのかを <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a5bacafa4afccd548bb410d0f2fb3762e">nn::os::GetCurrentFiber()</a> で取得し、一通りファイバを使った処理を行なった後、最終的に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">nn::os::SwitchToFiber()</a> に元のコンテキストを渡して戻るようにして下さい。このようにすれば、スレッドの状態からライブラリ内の関数が呼ばれた場合はもちろん、ファイバの状態から呼ばれた場合でも、正しく呼び出し元のコンテキストへ戻ることができます。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

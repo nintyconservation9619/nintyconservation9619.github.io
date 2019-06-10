@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link href="../../css/template.css" rel="stylesheet" type="text/css" />
+		<title>&lt;group&gt;</title>
+	</head>
+	<body>
+		<h1 id="title">&lt;group&gt;</h1>
+		<h2>説明</h2>
+		<p id="summary">編集用の UI をまとめるグループを定義する要素です。</p>
+		<p id="detail">この要素は DCC ツールから出力しません。</p>
+		<h2>親要素</h2>
+		<ul id="parent">
+			<li>
+				<a href="./group_array.html">&lt;group_array&gt;</a> : <a href="./group.html">&lt;group&gt;</a> の配列要素です。</li>
+		</ul>
+		<h2>属性</h2>
+		<div id="attribute">
+			<table>
+				<thead>
+					<tr>
+						<th>名前</th>
+						<th>型と値</th>
+						<th>説明</th>
+					</tr>
+				</thead>
+				<tbody id="attribute_table">
+					<tr id="index">
+						<td class="nowrap_right">
+							<strong>index</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>int</strong>
+							<br />0 ～ 65534</td>
+						<td class="description">
+			配列内におけるインデックスです。<br />
+			この値は可読性を向上するためのヒントであり、ツール類で読み込んだ際には無視します。
+			<br /></td>
+					</tr>
+					<tr id="name">
+						<td class="nowrap_right">
+							<strong>name</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>string</strong>
+							<br />[0-9A-Za-z_]+</td>
+						<td class="description">
+			グループの名前です。
+			<br /></td>
+					</tr>
+					<tr id="page_name">
+						<td class="nowrap_right">
+							<strong>page_name</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>string</strong>
+							<br />[0-9A-Za-z\-\._]*</td>
+						<td class="description">
+			グループが属する <a href="./page.html">&lt;page&gt;</a> の名前です。
+			<br /></td>
+					</tr>
+					<tr id="condition">
+						<td class="nowrap_right">
+							<strong>condition</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>string</strong>
+							<br />[^"']*</td>
+						<td class="description">
+			グループ内の UI を編集可能にするかどうかを制御します。<br />
+			condition の式が true の場合は編集可能で、false だと編集不可になります。<br />
+			編集不可の場合でも、式に出現する UI は編集可能です。<br />
+			式には英数字と各種演算子（四則演算、ビット演算、論理演算）に加えて、3 種類の変数（option、uniform、renderinfo）を使用できます。変数は、$renderinfo.mode のように種類名と識別子を '.' で繋ぎ、それに接頭子 '$' をつけて記述します。種類名を省略した場合は option の識別子として扱います。また特殊文字として true と false も使用できます。true は 1、false は 0 としても評価されます。変数の使用には次の制約があります。「2 次元以上のパラメーターの uniform には対応していません」「描画情報値の数が 2 以上 (count が 2 以上) 又は、可変長（optional が true）の renderinfo には対応していません」
+			<br /></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<h2>内容</h2>
+		<div id="content">
+			<p>以下の要素が順番に出現します。[] 内の数値は要素の出現回数です。</p>
+			<ul>
+				<li>
+					<a href="ui_label.html">&lt;ui_label&gt;</a> [0～1] : 変数を編集する UI のラベルを定義する要素です。</li>
+				<li>
+					<a href="ui_comment.html">&lt;ui_comment&gt;</a> [0～1] : 変数を編集する UI のコメントを定義する要素です。</li>
+				<li>
+					<a href="ui_order.html">&lt;ui_order&gt;</a> [0～1] : 変数を編集する UI の並び順優先度を定義する要素です。</li>
+				<li>
+					<a href="ui_group.html">&lt;ui_group&gt;</a> [0～1] : 変数を編集する UI のグループ分けを定義する要素です。</li>
+			</ul>
+		</div>
+		<h2>出力例</h2>
+		<p id="sample_info">
+			<a href="../../sample/cube.fsda.html">cube.fsda</a>
+		</p>
+		<div class="code_block">
+			<pre class="comment">      ...
+ 163│            &lt;interleave index="1" id_set="nrm uv0" binarize="true" /&gt;
+ 164│            &lt;interleave index="2" id_set="" binarize="false" /&gt;
+ 165│        &lt;/interleave_array&gt;
+ 166│        &lt;group_array length="2"&gt;
+</pre>
+			<pre class="code"> 167│            &lt;group index="0" name="group" page_name="page0" condition="$opt==1"&gt;
+ 168│                &lt;ui_label value="ラベル" /&gt;
+ 169│                &lt;ui_comment value="コメント" /&gt;
+ 170│                &lt;ui_order value="1" /&gt;
+ 171│            &lt;/group&gt;
+ 172│            &lt;group index="1" name="hide" page_name="page0" condition="false" /&gt;
+ 173│        &lt;/group_array&gt;
+ 174│        &lt;page_array length="1"&gt;
+ 175│            &lt;page index="0" name="page0"&gt;
+ 176│                &lt;ui_label value="ラベル" /&gt;
+ 177│                &lt;ui_comment value="コメント" /&gt;
+ 178│                &lt;ui_order value="1" /&gt;
+ 179│            &lt;/page&gt;
+ 180│        &lt;/page_array&gt;
+ 181│        &lt;streamout varying="pos nrm" /&gt;
+ 182│    &lt;/shading_model&gt;
+ 183│    &lt;shading_model index="1" name="simple" material_shader="false" revision="0"&gt;
+ 184│        &lt;compute_stage src_index="0" /&gt;
+ 185│        &lt;sampler_var_array length="1"&gt;
+ 186│            &lt;sampler_var index="0" id="albedo"
+      ...
+</pre>
+		</div>
+	</body>
+</html>

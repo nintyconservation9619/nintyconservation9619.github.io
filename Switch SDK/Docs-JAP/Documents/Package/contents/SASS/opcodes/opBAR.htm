@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>BAR</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    BAR : Barrier Synchronization<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Barrier Synchronization" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "BAR", subsection => 13.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>BAR</b>.SYNC</code>      <code>SaName {, SbarCnt}</code>          <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BAR" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>BAR</b>.ARV</code>       <code>SaName,   SbarCnt</code>           <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BAR" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>BAR</b>.RED.op</code>    <code>SaName {, SbarCnt}, {!}Pp</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BAR" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>BAR</b>.SCAN</code>      <code>SaName, SbarCnt, {!}Pp</code>      <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BAR" } -->
+<code>        <code></code>           <code><b>BAR</b>.SYNCALL</code>   <code></code>                            <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BAR" } -->
+
+ SaName:      { Ra, #BarNameU4 }
+
+ SbarCnt:     { Ra, #BarCountU12 }
+              Encoding for BAR has a bit <b>barAMode</b> that is 0 if SaName  is a register, and 1 if it is an immediate(U4).
+              Similarly it has a bit     <b>barBMode</b> that is 0 if SbarCnt is a register, and 1 if it is an immediate(U12).
+              If both <b>barAMode</b> and <b>barBMode</b> are 0 (both registers), <b>the register specified has to be the same for both</b>.
+              The table below shows how barrier names and expected arrival counts are extracted for each case.
+              
+              barAMode     barBMode       barrierName  barrierCount
+              -------------------------------------------------------
+                0(Reg)      0(Reg)        Ra[3:0]       Ra[27:16]    // SaName/SbCnt are encoded with same register number.
+                0(Reg)      1(imm)        Ra[3:0]       #BarCountU12
+                1(imm)      0(Reg)        #BarNameU4    Rb[11:0]      
+                1(imm)      1(imm)        #BarNameU4    #BarCountU12
+
+
+ .op:         { <b>.POPC, .AND, .OR</b> } 
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<h3>SPA 5.0 </h3>
+
+<p>
+<b>BAR</b> performs CTA Barrier synchronization and communication.</p>
+<p>
+Cooperative Thread Arrays (CTAs) use the <b>BAR</b> instruction for
+barrier synchronization and communication among threads in the same CTA. Barrier
+instructions signal the arrival of the executing threads at the named barrier.
+In addition to signaling its arrival at the barrier, the <b>BAR.SYNC</b> and <b>BAR.RED</b>
+instructions cause the executing thread to synchronize with all or a specified number
+of threads in the CTA before resuming execution.  <b>BAR.RED</b>
+performs predicate reduction across the threads participating in the barrier,
+counting thread predicate values.  <b>BAR.ARV</b> does not cause executing threads to wait; 
+it simply marks a thread's arrival at the barrier.  </p>
+<p>
+For a thread to participate in a barrier, it must use the same barrier name as
+all the other threads participating in the same barrier.  Source operand SaName
+specifies the barrier as a 4-bit immediate, or by register Ra that
+contains the barrier number to use.  A maximum of 16 barrier names can be in
+use by one CTA. Barriers are virtualized per CTA, i.e., a CTA's barriers are 
+always addressed from 0..(NumBarriersAllocated-1), regardless of which physical
+barriers were allocated on the SM.</p>
+<p>
+The optional SbarCnt parameter specifies the number of threads participating in 
+the barrier.  SbarCnt may be a register Ra or a U12 immediate value.  If SbarCnt 
+is not specified, all of the threads in the CTA participate in the barrier.
+An non-specified barrier count is assembled as a U12 value of 0.  Thus
+explicitly specifying a U12 of 0 or an Ra equal to RZ, will cause all of
+the threads in the CTA to participate in the barrier.  When a barrier
+completes the waiting threads are restarted without delay and the barrier is 
+reinitialized so that it can be immediately reused.</p>
+<p>
+The <b>BAR.RED</b> instruction performs a reduction operation across threads.  <b>BAR.RED</b>
+delays the executing threads (similar to <b>BAR.SYNC</b>) until the barrier count is
+met.  The Pp predicate (or its complement) from all the threads are combined
+using the specified operator.  
+Once the barrier count is reached, the final
+value is written to a per-warp result register that is accessible via the
+<b><a href="opB2R.htm">B2R</a></b> and <b><a href="opR2B.htm">R2B</a></b>
+instructions. The result register <em>must</em> be read before the warp executes
+another barrier.
+</p>
+<p>
+The reduction operations for the <b>BAR.RED</b> perform counting operations. 
+The result of these operations is read by a <b><a href="opB2R.htm">B2R</a>.RESULT</b>
+instruction. The predicate reduction operations (.op) are population-count (.POPC),
+all-threads-true (.AND), and any-thread-true (.OR).  The result of .POPC 
+is the number of threads with a true predicate, while .AND and .OR indicate if
+all participating threads had a true predicate or if any (1 or more) of 
+the participating threads had a true predicate.  When the result is read out by a
+<b><a href="opB2R.htm">B2R</a>.RESULT</b> instruction,  Rd is set to 0xffff_ffff
+if .AND/.OR are true, and 0x0000_0000 otherwise.  Also, if Pd  is specified
+(for <b><a href="opB2R.htm">B2R</a>.RESULT</b>), the predicate destination is
+set to 1 if the result is non-zero, and 0 otherwise.</p>
+
+<p><b>BAR.RED</b>, <b>BAR.SYNC</b>, and <b>BAR.ARV</b> in trap mode are
+   UNPREDICTABLE.</p>
+
+
+<p><b>BAR.SYNCALL</b> carries an implicit expected arrival count of
+   #remaining_warps_in_cta * 32. This implies that it expects to wait only on
+   warps of the CTA that have already been launched and are still live. Warps
+   that haven't launched, or warps that have completed exitted are not waited
+   on. <b>BAR.SYNCALL</b> is meant for exclusive use in the trap handler.
+   <b>BAR.SYNCALL</b> generates the error
+   ILLEGAL_INSTR_ENCODING in user mode.</p>
+
+<p>Furthermore, <b>BAR.SYNCALL</b> references a dedicated barrier which is
+   not accessible from the other flavors of <b>BAR</b> (namely <b>BAR.SYNC</b>,
+   <b>BAR.RED</b>, <b>BAR.ARV</b>, and <b>BAR.SCAN</b>). This barrier does not
+   need to be specially allocated; it always exists for every CTA.</p>
+
+<p>The <b>BAR.SCAN</b> instruction performs a prefix sum based on the warp
+   arrival order. <b>BAR.SCAN</b> returns immediately without causing the
+   executing threads to wait (similar to <b>BAR.ARV</b>). A per warp register
+   is written with the sum of all the <code>{!}Pp</code> predicate values for
+   all threads that have executed the <b>BAR</b> instruction on this 
+   barrier prior to the arrival of the current thread (i.e., the prefix sum
+   does not include the current thread's predicate). The warp result is
+   accessible via <a href="opB2R.htm"><b>B2R</b></a> and
+   <a href="opR2B.htm"><b>R2B</b></a>, and must be read before the warp
+   executes another barrier.</p>
+
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<p>
+Use the <b>BAR.SYNC</b> instruction to arrive at a pre-computed barrier number and
+wait for pre-computed number of cooperating threads to also arrive:  </p>
+<pre>
+    #define CNT1    (8 * 12)        // Number of cooperating threads
+
+    ST        [R0+4], R1;           // write my result to shared memory
+    BAR.SYNC  1, CNT1;              // arrive, wait for others to arrive
+    LD        R2, [R3+8];           // use shared memory results from other threads
+</pre>
+
+<p>
+Use the <b>BAR.SYNC</b> instruction to arrive at a pre-computed barrier number and
+wait for all threads in CTA to also arrive:  </p>
+<pre>
+    ST        [R0+4], R1;           // write my result to shared memory
+    BAR.SYNC  1;                    // arrive, wait for others to arrive
+    LD        R2, [R3+8];           // use shared memory results from other threads
+</pre>
+
+<p>
+Use the <b>BAR.RED.AND</b> instruction to compare results across the entire CTA:  </p>
+<pre>
+    ISETP        P0, P1, R1, R2, EQ;   // P0 is true if R1 equals R2
+    BAR.RED.AND  1, P0;                // R3 = AND(P0 for every thread in CTA)
+    B2R.RESULT   R3
+</pre>
+
+<p>
+Use the <b>BAR.RED.POPC</b> instruction to compute the size of a group of threads
+that have a specific condition true:  </p>
+<pre>
+    ISETP         P0, P1, R1, R2, EQ;   // P0 is true if R1 equals R2
+    BAR.RED.POPC  1, P0;                // R3 = SUM(P0 for every thread in CTA)
+    B2R.RESULT    R3
+</pre>
+
+<p>
+Use the <b>BAR.SYNC</b> instruction to arrive at a barrier number that is not
+statically computable (e.g., a loop that operates on different buffers where
+usage of each buffer is arbitrated by its own barrier number):  </p>
+<pre>
+    ST        [R0+4], R1;           // write my result to shared memory
+    BAR.SYNC  R6, R6;               // R6[3:0] contains the barrier name and R6[27:16] contains thread count
+    LD        R2, [R3+8];           // now use the buffer
+</pre>
+
+<p>
+Producer/consumer model.  The producer deposits a value in shared memory,
+signals that it is complete but does not wait using BAR.ARV, and begins
+fetching more data from memory.  Once the data returns from memory, the
+producer must wait until the consumer signals that it has read the value from
+the shared memory location.  In the meantime, a consumer thread waits until the
+data is stored by the producer, reads it, and then signals that it is done
+(without waiting).</p>
+
+<P>NOTE: In the following example, the threads of the odd warps are the producers
+whereas the threads of the even warps are the consumers.</P>
+<pre>
+if(warpId &amp; 0x1 ) { // warpId is odd
+    // Producer code places produced value in shmem
+    ST        [R0], R1;            // R0 points to a shared memory location
+    BAR.ARV   0, 64;
+    LD        R1, [R2];            // Global load
+    BAR.SYNC  1, 64;
+    ...
+} else { // warpId is even
+    // Consumer code, reads from shmem value
+    BAR.SYNC  0, 64;
+    LD        R1, [R0];
+    BAR.ARV   1, 64;
+    ...
+}
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

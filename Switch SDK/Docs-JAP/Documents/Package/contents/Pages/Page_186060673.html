@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>製品機に近いファームウェア(PROD MODE)への初期化</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 製品機に近いファームウェア(PROD MODE)への初期化 -->
+<div class="pagetitle" id="PageId_186060673">製品機に近いファームウェア(PROD MODE)への初期化</div>
+<div class="text_separate">
+<h1 id="Anchor_186060673_h1_1">はじめに</h1>
+<p>このページでは開発機を「製品機に近いファームウェア(PROD MODE)」を使って初期化する手順を説明します。</p>
+<p>さらにこの PROD MODE を使ってアプリケーションの動作確認をする手順も後述します。</p>
+<h2 id="Anchor_186060673_h2_1">「製品機に近いファームウェア(PROD MODE)」とは？</h2>
+<p>開発機と製品機では内部構成が異なる都合上動作に差異があります。開発機でのソフトウェア検証時にその差異を低減するために「製品機に近いファームウェア(PROD MODE)」を利用することで製品機の動作設定に近い状態を作り出すことができるようにしました。</p>
+<p>この PROD MODE は、開発したアプリケーションのマスター ROM を提出する前の動作確認環境として使用します。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>このファームウェアを使うと製品機に近い動作になる代わりに、開発機として提供している機能の一部にも制約が発生します。</p>
+    <ul>
+      <li>TargetManager から本体への接続ができない</li>
+      <li>デバッガが利用できない</li>
+      <li>HTC ライブラリが利用できない</li>
+      <li>再初期化する時は手動でセーフモードにいれる必要がある (EDEV)</li>
+    </ul>
+    <p>また API の制約については&nbsp;<a href="../Pages/Page_313339316.html">PROD MODE 制限 API 一覧</a> のページにまとめてありますのでそちらも参考にして下さい。</p>
+  </div>
+</div>
+<p>さらに「microSD カードからのログ出力機能付きの製品機に近いファームウェア」も利用できます。これは上記の「製品機に近いファームウェア(PROD MODE)」に microSD カードからのログ出力機能が付いたものです。これは、 「製品機に近いファームウェア(PROD MODE)」でのみ発生する不具合を調査するために利用します。例えば、HostFS や HTC ライブラリを使用している場合には、「製品機に近いファームウェア(PROD MODE)」でのみ問題が発生します。</p>
+<p>これらのファームによる初期化は各初期化ツール (InitializeSdev・InitializeSdevWin・InitializeEdev・InitializeEdevWin) で可能です。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>「製品機に近いファームウェア(PROD MODE)」は SDEV MP・EDEV MP のみで利用できます。それ以外の開発機では利用できませんのでご注意ください。</p>
+  </div>
+</div>
+<h2 id="Anchor_186060673_h2_2">「PROD MODE」の反対は「DEV MODE」です。</h2>
+<p>「製品機に近いファームウェア(PROD MODE)」とは逆にデフォルトで用いられる開発機専用ファームウェアのことは「DEV MODE」と言います。</p>
+<p>初期化ツールで特にファームウェアを指定せずに初期化すると DEV MODE で初期化されることになります。</p>
+<h1 id="Anchor_186060673_h1_2">初期化手順</h1>
+<p>
+  <a href="../Pages/Page_89997371.html">環境構築ガイド</a>&nbsp;の &quot;開発機のセットアップ・ファームウェアの更新&quot; の項を前提にしますので、未実施の方はそちらをまず参照して下さい。</p>
+<h2 id="Anchor_186060673_h2_3">SDEV の場合</h2>
+<p>通常の場合と同じく InitializeSdev.bat を起動します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_186060673/193066145.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>「製品機に近いファームウェア(PROD MODE)」を選ぶ場合は &quot;Select firmware variation.&quot; のコンボボックスで &ldquo;<strong>+ Prod</strong>&rdquo; が含まれている項目を選んでから &quot;Start initialization&quot; ボタンを押して初期化して下さい。(この図では &quot;0.8.16-0 + Prod&quot; を選ぶことで対応するファームを選択するようになります)</p>
+<p>「microSD カードからのログ出力機能付きの製品機に近いファームウェア」を選ぶ場合は &ldquo;<strong>+ ProdWithLog</strong>&rdquo; が含まれている項目を選んでから &quot;Start initialization&quot; ボタンを押して下さい。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <div class="confluence-information-macro-body">
+      <p>コマンドライン版初期化ツール (InitializeSdev.exe) で初期化する場合は以下のように --target-version オプションを指定します。</p>
+      <p style="margin-left: 60.0px;">InitializeSdev.exe --target XAW0213100XXXX --target-version &quot;0.8.16-0 + Prod&quot;</p>
+    </div>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_186060673_h2_4">EDEV の場合</h2>
+<p>InitializeEdev.bat を起動します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_186060673/193066161.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>&quot;Select firmware variation.&quot; のコンボボックスで利用したいファームを選択してから &quot;Start initialization&quot; ボタンを押します。</p>
+<p>「製品機に近いファームウェア(PROD MODE)」を選ぶ場合は&nbsp; &ldquo;<strong>+ Prod</strong>&rdquo; が含まれている項目を、「microSD カードからのログ出力機能付きの製品機に近いファームウェア」を選ぶ場合は &ldquo;<strong>+ ProdWithLog</strong>&rdquo; が含まれている項目を選んで下さい。</p>
+<p>SDEV の場合と同様にコマンドライン版初期化ツール (InitializeEdev.exe) からもファーム指定できます。</p>
+<p>
+  <u>
+    <span style="color: rgb(255,0,0);">
+      <strong>EDEV の場合一点気を付けていただきたいことがあります！「製品機に近いファームウェア」で初期化した EDEV を再度初期化する場合は手動でセーフモードに入れる必要があります。</strong>
+    </span>
+  </u>
+  <br />手動でセーフモードに入る手順は <a href="../Pages/Page_159244488.html">EDEV の初期化が失敗するときは</a>&nbsp;の「セーフモードを手動操作で起動する」を参照してください。</p>
+<h1 id="Anchor_186060673_h1_3">更新する場合</h1>
+<p>更新ツール (<a href="../Pages/Page_206967126.html">SystemUpdateSdev</a> 等)を用いて PROD MODE に更新することも可能なのですが、特に気を付けるべき点があります。</p>
+<p align="left">更新ツールは NX Addon 4.3.0 時点では、<u><strong><span style="color: rgb(255,0,0);">更新前が DEV MODE の場合は、更新ツールで PROD MODE に更新しても適切な状態になりません。</span></strong></u><br /> <u><strong><span style="color: rgb(255,0,0);">更新ツールで PROD MODE にする場合には、必ず更新前も PROD MODEにしておいてから更新ツールを実行するようにしてください。</span></strong></u></p>
+<p>なお、更新前が DEV MODE の状態から更新した場合、メニューは DevMenu のままとなってしまい HomeMenu にはなりませんが、その場合には DevMenuCommand -- debug switch-menu homemenu を利用してメニューを切り替えることが可能です。</p>
+<h1 id="Anchor_186060673_h1_4">アプリケーションの動作確認</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>この手順は将来的には簡略化された手順を提供する予定です。</p>
+  </div>
+</div>
+<p>「製品機に近いファームウェア(PROD MODE)」では、 TargetManager を使えないため、アプリケーションの動作確認に専用のステップが必要になります。</p>
+<p>PROD MODE でのアプリケーションの実行方法は以下の二つがあります。</p>
+<ul>
+  <li>ゲームカードに書き込まれたアプリケーションとして実行する</li>
+  <li>インストールされたアプリケーションとして実行する</li>
+</ul>
+<h2 id="Anchor_186060673_h2_5">ゲームカードに書き込んで動作確認する</h2>
+<p>ゲームカードにアプリケーションを書き込んで PROD MODE の本体で動作確認するには以下の手順が必要です。</p>
+<ol>
+  <li>開発機を通常の初期化方法で初期化する</li>
+  <li>DevMenuCommand によりゲームカードにアプリケーションの NSP ファイルを書き込む</li>
+  <li>開発機を PROD MODE として初期化する</li>
+  <li>ゲームカードを差し込みアプリケーションを起動する</li>
+</ol>
+<p>DevMenuCommand は TargetManager を使用しているため、PROD MODE の本体では実行できないことに注意してください。</p>
+<p>この実行方法は、動作確認に使いたい機材の数だけゲームカードが必要になります。ゲームカードが少ない場合には次の「インストールされたアプリケーションとして実行する」方法を検討してください。</p>
+<h2 id="Anchor_186060673_h2_6">インストールされたアプリケーションとして実行する</h2>
+<p>PROD MODE でのインストールされたアプリケーションの実行には以下の手順が必要です。</p>
+<ol>
+  <li>開発機を通常の初期化方法で初期化する</li>
+  <li>DevMenuCommand を使用して DevMenuApp.nsp をゲームカードに書き込む</li>
+  <li>アプリケーションの NSP ファイルを microSD ファイルに入れる</li>
+  <li>開発機を PROD MODE として初期化する</li>
+  <li>ゲームカードを差し込み DevMenuApp を起動する</li>
+  <li>DevMenuApp から NSP ファイルをインストールする</li>
+  <li>本体機能からアプリケーションを実行する</li>
+</ol>
+<h1 id="Anchor_186060673_h1_5">microSD カードからのログ出力機能の使い方</h1>
+<p>「microSD カードからのログ出力機能付きの製品機に近いファームウェア」で初期化した SDEV を使うとログ出力を microSD カードに出力するようになります。</p>
+<p>microSD カードの \NxBinLogs ディレクトリ以下にログの内容を記録したファイル (.nxbinlog ファイル) が生成されます。このファイルをツール LogViewer を使うことでログを確認することができます。</p>
+<p>LogViewer の使い方については Document for NX に含まれる解説のページを参照してください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>VABSDIFF4</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    VABSDIFF4 : Integer SIMD Byte Absolute Difference<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer SIMD Byte Absolute Difference" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Video Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "VABSDIFF4", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>VABSDIFF4</b>{.dfmt}{.safmt.sbfmt}{.SAT}{.red}{.lanemask}</code>   <code>Rd{.CC},Ra{.asel4},Sb{.bsel4},Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "VABSDIFF4" } -->
+
+
+    .dfmt:        { <b>.UD* </b> }
+    .safmt:       { <b>.U8, .S8*</b> }
+    .sbfmt:       { <b>.U8, .S8*</b> } 
+    .red:         { <b>.SIMD_MRG*, .ACC, .INVALID[6]</b> }     // reduction operation
+    .lanemask:    { <b>.xyzw*, ...</b> }                       // lane mask selects bytes for merge/reduction
+    .asel4:       { <b>.3210*, ...</b> }                       // a input byte permute from (Ra,Sb)
+    .bsel4:       { <b>.7654*, ...</b> }                       // b input byte permute from (Ra,Sb)
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+4-way SIMD parallel absolute difference with subsequent reduction operation.</p>
+<p>
+Sources (Ra, Rc) and destination (Rd) are all 32b data registers.</p>
+<p>
+The following source Sb is allowed:</p>
+<pre>
+    Sb(register)
+    Sb(#IMM08)
+</pre>
+
+
+<h4>Basic math operation:</h4>
+<p>
+4-way SIMD parallel operation |<b>A</b> - <b>B</b>| done first.</p>
+<p>
+Both inputs are are first promoted to S09 (based on their individual .S8 or .U8 format). 
+After that the absolute difference is done, producing a SIMD U09 result.
+These are promoted to SIMD S10 values to match the data pipe of the other quad SIMD instructions.</p>
+
+<h4>Notes:</h4>
+<ul><li>When the reduction operation produces a SIMD result (.red == .SIMD_MRG/.SIMD_MIN/.SIMD_MAX), 
+        the reduction step uses the 8 LSBs of each SIMD intermediate result.
+        For these reduction operations, the .SAT specifier as well as the IntermediateSign is honored.
+        IntermediateSign is used to interpret the individual 8 bit values for the SIMD_MIN and 
+	SIMD_MAX operations.</li>
+
+    <li>When the reduction operation produces a scalar result (.red == .ACC/.MIN/.MAX),
+        saturation cannot be performed. For these reduction operations, always the un-saturated 
+        S10 intermediate result is used in reduction step (the intermediate result is always S10,
+        IntermediateSign is not used to interpret its value).
+	If .SAT is specified, it is an illegal instruction encoding error.</li>
+</ul>
+
+<h4>Other operations:</h4>
+<ul><li>Optional condition code write.</li>
+    <li>Optional sync.</li>
+</ul>
+
+<!-- ############################### -->
+<!-- # CC Update                   # -->
+<!-- ############################### -->
+<h3>CC Update:</h3>
+
+<p>
+Optional set of Condition Code, based on final 32 bit result in Rd.
+The setting of CF &amp; OF is based on final reduction operation adder, 
+they are only valid if the reduction operation is .ACC.</p>
+<pre>
+ZF = (result==0) ?  1 : 0)
+SF = result[31]
+CF = if (.red==.ACC) Carry is defined as the carry-out of the msb adder.
+     if (.red!=.ACC) 0
+OF = if (.red==.ACC) Overflow is defined as the XOR of the resulting sign bit and the real sign bit.
+     if (.red!=.ACC) 0
+</pre>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>VABSDIFF4.S8.U8.ACC</b> R0, R1, R2, R3;
+<b>VABSDIFF4.UD.U8.U8.ACC</b> R0, R1, R2, R3;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

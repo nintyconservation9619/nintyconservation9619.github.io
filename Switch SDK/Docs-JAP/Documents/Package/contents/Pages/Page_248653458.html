@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>カスタムアクション チュートリアル</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- カスタムアクション チュートリアル -->
+<div class="pagetitle" id="PageId_248653458">カスタムアクション チュートリアル</div>
+<div class="text_separate">
+<h1 id="Anchor_248653458_h1_1">カスタムアクションとは？</h1>
+<p>カスタムアクションを利用することで、パーティクルに対してゲーム内オブジェクトとのコリジョン判定を行ったり、パーティクル位置を参照して点光源を配置するなど、ゲームにより密接な挙動を実現することができます。</p>
+<p>このページでは、カスタムアクションのチュートリアル や よく使われる実装例の紹介をします。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_248653458_h1_1">カスタムアクションとは？</a>
+    </li>
+    <li>
+      <a href="#Anchor_248653458_h1_2">チュートリアル</a>
+    </li>
+    <li>
+      <a href="#Anchor_248653458_h1_3">パーティクルの操作</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_248653458_h1_2">チュートリアル</h1>
+<p>VfxViewerSimple サンプルのコードを改変して、カスタムアクションの機能を試してみるチュートリアルです。</p>
+<ul>
+  <li>コールバック関数の作成</li>
+  <li>作成したコールバック関数の登録</li>
+  <li>プレビューして動作を確認する</li>
+</ul>
+<p>まずは、VisualStudio にて VfxViewerSimple を開いてください。</p>
+<h2 id="Anchor_248653458_h2_1">コールバック関数の作成</h2>
+<p>以下のコールバック関数を main.cpp &nbsp;nnMain関数より上部に記述します。<br />このコールバック関数は、パーティクルのワールド座標を取得して、Y座標が 0.0 より低い状態であれば、パーティクル速度のY値を反転し、反射するといった簡易なコリジョン挙動を実現するコールバック関数になります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>void ParticleCalculateCallbackSample( nn::vfx::ParticleCalculateArg&amp; arg )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Vector4f pos;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Vector3f vec;
+
+&nbsp;&nbsp;&nbsp;&nbsp;// パーティクル位置を取得する
+&nbsp;&nbsp;&nbsp;&nbsp;arg.GetWorldPos( &amp;pos );
+
+&nbsp;&nbsp;&nbsp;&nbsp;// パーティクル位置がワールド座標系で 0.0f 以下であれば反射する
+&nbsp;&nbsp;&nbsp;&nbsp;if ( pos.GetY() &lt; 0.0f )
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg.GetLocalVec( &amp;vec );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vec.SetY( - vec.GetY() * 0.8f );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg.SetLocalVec( vec );
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_248653458_h2_2">カスタムアクションを設定する</h2>
+<p>次に記述したコールバック関数をVFXシステムに登録します。<br />パーティクル処理に関するコールバック関数なので、パーティクル計算処理コールバック関数として登録します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::vfx::CallbackSet callbackSet;
+callbackSet.particleCalculate = ParticleCalculateCallbackSample;
+vfxSystem-&gt;SetCallback( nn::vfx::CallbackId_CustomAction1, callbackSet );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_248653458_h2_3">プレビューして動作を確認する</h2>
+<p>VfxViewerSimple サンプルをビルドし実行します。次に、EffectMaker を起動し、新規エミッタセット作成を行います。<br />Emitter1 を選択し、パーティクルが高さ Y=10 の位置から 落下するような挙動を作成します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>タブ</th>
+      <th>グループ</th>
+      <th>パラメータ</th>
+    </tr>
+    <tr>
+      <td>エミッタ</td>
+      <td>エミッタトランスフォーム</td>
+      <td>位置(&plusmn;) Y を 10</td>
+    </tr>
+    <tr>
+      <td>放出</td>
+      <td>その他運動設定</td>
+      <td>重力を 0.7</td>
+    </tr>
+  </tbody>
+</table>
+<p>次に 作成したコールバック関数を呼び出す為、Emitter1 にカスタムアクションを追加します。<br />カスタムアクションの追加は、Emitter1 を選択し、右クリックメニュー 「カスタムアクション」を追加 から行います。<br />落下したパーティクルが高さ 0 で反射するエフェクトが再生されることを確認します。</p>
+<p>&nbsp;</p>
+<h1 id="Anchor_248653458_h1_3">パーティクルの操作</h1>
+<p>よく使われるパーティクル操作の例を紹介します。</p>
+<h2 id="Anchor_248653458_h2_4">パーティクルの位置や速度を操作する</h2>
+<p>パーティクル粒単位でCPU処理後されたあとに呼び出される、パーティクル計算処理コールバックを利用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>//---------------------------------------------------------------------------
+//  パーティクル計算処理コールバックの例
+//---------------------------------------------------------------------------
+void _ParticleCalculateCallback( nn::vfx::ParticleCalculateArg&amp; arg )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Vector4f pos;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Vector3f vec;
+
+&nbsp;&nbsp;&nbsp;&nbsp;// パーティクル位置を取得する
+&nbsp;&nbsp;&nbsp;&nbsp;arg.GetWorldPos( &amp;pos );
+
+&nbsp;&nbsp;&nbsp;&nbsp;// パーティクル位置がワールド座標系で 0.0f 以下であれば反射する
+&nbsp;&nbsp;&nbsp;&nbsp;if ( pos.GetY() &lt; 0.0f )
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg.GetLocalVec( &amp;vec );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vec.SetY( - vec.GetY() * 0.8f );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg.SetLocalVec( vec );
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_248653458_h2_5">パーティクルを削除する</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>//---------------------------------------------------------------------------
+//  パーティクル計算処理コールバックの例
+//---------------------------------------------------------------------------
+void _ParticleCalculateCallback( nn::vfx::ParticleCalculateArg&amp; arg )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Vector4f pos;
+&nbsp;&nbsp;&nbsp;&nbsp;nn::util::Vector3f vec;
+
+&nbsp;&nbsp;&nbsp;&nbsp;// パーティクル位置を取得する
+&nbsp;&nbsp;&nbsp;&nbsp;arg.GetWorldPos( &amp;pos );
+
+&nbsp;&nbsp;&nbsp;&nbsp;// パーティクル位置がワールド座標系で 0.0f 以下であれば反射する
+&nbsp;&nbsp;&nbsp;&nbsp;if ( pos.GetY() &lt; 0.0f )
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg.Kill();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

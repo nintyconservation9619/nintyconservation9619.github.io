@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>共通機能</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 共通機能 -->
+<div class="pagetitle" id="PageId_112902609">共通機能</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_112902609_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_112902609_h1_2">共通機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902609_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_2">初期化・終了処理</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_3">各モードの起動・終了方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_4">モード、パラメータの動的切り替え</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_5">モーションIRカメラの状態取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_6">IRカメラの設定項目</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_7">モーションIRカメラの外部光フィルタ機能</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902609_h2_8">モーションIRカメラのデータ座標系</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_112902609_h1_1">はじめに</h1>
+<p>モーションIRカメラの各機能（モード）を使用するための共通機能について説明します。</p>
+<h1 id="Anchor_112902609_h1_2">共通機能</h1>
+<h2 id="Anchor_112902609_h2_1">概要</h2>
+<p>IRSENSOR ライブラリの初期化や終了処理、各モードの起動・終了方法について説明します。</p>
+<p>また、各モードのデータの座標系についても説明します。</p>
+<h2 id="Anchor_112902609_h2_2">初期化・終了処理</h2>
+<p>モーションIRカメラを初期化するためには、まず <span class="ApiLink_nn__hid__NpadIdType">nn::hid::NpadIdType</span> を元に、 <span class="ApiLink_nn__irsensor__GetIrCameraHandle">nn::irsensor::GetIrCameraHandle</span> 関数を実行することで、<br /><span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を取得する必要があります。</p>
+<p>
+  <br />
+</p>
+<p>次に、取得したハンドルとともに、 <span class="ApiLink_nn__irsensor__Initialize">nn::irsensor::Initialize</span> 関数によって初期化を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/irsensor.h&gt;
+</span>&nbsp;
+<span class="nn">nn::irsensor::</span><span class="n">IrCameraHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">GetIrCameraHandle</span><span class="p">(</span><span class="n">npadIdType</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>終了する場合は、終了したい モーションIRカメラのハンドルを指定して、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を実行します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">Finalize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>本 API を実行することで、 ハンドルは解放されます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>NXAddon 4.2.0 で新規追加された、<span class="ApiLink_nn__irsensor__StopImageProcessorAsync">nn::irsensor::StopImageProcessorAsync</span> 関数を呼び出して非同期的に停止処理行った直後に <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> を行った場合、システムの一貫性を担保するため、内部のプロセッサが完了するまで API をブロックします。<br />API のブロックを避けるためには、 <span class="ApiLink_nn__irsensor__GetImageProcessorStatus">nn::irsensor::GetImageProcessorStatus</span> 関数を使用して、内部プロセッサの状態が停止状態になったのを確認した後に、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を呼び出してください。</p>
+  </div>
+</div>
+<h2 id="Anchor_112902609_h2_3">各モードの起動・終了方法</h2>
+<p>モーションIRカメラの機能を使用するためには、初期化をした後に各モードを起動していただく必要があります。<br />各モードの使用の基本的な流れは以下です。</p>
+<ol>
+  <li>
+    <p>Run**Processor 関数を実行して、初期設定と、リソースの登録を行います。 (使用したいモードに合った関数を呼び出します )</p>
+  </li>
+  <li>
+    <p>Get**ProcessorState 関数にてデータを取得します。　(使用したいモードに合った関数を呼び出します )</p>
+  </li>
+  <li>
+    <p>
+      <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を実行して、キャプチャの停止とリソースの解放を行います。</p>
+  </li>
+</ol>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>これまで <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数は、内部のプロセッサが停止するのを同期して待ち、その間 API をブロックしていました。 (NXAddon 4.0.0, 4.1.0 での StopImageProcessor の挙動については例外となりますので、別途ドキュメントを参照ください)<br />NXAddon 4.2.0 以降、 <span class="ApiLink_nn__irsensor__StopImageProcessorAsync">nn::irsensor::StopImageProcessorAsync</span> 関数という停止処理を非同期に行う API を追加して、非同期的に呼び出せるようにしています。<br />内部プロセッサの停止状況を監視する <span class="ApiLink_nn__irsensor__GetImageProcessorStatus">nn::irsensor::GetImageProcessorStatus</span> 関数も追加していますので、こちらとあわせてプロセッサ停止の完了を待つようにしてください。</p>
+  </div>
+</div>
+<p>詳しいシーケンスについては、各モードの説明をご覧ください。</p>
+<h2 id="Anchor_112902609_h2_4">モード、パラメータの動的切り替え</h2>
+<p>本機能は、 NXAddon 4.0.0 以降で利用可能な機能です。</p>
+<p>プロセッサ起動中にも、Run**Processor 関数を実行して、動的にモード遷移やパラメータ変更を行うことができるようになりました。<br />また、これに合わせて起動中のプロセッサと不整合な Get**ProcessorState 関数を呼び出した際に、 <span class="ApiLink_nn__irsensor__ResultIrsensorNotReady">nn::irsensor::ResultIrsensorNotReady</span> のエラーを返すようになりました。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NXAddon 1.x 系、3.x 系では、起動中のプロセッサと不整合な Get**ProcessorState 関数を呼び出した際には、アボートする仕様となっていました。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>従来、モード、パラメータ変更の際には、一度 <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を発行して、モーションIRカメラを完全に停止した後に、再設定する必要がありましたが、<br />本機能により、モーションIRカメラを完全に停止せずに、モードや、パラメータを一度停止させた場合に比べ高速に切り替えることが可能になりました。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>画像転送モードを利用中に、他のモードに遷移したり、同モードでパラメータ変更を行った場合は、それまで登録していたワークバッファが一度開放される点にご注意ください。</p>
+  </div>
+</div>
+<h2 id="Anchor_112902609_h2_5">モーションIRカメラの状態取得</h2>
+<p>
+  <span class="ApiLink_nn__irsensor__GetIrCameraStatus">nn::irsensor::GetIrCameraStatus</span> 関数や、<span class="ApiLink_nn__irsensor__GetMomentProcessorStates">nn::irsensor::GetMomentProcessorStates</span> 関数などのデータ取得関数の返り値から、<br />モーションIRカメラの状態を取得して、適切に正常時のデータを扱うようにしてください。<br />これらの状態を正しくハンドリングすることで、 Npad の様々なコントローラスタイルとその変化を意識せずにモーションIRカメラを使用することができます。</p>
+<p>以下は、GetIrCameraStatus を使用した場合の例です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::irsensor::IrCameraStatus irCameraStatus = nn::irsensor::GetIrCameraStatus(handle);
+if (irCameraStatus == nn::irsensor::IrCameraStatus_Available)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// モーションIRカメラが使用可能
+}
+else if (irCameraStatus == nn::irsensor::IrCameraStatus_Unsupported)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// モーションIRカメラが搭載されていない
+}
+else if (irCameraStatus == nn::irsensor::IrCameraStatus_Unconnected)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// デバイスが接続されていない
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_112902609_h2_6">IRカメラの設定項目</h2>
+<p>IRカメラには、以下の設定項目があります。<br />これらは各モード共通の設定になります。　項目によっては、モードごとに定義された設定がデフォルト値として設定されます。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+      <th>定義域</th>
+    </tr>
+    <tr>
+      <td>exposureTime</td>
+      <td>IRカメラの露光時間を usec 単位で設定します。</td>
+      <td>
+        <p>300 [us] @モーメントモード</p>
+        <p>200 [us] @クラスタリングモード</p>
+        <p>300 [us] @画像転送モード</p>
+      </td>
+      <td>
+        <p>各モードごとに設定された、</p>
+        <p>ExposureTimeMin 以上, ExposureTimeMax 以下</p>
+      </td>
+    </tr>
+    <tr>
+      <td>lightTarget</td>
+      <td>
+        <p>使用する IR LED を設定します。 モーションIRカメラに搭載されている IR LED には、<br />半減角75度のもの(挟角)が 2 灯、 130 度のもの(広角)が 2 灯あり、それぞれ ON/OFF することができます。<br />ここでは組み合わせを指定します。</p>
+      </td>
+      <td>IrCameraLightTarget_AllObjects (全モード共通)</td>
+      <td>
+        <p>IrCameraLightTarget_AllObjects、 (両方のLEDを点灯します)</p>
+        <p>IrCameraLightTarget_FarObjects,&nbsp; (挟角のLEDだけを点灯します)</p>
+        <p>IrCameraLightTarget_NearObjects,&nbsp; (広角のLEDだけを点灯します)</p>
+        <p>IrCameraLightTarget_None,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (両方のLEDを消灯します)</p>
+      </td>
+    </tr>
+    <tr>
+      <td>gain</td>
+      <td>
+        <p>IRカメラのディジタルゲインを設定します。<br />ディジタルゲインを変更することで、感度が変わり、画像の明るさと<br />ノイズの程度が変わります。 ディジタルゲインを大きくすると、画像が明るくなりますが、<br />ノイズが増えます。 一方、ディジタルゲインを小さくすると画像は暗くなりますが、ノイズが小さくなります。</p>
+        <p>x1 ~ x16 まで設定することができます。</p>
+      </td>
+      <td>
+        <p>8 @モーメントモード</p>
+        <p>2 @クラスタリングモード</p>
+        <p>8 @画像転送モード</p>
+      </td>
+      <td>IrCameraGainMin(1) 以上、 IrCameraGainMax(16) 以下</td>
+    </tr>
+    <tr>
+      <td>isNegativeImageUsed</td>
+      <td>IRカメラで取得した画像を白黒反転させるフラグです。<br />白黒反転が有効な場合は、あるピクセルの輝度 x が、 255 - x の輝度に変換されます。</td>
+      <td>false (全モード共通)</td>
+      <td>true / false</td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの設定値は<span class="external-link"> <span class="ApiLink_nn__irsensor__IrCameraConfig">nn::irsensor::IrCameraConfig</span></span> 構造体のメンバとして持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">IrCameraConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::</span><span class="n">TimeSpanType</span> <span class="n">exposureTime</span><span class="p">;</span> <span class="c1">//!&lt; 撮影時の露光時間です（イメージプロセッサごとに定義された ExposureTimeMin 以上 ExposureTimeMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraLightTarget</span> <span class="n">lightTarget</span><span class="p">;</span> <span class="c1">//!&lt; 撮影時の照明の設定です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">gain</span><span class="p">;</span>                        <span class="c1">//!&lt; 撮影時のディジタルゲインです（IrCameraGainMin 以上 IrCameraGainMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">isNegativeImageUsed</span><span class="p">;</span>        <span class="c1">//!&lt; 撮影画像を反転するかどうか。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各モードを起動する際に、設定値として入力することで、指定のカメラ設定で各モードを動かすことができます。</p>
+<h2 id="Anchor_112902609_h2_7">モーションIRカメラの外部光フィルタ機能</h2>
+<p>物体やマーカーなどを検出する際に、太陽光やLED光などの自らIR光を発する物体(モーションIRカメラ自体のLEDから放つ光と区別して外部光と言います)が映るとノイズになることがあるため、<br />モーションIRカメラにはこの外部光をフィルタする機能があります。</p>
+<p>フィルタを有効にすると、ある程度外部光を取り除くことができますが、例えば、外部光が強すぎたり、検出する物体と光源が重なったりするような場合、完全に取り除くことができずノイズとなる場合があります。<br />このようなノイズを環境ノイズと呼び、そのノイズレベルを各モードの実行中にデータと一緒に取得することができます。 <br />アプリ開発者はこの情報を使って、ユーザに対して現在のプレイ環境が良い状態か悪い状態かを通知することができ、また状態が悪い場合はユーザに環境を変えるように案内することなども可能となります。</p>
+<p>外部光フィルタ機能が無効の場合は環境ノイズの測定機能も無効となりますので注意が必要です。</p>
+<p>環境ノイズについては、 <span class="ApiLink_nn__irsensor__IrCameraAmbientNoiseLevel">nn::irsensor::IrCameraAmbientNoiseLevel</span> で定義されています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">enum</span> <span class="n">IrCameraAmbientNoiseLevel</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel_Low</span><span class="p">,</span>     <span class="c1">//!&lt; 環境ノイズが少なく、IR プロセッサが正常に使える状況です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel_Middle</span><span class="p">,</span>  <span class="c1">//!&lt; 環境ノイズが中程度にあり、場合によっては IR プロセッサの挙動に影響が出る状況です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel_High</span><span class="p">,</span>    <span class="c1">//!&lt; 環境ノイズが多く、IR プロセッサが正常に使えない状況です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel_Unknown</span><span class="p">,</span> <span class="c1">//!&lt; 環境ノイズの測定機能が無効で、ノイズ状態は不明です。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_112902609_h2_8">モーションIRカメラのデータ座標系</h2>
+<p>モーションIRカメラは、アプリケーションの使い方によって Joy-Con の持ち方が異なるため、データの座標系に関する注意が必要です。</p>
+<p>ここでは、モーションIRカメラの各モード（クラスタリング / モーメント / 画像転送）におけるデータの座標系について説明します。</p>
+<p>Joy-Con の向きに対応したデータの座標系は以下の通りにマッピングされます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902609/125174600.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p>クラスタリングモード、モーメントモードで出力される座標系は上記のマッピングに準拠します。</p>
+<p>画像転送モードについては、上記のマッピングの元以下のような形でバッファに格納されます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902609/125174603.png" width="200" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__hid__NpadIdType', '../../../Api/HtmlNX/namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6' )
+SetUrl( 'ApiLink_nn__irsensor__GetIrCameraHandle', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a4772960359a06fcd86d2b9ffe85059fc' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraHandle', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_handle.html' )
+SetUrl( 'ApiLink_nn__irsensor__Initialize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a43c18eac7fe6430f1c9620e29169cf1a' )
+SetUrl( 'ApiLink_nn__irsensor__Finalize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6265f5c6e6d6fc0e67fc6882a8945284' )
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessorAsync', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a2777438798de9cf9a3bfebbeb48251b0' )
+SetUrl( 'ApiLink_nn__irsensor__GetImageProcessorStatus', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a07eb18481070f89065809a60a5928bcb' )
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3052171f2c63aafc0e4a164366ae22d7' )
+SetUrl( 'ApiLink_nn__irsensor__ResultIrsensorNotReady', '../../../Api/HtmlNX/classnn_1_1irsensor_1_1_result_irsensor_not_ready.html' )
+SetUrl( 'ApiLink_nn__irsensor__GetIrCameraStatus', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#acf66c625dc12cd1fb0d06e79eb1d32a5' )
+SetUrl( 'ApiLink_nn__irsensor__GetMomentProcessorStates', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a54d616f420145c9b7ac415d3c3d93523' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraConfig', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_config.html' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraAmbientNoiseLevel', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a703533208b1dbc28e3cdaab0273feb57' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

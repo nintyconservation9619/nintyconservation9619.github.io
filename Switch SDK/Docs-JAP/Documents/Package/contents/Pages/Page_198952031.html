@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ストリームサウンド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ストリームサウンド -->
+<div class="pagetitle" id="PageId_198952031">ストリームサウンド</div>
+<div class="text_separate">
+<h1 id="Anchor_198952031_h1_1">ストリームサウンド</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_198952031_h2_1">ストリームサウンドとは？</a>
+    </li>
+    <li>
+      <a href="#Anchor_198952031_h2_2">ストリームサウンドの特徴</a>
+    </li>
+    <li>
+      <a href="#Anchor_198952031_h2_3">マルチトラック機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_198952031_h3_1">制限事項</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_198952031_h2_4">プリフェッチ機能</a>
+    </li>
+    <li>
+      <a href="#Anchor_198952031_h2_5">ストリームジャンプ機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_198952031_h3_2">ストリームジャンプでできること</a>
+      </li>
+      <li>
+        <a href="#Anchor_198952031_h3_3">ストリームジャンプの使い方</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h2 id="Anchor_198952031_h2_1">ストリームサウンドとは？</h2>
+<p>ストリームサウンドは Atk のサウンドデータの形式の１つで、<br /><span class="ApiLink_nn__atk">nn::atk</span> ライブラリで再生する際にファイルから必要最小限のデータを読み込みながら再生するサウンドです。</p>
+<p>例えば、BGM などのデータサイズが大きい波形データを再生する場合、全てのデータを一度に読み込むと読み込み時間やメモリを多く必要としますが、<br />ストリームサウンドを使用することでこれらの負担を分散させることができます。</p>
+<h2 id="Anchor_198952031_h2_2">ストリームサウンドの特徴</h2>
+<p>ストリームサウンドには以下の特徴があります。<br /> <br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/218171351.png" class="embedded-image" /></span> 必要最小限のデータをメモリにロードしつつ再生するため、消費メモリが少ない。<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/218171351.png" class="embedded-image" /></span>&nbsp;再生する波形データのサイズに依存せず、常に一定のメモリの消費で済む。<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/218171352.png" class="embedded-image" /></span>&nbsp;再生命令を送った後に十分なサイズのデータをメモリにロードするまで再生が開始されない。<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/218171352.png" class="embedded-image" /></span>&nbsp;再生中にオーディオ以外のファイル入出力が発生した場合、波形データの読み込みに遅延が生じてノイズや音途切れが発生する可能性がある。</p>
+<h2 id="Anchor_198952031_h2_3">マルチトラック機能</h2>
+<p>ストリームサウンドでは、1 つのストリームサウンドに対して複数のトラックを持つことができます。<br />1 つのトラックには 1 つの波形（最大 2 ch）を設定することができ、トラックごとに音量などのパラメータを変更できるため、<br />例えば、ゲームシーンの状況に応じて複数のトラックを同時に再生したり、逆にあるトラックだけ再生しないようにするといったことを簡単に実現することができます。</p>
+<p>また、コンバート後のデータは 1 つのファイルにまとめられるため、1 つのファイルのストリーミングで済みます。ただし、トラック数が増えるほど処理負荷が増える点にはご注意ください。</p>
+<p>マルチトラックのストリームサウンドの扱いは、基本的なストリームサウンドと同様で、マルチトラックの設定がされているストリームサウンドの ID や文字列ラベルを指定することで再生することができます。<br />マルチトラックのストリームサウンドの作り方については、SoundMaker マニュアルの<a href="../Pages/Page_83956090.html#Anchor_83956090_Set_StrmSndTrackストリームサウンドトラックの設定">ストリームサウンド</a> のページにあるストリームサウンドトラックの設定の項目をご確認ください。</p>
+<p>また、マルチトラックのストリームサウンドにおいても、基本的なストリームサウンドと同様に、<br /><span class="ApiLink_nn__atk__SoundHandle">nn::atk::SoundHandle</span> や <span class="ApiLink_nn__atk__StreamSoundHandle">nn::atk::StreamSoundHandle</span> の API を利用してパラメータを変更する事できます。<br />トラックのパラメータ変更に関しては <span class="ApiLink_nn__atk__StreamSoundHandle">nn::atk::StreamSoundHandle</span> の API リファレンスをご確認ください。</p>
+<p>すべてのトラックを同時に再生する場合、すべてのトラックの合計チャンネル数分のストリームチャンネルが必要になる点にもご注意ください。<br />ストリームチャンネルの数が足りなかった場合には、ストリームチャンネルの確保に失敗したという警告を出て再生に失敗します。</p>
+<p>再生がうまくいかない場合には、SoundMaker のサウンドアーカイブの設定でストリームチャンネルの数が正しいかをご確認ください。<br />詳しくは、SoundMaker マニュアルの<a href="../Pages/Page_83956179.html#Anchor_83956179_サウンドアーカイブ">オプション設定</a>のページのサウンドアーカイブの項目をご確認ください。</p>
+<h3 id="Anchor_198952031_h3_1">制限事項</h3>
+<p>Opus ファイルのマルチトラックに対応していません。</p>
+<h2 id="Anchor_198952031_h2_4">プリフェッチ機能</h2>
+<p>ストリームサウンドの先頭のデータだけを前もってメモリ上にロードしておくことで、ストリームサウンドの特徴でデメリットとして挙げた「再生開始時の読み込み待ち」をなくす機能です。</p>
+<p>SoundMaker のストリームサウンドタブ上の「プリフェッチ」の項目にチェックを入れた上で、プログラム上で再生前にロードを行うことで使用できます。<br />プリフェッチデータを使用する場合は、先頭のデータの分だけリソースとメモリのサイズが増加する点にご注意ください。<br />詳しくは SoundMaker マニュアルの <a href="../Pages/Page_83956090.html">ストリームサウンド</a> や、プログラミングガイドの&nbsp;<a href="../Pages/Page_200573824.html">ストリームサウンド</a>&nbsp;を参照ください。</p>
+<p>
+  <br />
+</p>
+<!--Remove-->
+<h2 id="Anchor_198952031_h2_5">ストリームジャンプ機能</h2>
+<p>あらかじめ波形に設定していたリージョン間を行き来することができる機能です。<br /> <span style="color: rgb(255,0,0);">この機能は NintendoSDK NX Addon 3.0.0 以降で使用できるようになります。</span>&nbsp;</p>
+<h3 id="Anchor_198952031_h3_2">ストリームジャンプでできること</h3>
+<p>ストリームジャンプの機能を利用することで、例えば、一つの BGM を 3 つのリージョンに分けておき、<br />先頭のリージョンを１回再生し、真ん中のリージョンを一定回数再生した後、末尾のリージョンに移るといったことができるようになります。<br />その他にも、ユーザーのボタン操作に応じて再生するリージョンを変更するといったこともできます。<br /> <br />ただし、リージョンの変更はリージョンの終端が含まれている部分のメモリロード完了時のタイミングでのみ指定できるため、<br />ユーザーのボタン操作と同時に状態を変更することができない点にご注意ください。<br />リージョンの変更を指定することができるタイミングについては、プログラミングガイドの&nbsp;<a href="../Pages/Page_200573824.html">ストリームサウンド</a>&nbsp;のストリームジャンプ機能の項目をご確認ください。</p>
+<h3 id="Anchor_198952031_h3_3">ストリームジャンプの使い方</h3>
+<p>ストリームジャンプを利用するためには、波形にリージョンを設定する作業とプログラムの変更が必要になりますが、ここではリージョンの設定方法のみ説明します。<br />プログラムの変更については、プログラミングガイドの&nbsp;<a href="../Pages/Page_200573824.html">ストリームサウンド</a>&nbsp;のストリームジャンプ機能の項を参照ください。</p>
+<h4 id="Anchor_198952031_h4_2">リージョンの設定方法</h4>
+<p>波形編集が可能なツールなどで、波形自体に以下のフォーマットの名前でリージョンを作成しておくことで、バイナリコンバートした際にリージョン情報がストリームサウンドバイナリに含まれるようになり Atk ライブラリがリージョン情報を取得できるようになります。&nbsp;</p>
+<h5 id="Anchor_198952031_h5_1">波形に埋め込むリージョンの名前のフォーマット</h5>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelContent">
+    <p>[NW]リージョン名#リージョンインデックス</p>
+  </div>
+</div>
+<ul>
+  <li>リージョン名、リージョンインデックスともに省略可能です。</li>
+  <li>リージョン名を省略した場合は、空文字列がバイナリに含まれます。</li>
+  <li>リージョンインデックスを省略した場合は、未使用の最も小さいインデックス番号が割り振られていきます。<ul><li>省略する場合は # を書くとエラーになります。</li></ul></li>
+  <li>リージョンインデックスを重複して指定することはできません。<ul><li>コンバートエラーになります。</li></ul></li>
+  <li>リージョン名を重複して指定することはできません。<ul><li>2017/2/23 現在コンバートエラーになりませんが、今後のリリースで修正される予定です。</li></ul></li>
+  <li>リージョンインデックスは連続している必要はありませんが、未使用のインデックスの分も 0 埋めされたリージョン情報としてバイナリに含まれます。<br />意図せずファイルサイズが大きくなる可能性がある点にご注意ください。</li>
+</ul>
+<h5 id="Anchor_198952031_h5_2">Atk のリージョン名に使える文字列</h5>
+<ul>
+  <li>先頭文字は半角英字 or アンダースコア</li>
+  <li>それ以降の文字は半角英数字 or アンダースコア</li>
+  <li>最大で 63 文字</li>
+</ul>
+<h5 id="Anchor_198952031_h5_3">波形に埋め込むリージョンの名前の例</h5>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>[NW]RegionA#1    // リージョン名：RegionA、リージョンインデックス 1
+[NW]RegionB#3    // リージョン名：RegionB、リージョンインデックス 3
+[NW]RegionC      // リージョン名：RegionC、リージョンインデックス 0
+[NW]#4           // リージョン名： (なし)、リージョンインデックス 4
+RegionD#5        // NG、[NW]から始まっていない（コンバート時に無視されます）
+[NW]2_Region     // NG、リージョン名の先頭に使用できない文字がある（使用できない文字が _ に置換されますが、コンバート自体は成功します）
+[NW]RegionE#1    // NG、リージョンインデックスが重複している（コンバートエラーになります）</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk', '../../../Api/HtmlNX/namespacenn_1_1atk.html' )
+SetUrl( 'ApiLink_nn__atk__SoundHandle', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html' )
+SetUrl( 'ApiLink_nn__atk__StreamSoundHandle', '../../../Api/HtmlNX/classnn_1_1atk_1_1_stream_sound_handle.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

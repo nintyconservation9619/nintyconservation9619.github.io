@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>データの流れとセットアップ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- データの流れとセットアップ -->
+<div class="pagetitle" id="PageId_194625008">データの流れとセットアップ</div>
+<div class="text_separate">
+<h1 id="Anchor_194625008_h1_1">データの流れ</h1>
+<p>本体が初めてデータを受信するまでの流れを以下に説明します。</p>
+<ol>
+  <li>アプリケーション開発者はサーバーにデータを登録します。</li>
+  <li>ユーザーはデータ配信機能の設定が行われたアプリケーションを起動します。</li>
+  <li>本体システムは本体保存メモリーの中にデータを保存する領域を作成します。この領域を「データ配信キャッシュストレージ」と呼びます。</li>
+  <li>アプリケーションがBCATライブラリの関数を呼び出すと、サーバーから本体にデータがダウンロードされます。</li>
+</ol>
+<h1 id="Anchor_194625008_h1_2">サーバーの役割</h1>
+<p>本体がデータをダウンロードするためにアクセスするサーバーをBCATサーバーと呼んでいます。</p>
+<p>BCATサーバーではデータ、およびデータの配信時刻を管理しています。</p>
+<p>アプリケーション開発者はWebシステムである「BCAT管理ツール」にアクセスして、PCのブラウザからBCATサーバーにデータを登録します。</p>
+<p>BCATサーバーの詳細は「<span style="color: rgb(51,51,51);">BCATデータ配信ガイド</span>」を参照してください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>開発用の環境(dd1)、製品用の環境(lp1)、ロットチェック用の環境(sd1/sp1)の4種類の環境のBCATサーバー（およびBCAT管理ツール）が提供されます。それぞれについて操作を行ってください。</p>
+  </div>
+</div>
+<h1 id="Anchor_194625008_h1_3">
+  <br />データを受信する条件</h1>
+<p>配信が開始されているデータを本体に受信するには、以下3つの条件をすべて満たす必要があります。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th colspan="2" style="text-align: center;">条件</th>
+      <th>アプリケーションでの対応が必要か?</th>
+    </tr>
+    <tr>
+      <td>条件A</td>
+      <td>nn::bcat::Initialize() を呼び出していること。</td>
+      <td>必要</td>
+    </tr>
+    <tr>
+      <td>条件B</td>
+      <td>データ配信キャッシュストレージが作成されていること。</td>
+      <td>不要</td>
+    </tr>
+    <tr>
+      <td>条件C</td>
+      <td>有効なネットワークサービスアカウントが本体に一つ以上存在すること。</td>
+      <td>不要</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_194625008_h2_1">条件A</h2>
+<p>本体システムによりデータ配信キャッシュストレージが作成されてから、アプリケーションは一度は <span class="ApiLink_nn__bcat__Initialize">nn::bcat::Initialize</span>() を呼び出す必要があります。</p>
+<p>
+  <span class="ApiLink_nn__bcat__Initialize">nn::bcat::Initialize</span>() の呼び出しにより、データを受信する準備が行われます。</p>
+<h2 id="Anchor_194625008_h2_2">条件B</h2>
+<p>データ配信キャッシュストレージは、アプリケーションの起動時に本体保存メモリーに自動的に作成されます。もしも本体保存メモリーの容量が不足していた場合には、容量が不足している旨が表示されてアプリケーションは起動されません。</p>
+<p>なお、データ配信キャッシュストレージはアプリケーションごとにひとつ作成され、ユーザーアカウント間で共有されます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>アプリケーションが起動されるたびに本体システムはデータ配信キャッシュストレージの有無を確認し、もしも存在していなかった場合には再作成します。</p>
+    <p>データ配信キャッシュストレージが削除されている状況は、ユーザーの特殊な操作により発生します。詳しくは「<a href="../Pages/Page_198953467.html">制限と注意</a>」ページの「永続性の無保証」を参照してください。</p>
+  </div>
+</div>
+<h2 id="Anchor_194625008_h2_3">
+  <span style="color: rgb(117,117,117);">条件C</span>
+</h2>
+<p>データの受信やデータの読み込みを行うには、有効なネットワークサービスアカウントが本体に一つ以上存在する必要があります。</p>
+<p>
+  <a href="../Pages/Page_194617385.html">エラーハンドリング</a>を適切に行うことにより、必要に応じてニンテンドーアカウントとの連携を促すメッセージがユーザーに表示されます。</p>
+<h1 id="Anchor_194625008_h1_4">利用申請</h1>
+<p>BCATデータ配信機能の利用には、OMASでの申請が必要です。詳細は以下を参照してください。</p>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">環境構築ガイド &gt;&nbsp;<a href="../Pages/Page_180914991.html">ネットワーク機能の利用</a><br /></span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">BCATデータ配信ガイド</span>
+  </li>
+</ul>
+<h1 id="Anchor_194625008_h1_5">アプリケーションの設定</h1>
+<p>アプリケーションがデータ配信機能を使うには、nmetaファイルの以下の要素に設定が必要です。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a>もあわせて参照してください。</p>
+  </div>
+</div>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th style="text-align: center;">親要素</th>
+      <th style="text-align: center;">要素</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>Core</td>
+      <td>ApplicationId</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td rowspan="2">Application</td>
+      <td>BcatDeliveryCacheStorageSize</td>
+      <td>
+        <p>データ配信キャッシュストレージ(データを保存する領域)のサイズです。</p>
+        <p>0x から始まる 16 進数で記載します。</p>
+        <p>単位は byte です。1 MiB単位(0x100000 単位)で設定してください。</p>
+        <p>また、5 MiB以上、かつ64 MiB以内で設定してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>BcatPassphrase</td>
+      <td>
+        <p>BCAT管理ツールから取得するパスフレーズです。</p>
+        <p>64 文字の半角の英数字([a-f0-9]{64})で記載します。</p>
+        <p>暗号化されて配信されたデータを復号するために使います。復号は本体システムが自動的に行います。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_194625008_h2_4">BcatDeliveryCacheStorageSize の値の決め方</h2>
+<p>
+  <a href="../Pages/Page_198953467.html">制限と注意</a>を参考にディレクトリとファイルの構成を検討し、下記の計算式で求めた以上の値を BcatDeliveryCacheStorageSize に設定してください。</p>
+<ol>
+  <li>配信スケジュールを検討し、配信する予定のファイルを列挙します。それらのファイルの「ファイルサイズの合計がもっとも大きくなるタイミング」を探します。</li>
+  <li>ファイルサイズをそれぞれ 16 KiB単位で切り上げて、合計します。</li>
+  <li>さらに上記の値を 1 MiBで切り上げます。</li>
+  <li>上記の値に<strong>本体システムの管理領域である 4 MiBを追加</strong>します。<br /><br /></li>
+</ol>
+<p>ファイルは上書きして配信することが可能であり、上書きの前後でファイルサイズが変化する場合があります。また、意図的にファイルの配信を終了させる場合もあります。「ファイルサイズの合計がもっとも大きくなるタイミング」を探す際は、考慮に加えてください。</p>
+<p>例えば、250 KiBの固定サイズの 5 個のファイルを配信し続ける場合には、「ROUNDUP( (ROUNDUP(250 KiB, 16 KiB) * 5)&nbsp;, 1 MiB) + 4 MiB&nbsp;= 0x600000 byte」以上の値を設定してください。&nbsp;</p>
+<p>なお、ディレクトリの数を計算に含める必要はありません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>BcatDeliveryCacheStorageSize の値を必要以上に大きく設定すると、本体保存メモリーの空き容量が少ないユーザーはデータ配信キャッシュストレージを作成できず、アプリケーションを起動できません。</p>
+    <p>アプリケーションにとって本当に必要なサイズを慎重に検討してください。</p>
+  </div>
+</div>
+<p>
+  <br />
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__bcat__Initialize', '../../../Api/HtmlNX/namespacenn_1_1bcat.html#a65f8528327b457c8927b691ba6bee806' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

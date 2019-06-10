@@ -1,0 +1,588 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>量子化</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 量子化 -->
+<div class="pagetitle" id="PageId_106333848">量子化</div>
+<div class="text_separate">
+<h1 id="Anchor_106333848_h1_1">概要</h1>
+<p>DCC ツールで作成された頂点データやアニメーションの値を g3d が定めた条件でサンプリングし直し、データサイズを最適化する機能です。量子化を行うことにより、最終的にゲームアプリケーションが参照するバイナリーリソースのサイズを小さくすることができます。</p>
+<h1 id="Anchor_106333848_h1_2">頂点の量子化</h1>
+<p>頂点量子化は&nbsp;<a href="../Pages/Page_83955705.html">中間ファイルオプティマイザー </a>が設定した量子化型に基づいて、<a href="../Pages/Page_83955997.html">3D バイナリーコンバーター</a>&nbsp;で変換を行います。 中間ファイルオプティマイザーでは後述する表の通り、頂点情報に基づいて自動的に量子化型を設定します。 3D バイナリーコンバーターは量子化された頂点を最適な順序に並び替えた後にインターリーブ用のバッファーとして格納します。 中間ファイルオプティマイザーに与えるオプション例は以下の通りです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dIntermediateFileOptimizer.exe human.fmdb --quantization-analysis</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../Pages/Page_83955705.html">中間ファイルオプティマイザー </a>を使用せずに直接中間ファイルに量子化型を設定することもできますが、頂点情報が量子化型の範囲を超えていた場合は <a href="../Pages/Page_83955997.html">3D バイナリーコンバーター</a>&nbsp;でエラーとなることに注意してください。</p>
+<p>以下の表の量子化条件の説明において、特に言及がないものについては、LOD モデルを含む全頂点ストリームに対して評価されるものとします。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>頂点属性</th>
+      <th>量子化条件</th>
+      <th>量子化型</th>
+      <th>データ作成のヒント</th>
+    </tr>
+    <tr>
+      <td rowspan="2">頂点インデックス</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>頂点インデックスの最大値が 2 の 16 乗未満である</li>
+        </ul>
+      </td>
+      <td>uint_16</td>
+      <td rowspan="2">
+        <ul style="list-style-type: square;">
+          <li>不必要に頂点数を増やさない</li>
+          <li>不必要にハードエッジを作らない</li>
+          <li>不必要に UV を分割しない</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>uint_32</td>
+    </tr>
+    <tr>
+      <td rowspan="2">座標</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大絶対値の整数部が 2 の 15 乗未満である(半精度浮動小数点数で 1.0 の精度を保証できる)</li>
+          <li>ベースモデルにおける全座標値中の最小差(※1)が半精度浮動小数点数に量子化した際の小数部精度で表現できる</li>
+          <li>ベースモデルにおける全座標値を半精度浮動小数点数へ量子化した際の最大絶対誤差が 1.0 / 4096.0 未満である</li>
+        </ul>
+      </td>
+      <td>float_16_16_16_16</td>
+      <td rowspan="2">
+        <ul style="list-style-type: square;">
+          <li>同シェイプ内において不必要に広範囲にポリゴンを配置しない</li>
+          <li>同シェイプ内において不必要に近接している頂点を作らない</li>
+          <li>可能であれば、切りのいい値を設定する(※2)</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>float_32_32_32</td>
+    </tr>
+    <tr>
+      <td rowspan="2">法線</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大絶対値が 1.0 以下である</li>
+        </ul>
+      </td>
+      <td>snorm_10_10_10_2</td>
+      <td rowspan="2">
+        <ul style="list-style-type: square;">
+          <li>NintendoWare の DCC ツールプラグインを利用した通常の作成方法であれば 1.0 を超えないので特に意識する必要はない</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>float_32_32_32</td>
+    </tr>
+    <tr>
+      <td rowspan="2">接線、従法線</td>
+      <td>
+        <ul>
+          <li>最大絶対値が 1.0 以下である</li>
+        </ul>
+      </td>
+      <td>snorm_8_8_8_8</td>
+      <td rowspan="2">
+        <ul>
+          <li>NintendoWare の DCC ツールプラグインを利用した通常の作成方法であれば 1.0 を超えないので特に意識する必要はない</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>float_32_32_32_32</td>
+    </tr>
+    <tr>
+      <td rowspan="6">テクスチャー座標</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大絶対値が 1.0 以下である</li>
+          <li>負の値を含まない</li>
+          <li>ベースモデルにおける全テクスチャー座標値中の最小差(※1)が 2 の -8 乗以上である</li>
+        </ul>
+      </td>
+      <td>unorm_8_8</td>
+      <td rowspan="6">
+        <ul style="list-style-type: square;">
+          <li>不必要に大きなテクスチャー座標を作らない<ul style="list-style-type: square;"><li>可能な限りテクスチャー座標は 0.0 から 1.0 の範囲に収める</li><li>負の値を使う必要があれば、可能な限りテクスチャー座標は -1.0 から 1.0 の範囲に収める</li></ul></li>
+          <li>不必要に近接しているテクスチャー座標を作らない</li>
+          <li>可能であれば、切りのいい値を設定する(※2)</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>最大絶対値が 1.0 以下である</li>
+          <li>負の値を含まない</li>
+          <li>ベースモデルにおける全テクスチャー座標値中の最小差(※1)が 2 の -8 乗未満、2 の -16 乗以上である</li>
+        </ul>
+      </td>
+      <td>unorm_16_16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>最大絶対値が 1.0 以下である</li>
+          <li>負の値を含む</li>
+          <li>ベースモデルにおける全テクスチャー座標値中の最小差(※1)が 2 の -7 乗以上である</li>
+        </ul>
+      </td>
+      <td>snorm_8_8</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>最大絶対値が 1.0 以下である</li>
+          <li>負の値を含む</li>
+          <li>ベースモデルにおける全テクスチャー座標値中の最小差(※1)が 2 の -7 乗未満、2 の -15 乗以上である</li>
+        </ul>
+      </td>
+      <td>snorm_16_16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>unorm_8_8、unorm_16_16、snorm_8_8、snorm_16_16 の量子化条件を満たさない</li>
+          <li>最大絶対値の整数部が 2 の 15 乗未満である(半精度浮動小数点数で 1.0 の精度を保証できる)</li>
+          <li>ベースモデルにおける全テクスチャー座標値を半精度浮動小数点数へ量子化した際の最大絶対誤差が 1.0 / 256.0 未満である</li>
+        </ul>
+      </td>
+      <td>float_16_16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>float_32_32</td>
+    </tr>
+    <tr>
+      <td rowspan="3">ウェイトインデックス</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大値が 2 の 8 乗未満である</li>
+        </ul>
+      </td>
+      <td>uint_8<br />uint_8_8<br />uint_8_8_8_8</td>
+      <td rowspan="3">
+        <ul>
+          <li>不必要にスキニングするボーン数を増やさない<ul><li>必要なければ、スキニングするボーン数は 256 個未満にする</li></ul></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大値が 2 の 8 乗以上、2 の 16 乗未満である</li>
+        </ul>
+      </td>
+      <td>uint_16<br />uint_16_16<br />uint_16_16_16_16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>uint_32<br />uint_32_32<br />uint_32_32_32<br />uint_32_32_32_32</td>
+    </tr>
+    <tr>
+      <td rowspan="3">ウェイト</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>ベースモデルにおける全ウェイト値中の最小差(※1)が 2 の -8 乗以上である</li>
+        </ul>
+      </td>
+      <td>unorm_8<br />unorm_8_8<br />unorm_8_8_8_8</td>
+      <td rowspan="3">
+        <ul style="list-style-type: square;">
+          <li>不必要にスキニング時の影響ボーン数を増やさない</li>
+          <li>可能であれば、切りのいい値を設定する(※2)</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>ベースモデルにおける全ウェイト値中の最小差(※1)が 2 の -8 乗未満、2 の -16 以上である</li>
+        </ul>
+      </td>
+      <td>unorm_16<br />unorm_16_16<br />unorm_16_16_16_16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>float_32<br />float_32_32<br />float_32_32_32<br />float_32_32_32_32</td>
+    </tr>
+    <tr>
+      <td rowspan="4">カラー</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大絶対値が 1.0 以下である</li>
+          <li>負の値を含まない</li>
+        </ul>
+      </td>
+      <td>unorm_8<br />unorm_8_8<br />unorm_8_8_8_8</td>
+      <td rowspan="4">
+        <ul>
+          <li>不必要に頂点カラーに大きな値を設定しない<ul><li>可能な限り、頂点カラーの値は 0.0 から 1.0 の範囲に収める</li><li>負の値を使う必要があれば、可能な限り、頂点カラーは -1.0 から 1.0 の範囲に収める</li></ul></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>最大絶対値が 1.0 以下である</li>
+          <li>負の値を含む</li>
+        </ul>
+      </td>
+      <td>snorm_8<br />snorm_8_8<br />snorm_8_8_8_8</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>最大絶対値が 1.0 より大きい</li>
+          <li>最大絶対値の整数部が 2 の 15 乗未満である(半精度浮動小数点数で 1.0 の精度を保証できる)</li>
+        </ul>
+      </td>
+      <td>float_16<br />float_16_16<br />float_16_16_16_16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>float_32_32_32_32</td>
+    </tr>
+  </tbody>
+</table>
+<p> ※1&nbsp;最小差の計算において、1.0 / 4096.0 未満の差は同値とみなし、含みません</p>
+<p>※2&nbsp;例えば、1.113 などよりも 1.000 や 1.100 のような値を設定する方がデータサイズを小さくすることができます</p>
+<h1 id="Anchor_106333848_h1_3">
+  <a name="Anchor_106333848_anim_quantize"></a>アニメーションの量子化</h1>
+<p>アニメーション量子化は中間ファイルオプティマイザーや 3DEditor で設定された量子化型に基づいて、3D バイナリーコンバーターで変換を行います。 中間ファイルオプティマイザーや 3DEditor では後述する表の通り、量子化許容誤差に基づいて計算した結果から量子化型と scale、offset を設定します。 ランタイムでは scale と offset に基づき、frame と key を復元します。中間ファイルオプティマイザーに与えるオプション例は以下の通りです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dIntermediateFileOptimizer.exe human_walk.fskb --quantization-analysis</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>量子化許容誤差は DCC プラグインや 3DEditor で設定することが可能です。詳しくは 3DEditor の&nbsp;<a href="../Pages/Page_83956167.html#Anchor_83956167_quantize_tolerance">量子化許容誤差の設定</a>&nbsp;や Maya プラグインの&nbsp;<a href="../Pages/Page_83956186.html#Anchor_83956186_animation_quantization_tolerance_options">Animation Quantization Tolerance Options</a>、3dsMax プラグインの&nbsp;<a href="../Pages/Page_83955546.html#Anchor_83955546_animation_quantization_tolerance_options">Animation Quantization Tolerance Options</a> をご覧ください。</p>
+<p>量子化型は以下の基準に基づいて設定されます。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>アニメーションの種類</th>
+      <th>アニメーション対象</th>
+      <th>量子化許容誤差</th>
+      <th>量子化条件</th>
+      <th>量子化型</th>
+      <th>データ作成のヒント</th>
+    </tr>
+    <tr>
+      <td rowspan="7">スケルタルアニメーション</td>
+      <td rowspan="3">frame</td>
+      <td rowspan="3">0.5 / frame_resolution</td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>8 ビット符号無し整数への量子化後の最大絶対誤差が許容誤差未満である</li>
+        </ul>
+      </td>
+      <td>frame8</td>
+      <td rowspan="3">
+        <ul style="list-style-type: square;">
+          <li>できるだけ整数フレームにキーを打つ</li>
+          <li>できるだけフレームを 255 以下に収める</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>frame8 の量子化条件を満たさない</li>
+          <li>半精度浮動小数点数への量子化後の最大絶対誤差が許容誤差未満である</li>
+        </ul>
+      </td>
+      <td>frame16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>frame32</td>
+    </tr>
+    <tr>
+      <td rowspan="3">
+        <p>scale</p>
+        <p>translate</p>
+      </td>
+      <td rowspan="3">
+        <p>quantize_tolerance_scale</p>
+        <p>quantize_tolerance_translate</p>
+        <p>
+          <br />
+        </p>
+      </td>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>8 ビット量子化後に 1.0 / frame_resolution フレーム単位でサンプリングした値の最大相対誤差(※1)が許容誤差未満である</li>
+        </ul>
+      </td>
+      <td>key8</td>
+      <td rowspan="3">
+        <ul style="list-style-type: square;">
+          <li>できるだけ高低差のあるキーを設定しない</li>
+          <li>可能であれば、切りのいい値を設定する(※2)</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>key8 の量子化条件を満たさない</li>
+          <li>16 ビット量子化後に 1.0 / frame_resolution フレーム単位でサンプリングした値の最大相対誤差(※1)が許容誤差未満である</li>
+        </ul>
+      </td>
+      <td>key16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul style="list-style-type: square;">
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>key32</td>
+    </tr>
+    <tr>
+      <td>rotate</td>
+      <td>quantize_tolerance_rotate</td>
+      <td colspan="3">scale、translate の条件において最大相対誤差でなく、最大絶対誤差を用いた条件</td>
+    </tr>
+    <tr>
+      <td rowspan="2">ビジビリティーアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+    <tr>
+      <td>key</td>
+      <td>-</td>
+      <td colspan="3">量子化しない</td>
+    </tr>
+    <tr>
+      <td rowspan="8">シェーダーパラメーターアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+    <tr>
+      <td>tex_srt_scale</td>
+      <td>quantize_tolerance_tex_scale</td>
+      <td colspan="3">スケルタルアニメーションの scale と同様</td>
+    </tr>
+    <tr>
+      <td>tex_srt_translate</td>
+      <td>quantize_tolerance_tex_translate</td>
+      <td colspan="3">スケルタルアニメーションの translate と同様</td>
+    </tr>
+    <tr>
+      <td>tex_srt_rotate</td>
+      <td>quantize_tolerance_tex_rotate</td>
+      <td colspan="3">スケルタルアニメーションの rotate と同様</td>
+    </tr>
+    <tr>
+      <td rowspan="3">int 型の key</td>
+      <td rowspan="3">-</td>
+      <td>
+        <ul>
+          <li>(最大値 - 最小値)が 2 の 8 乗未満である</li>
+        </ul>
+      </td>
+      <td>key8</td>
+      <td rowspan="3">
+        <ul style="list-style-type: square;">
+          <li>できるだけキーの(最大値 - 最小値)が小さくなるようにキーを設定する<ul style="list-style-type: square;"><li>255 に収まるように</li><li>255 を超える場合は <span style="color: rgb(34,34,34);">65535 に収まるように</span></li></ul></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>(最大値 - 最小値)が 2 の 8 乗以上、2 の 16 乗未満である</li>
+        </ul>
+      </td>
+      <td>key16</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>いずれの量子化条件も満たさない</li>
+        </ul>
+      </td>
+      <td>key32</td>
+    </tr>
+    <tr>
+      <td>その他の型の key</td>
+      <td>-</td>
+      <td colspan="3">量子化しない</td>
+    </tr>
+    <tr>
+      <td rowspan="2">テクスチャーパターンアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+    <tr>
+      <td>key</td>
+      <td>-</td>
+      <td colspan="3">
+        <p>シェーダーパラメーターアニメーションの int 型の key と同様</p>
+      </td>
+    </tr>
+    <tr>
+      <td>シェイプアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+    <tr>
+      <td rowspan="3">カメラアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+    <tr>
+      <td>rotate</td>
+      <td>quantize_tolerance_rotate</td>
+      <td colspan="3">スケルタルアニメーションの rotate と同様</td>
+    </tr>
+    <tr>
+      <td>
+        <p>aim</p>
+        <p>position</p>
+      </td>
+      <td>quantize_tolerance_translate</td>
+      <td colspan="3">スケルタルアニメーションの translate と同様</td>
+    </tr>
+    <tr>
+      <td rowspan="2">ライトアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+    <tr>
+      <td>aim、position</td>
+      <td>quantize_tolerance_translate</td>
+      <td colspan="3">スケルタルアニメーションの translate と同様</td>
+    </tr>
+    <tr>
+      <td>フォグアニメーション</td>
+      <td>frame</td>
+      <td>0.5 / frame_resolution</td>
+      <td colspan="3">スケルタルアニメーションの frame と同様</td>
+    </tr>
+  </tbody>
+</table>
+<p>※1 相対誤差はサンプリングした値の範囲(最大値 - 最小値)の相対値として求めた誤差です</p>
+<p>※2&nbsp;例えば、1.132 などよりも 1.000 や 1.100 のような値を設定する方がデータサイズを小さくすることができます</p>
+<p>
+  <br />表中に記載されている frame_resolution や quantize_tolerance_scale 等は 3D 中間ファイル仕様書に定義されています。詳細は 3D 中間ファイル仕様書を参照してください。</p>
+<h1 id="Anchor_106333848_h1_4">量子化によるデータ品質の劣化が目立つ場合</h1>
+<p>量子化を行うと、量子化誤差によりデータ品質は劣化します。アニメーションの場合は量子化許容誤差でデータサイズと品質のバランスを調整することが可能です。頂点データで品質の劣化が目立つ場合は、特定のデータだけ&nbsp;<a href="../Pages/Page_83955970.html">中間ファイルフィルター</a>&nbsp;によって量子化設定を削除することも可能です。詳しくは&nbsp;<a href="../Pages/Page_83955970.html#Anchor_83955970_remove_quantize">頂点量子化の削除</a>&nbsp;をご覧ください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

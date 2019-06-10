@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>TXQ</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TXQ : Texture Query<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Query" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TXQ", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>TXQ</b>{.B}{.NODEP}{.phase}</code>   <code>Rd, Ra, #query, #tsPtrIdxU13 {, #wmskU04}</code>    <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TXQ" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>TXQ</b>{.B}{.NODEP}{.phase}</code>   <code>Rd, Ra, #query, #tidU08, #smpU05, #wmskU04</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TXQ" } -->
+
+  .B:      Bindless mode, where the texture header pointer and sampler pointer is packed into a 32 bit register as:
+           samplerPtr[31:20] | headerPtr[19:0]
+           Data is sent via register Ra.
+
+  .NODEP:  Indicates that there is no subsequent quad derivatives to be calculated.
+           Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.
+
+  .phase:  Allows control on the current warps texture hash, used for scheduling.
+               &lt; NONE &gt;
+               .T - postfix increment of the 3 bit texture component of the hash.
+               .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. 
+
+
+The following 3 queries are supported as part of SPA 3.0:
+  - TEX_HEADER_DIMENSION
+      Input is one coordinate containing a u32 LOD level
+      Output is:
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>TXQ return value table</EM></CAPTION>
+<TR>
+    <th> Texture Type    </th>
+    <th> R      </th>
+    <th> G      </th>
+    <th>  B         </th>
+    <th> A        </th>
+</TR>
+<TR>
+    <TD> ONE_D           </TD>
+    <TD> width  </TD>
+    <TD> zero   </TD>
+    <TD> zero       </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+<TR>
+    <TD> TWO_D           </TD>
+    <TD> width  </TD>
+    <TD> height </TD>
+    <TD> zero/one*  </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+<TR>
+    <TD> THREE_D         </TD>
+    <TD> width  </TD>
+    <TD> height </TD>
+    <TD> depth      </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+<TR>
+    <TD> CUBEMAP         </TD>
+    <TD> width  </TD>
+    <TD> height </TD>
+    <TD> zero       </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+<TR>
+    <TD> ONE_D_ARRAY     </TD>
+    <TD> width  </TD>
+    <TD> length </TD>
+    <TD> zero       </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+<TR>
+    <TD> TWO_D_ARRAY     </TD>
+    <TD> width  </TD>
+    <TD> height </TD>
+    <TD> length     </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+<TR>
+    <TD> ONE_D_BUFFER    </TD>
+    <TD> width  </TD>
+    <TD> zero </TD>
+    <TD> zero   </TD>
+    <TD> one  </TD>
+</TR>
+<TR>
+    <TD> TWO_D_NO_MIPMAP </TD>
+    <TD> width  </TD>
+    <TD> height </TD>
+    <TD> zero/depth* </TD>
+    <TD> one     </TD>
+</TR>
+<TR>
+    <TD> CUBEMAP_ARRAY   </TD>
+    <TD> width  </TD>
+    <TD> height </TD>
+    <TD> length      </TD>
+    <TD> # of mip-map Levels </TD>
+</TR>
+</TABLE>
+
+    *zero is for MODE_1X1 case, otherwise the other value is returned.  
+
+  - TEX_HEADER_TEXTURE_TYPE
+      No input data register required.
+      Output is:
+        (R) u32: 0            // reserved for "type", an 8 bit field set by SW in the texture header
+        (G) u32: 0            // reserved for "format"
+        (B) u32: ms count
+        (A) u32: 0            // unused
+  - TEX_HEADER_SAMPLER_POS
+      Input is one coordinate containing the sample index within multisample pattern
+      Output is:
+        (R) u32: sample_position    //{4.12,4.12} format
+        (G) u32: 0
+        (B) u32: 0
+        (A) u32: 0
+      The format for sample_position is a packed dx/dy which is also shared
+      with IPA and PIXLD.  The format is documented on the <a href="opIPA.htm">IPA</a> ISA page.
+
+  #tsPtrIdxU13:
+           This immediate index (word address) is a used to fetch the packed header+sampler pointer entry from constant cache.
+           The bank from which it is fetched is determined by bundle state. The constant bank entry is 32 bit
+           structure of the form "samplerPtr[31:20] | headerPtr[19:0]".
+           Note: Ignored if .B option is used.
+           In SetSamplerBinding.ViaHeaderBinding (i.e. OGL) mode, the headerPtr  would be used as the samplerPtr
+           as well. 
+           Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex will be regarded as
+           an "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).
+           Any sampler pointer greater than one specified in SetSamplerHeaderPoolC.MaximumIndex will be regarded
+           as an "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).
+  
+  #tidU08, #smpU05:
+           This is the "almost" Fermi-compatible specification of tsPtrIdxU13 which allows running of legacy
+           apps/traces where sass will transform these into tsPtrIdxU13 as follows:
+           #tsPtrIdxU13 = {#smpU05, #tidU08}
+
+  #wmskU04       destination write mask (decimated contiguous writes)
+     Allows for write masking the returning data writes via a bit enable
+     for each of R,G,B,A. A four-vector is always returned from TEX.
+     #wmskU04 defaults to 0xf.
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Query of texture information.</p>
+<p>
+<ol>
+The packing of query parameters in Ra is as follows:
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Texture parameter packing in Ra </EM></CAPTION>
+    <TR><TH>Reg<TH>parameter<TH>format</TR>
+    <TR><TD>Ra+0<TD>SamplerPtr[31:20] | HeaderPtr[19:0]<TD>u32</TR>
+    <TR><TD>Ra+1<TD>LOD or Sample Position<TD>u32</TR>
+</TABLE>
+<BR>If a parameter is not specified, then the rest are compacted upwards <EM>within</EM> the same Ra register.
+</ol>
+</p>
+<p>
+Each query returns a 4-vector of data (thought of as R,G,B,A), similar to <b>TEX</b>.</p>
+ The alignement restrictions on Rd,Ra are as follows:
+<ol> 
+	<li> Rd should be aligned to number of valid components being returned (as specified by wmask) </li>
+	<li> If the number of parameters in Ra > 0, then cannot be RZ </li>
+	<li> Ra should always be aligned  to </li>
+	<ol style="list-style-type : lower-alpha">
+		<li> 1 (scalar register) if total number of co-ordinates is 1 </li>
+		<li> 2 (vec2 register)   if total number of co-ordinates is 2 </li>
+	</ol>
+</ol>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+Corresponds to these DX ops:</p>
+<pre>
+   resinfo   =  TXQ                    // 
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>TXQ</b>  R0, R6, TEX_HEADER_DIMENSION, 0, 0xf;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

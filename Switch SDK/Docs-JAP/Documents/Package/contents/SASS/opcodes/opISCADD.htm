@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>ISCADD</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    ISCADD : Scaled Integer Addition<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Scaled Integer Addition" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ISCADD32I", subsection => 2 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ISCADD", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>ISCADD</b>{.PO}</code>   <code>Rd{.CC},{-}Ra, {-}Sb, #ScaleU05</code>    <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ISCADD" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ISCADD32I</b></code>     <code>Rd{.CC},   Ra,#ImmS32, #ScaleU05</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ISCADD32I" } -->
+
+.PO:    Plus one (used for averaging).
+
+.CC:    Write condition codes
+
+<b>ISCADD</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20)
+
+For ISCADD, The following scaled add options exist:
+       scaled(Ra)+Sb  :     (Ra&lt;&lt;#ScaleU05) +  Sb + 0
+       scaled(Ra)-Sb  :     (Ra&lt;&lt;#ScaleU05) + ~Sb + 1
+      -scaled(Ra)+Sb  :    ~(Ra&lt;&lt;#ScaleU05) +  Sb + 1
+  .PO  scaled(Ra)+Sb+1:     (Ra&lt;&lt;#ScaleU05) +  Sb + 1     // for average, use .PO
+   
+    Note: It is illegal to negate both sources at the same time.
+    Note: It is illegal to negate either source operand in .PO mode.
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Shift left Ra by #ScaleU05 (only preserves 32b though), add Sb, and store the result in Rd. </p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>ISCADD</b> R0, R1, R2, 5;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

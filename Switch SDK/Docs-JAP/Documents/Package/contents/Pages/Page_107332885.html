@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アーカイブリソースアクセサの扱い方</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アーカイブリソースアクセサの扱い方 -->
+<div class="pagetitle" id="PageId_107332885">アーカイブリソースアクセサの扱い方</div>
+<div class="text_separate">
+<h1 id="Anchor_107332885_h1_1">はじめに</h1>
+<p>本ページでは、アーカイブリソースアクセサの扱い方について解説します。</p>
+<p>基本的な仕様のほか、複数のアーカイブリソースを 1 つのアーカイブリソースアクセサに登録する方法や、1 つのアーカイブリソースを複数のアーカイブリソースアクセサで共有する方法などを記します。</p>
+<h1 id="Anchor_107332885_h1_2">基本的な使い方</h1>
+<p>基本的な流れは Ui2dSimple サンプルプログラムで示していますので、そちらを参照してください。</p>
+<p>ui2d のアーカイブリソースアクセサには ArcResourceAccessor と MultiArcResourceAccessor の 2 種類が用意されており、1 つのアーカイブリソースを 1 つのアーカイブリソースアクセサに登録するという単純な場合は ArcResourceAccessor を使い、複数のアーカイブリソースを 1 つのアーカイブリソースアクセサに登録する場合や、1つのアーカイブリソースを複数のアーカイブリソースアクセサで共有させる場合は MultiArcResourceAccessor を使うのが便利です。</p>
+<p>ArcResourceAccessor と MultiArcResourceAccessor のどちらも、読み込んだアーカイブリソースのバイナリデータを Attach メソッドで登録し、Finalize メソッドで解放を行う流れで処理します。</p>
+<p>Finalize メソッドの前に Detach メソッドを呼んでおくと、Finalize メソッド内でアーカイブリソースの解放が行われなくなります。</p>
+<p>1 つのアーカイブリソースを複数のアーカイブリソースアクセサで共有したい場合、いずれかのアーカイブリソースアクセサを Finalize すると他のアーカイブリソースアクセサが使っているアーカイブリソースまで解放されてしまうので、Finalize を行う前に Detach メソッドを呼んで他のアーカイブリソースアクセサに影響が及ばないようにします。</p>
+<h1 id="Anchor_107332885_h1_3">MultiArcResourceAccessor にアーカイブリソースを登録する</h1>
+<p>MultiArcResourceAccessor にアーカイブリソースを登録する場合、一旦アーカイブリソースを ArchiveHandle に構築してから、それを MultiArcResourceAccessor に登録します。</p>
+<p>ArchiveHandle とは、アーカイブリソースと、プログラムから動的に追加したリソースたちを束ねたものです。</p>
+<p>一旦アーカイブリソースを ArchiveHandle に構築すると、それを自由に複数の MultiArcResourceAccessor で共有させることができます。</p>
+<p>ちなみに ArcResourceAccessor では内部に 1 つだけ ArchiveHandle を保持しており、アーカイブリソースの構築も内部で自動的に行うため、ArchiveHandle ではなく直接アーカイブリソースのバイナリを渡して初期化するインターフェースになっています。</p>
+<p>MultiArcResourceAccessor の使いどころとしては、例えばゲーム内の各シーンで共通して使われるアーカイブリソースをその他のアーカイブリソースとは切り離して&nbsp;ArchiveHandle に構築しておき、それらをシーンに応じて組み合わせて&nbsp;MultiArcResourceAccessor に登録することで、シーンごとに重複するアーカイブリソースを効率よく管理することができます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

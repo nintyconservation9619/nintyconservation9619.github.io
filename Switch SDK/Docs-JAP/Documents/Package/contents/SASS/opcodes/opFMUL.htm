@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>FMUL</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    FMUL : FP32 Multiply<br>
+    <!-- SUMMARY_TABLE_INFO { description => "FP32 Multiply" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "FMUL32I", subsection => 0 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "FMUL", subsection => 0 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>FMUL</b>{.fmz}{.scale}{.rnd}{.SAT}</code>   <code>Rd{.CC},{-}Ra,{-}Sb</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FMUL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>FMUL32I</b>{.fmz}{.SAT}</code>              <code>Rd{.CC},Ra,#Imm32</code>     <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FMUL32I" } -->
+
+ .fmz:       { <b>&lt; NULL &gt;*, .FTZ, .FMZ, INVALID</b> } 
+             .fmz controls denorm flush and multiply mode.
+               &lt; NULL &gt;: Denorms supported. No special handling of 0.
+                         This is default.
+               .FTZ:     Flush input/output denorms to sign-preserving zero.
+               .FMZ:     Flush input/output denorms to sign-preserving zero AND
+                         if either source is 0.0, the product is forced to +0.0
+                         (even if other source is infinity or NaN), regardless
+                         of the input signs. The 0.0 test is done after input
+                         denorm flush.
+
+ .scale:     { <b>.D8, .D4, .D2, &lt; NULL &gt;*, .M2, .M4, .M8, INVALID</b> } 
+             Scaling Mode (.scale):
+               Multiply Ra by 2^n (-3&lt;=n&lt;=3) before the product:
+                 .D8                       // divide by 8.0
+                 .D4                       // divide by 4.0
+                 .D2                       // divide by 2.0
+                 &lt; NULL &gt;                  // pass-through. This is default.
+                 .M2                       // multiply by 2.0
+                 .M4                       // multiply by 4.0
+                 .M8                       // multiply by 8.0
+
+ .rnd:       { <b>.RN*, .RM, .RP, .RZ</b> } 
+             .RN - Round to the nearest even.
+             .RM - Round towards -Infinity
+             .RP - Round towards +Infinity
+             .RZ - Round towards 0
+
+ .SAT:       output saturate (.SAT) to (+0.0f,1.0f), with NaN converted to +0.0f.
+
+ .CC:        Write condition codes
+
+<b>FMUL</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20&lt;&lt;12)
+</pre>
+
+<p>
+<b>FMUL32I</b> always use .RN rounding mode.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Multiply fp32 sources into destination register. Optionally scale the input Ra
+by .scale. This scaling occurs with unrestricted range, so infinities, denormals and zeros are not newly generated in the intermediate results.</p>
+
+</div>
+
+<!-- ###################################### -->
+<!-- # IEEE Rounding Modes                # -->
+<!-- ###################################### -->
+<h3>IEEE Rounding Modes</h3>
+<div class="IEEERoundingModes">
+
+<p>
+Fp32 operations support all 4 required IEEE-754 2008 rounding modes:</p>
+<dl>
+<dt>.RN</dt><dd>roundTiesToEven</dd>
+<dt>.RM</dt><dd>roundTowardNegative</dd>
+<dt>.RP</dt><dd>roundTowardPositive</dd>
+<dt>.RZ</dt><dd>roundTowardZero</dd>
+</dl>
+
+<p>
+The optional IEEE rounding mode <em>roundTiesToAway</em> is not supported.</p>
+
+<p>See the IEEE-754 2008 specification, Section 4.3.3.</p>
+
+</div> <!-- IEEERoundingModes -->
+
+
+<!-- ###################################### -->
+<!-- # NaN Behavior                       # -->
+<!-- ###################################### -->
+<h3>NaN Behavior:</h3>
+<div class="NaNBehavior">
+
+<p>
+The chosen NaN behavior for fp32 operations is different than that of fp64
+operations. The chosen fp32 behavior is different from Intel's x87/SSE behavior,
+but is still IEEE-754 2008 compliant when <code>.FMZ</code> is not used: The
+standard allows canonicalization of the NaN result to be implementation-defined.
+See the IEEE-754 2008 specification, Section 6.2.</p>
+
+</div> <!-- NanBehavior -->
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>FMUL.M2</b>      R0,R1,R2;
+<b>FMUL32I.SAT</b>  R0,R1,0x3f900000;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

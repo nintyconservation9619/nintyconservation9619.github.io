@@ -1,0 +1,851 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ユニフォームブロック</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ユニフォームブロック -->
+<div class="pagetitle" id="PageId_106332818">ユニフォームブロック</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_106332818_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_106332818_h1_2">シェーダーソース</a>
+    </li>
+    <li>
+      <a href="#Anchor_106332818_h1_3">ランタイムフロー</a>
+    </li>
+    <li>
+      <a href="#Anchor_106332818_h1_4">シェイプ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106332818_h2_1">シェーダーコード</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_2">バッファー領域の初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_3">ソース領域の更新</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_4">バッファー領域 への書き込み</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106332818_h1_5">スケルトン</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106332818_h2_5">シェーダーコード</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_6">バッファー領域の初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_7">ソース領域の更新</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_8">バッファー領域への書き込み</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106332818_h1_6">マテリアル</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106332818_h2_9">シェーダーコード</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_10">マテリアルリソースの初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_11">バッファー領域の初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_12">ソース領域の更新</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_13">バッファー領域への書き込み</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106332818_h1_7">オプション</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106332818_h2_14">シェーダーコード</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_15">バッファー領域の初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_16">ソース領域の更新</a>
+      </li>
+      <li>
+        <a href="#Anchor_106332818_h2_17">バッファー領域への書き込み</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_106332818_h1_1">概要</h1>
+<p>g3d ライブラリーは以下の 4 種類のユニフォームブロックの管理をサポートしています。<span style="color: rgb(33,33,33);">メモリ配置は OpenGL の std140 レイアウトを前提としています。</span></p>
+<ul>
+  <li>
+    <span style="color: rgb(33,33,33);">シェイプ</span>
+  </li>
+  <li>
+    <span style="color: rgb(33,33,33);">スケルトン</span>
+  </li>
+  <li>
+    <span style="color: rgb(33,33,33);">マテリアル</span>
+  </li>
+  <li>
+    <span style="color: rgb(33,33,33);">オプション</span>
+  </li>
+</ul>
+<h1 id="Anchor_106332818_h1_2">シェーダーソース</h1>
+<p>ここではシェーダーソースの観点から各ユニフォームブロックの用途や定義例を説明します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>シェーダーソース内のユニフォームブロックには必ず<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>を定義する必要があります。定義されていない場合はコンバートエラーとなります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ライブラリーでの取り扱いを容易にする為、シェイプとスケルトンのユニフォームブロックの一部のフォーマットはシステム側で固定されています。<br />シェイプとスケルトンのユニフォームブロックを定義する場合は、以下の表のユニフォーム変数欄を参考にしてください。</p>
+  </div>
+</div>
+<table class="wrapped relative-table" style="width: 91.6072%;">
+  <colgroup>
+    <col style="width: 5.03295%;" />
+    <col style="width: 13.8406%;" />
+    <col style="width: 44.3379%;" />
+    <col style="width: 36.7885%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <br />
+      </th>
+      <th>用途</th>
+      <th>ユニフォーム変数</th>
+      <th>ユニフォームブロック定義例</th>
+    </tr>
+    <tr>
+      <th>シェイプ</th>
+      <td>
+        <p>リジッドボディーの頂点計算</p>
+        <p>ユーザー変数によるシェイプ操作</p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th style="text-align: center;">型</th>
+              <th style="text-align: center;">フォーマット</th>
+              <th style="text-align: center;">説明</th>
+            </tr>
+            <tr>
+              <td>
+                <p>
+                  <code class="plain plain">vec4[3]</code>
+                </p>
+              </td>
+              <td style="text-align: center;">固定</td>
+              <td>ボーンローカル&rarr;ワールドへの 4&times;3 変換行列</td>
+            </tr>
+            <tr>
+              <td>int</td>
+              <td style="text-align: center;">固定</td>
+              <td>頂点あたりスキニングに使用するボーンの最大数</td>
+            </tr>
+            <tr>
+              <td>padding</td>
+              <td style="text-align: center;">固定</td>
+              <td>12バイトのパディング</td>
+            </tr>
+            <tr>
+              <td>
+                <pre>ユーザー領域</pre>
+              </td>
+              <td style="text-align: center;">任意</td>
+              <td>192 バイトのユーザー領域</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Shape</span> <span class="c1">// @@ id=&quot;shape&quot; type=&quot;shape&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">mtx</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">skinCnt</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">padding0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">padding1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">padding2</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">userArea</span><span class="p">[</span><span class="mi">12</span><span class="p">];</span> <span class="c1">// ユーザーが自由に利用可能
+</span><span class="p">};</span></pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th>スケルトン</th>
+      <td>頂点のスキニング計算</td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th style="text-align: center;">型</th>
+              <th style="text-align: center;">フォーマット</th>
+              <th style="text-align: center;">説明</th>
+            </tr>
+            <tr>
+              <td>vec4[3*&alpha;]</td>
+              <td style="text-align: center;">固定</td>
+              <td>
+                <p>モデルローカル&rarr;ワールドへの 4&times;3 変換行列 &times; スムーススキニング行列数</p>
+                <p style="text-align: center;">+</p>
+                <p>ボーンローカル&rarr;ワールドへの 4&times;3 変換行列 &times; リジッドスキニング行列数</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Skeleton</span> <span class="c1">// @@ id=&quot;skel&quot; type=&quot;skeleton&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">mtx</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">128</span><span class="p">];</span>  <span class="c1">// 4×3 行列 × スキニング数
+</span><span class="p">};</span></pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th>マテリアル</th>
+      <td>マテリアルの計算</td>
+      <td>
+        <p>ユーザーが自由に設定可能</p>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Material</span> <span class="c1">// @@ id=&quot;mat&quot; type=&quot;material&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">texsrt0</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>        <span class="c1">// @@ id=&quot;texsrt0&quot; type=&quot;texsrt&quot; hint=&quot;albedo0&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">texsrt1</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>        <span class="c1">// @@ id=&quot;texsrt1&quot; type=&quot;texsrt&quot; hint=&quot;normal0&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec3</span> <span class="n">diffColor</span><span class="p">;</span>         <span class="c1">// @@ id=&quot;diffuse&quot; default=&quot;1 1 1&quot; item=&quot;color&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">weightTex</span><span class="p">;</span>        <span class="c1">// @@ id=&quot;weight_tex&quot; default=&quot;1.0&quot; min=&quot;-1&quot; max=&quot;1&quot;
+</span><span class="p">};</span></pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th>オプション</th>
+      <td>
+        <a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>の制御<br />(主に staic オプションのユニフォーム変数分岐)</td>
+      <td>ユーザーが自由に設定可能</td>
+      <td>
+        <div class="content-wrapper">
+          <table class="codeblock">
+            <tbody>
+              <tr>
+                <td class="code">
+                  <div class="codeblock"><pre><span class="cp">#define ENABLE_VERTEX_COLOR        ( 0 )       </span><span class="c1">// @@ id=&quot;enable_vertex_color&quot;
+</span>
+<span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Option</span>    <span class="c1">// @@ id=&quot;opt&quot; type=&quot;option&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">enableVtxColor</span><span class="p">;</span>          <span class="c1">// @@ id=&quot;enable_vertex_color&quot;
+</span><span class="p">}</span></pre></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_106332818_h1_3">ランタイムフロー</h1>
+<p>シェーダーで定義されたユニフォームブロックは、それぞれ g3d ライブラリーの対応するクラスで管理されます。ユニフォームブロックを管理するクラスにはユニフォームブロックを扱うための 2 つのメモリ領域が存在します。<span style="color: rgb(33,33,33);">1 つは CPU 側で変更を保存しておくソース領域、もう 1 つは GPU が参照するバッファー領域 (<span class="ApiLink_nn__gfx__Buffer">nn::gfx::Buffer</span>) です。</span>基本的にユーザーはソース領域の値を操作します。変更されたソース領域の値は、管理クラスの Calculate*() 関数を呼び出すことでバッファー領域に書き込まれます。バッファー領域の値は、シェーダーのユニフォームブロックへ割り当てられて直接 GPU から参照される領域のため、ユーザーは値を直接操作しません。<br /><br /></p>
+<table class="wrapped relative-table" style="width: 72.6824%;">
+  <colgroup>
+    <col style="width: 17.3716%;" />
+    <col style="width: 15.5589%;" />
+    <col style="width: 11.4804%;" />
+    <col style="width: 55.5891%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>ユニフォームブロック種類</th>
+      <th>管理クラス</th>
+      <th>ソース領域への操作</th>
+      <th>バッファー領域への書き込み</th>
+    </tr>
+    <tr>
+      <td>シェイプ</td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html">nn::g3d::ShapeObj</a>
+      </td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#a366192ea48975363a42b6793469b484c">GetUserArea()</a>
+        </p>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html#a79b51e82adb59599c0ec443bd1041d55">nn::g3d::ModelObj::CalculateShape()</a> / <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ac9b2fc3bb7e76ccac3700abfa9bd5ab8">CalculateShape()</a></td>
+    </tr>
+    <tr>
+      <td>スケルトン</td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html">nn::g3d::SkeletonObj</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a97fdc7d1e1740b2e49d3c5365589adda">GetWorldMtxArray()</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html#adef78f87e8b217936ccb27f0b4e1a46c">nn::g3d::ModelObj::CalculateSkeleton()</a> / <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a1fb31afea2806b20719d3a542e721c10">CalculateSkeleton()</a></td>
+    </tr>
+    <tr>
+      <td>マテリアル</td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html">nn::g3d::MaterialObj</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html#ae9d92b1ba08755e840186f240a598770">EditShaderParam()</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html#a674b6b3417778ae519cf3bc6d6f5ff65">nn::g3d::ModelObj::CalculateMaterial()</a> / <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html#acb09821f66b8cc37c265e6b8207dea33">CalculateMaterial()</a></td>
+    </tr>
+    <tr>
+      <td>オプション</td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#ab9cec2cef452550fb2db9bb4e28e61f7">WriteStaticKey()</a>
+      </td>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#a49887b2a46d659afd9260759178329b3">CalculateOptionBlock()</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_106332818/flowchart_1.svg" />
+</div>
+<p>
+  <span style="color: rgb(33,33,33);">
+    <br />
+  </span>
+</p>
+<p>
+  <span style="color: rgb(33,33,33);">スケルトンを例にして、ユニフォームブロックの値をシェーダーに割り当てるフローを簡潔に示します。</span>
+</p>
+<ol>
+  <li>
+    <p>
+      <span style="color: rgb(33,33,33);">バッファー領域の初期化。</span>
+    </p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::g3d::ModelObj::</span><span class="n">SetupBlockBuffer</span><span class="p">()</span> 
+<span class="c1">// もしくは
+</span><span class="nn">nn::g3d::SkeletonObj::</span><span class="n">SetupBlockBuffer</span><span class="p">()</span> </pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      <span style="color: rgb(33,33,33);">
+        <br />
+      </span>
+    </p>
+  </li>
+  <li>
+    <p>
+      <span style="color: rgb(33,33,33);">ソース領域に対して変更を加える。</span>
+    </p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// スケルタルアニメーション等で SkeletonObj の持つボーンローカル行列を更新
+</span><span class="nn">nn::g3d::SkeletalAnimObj::</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">pSkeletonObj</span><span class="p">)</span>
+ 
+<span class="c1">// ボーンローカル行列をワールド行列に変換してソース領域に格納
+</span><span class="nn">nn::g3d::SkeletonObj::</span><span class="n">CalculateWorldMtx</span><span class="p">()</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>ソース領域の値をバッファー領域 へ書き込む。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::g3d::ModelObj::</span><span class="n">CalculateSkeleton</span><span class="p">()</span>
+<span class="c1">//もしくは
+</span><span class="nn">nn::g3d::SkeletonObj::</span><span class="n">CalculateSkeleton</span><span class="p">()</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>バッファー領域の値をシェーダーへ割り当てる。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="c1">// シェーダープログラムからユニフォームブロックのロケーションを取得
+</span><span class="nn">nn::g3d::ResShadingModel::</span><span class="n">GetSystemBlockIndex</span><span class="p">();</span>
+<span class="nn">nn::g3d::</span><span class="n">ResShaderProgram</span><span class="o">-&gt;</span><span class="n">GetUniformBlockLocation</span><span class="p">();</span>
+&nbsp;
+<span class="c1">// バッファー領域 の GPU アドレスを取得
+</span><span class="nn">nn::g3d::SkeletonObj::</span><span class="n">GetSkeletonBlock</span><span class="p">();</span>
+<span class="nn">nn::gfx::Buffer::</span><span class="n">GetGpuAddress</span><span class="p">();</span>
+&nbsp;
+<span class="c1">// バッファー領域 の値をシェーダーに設定
+</span><span class="nn">nn::gfx::</span><span class="n">CommandBufferSetConstantBuffer</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h1 id="Anchor_106332818_h1_4">シェイプ</h1>
+<p>シェイプユニフォームブロックは、シェイプに対応するボーンローカル&rarr;ワールド変換行列と、スキニングに使用するボーンの最大数、ユーザー領域を扱います。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_1">シェーダーコード</h2>
+<p>シェイプのユニフォームブロックは以下のように定義します。userArea はユーザーが自由に記述できますが、その他のユニフォーム変数はシステム側で定義されているので、同じように定義する必要があります。</p>
+<p>シェイプのユニフォーム変数は、主にリジッドボディーのシェイプの頂点計算に使用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Shape</span> <span class="c1">// @@ id=&quot;shape&quot; type=&quot;shape&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">shapeMtx</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">vtxSkinCount</span><span class="p">;</span>    
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">padding0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">padding1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">padding2</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">ivec4</span> <span class="n">userArea</span><span class="p">[</span><span class="mi">12</span><span class="p">];</span>
+<span class="p">};</span>
+
+&nbsp;
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//...
+</span>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">skinning</span> <span class="o">=</span> <span class="n">vtxSkinCount</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// rigid body の場合
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">skinning</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pos_w</span><span class="p">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">vec3</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">shapeMtx</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">),</span> <span class="n">dot</span><span class="p">(</span><span class="n">shapeMtx</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">),</span> <span class="n">dot</span><span class="p">(</span><span class="n">shapeMtx</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//...
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_2">バッファー領域の初期化</h2>
+<p>シェイプのユニフォームブロックバッファは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">nn::g3d::ModelObj::SetupBlockBuffer()</a>&nbsp;または&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#a7cabdabea5964ffbfb204dd0e4bd5bf1" rel="nofollow">nn::g3d::ShapeObj::SetupBlockBuffer()</a>&nbsp;で自動的に構築されます。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_3">ソース領域の更新</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#a366192ea48975363a42b6793469b484c">nn::g3d::ShapeObj::GetUserArea()</a> でユーザー領域の値を更新します。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_4">バッファー領域 への書き込み</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ac9b2fc3bb7e76ccac3700abfa9bd5ab8">nn::g3d::ModelObj::CalculateShape()</a>&nbsp;または<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ac9b2fc3bb7e76ccac3700abfa9bd5ab8">&nbsp; nn::g3d::ShapeObj::CalculateShape()</a>&nbsp;によって値がユニフォームブロックバッファに書き込まれます。</p>
+<ul>
+  <li>worldMtx には、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ac9b2fc3bb7e76ccac3700abfa9bd5ab8">nn::g3d::ModelObj::CalculateShape()</a>&nbsp;を使用した場合は <span class="ApiLink_nn__g3d__SkeletonObj">nn::g3d::SkeletonObj</span> で計算されたボーンのワールド行列が、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ac9b2fc3bb7e76ccac3700abfa9bd5ab8">nn::g3d::ShapeObj::CalculateShape()</a>&nbsp; を使用した場合は引数に指定したワールド行列が書き込まれます。</li>
+  <li>vtxSkinCount には <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shape.html#a231c86e11bfa78839b4a41ea549b8fee">nn::g3d::ResShape::GetVertexSkinCount()</a> で取得できる値が書き込まれます。</li>
+  <li>ユーザー領域には、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#a366192ea48975363a42b6793469b484c">nn::g3d::ShapeObj::GetUserArea()</a>&nbsp;で変更した値が書き込まれます。</li>
+</ul>
+<h1 id="Anchor_106332818_h1_5">スケルトン</h1>
+<p>スケルトンユニフォームブロックは、各ボーンにおけるスムーススキニング行列とリジットスキニング行列を扱います。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_5">シェーダーコード</h2>
+<p>行優先 3x4 行列の配列として書き込まれるので、シェーダー内では次の例のように定義してください。</p>
+<p>スケルトンユニフォームブロックの行列を使用して、スムーススキニング及びリジットスキニングの頂点の計算を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Skeleton</span> <span class="c1">// @@ id=&quot;skel&quot; type=&quot;skeleton&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">mtxPalette</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">128</span><span class="p">];</span>  <span class="c1">// 4×3 行列 × (スムーススキニング行列数+リジットスキニング行列数)
+</span><span class="p">};</span>
+
+
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//...
+</span>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">skinning</span> <span class="o">=</span> <span class="n">vtxSkinCount</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">skinning</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// rigid skinning の場合
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 頂点属性のブレンドインデックスには、その頂点に影響を与える mtxPalette のインデックスが入っている
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">i_Index0</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pos_w</span><span class="p">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">vec3</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">mtxPalette</span><span class="p">[</span><span class="n">offset</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">),</span> <span class="n">dot</span><span class="p">(</span><span class="n">mtxPalette</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">),</span> <span class="n">dot</span><span class="p">(</span><span class="n">mtxPalette</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">skinning</span> <span class="o">&lt;=</span><span class="mi">4</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// smooth skinning の場合
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">skinning</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 頂点属性のブレンドインデックスには、その頂点に影響を与える mtxPalette のインデックスが入っている
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 複数のボーンから影響を受ける場合は、ブレンドインデックスはスキニング数分の配列になる。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">i_Index0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">weight</span> <span class="o">=</span> <span class="n">i_Weight0</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pos_w</span><span class="p">.</span><span class="n">xyz</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">vec3</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">mtxPalette</span><span class="p">[</span><span class="n">offset</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">),</span> <span class="n">dot</span><span class="p">(</span><span class="n">mtxPalette</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">),</span> <span class="n">dot</span><span class="p">(</span><span class="n">mtxPalette</span><span class="p">[</span><span class="n">offset</span><span class="o">+</span><span class="mi">2</span><span class="p">].</span><span class="n">xyzw</span><span class="p">,</span> <span class="n">i_Position</span><span class="p">.</span><span class="n">xyzw</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//...
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_6">バッファー領域の初期化</h2>
+<p>スケルトンのユニフォームブロックは必要な行列パレットのサイズに従って&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">nn::g3d::ModelObj::SetupBlockBuffer()</a>&nbsp;または&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">nn::g3d::SkeletonObj::SetupBlockBuffer()</a>&nbsp;で自動的に構築されます。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_7">ソース領域の更新</h2>
+<p>スケルタルアニメーション等で計算されたボーンローカル行列を元に、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">nn::g3d::SkeletonObj::CalculateWorldMtx()</a>&nbsp;で各ボーンの、ボーンローカル&rarr;ワールド変換行列を更新します。<br />また、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a1f071644ed29f25b009ff919c5776e9b">nn::g3d::SkeletonObj::CalculateWorldMtx()</a>&nbsp;後に、<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a97fdc7d1e1740b2e49d3c5365589adda">nn::g3d::SkeletonObj::GetWorldMtxArray()</a> を使用することで、変換行列を再計算することが可能です。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_8">バッファー領域への書き込み</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html#adef78f87e8b217936ccb27f0b4e1a46c">nn::g3d::ModelObj::CalculateSkeleton()</a>&nbsp;または <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a1fb31afea2806b20719d3a542e721c10">nn::g3d::SkeletonObj::CalculateSkeleton()</a> によって行列の値がバッファー領域に書き込まれます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>バッファー領域に書き込まれる行列は</p>
+    <ul>
+      <li>リジッドボディ及びリジッドスキニングの場合は、ボーンのローカル座標系からワールド座標系への変換行列</li>
+      <li>スムーススキニングの場合は、モデル座標系からワールド座標系への変換行列</li>
+    </ul>
+    <p>となっていることに注意してください。</p>
+    <p>一方で、頂点属性の position は</p>
+    <ul>
+      <li>リジッドボディ及びリジッドスキニングの場合はボーンローカル座標系</li>
+      <li>スムーススキニングの場合はモデル座標系</li>
+    </ul>
+    <p>となっているため、スキニング種類に関係なく &quot;position &times; mtx&quot; でワールド位置が求められるようになっています。</p>
+  </div>
+</div>
+<h1 id="Anchor_106332818_h1_6">マテリアル</h1>
+<p>マテリアルユニフォームブロックはマテリアル毎に割り当てられ、シェーダー内でマテリアルを計算する為に使用します。マテリアルユニフォームブロックの要素はシステム側で定義されていないため、ユーザーが自由に定義することができます。ユーザーが自由に定義できることから、マテリアルユニフォームブロックには専用の仕組みが用意されており、マテリアルのユニフォーム変数を「シェーダーパラメーター」と呼びます。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_9">シェーダーコード</h2>
+<p>
+  <span style="color: rgb(33,33,33);">シェーダーパラメーターはシェーダーソースに対してアノテーションを記述することで定義できます。アノテーションの記述方法については</span>
+  <a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>
+  <span style="color: rgb(33,33,33);">を参照してください。</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Material</span> <span class="c1">// @@ id=&quot;mat&quot; type=&quot;material&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">texsrt0</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>        <span class="c1">// @@ id=&quot;texsrt0&quot; type=&quot;texsrt&quot; hint=&quot;albedo0&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">texsrt1</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>        <span class="c1">// @@ id=&quot;texsrt1&quot; type=&quot;texsrt&quot; hint=&quot;normal0&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec3</span> <span class="n">diffColor</span><span class="p">;</span>         <span class="c1">// @@ id=&quot;diffuse&quot; default=&quot;1 1 1&quot; item=&quot;color&quot; hint=&quot;diffuse&quot;
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">weightTex</span><span class="p">;</span>        <span class="c1">// @@ id=&quot;weight_tex&quot; default=&quot;1.0&quot; min=&quot;-1&quot; max=&quot;1&quot;
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_10">マテリアルリソースの初期化</h2>
+<p>
+  <span style="color: rgb(33,33,33);">マテリアルのバッファー領域を初期化する前(マテリアルインスタンスの構築前)に、</span>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html#a14244bf9c69c763f3341b452d11c192f" rel="nofollow">nn::g3d::ResShaderAssign::GetShaderArchiveName</a>
+  <span style="color: rgb(33,33,33);">() 及び&nbsp;</span>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_assign.html#af19bb02607868a0ee63245e8eda8d642" rel="nofollow">nn::g3d::ResShaderAssign::GetShadingModelName</a>
+  <span style="color: rgb(33,33,33);">() からマテリアルが使用するシェーディングモデルを取得し、シェーダーのマテリアルユニフォームブロック</span>のサイズと各シェーダーパラメーターのオフセットをモデルのマテリアルリソースに設定する必要があります。ユニフォームブロックのサイズは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_material.html#a3ad8388875be70cd5210f42924e1cc4a" rel="nofollow">nn::g3d::ResMaterial::SetRawParamSize</a>() で、シェーダーパラメーターのオフセットは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#a3a1cefaece9417b6a3b760c2c5a01fa7" rel="nofollow">nn::g3d::ResShaderParam::SetOffset</a>() で設定することができます。<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>の「モデルリソースのシェーダーパラメーターを初期化」にも同様の処理が解説されています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// モデルのマテリアルに指定されている名前の nn::g3d::ResShaderArchive を取得
+</span><span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">ResShaderAssign</span><span class="o">*</span> <span class="n">pResShaderAssign</span> <span class="o">=</span> <span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">GetShaderAssign</span><span class="p">();</span>
+<span class="nn">nn::g3d::</span><span class="n">ResShadingModel</span><span class="o">*</span> <span class="n">pResShadingModel</span> <span class="o">=</span> <span class="n">pResShaderArchive</span><span class="o">-&gt;</span><span class="n">FindShadingModel</span><span class="p">(</span><span class="n">pResShaderAssign</span><span class="o">-&gt;</span><span class="n">GetShadingModelName</span><span class="p">());</span>
+&nbsp;
+<span class="c1">// モデルのマテリアルリソースに、nn::g3d::ResShadingModel が持つマテリアルユニフォームブロックのサイズと各ユニフォーム変数のオフセットを設定
+</span><span class="nn">nn::g3d::ShaderUtility::</span><span class="n">BindShaderParam</span><span class="p">(</span><span class="n">pResMaterial</span><span class="p">,</span> <span class="n">pResShadingModel</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">int</span> <span class="n">idxBlock</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetSystemBlockIndex</span><span class="p">(</span><span class="nn">ResUniformBlockVar::</span><span class="n">Type_Material</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">idxBlock</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">SetRawParamSize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">const</span> <span class="n">ResUniformBlockVar</span><span class="o">*</span> <span class="n">pBlockVar</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetUniformBlock</span><span class="p">(</span><span class="n">idxBlock</span><span class="p">);</span>
+&nbsp;<span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">SetRawParamSize</span><span class="p">(</span><span class="n">pBlockVar</span><span class="o">-&gt;</span><span class="n">GetSize</span><span class="p">());</span>
+&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">idxParam</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">paramCount</span> <span class="o">=</span> <span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">GetShaderParamCount</span><span class="p">();</span>
+&nbsp;<span class="n">idxParam</span> <span class="o">&lt;</span> <span class="n">paramCount</span><span class="p">;</span> <span class="o">++</span><span class="n">idxParam</span><span class="p">)</span>
+&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// シェーダーパラメータの id でシェーダーからルックアップし、オフセットを初期化します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">ResShaderParam</span><span class="o">*</span> <span class="n">pResShaderParam</span> <span class="o">=</span> <span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">GetShaderParam</span><span class="p">(</span><span class="n">idxParam</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">ResUniformVar</span><span class="o">*</span> <span class="n">pUniformVar</span> <span class="o">=</span> <span class="n">pBlockVar</span><span class="o">-&gt;</span><span class="n">FindUniform</span><span class="p">(</span><span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">());</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">SetOffset</span><span class="p">(</span><span class="n">pUniformVar</span> <span class="o">?</span> <span class="n">pUniformVar</span><span class="o">-&gt;</span><span class="n">GetOffset</span><span class="p">()</span> <span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+&nbsp;<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<p>マテリアルに対してリソースに登録されていないテクスチャを持たせたい場合、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_material.html#adcaf112be08dd21df078c6bf2ac07eb5" rel="nofollow">nn::g3d::ResMaterial::SetTextureCount</a>() でマテリアルインスタンスに登録できるテクスチャの数を増やすことができます。</p>
+<h2 id="Anchor_106332818_h2_11">
+  <span style="color: rgb(117,117,117);">バッファー領域の初期化</span>
+</h2>
+<p>バッファー領域は&nbsp;&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">nn::g3d::ModelObj::SetupBlockBuffer()</a>&nbsp;または&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">nn::g3d::MaterialObj::SetupBlockBuffer()</a>&nbsp;で初期化されます。この際、上記で設定されたシェーディングモデルのマテリアルユニフォームブロックのサイズとオフセットを元に初期化されます。バッファー領域の初期化後、シェーダーのマテリアルユニフォームブロックの初期値をマテリアルインスタンスのバッファー領域に適用することで、シェーダーの変更に対する耐性を高めます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::g3d::</span><span class="n">ResShadingModel</span><span class="o">*</span> <span class="n">pResShadingModel</span><span class="p">;</span>
+<span class="nn">nn::g3d::</span><span class="n">MaterialObj</span><span class="o">*</span> <span class="n">pMaterialObj</span><span class="p">;</span>
+
+<span class="c1">// シェーダーのマテリアルユニフォームブロックの初期値を、モデルのバッファー領域に適用
+</span><span class="n">InitializeShaderParam</span><span class="p">(</span><span class="n">pMaterialObj</span><span class="p">,</span> <span class="n">pResShadingModel</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_12">ソース領域の更新</h2>
+<p>
+  <span style="color: rgb(33,33,33);">
+    <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html#ae9d92b1ba08755e840186f240a598770" rel="nofollow">nn::g3d::MaterialObj::EditShaderParam</a>() で取得したポインタ経由で変更します。</span>
+</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_13">バッファー領域への書き込み</h2>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html#a674b6b3417778ae519cf3bc6d6f5ff65" rel="nofollow">nn::g3d::ModelObj::CalculateMaterial()</a>&nbsp;で値がユニフォームブロックに書き込まれます。ライブラリーは内部的にソース領域の更新があった部分をダーティフラグで管理しているため、変更があったパラメーターのみ書き込み処理を行います。<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#ab9298aece0c7b8114fddeaefb7aa1314" rel="nofollow">nn::g3d::ResShaderParam::SetConvertShaderParamCallback()</a>&nbsp;によってコールバックが設定されていれば、そのコールバックも合わせて呼び出されます。マテリアルリソースの初期化時にオフセットを設定されなかったシェーダーパラメーターはダーティフラグが立たないため、マテリアルユニフォームブロックに書き込まれません。</p>
+<h3 id="Anchor_106332818_h3_1">コールバック関数による変換</h3>
+<p>マテリアルユニフォームブロックをバッファー領域に書き込む際には、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#ab9298aece0c7b8114fddeaefb7aa1314" rel="nofollow">nn::g3d::ResShaderParam::SetConvertShaderParamCallback()</a>&nbsp;で指定したコールバック関数により独自の変換処理を行うことが可能です。</p>
+<p>
+  <strong>コールバックの登録はモデルインスタンスを作成する前に行う必要があります</strong>。また、コールバックを使用する場合は、シェーダーパラメーターの内容を判別するためにあらかじめシェーダーアノテーションで converter を指定しておきます。 converter ではその変数が示す内容を任意の文字列で設定することができ、ランタイムで <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_uniform_var.html#ad241ab7c97aa3bbbdbc84926e70262b2">nn::g3d::ResUniformVar::GetConverter()</a> で取得できます。この converter 文字列を元に、適切なコールバック関数を&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#ab9298aece0c7b8114fddeaefb7aa1314" rel="nofollow">nn::g3d::ResShaderParam::SetConvertShade</a><a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#ab9298aece0c7b8114fddeaefb7aa1314" rel="nofollow">rParamCallback</a>() で登録します。さらに、シェーダーアノテーションで depend を指定した場合は、コールバック関数内で他のシェーダーパラメーターや任意のデーターを用いた変換処理を行うことが可能になります。その場合は、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_material.html#ada22c25086b53b1fcb4f406be0e5e1ae" rel="nofollow">nn::g3d::ResMaterial::SetVolatile</a>() を使用して毎フレーム変換処理が行われるように設定してください。ライブラリーはシェーダーパラメーターをダーティフラグで管理するため、設定を行わない場合は参照している外部のパラメーターが変更されてもバッファー領域への書き込みが行われません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/* モデルインスタンス (nn:g3d::ModelObj) の作成前に行っておく */</span>
+<span class="c1">// モデルマテリアルのシェーダーパラメータを取得
+</span><span class="nn">nn::g3d::</span><span class="n">ResShaderParam</span><span class="o">*</span> <span class="n">pResShaderParam</span> <span class="o">=</span> <span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">GetShaderParam</span><span class="p">(</span><span class="n">shaderParamIndex</span><span class="p">);</span>
+&nbsp;
+<span class="c1">// アノテーションで指定したコンバーター名を取得
+</span><span class="kt">int</span> <span class="n">materialBlockIndex</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetSystemBlockIndex</span><span class="p">(</span><span class="nn">nn::g3d::ResUniformBlockVar::</span><span class="n">Type_Material</span><span class="p">);</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pConverter</span> <span class="o">=</span> <span class="n">pResShadingModel</span><span class="o">-&gt;</span><span class="n">GetUniformBlock</span><span class="p">(</span><span class="n">materialBlockIndex</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">FindUniform</span><span class="p">(</span><span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">())</span><span class="o">-&gt;</span><span class="n">GetConverter</span><span class="p">();</span>
+&nbsp;
+<span class="c1">// コンバーター名が一致していた場合は独自の変換計算コールバック関数をセットする。
+// 毎フレーム変換処理を行いたい場合は、nn::g3d::ResMaterial::SetVolatile() で毎フレーム変換処理が行われるように設定する。
+</span><span class="k">if</span> <span class="p">(</span><span class="n">pConverter</span> <span class="o">&amp;&amp;</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">pConverter</span><span class="p">,</span> <span class="s">&quot;texsrt_ex&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">SetConvertShaderParamCallback</span><span class="p">(</span><span class="nn">nn::g3d::ResShaderParam::</span><span class="n">ConvertTexSrtExCallback</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pResMaterial</span><span class="o">-&gt;</span><span class="n">SetVolatile</span><span class="p">(</span><span class="n">shaderParamIndex</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>シェーダーパラメーターに対してシェーダーアノテーションで depend を指定した場合、指定対象が他のシェーダーパラメーターの id であればライブラリーが自動で対象のシェーダーパラメーターへのポインタを設定します。このポインターは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#ac12eca444cd6f6c2b71f2fcb4e763d47" rel="nofollow">nn::g3d::ResShaderParam::GetDependPointer()</a>&nbsp;を使用して以下のように取得します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 変換コールバック
+</span><span class="kt">size_t</span> <span class="nf">CallBack</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">pDst</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pSrc</span><span class="p">,</span> <span class="k">const</span> <span class="n">ResShaderParam</span><span class="o">*</span> <span class="n">pShaderParam</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">pUserPtr</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 依存先パラメーターへのポインター
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">pDependParam</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// pSrc が依存するパラメーターのポインターを取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pShaderParam</span><span class="o">-&gt;</span><span class="n">GetDependPointer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pDependParam</span><span class="p">,</span> <span class="n">pSrc</span><span class="p">);</span>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// pDependParam と pSrc を計算した変換結果を pDst に代入
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>depend で自身の id を指定した場合は、シェーダーパラメーター以外の外部データを参照することが可能です。その場合はユーザー自身で依存先のデーターへのポインターを設定する必要があります。モデルインスタンス(<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html">nn::g3d::ModelObj</a>) を作成した後に、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html#ae9d92b1ba08755e840186f240a598770" rel="nofollow">nn::g3d::MaterialObj::EditShaderParam</a>() で該当のシェーダーパラメーターを取得し、&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_param.html#acb6454ceb752cfc31fffe18361338370" rel="nofollow">nn::g3d::ResShaderParam::SetDependPointer()</a>&nbsp;を使用して依存先データへのポインタを設定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span><span class="o">*</span> <span class="n">pShaderParam</span> <span class="o">=</span> <span class="n">pMaterialObj</span><span class="o">-&gt;</span><span class="n">EditShaderParam</span><span class="p">(</span><span class="n">shaderParamIndex</span><span class="p">);</span>
+<span class="k">const</span> <span class="nn">nn::g3d::</span><span class="n">ResShaderParam</span><span class="o">*</span> <span class="n">pResShaderParam</span> <span class="o">=</span> <span class="n">pMaterialObj</span><span class="o">-&gt;</span><span class="n">GetResource</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">GetShaderParam</span><span class="p">(</span><span class="n">shaderParamIndex</span><span class="p">);</span>
+&nbsp;
+<span class="c1">// 外部データ pDependParam を依存先として設定する
+</span><span class="n">pResShaderParam</span><span class="o">-&gt;</span><span class="n">SetDependPointer</span><span class="p">(</span><span class="n">pShaderParam</span><span class="p">,</span> <span class="n">pDependParam</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_106332818_h1_7">オプション</h1>
+<p>オプションユニフォームブロックは、シェーダーバリエーションの生成の制御に使用します。特にユニフォーム変数分岐(branch=true) の static オプション変数の制御に利用します。シェーダーバリエーションの詳細は<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>を参照してください。ユニフォームブロックを含むシェーダーのランタイムでの処理フローについては<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>を参照して下さい。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_14">シェーダーコード</h2>
+<p>オプション変数に対応した変数を定義します。ユニフォーム変数分岐を使用する場合は必ず定義する必要があります。またランタイムでの利用はありませんが、プリプロセッサー分岐でバリエーション定数を使用する場合はコンパイル時に参照されるため定義する必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#define USE_VERTEX_COLOR    ( 0 )       </span><span class="c1">// @@ id=&quot;vertex_color&quot;
+</span>
+<span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Option</span> <span class="c1">// @@ id=&quot;opt&quot; type=&quot;option&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">useVtxColor</span><span class="p">;</span>    <span class="c1">// @@ id=&quot;vertex_color&quot;
+</span><span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//...
+</span>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span><span class="p">(</span><span class="n">USE_VERTEX_COLOR</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// USE_VERTEX_COLOR = 0 のバリエーションの処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// USE_VERTEX_COLOR = 0 以外のバリエーションの処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//...
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_15">バッファー領域の初期化</h2>
+<p>オプションのユニフォームブロックは&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html" rel="nofollow">nn::g3d::ShadingModelObj</a>::<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html#a78d62f7924c6c29ddbbd75ab46e46b84" rel="nofollow">SetupBlockBuffer()</a>&nbsp;で自動的に構築されます。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_16">ソース領域の更新</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_utility.html#a870d826646df32bc9545e9acc4e8c8c5">nn::g3d::ShaderUtility::InitializeShaderKey()</a> でモデルにアサインされた static オプション値を元に更新します。モデルバイナリーにアサインされた static なオプション値を適用するため、更新は初期化時の一度だけで十分です。</p>
+<h2 style="margin-left: 0.5em;" id="Anchor_106332818_h2_17">バッファー領域への書き込み</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html#a49887b2a46d659afd9260759178329b3">nn::g3d::ShadingModelObj::CalculateOptionBlock()</a>&nbsp;によってオプション値がバッファー領域に書き込まれます。モデルバイナリーにアサインされた static なオプション値を適用するため、バッファー領域への書き込みも一度だけで十分です。<br />一方で、シェーダーのユニフォームブロックへのセットは毎フレーム行う必要があることに注意してください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__Buffer', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a8721c66f238e6505cbf9ca0eb71d3e85' )
+SetUrl( 'ApiLink_nn__g3d__SkeletonObj', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

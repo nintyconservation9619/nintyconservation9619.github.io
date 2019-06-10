@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>MEMBAR</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    MEMBAR : Memory Barrier<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Memory Barrier" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "MEMBAR", subsection => 8 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>MEMBAR</b>.lvl{.ivall}</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched&gt;=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   <code>// Memory barrier wait</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "MEMBAR" } -->
+
+ .lvl:    { <b>.CTA, .VC, .GL, SYS </b>}       <br>            MEMBAR establishes  memory transaction visibility ordering with respect to the pool of processing threads <br>            defined by .lvl as below.<br>            .CTA : (CTA level) defines pool of processing threads as one belonging to same CTA.<br>            .VC  : (Virtual Channel level) define pool of processing threads as one belonging to <br>                   same ordered virtual channel of memory subsystem.<br>            .GL  : (Global level) defines pool of processing threads as one belonging to same GPU <br>            .SYS : (Global level) defines pool of processing threads as that of all processing threads in system<br>                   including  threads communicating with peer-to-peer/PCIE protocols.<br> <br>.ivall    { <b><none *="">, .IVALLD, .IVALLT, .IVALLTD </none></b> }<br>            .ivall indicates if MEMBAR will also perform a fused (atomic) cache invalidate operation.<br>            with .IVALLD  a CCTL.D.IVALL  operation is performed prior to MEMBAR<br>            with .IVALLT  a CCTLT.IVALL operation is performed prior to MEMBAR<br>            with .IVALLTD both  CCTLT.IVALL and  CCTL.D.IVALL operations are performed prior to MEMBAR.<br><br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Issuing a MEMBAR.lvl guarantees that all prior memory accesses (reads,
+writes, and atomics) from a thread will be ordered against any
+subsequent memory accesses from the thread.
+</p>
+
+<p>
+The scope of the ordering constraint is defined by the .lvl and implicitly enforces all lower .lvl membars.
+</p>
+
+<p>
+MEMBAR.lvl does not guarantee any ordering within either the prior or the subsequent groups of memory instructions.
+</p>
+
+<p>The memory barrier enforces vertical (trasactions issued by single
+thread) ordering only. It makes no guarantees as of execution
+synchronization with other threads. For horizontal (across threads)
+synchronization, BAR instructions should be used instead of, or in
+addition to, MEMBAR.
+</p>
+
+<p>Note: L1 and L2 caches are incoherent; stale data may still be read
+from other L1 caches even after MEMBAR.VC, MEMBAR.GL, or MEMBAR.SYS
+completes. However, stale data will not be read if a CCTL.IV is issued
+prior to the read, or if the read is performed using LD.CV
+</p>
+
+<p>
+Additionally, with .ivall, MEMBAR can perform a fused (atomic) cache invalidate operation where
+CCTL.D.IVALL and/or CCTLT.IVALL are additionally ordered prior to MEMBAR and after the memory
+trasactions precedding MEMBAR for a give thread.&nbsp;
+</p>
+
+<pre>MEMBAR Levels:<br>  .CTA   CTA thread level<br>  .VC    SM Virtual Channel<br>  .GL    Global level<br>  .SYS   System level<br></pre> 
+
+<p>
+<b>MEMBAR</b> Levels:</p>
+<dl class="compact">
+<dt>.CTA</dt>
+    <dd>CTA thread level<br>
+        <ul><li> Ordering of reads, writes, and atomics is only guaranteed within the scope of threads in the same CTA.</li>
+            <li>For communication within a CTA, <b>MEMBAR.CTA</b> is the appropriate type of <b>MEMBAR</b>.</li>
+        </ul>
+    </dd>
+<dt>.VC</dt>
+    <dd>Virtual channel level<br>
+         <ul><li>Ordering of reads, writes, and atomics is only guaranteed within the scope of all threads on all SMs, 
+                 and other clients on the same blocking virtual channel, but not clients on different channels. </li>
+             <li> For communication between CTAs within a grid, MEMBAR.VC is the appropriate type of <b>MEMBAR</b> </li>
+             <li> <b>MEMBAR.VC</b> will typically be more expensive (longer latency) than <b>MEMBAR.CTA</b>  </li>
+        </ul>
+    </dd>
+   
+<dt>.GL</dt>
+    <dd>Global level<br>
+        <ul><li> Ordering of
+reads, writes, and atomics is only guaranteed within the scope of all
+other clients (eg. SM, CE, SKED, etc.) in the GPU.</li>
+            <li> For communication between SM threads and all clients in the same GPU, <b>MEMBAR.GL</b> is the appropriate type of <b>MEMBAR</b>
+            </li><li> <b>MEMBAR.GL</b> will typically be more expensive (longer latency) than <b>MEMBAR.VC</b> </li>
+        </ul>
+    </dd>
+	
+<dt>.SYS</dt>
+    <dd>System level<br>
+        <ul>
+            <li> Ordering of reads, writes, and atomics is guaranteed with respect to all clients, including FB 
+                 and those communicating via PCI-E, such as system and peer-to-peer memory. </li><li>
+            </li><li> This level of <b>MEMBAR</b> is required to ensure ordering with respect to a host CPU or other PCI-E peers. </li>
+            <li> <b>MEMBAR.SYS</b> will typically be much more expensive (longer latency) than <b>MEMBAR.GL</b> </li>
+         </ul>
+    </dd>
+</dl>
+
+<p>The following picture tries to help describe when a given <tt>MEMBAR</tt> is needed, in terms of which kinds of agents are trying to communicate.
+</p>
+<p><img src="../images/membar.png">
+</p>
+
+<p>The following list describes the set of operations considered for visibility ordering by <b>MEMBAR</b>
+</p><ul>
+     <li>  <a href="opLD.htm">  <b>LD</b></a>,        </li>
+     <li>  <a href="opST.htm">  <b>ST</b></a>,        </li>
+     <li>  <a href="opATOMS.htm"><b>ATOMS</b></a>,    </li>
+     <li>  <a href="opATOM.htm"><b>ATOM</b></a>,      </li>
+     <li>  <a href="opRED.htm"> <b>RED</b></a>,       </li>
+     <li>  <a href="opLDW.htm"> <b>LDS</b></a>,       </li>
+     <li>  <a href="opSTW.htm"> <b>STS</b></a>,       </li>
+     <li>  <a href="opLDW.htm"> <b>LDL</b></a>,       </li>
+     <li>  <a href="opSTW.htm"> <b>STL</b></a>,       </li>
+     <li>  <a href="opSULD.htm"><b>SULD</b></a>,      </li>
+     <li>  <a href="opSUST.htm"><b>SUST</b></a>,      </li>
+     <li>  <a href="opSUATOM.htm"><b>SUATOM</b></a>,  </li>
+     <li>  <a href="opSURED.htm"><b>SURED</b></a>,    </li>
+     <li>  <a href="opTEX.htm"> <b>TEX</b></a>,       </li>
+     <li>  <a href="opTLD.htm"> <b>TLD</b></a>,       </li>
+     <li>  <a href="opTLD4.htm"><b>TLD4</b></a>,      </li>
+     <li>  <a href="opTMML.htm"><b>TMML</b></a>,      </li>
+     <li>  <a href="opTXD.htm"> <b>TXD</b></a>,       </li>
+     <li>  <a href="opTXQ.htm"> <b>TXQ</b></a>        </li>
+     <li>  <a href="opCCTL.htm"> <b>CCTL</b></a>      </li>
+     <li>  <a href="opCCTL.htm"> <b>CCTLL</b></a>    </li>
+     <li>  <a href="opCCTLT.htm"> <b>CCTLT</b></a>    </li>
+</ul>          
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>// Producer consumer handshake<br>ST   [R2]  R3;                // Store Data R3 at address R2<br>MEMBAR<b>.GL</b>
+ST   [R4]  R5;                // Store flag R5 signalling readiness of data R3  
+                              // Any consumer threat in "global" pool is guranteed to see updated value of data first
+                                 before it sees updated value of flag.
+
+
+// Example of .IVALL  <tbd>
+
+</tbd></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

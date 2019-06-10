@@ -1,0 +1,665 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>パッチ適用時のパフォーマンス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- パッチ適用時のパフォーマンス -->
+<div class="pagetitle" id="PageId_211661819">パッチ適用時のパフォーマンス</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_211661819_h1_1">パッチ適用による File System パフォーマンスの変化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_211661819_h2_1">パッチ適用後のシーケンシャルアクセス・ランダムアクセス速度の変化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_211661819_h3_1">Firmware for NX 1 系における File System パフォーマンスの変化</a>
+        </li>
+        <li>
+          <a href="#Anchor_211661819_h3_2">Firmware for NX 3 系における File System パフォーマンスの変化</a>
+        </li>
+        <li>
+          <a href="#Anchor_211661819_h3_3">未適用時との比較</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_211661819_h2_2">ファイルの実体が断片化されることによる変化</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_211661819_h1_1">パッチ適用による File System パフォーマンスの変化</h1>
+<p>パッチの適用前後では、File System の読み込み速度が変化します。パッチ適用後はパッチと元ストレージの両方の情報を参照してファイル読み込みを行うことになるため、<span style="color: rgb(255,0,0);"><strong>パッチで修正を行ったファイルだけでなく未修正のファイルも含めて読み込み性能は下がります</strong></span>。</p>
+<p>性能の低下は以下の二つによって起こります。</p>
+<ul>
+  <li>パッチ適用後のシーケンシャルアクセス・ランダムアクセス速度の変化</li>
+  <li>ファイル実体がパッチ適用後に断片化されることによる変化</li>
+</ul>
+<p>それぞれについて説明します。</p>
+<h2 id="Anchor_211661819_h2_1">パッチ適用後のシーケンシャルアクセス・ランダムアクセス速度の変化</h2>
+<p>パッチ適用後は、適用前に比べてこれらのアクセス速度が低下します。<span style="color: rgb(255,0,0);"><strong>Firmware for NX 1 系ではファームの不具合により想定以上に遅くなっている</strong></span>ため、特に注意してください。</p>
+<p>なお、パフォーマンスはシステムの負荷、および今後のファームウェアの修正によっても変動するので、あくまでも参考値とします。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>コードのみの修正の場合、Firmware for NX 1 系に存在する不具合を踏まない可能性があります。一度目のパッチ提出では速度の問題が無かったとしても、二度目以降に問題が無いかは必ず確認するようにしてください。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h3 id="Anchor_211661819_h3_1">
+  <span style="color: rgb(117,117,117);">Firmware for NX 1 系における File System パフォーマンスの変化</span>
+</h3>
+<p>
+  <span style="color: rgb(117,117,117);">初版アプリケーション側を参照する場合、パッチ側を参照する場合、いずれも同じ速度になります。</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">シーケンシャルアクセス</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">&nbsp;</span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;バッファサイズ<br />(KB)&nbsp;</th>
+      <th>4GB 以下のゲームカード<br />(MB/sec)&nbsp;</th>
+      <th>
+        <p>8GB 以上のゲームカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>本体保存メモリー</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>micro SD メモリーカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">2.763</td>
+      <td style="text-align: right;">3.008</td>
+      <td style="text-align: right;">6.151</td>
+      <td style="text-align: right;">3.483</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">3.121</td>
+      <td style="text-align: right;">3.264</td>
+      <td style="text-align: right;">8.294</td>
+      <td style="text-align: right;">4.021</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">3.202</td>
+      <td style="text-align: right;">3.559</td>
+      <td style="text-align: right;">9.557</td>
+      <td style="text-align: right;">4.280</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">3.315</td>
+      <td style="text-align: right;">3.668</td>
+      <td style="text-align: right;">10.266</td>
+      <td style="text-align: right;">4.444</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">3.378</td>
+      <td style="text-align: right;">3.725</td>
+      <td style="text-align: right;">10.612</td>
+      <td style="text-align: right;">4.537</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">5.802</td>
+      <td style="text-align: right;">6.493</td>
+      <td style="text-align: right;">17.731</td>
+      <td style="text-align: right;">7.185</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">5.797</td>
+      <td style="text-align: right;">6.757</td>
+      <td style="text-align: right;">18.107</td>
+      <td style="text-align: right;">7.377</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">8.863</td>
+      <td style="text-align: right;">11.198</td>
+      <td style="text-align: right;">29.704</td>
+      <td style="text-align: right;">10.437</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">12.112</td>
+      <td style="text-align: right;">16.632</td>
+      <td style="text-align: right;">44.735</td>
+      <td style="text-align: right;">13.378</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">14.567</td>
+      <td style="text-align: right;">22.343</td>
+      <td style="text-align: right;">53.363</td>
+      <td style="text-align: right;">15.374</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">16.119</td>
+      <td style="text-align: right;">25.880</td>
+      <td style="text-align: right;">60.444</td>
+      <td style="text-align: right;">16.496</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">17.013</td>
+      <td style="text-align: right;">28.230</td>
+      <td style="text-align: right;">69.918</td>
+      <td style="text-align: right;">17.300</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">17.461</td>
+      <td style="text-align: right;">29.523</td>
+      <td style="text-align: right;">74.278</td>
+      <td style="text-align: right;">17.757</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>
+  <span style="color: rgb(117,117,117);">ランダムアクセス</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">&nbsp;</span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;バッファサイズ<br />(KB)&nbsp;</th>
+      <th>4GB 以下のゲームカード<br />(MB/sec)&nbsp;</th>
+      <th>
+        <p>8GB 以上のゲームカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>本体保存メモリー</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>micro SD メモリーカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">0.321</td>
+      <td style="text-align: right;">0.352</td>
+      <td style="text-align: right;">0.994</td>
+      <td style="text-align: right;">0.431</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">0.492</td>
+      <td style="text-align: right;">0.543</td>
+      <td style="text-align: right;">1.576</td>
+      <td style="text-align: right;">0.662</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">0.879</td>
+      <td style="text-align: right;">0.984</td>
+      <td style="text-align: right;">2.810</td>
+      <td style="text-align: right;">1.171</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">1.615</td>
+      <td style="text-align: right;">1.811</td>
+      <td style="text-align: right;">5.052</td>
+      <td style="text-align: right;">2.086</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">2.924</td>
+      <td style="text-align: right;">3.249</td>
+      <td style="text-align: right;">9.007</td>
+      <td style="text-align: right;">3.620</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">3.157</td>
+      <td style="text-align: right;">3.584</td>
+      <td style="text-align: right;">9.786</td>
+      <td style="text-align: right;">4.087</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">4.169</td>
+      <td style="text-align: right;">4.638</td>
+      <td style="text-align: right;">12.396</td>
+      <td style="text-align: right;">5.180</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">6.389</td>
+      <td style="text-align: right;">7.674</td>
+      <td style="text-align: right;">19.321</td>
+      <td style="text-align: right;">7.180</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">9.567</td>
+      <td style="text-align: right;">12.414</td>
+      <td style="text-align: right;">31.333</td>
+      <td style="text-align: right;">10.346</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">12.663</td>
+      <td style="text-align: right;">18.341</td>
+      <td style="text-align: right;">42.629</td>
+      <td style="text-align: right;">13.308</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">14.844</td>
+      <td style="text-align: right;">22.814</td>
+      <td style="text-align: right;">52.658</td>
+      <td style="text-align: right;">15.194</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">16.510</td>
+      <td style="text-align: right;">26.954</td>
+      <td style="text-align: right;">66.025</td>
+      <td style="text-align: right;">16.798</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">17.335</td>
+      <td style="text-align: right;">29.199</td>
+      <td style="text-align: right;">74.279</td>
+      <td style="text-align: right;">17.596</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(117,117,117);">&nbsp;</span>
+</p>
+<h3 id="Anchor_211661819_h3_2">Firmware for NX 3 系における File System パフォーマンスの変化</h3>
+<p>
+  <span style="color: rgb(117,117,117);">将来の修正後は、このパフォーマンスになります。&nbsp;</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">シーケンシャルアクセス</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <br />
+  </span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;バッファサイズ<br />(KB)&nbsp;</th>
+      <th>4GB 以下のゲームカード<br />(MB/sec)&nbsp;</th>
+      <th>
+        <p>8GB 以上のゲームカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>本体保存メモリー</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>micro SD メモリーカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">4.950</td>
+      <td style="text-align: right;">5.529</td>
+      <td style="text-align: right;">8.364</td>
+      <td style="text-align: right;">5.547</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">5.882</td>
+      <td style="text-align: right;">6.866</td>
+      <td style="text-align: right;">13.587</td>
+      <td style="text-align: right;">6.837</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">6.531</td>
+      <td style="text-align: right;">8.147</td>
+      <td style="text-align: right;">17.740</td>
+      <td style="text-align: right;">7.564</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">6.909</td>
+      <td style="text-align: right;">8.180</td>
+      <td style="text-align: right;">20.879</td>
+      <td style="text-align: right;">8.082</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">7.223</td>
+      <td style="text-align: right;">8.629</td>
+      <td style="text-align: right;">22.814</td>
+      <td style="text-align: right;">8.628</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">10.341</td>
+      <td style="text-align: right;">13.591</td>
+      <td style="text-align: right;">28.042</td>
+      <td style="text-align: right;">9.387</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">10.446</td>
+      <td style="text-align: right;">14.069</td>
+      <td style="text-align: right;">32.769</td>
+      <td style="text-align: right;">10.440</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">13.517</td>
+      <td style="text-align: right;">20.064</td>
+      <td style="text-align: right;">47.648</td>
+      <td style="text-align: right;">13.420</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">15.743</td>
+      <td style="text-align: right;">25.081</td>
+      <td style="text-align: right;">61.803</td>
+      <td style="text-align: right;">15.572</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">17.108</td>
+      <td style="text-align: right;">28.653</td>
+      <td style="text-align: right;">66.493</td>
+      <td style="text-align: right;">16.839</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">16.728</td>
+      <td style="text-align: right;">27.789</td>
+      <td style="text-align: right;">71.126</td>
+      <td style="text-align: right;">17.499</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">17.403</td>
+      <td style="text-align: right;">29.564</td>
+      <td style="text-align: right;">75.735</td>
+      <td style="text-align: right;">17.900</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">17.729</td>
+      <td style="text-align: right;">30.398</td>
+      <td style="text-align: right;">80.213</td>
+      <td style="text-align: right;">18.160</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(117,117,117);">&nbsp;</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">ランダムアクセス</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <br />
+  </span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;バッファサイズ<br />(KB)&nbsp;</th>
+      <th>4GB 以下のゲームカード<br />(MB/sec)&nbsp;</th>
+      <th>
+        <p>8GB 以上のゲームカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>本体保存メモリー</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+      <th>
+        <p>micro SD メモリーカード</p>
+        <p>(MB/sec)&nbsp;</p>
+      </th>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1</th>
+      <td style="text-align: right;">0.664</td>
+      <td style="text-align: right;">0.800</td>
+      <td style="text-align: right;">1.600</td>
+      <td style="text-align: right;">0.523</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2</th>
+      <td style="text-align: right;">1.027</td>
+      <td style="text-align: right;">1.230</td>
+      <td style="text-align: right;">2.348</td>
+      <td style="text-align: right;">0.727</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4</th>
+      <td style="text-align: right;">1.785</td>
+      <td style="text-align: right;">2.178</td>
+      <td style="text-align: right;">4.041</td>
+      <td style="text-align: right;">1.206</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">8</th>
+      <td style="text-align: right;">3.133</td>
+      <td style="text-align: right;">4.006</td>
+      <td style="text-align: right;">6.884</td>
+      <td style="text-align: right;">2.046</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">16</th>
+      <td style="text-align: right;">5.255</td>
+      <td style="text-align: right;">6.963</td>
+      <td style="text-align: right;">11.211</td>
+      <td style="text-align: right;">3.306</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">32</th>
+      <td style="text-align: right;">6.282</td>
+      <td style="text-align: right;">7.943</td>
+      <td style="text-align: right;">15.301</td>
+      <td style="text-align: right;">4.781</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">64</th>
+      <td style="text-align: right;">7.840</td>
+      <td style="text-align: right;">10.435</td>
+      <td style="text-align: right;">20.070</td>
+      <td style="text-align: right;">6.308</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">128</th>
+      <td style="text-align: right;">11.004</td>
+      <td style="text-align: right;">15.745</td>
+      <td style="text-align: right;">31.225</td>
+      <td style="text-align: right;">9.387</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">256</th>
+      <td style="text-align: right;">13.985</td>
+      <td style="text-align: right;">21.306</td>
+      <td style="text-align: right;">45.582</td>
+      <td style="text-align: right;">12.556</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">512</th>
+      <td style="text-align: right;">16.062</td>
+      <td style="text-align: right;">26.294</td>
+      <td style="text-align: right;">54.963</td>
+      <td style="text-align: right;">15.076</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">1024</th>
+      <td style="text-align: right;">16.297</td>
+      <td style="text-align: right;">26.707</td>
+      <td style="text-align: right;">65.580</td>
+      <td style="text-align: right;">16.421</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">2048</th>
+      <td style="text-align: right;">17.237</td>
+      <td style="text-align: right;">29.074</td>
+      <td style="text-align: right;">72.491</td>
+      <td style="text-align: right;">17.561</td>
+    </tr>
+    <tr>
+      <th style="text-align: right;">4096</th>
+      <td style="text-align: right;">17.702</td>
+      <td style="text-align: right;">30.217</td>
+      <td style="text-align: right;">79.065</td>
+      <td style="text-align: right;">17.975</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <br />
+  </span>
+</p>
+<h3 id="Anchor_211661819_h3_3">
+  <span style="color: rgb(117,117,117);">未適用時との比較</span>
+</h3>
+<p>
+  <span style="color: rgb(117,117,117);">修正前の値は&nbsp;<a href="../Pages/Page_185130689.html">パフォーマンス</a>&nbsp;を参照してください。</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <br />
+  </span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">シーケンシャルアクセス</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_211661819/218990036.png" class="embedded-image" />
+    </span>
+    <br />
+  </span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">シーケンシャルアクセス（本体保存メモリーの結果を除いたもの）</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_211661819/218990041.png" class="embedded-image" />
+    </span>
+    <br />
+  </span>
+</p>
+<p>&nbsp;</p>
+<p>
+  <span style="color: rgb(117,117,117);">ランダムアクセス</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_211661819/218990050.png" class="embedded-image" />
+    </span>
+    <br />
+  </span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">ランダムアクセス（本体保存メモリーの結果を除いたもの）</span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <span class="embedded-file-wrapper ">
+      <img src="../Attachments/Attach_211661819/218990071.png" class="embedded-image" />
+    </span>
+  </span>
+</p>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <br />
+  </span>
+</p>
+<h2 id="Anchor_211661819_h2_2">ファイルの実体が断片化されることによる変化</h2>
+<p>NX のパッチはファイルの一部に対しての修正が可能となっているため、修正内容やマッチングの結果によってはファイルの実体が断片化されます。</p>
+<p>例えば、offset: 0 から size: 64KiB は元アプリを参照、offset: 64KiB から 2KiB はパッチ側を参照、offset: 66KiB から 14KiB はパッチの別の場所を参照というような場合です。</p>
+<p>この場合、各々の領域をランダムアクセスでアクセスした場合の速度になると考えます。具体的な速度は、初版アプリケーションおよびパッチのインストールされているストレージと断片化の仕方によるので、断片化が特に激しい場合は注意して確認を行ってください。</p>
+<p>断片化の状況は、AuthoringTool の list コマンドで --patched-only-in-detail オプションを付けることで確認できます。例えば先ほどの例だと下記のように表示されます。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>00112233445566778899aabbccddeeff.nca/fs1/file/binary.dat
+[Original]
+(offset, size) = (0, 65536)
+[Patch]
+(offset, size) = (65536, 2048), (67584, 14336)
+</pre>
+  </div>
+</div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ダンプ機能の使用方法</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ダンプ機能の使用方法 -->
+<div class="pagetitle" id="PageId_172911316">ダンプ機能の使用方法</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_172911316_h1_1">ダンプファイルの生成</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172911316_h2_1">生成方法</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_172911316_h3_1">VSI でデバッグしている場合</a>
+        </li>
+        <li>
+          <a href="#Anchor_172911316_h3_2">アプリ単体で実行している場合</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_172911316_h4_1">クラッシュ時の自動ダンプ</a>
+          </li>
+          <li>
+            <a href="#Anchor_172911316_h4_2">手動ダンプ</a>
+          </li>
+        </ul>
+      </ul>
+      <li>
+        <a href="#Anchor_172911316_h2_2">ダンプされる情報の取捨選択</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_172911316_h1_2">ダンプファイルの使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_172911316_h2_3">読み込み</a>
+      </li>
+      <li>
+        <a href="#Anchor_172911316_h2_4">ダンプ時点のプロセス状態の再現</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_172911316_h3_3">デバッグ情報の読み込み</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_172911316_h1_1">ダンプファイルの生成</h1>
+<h2 id="Anchor_172911316_h2_1">生成方法</h2>
+<h3 id="Anchor_172911316_h3_1">VSI でデバッグしている場合</h3>
+<p>アサートでの停止中や、ブレークポイントでの中断中に、「デバッグ &gt; 名前を付けてダンプを保存」からその時点でのダンプファイルを保存することが可能です。<br />全メモリを出力したい場合は Full core dump を、メモリの出力が不要な場合は Quick core dump を、保存する形式から選択してください。&nbsp;</p>
+<h3 id="Anchor_172911316_h3_2">アプリ単体で実行している場合</h3>
+<h4 id="Anchor_172911316_h4_1">クラッシュ時の自動ダンプ</h4>
+<p>DevMenu の「Debug &gt; Crash Dump &gt; CPU Crash Automatic Dump」にチェックを入れた場合、アプリがクラッシュした場合にダンプファイルが生成されます。<br />ユーザメモリも含めた全メモリを出力したい場合は、直下の「CPU Crash Full Dump」にもチェックを入れてください。<br />これらの設定は DevMenuCommand から行うことも可能です（<a href="../Pages/Page_107328760.html#Anchor_107328760_開発機の制御／DevMenuCommand-クラッシュ時のCPUダンプ出力の設定">DevMenuCommand</a>）。</p>
+<p>TargetManager 経由で PC と接続している場合は PC 上に、未接続の場合は microSD 上の NXDMP ディレクトリ以下に出力されます。<br />ファイル名は &quot;$(実行されたターゲットのシリアルナンバー)_$(ターゲットに設定されている日時).nxdmp&quot; となります。</p>
+<p>PC と未接続でかつ microSD が挿入されていない場合、ダンプファイルは生成されません。</p>
+<p>ダンプが開始されたタイミングで</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>[SnapShotDumper] Start dumping to $(パス)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>というログが、ダンプが完了したタイミングで</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>[SnapShotDumper] Dump completed</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>というログが出力されます。</p>
+<p>PC と接続していない場合は、ターゲット上でログを確認できる、<a href="../Pages/Page_241559062.html#Anchor_241559062_h3_4">Log viewer</a> を使用してダンプの状態を確認してください。</p>
+<p>出力される PC 上のディレクトリの初期値は %USERPROFILE%\Documents\Nintendo\NXDMP ディレクトリ直下ですが、以下の内容の &quot;current&quot; の項目を書き換えて保存し、SettingsManager を使用してインポートすることで、変更することが可能です。</p>
+<p>インポート後は、設定の変更を反映させるため、再起動を行ってください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>{
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;head&quot;: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;version&quot;: &quot;1.0&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;body&quot;: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;snap_shot_dump&quot;: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;output_dir&quot;: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;current&quot;: &quot;%NINTENDO_SDK_ROOT%\\NewDirectory&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;auto_dump&quot;: {  // CPU Crash Automatic Dump を有効にするか否か（オプショナル）
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;current&quot;: true
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;full_dump&quot;: {  // CPU Crash Full Dump を有効にするか否か（オプショナル）
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;current&quot;: true
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;debug_settings&quot;: { // User Exception Handle を有効にするか否か（オプショナル）
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;user_exception_handler_flag&quot;: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;current&quot;: false
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>SettingsManager の使用方法については <a href="../Pages/Page_107320698.html">設定マネージャ</a>&nbsp;を参照してください。&nbsp;</p>
+<h4 id="Anchor_172911316_h4_2">手動ダンプ</h4>
+<p>アプリ実行中にターゲットを右クリックし、「ダンプ」メニューを選択することでダンプファイルの出力が可能です。</p>
+<h2 id="Anchor_172911316_h2_2">ダンプされる情報の取捨選択</h2>
+<p>デフォルトでは、出力時間を短くするため、ユーザメモリを除いた情報のみを出力するようになっています。</p>
+<p>DevMenu の「Debug &gt; CrashDump &gt; Full Dump」にチェックを入れることで、ユーザメモリも合わせて出力することが可能です。</p>
+<h1 id="Anchor_172911316_h1_2">ダンプファイルの使用方法</h1>
+<p>生成されたファイルはあとから VSI で読み込むことで、その状態の再現をすることが可能です。&nbsp;<br />その時点の状態を復元することは可能ですが、実行を再開することはできません。</p>
+<h2 id="Anchor_172911316_h2_3">読み込み</h2>
+<p>VSI にファイルをドラッグ＆ドロップするか、「ファイル &gt; 開く &gt; ファイル」から nxdmp ファイルを指定することで読み込みます。<br />読み込むファイルの拡張子は nxdmp である必要があります。</p>
+<h2 id="Anchor_172911316_h2_4">ダンプ時点のプロセス状態の再現</h2>
+<p>「行動 &gt; デバッグ」ボタンを押すと、ダンプした時点でのプロセスの状態が復元されます。<br />この時、開発機を接続しておく必要はありませんが、TargetManager を起動しておく必要があります。&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_172911316/175094787.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_172911316_h3_3">デバッグ情報の読み込み</h3>
+<p>デバッグを開始した際に、プロセスビルド時に使用したライブラリなどに対応するデバッグ情報の読み込みが必要になる場合があります。<br />「シンボルパス &gt; パスを追加」に nss ファイルが存在するパスを指定するか、「デバッグ &gt; ウインドウ &gt; モジュール」からモジュールウインドウを開き、各 nso の行を右クリックし、「シンボルの読み込み」から対応する nss ファイルを指定してください。</p>
+<p>NintendoSDK が提供する nss ファイルは、NintendoSDK\Libraries\ 以下に展開されています。<br />ビルド時に使用したプラットフォーム、ビルドタイプのものを指定してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

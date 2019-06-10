@@ -1,0 +1,314 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: CodecAacDecoder.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">CodecAacDecoder.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_codec_aac_decoder.html">Aac デコーダ</a> および <a class="el" href="_codec_aac_decoder_8cpp.html" title="Aac デコーダのサンプルプログラム ">CodecAacDecoder.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span>  <span class="comment">// std::malloc, std::free</span></div>
+<div class="line"><span class="preprocessor">#include &lt;new&gt;</span>  <span class="comment">// std::nothrow</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="audio_8h.html">nn/audio.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="codec_8h.html">nn/codec.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="mem_8h.html">nn/mem.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/nns_Log.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// #define ADTS</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(ADTS)</span></div>
+<div class="line"><span class="preprocessor">#include &quot;AdtsHeaderReader.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#else  // defined(ADTS)</span></div>
+<div class="line"><span class="preprocessor">#include &quot;Mp4BoxHeaderReader.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;Mp4BoxStsdReader.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#endif  // defined(ADTS)</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">char</span> g_HeapBuffer[32 * 1024 * 1024];</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">char</span>* g_MountRomCacheBuffer = NULL;</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeFileSystem()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">size_t</span> cacheSize = 0;</div>
+<div class="line">    <a name="a0"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a1"></a><a class="code" href="namespacenn_1_1fs.html#a5df6e3385c795a5bd046790ef7f17f2d">nn::fs::QueryMountRomCacheSize</a>(&amp;cacheSize));</div>
+<div class="line">    g_MountRomCacheBuffer = <span class="keyword">new</span>(std::nothrow) <span class="keywordtype">char</span>[cacheSize];</div>
+<div class="line">    <a name="a2"></a><a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(g_MountRomCacheBuffer);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(</div>
+<div class="line">        <a name="a3"></a><a class="code" href="namespacenn_1_1fs.html#a2e453fe1fbf8f818dc45bbd2897105cd">nn::fs::MountRom</a>(<span class="stringliteral">&quot;asset&quot;</span>, g_MountRomCacheBuffer, cacheSize)</div>
+<div class="line">    );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> FinalizeFileSystem()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a4"></a><a class="code" href="namespacenn_1_1fs.html#ac8a95249afd4a87a55d319dfecb0466c">nn::fs::Unmount</a>(<span class="stringliteral">&quot;asset&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">delete</span>[] g_MountRomCacheBuffer;</div>
+<div class="line">    g_MountRomCacheBuffer = NULL;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line">}  <span class="comment">// namespace anonymous</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a5"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a6"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html">nn::mem::StandardAllocator</a> allocator(g_HeapBuffer, <span class="keyword">sizeof</span>(g_HeapBuffer));</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// AacDecoder 用のワークバッファを初期化します。</span></div>
+<div class="line">    <span class="keyword">auto</span> aacWorkBufferSize = <a name="a7"></a><a class="code" href="namespacenn_1_1codec.html#a9cbb4b4425b79c37d811aa523e288752">nn::codec::GetAacDecoderWorkBufferSize</a>(48000, 2, <a name="a8"></a><a class="code" href="namespacenn_1_1codec.html#a4f4457ac1a9d14922cdccec484f1d394a72dbc76c8ab9d982311f2430869c5ac7">nn::codec::Mpeg4AudioObjectType_AacLc</a>);</div>
+<div class="line">    <span class="keyword">auto</span> aacWorkBuffer = allocator.Allocate(aacWorkBufferSize);</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(ADTS)</span></div>
+<div class="line">    <span class="comment">// AAC ファイルを読み込みます。</span></div>
+<div class="line">    uint8_t* aacData;</div>
+<div class="line">    int64_t size;</div>
+<div class="line">    {</div>
+<div class="line">        InitializeFileSystem();</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span> Filename[] = <span class="stringliteral">&quot;asset:/SampleBgm0-2ch.adts.aac&quot;</span>;</div>
+<div class="line">        <a name="_a9"></a><a class="code" href="structnn_1_1fs_1_1_file_handle.html">nn::fs::FileHandle</a> handle;</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a10"></a><a class="code" href="namespacenn_1_1fs.html#a0f2b5b30657b1ffaf1dec49bfb36462b">nn::fs::OpenFile</a>(&amp;handle, Filename, <a name="a11"></a><a class="code" href="namespacenn_1_1fs.html#a4c97b79cce78a95c2333dbc9053b9393afde4472d2b455879cad02aade386ac0d">nn::fs::OpenMode_Read</a>));</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a12"></a><a class="code" href="namespacenn_1_1fs.html#aba29e01d386e809349d60eccdb15ff21">nn::fs::GetFileSize</a>(&amp;size, handle));</div>
+<div class="line">        aacData = <span class="keyword">static_cast&lt;</span>uint8_t*<span class="keyword">&gt;</span>(allocator.Allocate(static_cast&lt;size_t&gt;(size)));</div>
+<div class="line">        <a name="a13"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(aacData);</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a14"></a><a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, 0, aacData, static_cast&lt;std::size_t&gt;(size)));</div>
+<div class="line">        <a name="a15"></a><a class="code" href="namespacenn_1_1fs.html#ac8bd9e828751bd4f953acfa765278f84">nn::fs::CloseFile</a>(handle);</div>
+<div class="line">        FinalizeFileSystem();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ADTS フォーマットを解析し、AacDecoder を初期化します。</span></div>
+<div class="line">    AdtsHeaderReader header(aacData, 16);</div>
+<div class="line">    <a name="_a16"></a><a class="code" href="structnn_1_1codec_1_1_aac_decoder_type.html">nn::codec::AacDecoderType</a> decoder;</div>
+<div class="line">    <span class="keyword">auto</span> result = <a name="a17"></a><a class="code" href="namespacenn_1_1codec.html#a2b90eb5cabb6b8bf9db6bb11e939628f">nn::codec::InitializeAacDecoder</a>(&amp;decoder, header.GetSampleRate(), header.GetChannelCount(), <a class="code" href="namespacenn_1_1codec.html#a4f4457ac1a9d14922cdccec484f1d394a72dbc76c8ab9d982311f2430869c5ac7">nn::codec::Mpeg4AudioObjectType_AacLc</a>, aacWorkBuffer, aacWorkBufferSize);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(result == <a name="a18"></a><a class="code" href="namespacenn_1_1codec.html#a7c912cb4c2087fe80c1b81f85b08a2e0a6667bf2e4863f4674ba97f18c20d7d31">nn::codec::AacDecoderResult_Success</a>);</div>
+<div class="line"><span class="preprocessor">#else  // defined(ADTS)</span></div>
+<div class="line">    <span class="comment">// AAC ファイルを読み込みます。</span></div>
+<div class="line">    uint8_t* aacData = <span class="keyword">nullptr</span>;</div>
+<div class="line">    int64_t size = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> sampleRate = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> channelCount = 0;</div>
+<div class="line">    {</div>
+<div class="line">        InitializeFileSystem();</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span> Filename[] = <span class="stringliteral">&quot;asset:/SampleBgm0-2ch.m4a&quot;</span>;</div>
+<div class="line">        <a class="code" href="structnn_1_1fs_1_1_file_handle.html">nn::fs::FileHandle</a> handle;</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a class="code" href="namespacenn_1_1fs.html#a0f2b5b30657b1ffaf1dec49bfb36462b">nn::fs::OpenFile</a>(&amp;handle, Filename, <a class="code" href="namespacenn_1_1fs.html#a4c97b79cce78a95c2333dbc9053b9393afde4472d2b455879cad02aade386ac0d">nn::fs::OpenMode_Read</a>));</div>
+<div class="line">        int64_t filesize;</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a class="code" href="namespacenn_1_1fs.html#aba29e01d386e809349d60eccdb15ff21">nn::fs::GetFileSize</a>(&amp;filesize, handle));</div>
+<div class="line">        <span class="comment">// RAW データを探します。</span></div>
+<div class="line">        int64_t offset = 0;</div>
+<div class="line">        <span class="keywordflow">while</span> (offset &lt; filesize)</div>
+<div class="line">        {</div>
+<div class="line">            uint8_t buffer[8];</div>
+<div class="line">            <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, offset, buffer, <span class="keyword">sizeof</span>(buffer)));</div>
+<div class="line">            Mp4BoxHeaderReader header(buffer, <span class="keyword">sizeof</span>(buffer));</div>
+<div class="line"><span class="comment">//             NNS_LOG(&quot;%s: %d\n&quot;, header.GetType().c_str(), header.GetSize());</span></div>
+<div class="line">            <span class="keywordflow">if</span> (header.GetType() == <span class="stringliteral">&quot;mdat&quot;</span>)</div>
+<div class="line">            {</div>
+<div class="line">                size = header.GetSize() - 8;</div>
+<div class="line">                aacData = <span class="keyword">static_cast&lt;</span>uint8_t*<span class="keyword">&gt;</span>(allocator.Allocate(static_cast&lt;size_t&gt;(size)));</div>
+<div class="line">                <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(aacData);</div>
+<div class="line">                <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, offset + 8, aacData, static_cast&lt;std::size_t&gt;(size)));</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">if</span> (header.GetType() == <span class="stringliteral">&quot;stsd&quot;</span>)</div>
+<div class="line">            {</div>
+<div class="line">                uint8_t stsdBuffer[128];</div>
+<div class="line">                <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, offset + 8, stsdBuffer, header.GetSize() - 8));</div>
+<div class="line">                Mp4BoxStsdReader stsd(stsdBuffer, header.GetSize());</div>
+<div class="line">                sampleRate = stsd.GetSampleRate();</div>
+<div class="line">                channelCount = stsd.GetChannelCount();</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">if</span> (header.HasChild())</div>
+<div class="line">            {</div>
+<div class="line">                offset += 8;</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">else</span></div>
+<div class="line">            {</div>
+<div class="line">                offset += header.GetSize();</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line">        <a class="code" href="namespacenn_1_1fs.html#ac8bd9e828751bd4f953acfa765278f84">nn::fs::CloseFile</a>(handle);</div>
+<div class="line">        FinalizeFileSystem();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="structnn_1_1codec_1_1_aac_decoder_type.html">nn::codec::AacDecoderType</a> decoder;</div>
+<div class="line">    <span class="keyword">auto</span> result = <a class="code" href="namespacenn_1_1codec.html#a2b90eb5cabb6b8bf9db6bb11e939628f">nn::codec::InitializeAacDecoder</a>(&amp;decoder, sampleRate, channelCount, <a class="code" href="namespacenn_1_1codec.html#a4f4457ac1a9d14922cdccec484f1d394a72dbc76c8ab9d982311f2430869c5ac7">nn::codec::Mpeg4AudioObjectType_AacLc</a>, aacWorkBuffer, aacWorkBufferSize);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(result == <a class="code" href="namespacenn_1_1codec.html#a7c912cb4c2087fe80c1b81f85b08a2e0a6667bf2e4863f4674ba97f18c20d7d31">nn::codec::AacDecoderResult_Success</a>);</div>
+<div class="line"><span class="preprocessor">#endif  // defined(ADTS)</span></div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// オーディオ再生用に AudioOut を初期化、開始します。</span></div>
+<div class="line">    <a name="_a19"></a><a class="code" href="structnn_1_1audio_1_1_audio_out.html">nn::audio::AudioOut</a> audioOut;</div>
+<div class="line">    <a name="_a20"></a><a class="code" href="classnn_1_1os_1_1_system_event.html">nn::os::SystemEvent</a> systemEvent;</div>
+<div class="line">    <a name="_a21"></a><a class="code" href="structnn_1_1audio_1_1_audio_out_parameter.html">nn::audio::AudioOutParameter</a> parameter;</div>
+<div class="line">    <a name="a22"></a><a class="code" href="namespacenn_1_1audio.html#a3ea826ec35d2e4855259b5fa76338162">nn::audio::InitializeAudioOutParameter</a>(&amp;parameter);</div>
+<div class="line">    parameter.<a name="a23"></a><a class="code" href="structnn_1_1audio_1_1_audio_out_parameter.html#a37d112b41c15a7c666540b7106167293">sampleRate</a> = 48000;</div>
+<div class="line">    parameter.<a name="a24"></a><a class="code" href="structnn_1_1audio_1_1_audio_out_parameter.html#a6a1ae1ae3536822b96a448bee14cca3d">channelCount</a> = 2;</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a25"></a><a class="code" href="namespacenn_1_1audio.html#acadf9d8fa3ac267bf09f6789a6bdbbb1">nn::audio::OpenDefaultAudioOut</a>(&amp;audioOut, &amp;systemEvent, parameter));</div>
+<div class="line">    <a class="code" href="namespacenn_1_1audio.html#a2edc363ab06840fc2eaf2acb551bf0c1">nn::audio::SampleFormat</a> sampleFormat = <a name="a26"></a><a class="code" href="namespacenn_1_1audio.html#a16ad7692b992a12415bf46400a247ec8">nn::audio::GetAudioOutSampleFormat</a>(&amp;audioOut);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(<a name="a27"></a><a class="code" href="namespacenn_1_1audio.html#af2fbf2de8b43aabc18c8d4d688344334">nn::audio::GetSampleByteSize</a>(sampleFormat) == <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> dataSize = 1024 * <a name="a28"></a><a class="code" href="namespacenn_1_1codec.html#ac30332ad5e16fad715f6866efe9d31b0">nn::codec::GetAacDecoderChannelCount</a>(&amp;decoder) * <a class="code" href="namespacenn_1_1audio.html#af2fbf2de8b43aabc18c8d4d688344334">nn::audio::GetSampleByteSize</a>(sampleFormat);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> bufferSize = <a name="a29"></a><a class="code" href="namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e">nn::util::align_up</a>(dataSize, <a name="a30"></a><a class="code" href="structnn_1_1audio_1_1_audio_out_buffer.html#a716f84bc512ab93d8af0be642de297b0">nn::audio::AudioOutBuffer::SizeGranularity</a>);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> bufferCount = 4;</div>
+<div class="line">    <a name="_a31"></a><a class="code" href="structnn_1_1audio_1_1_audio_out_buffer.html">nn::audio::AudioOutBuffer</a> audioOutBuffer[bufferCount];</div>
+<div class="line">    <span class="keywordtype">void</span>* outBuffer[bufferCount];</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; bufferCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        outBuffer[i] = allocator.Allocate(bufferSize, <a name="a32"></a><a class="code" href="structnn_1_1audio_1_1_audio_out_buffer.html#a2089f234dcddb47a9816a0c9a2a9192b">nn::audio::AudioOutBuffer::AddressAlignment</a>);</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(outBuffer[i]);</div>
+<div class="line">        memset(outBuffer[i], 0, dataSize);</div>
+<div class="line">        <a name="a33"></a><a class="code" href="namespacenn_1_1audio.html#a11f5d1112a5fa67a6e415901ccf67a83">nn::audio::SetAudioOutBufferInfo</a>(&amp;audioOutBuffer[i], outBuffer[i], bufferSize, dataSize);</div>
+<div class="line">        <a name="a34"></a><a class="code" href="namespacenn_1_1audio.html#a3fe424df5fbd5ec6006dd36298f75f71">nn::audio::AppendAudioOutBuffer</a>(&amp;audioOut, &amp;audioOutBuffer[i]);</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a35"></a><a class="code" href="namespacenn_1_1audio.html#a394c08e1517ef6e5be0c23e9d4c172c6">nn::audio::StartAudioOut</a>(&amp;audioOut));</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// メインループ</span></div>
+<div class="line">    int64_t dec = 0;</div>
+<div class="line">    <span class="keywordflow">while</span> (dec &lt; size)</div>
+<div class="line">    {</div>
+<div class="line">        systemEvent.<a name="a36"></a><a class="code" href="classnn_1_1os_1_1_system_event.html#a51c8560630f9760922b6e180b75a45b2">Wait</a>();</div>
+<div class="line">        <a class="code" href="structnn_1_1audio_1_1_audio_out_buffer.html">nn::audio::AudioOutBuffer</a>* pAudioOutBuffer = <span class="keyword">nullptr</span>;</div>
+<div class="line">        pAudioOutBuffer = <a name="a37"></a><a class="code" href="namespacenn_1_1audio.html#a609ca184b31d320c7c88079646551fa9">nn::audio::GetReleasedAudioOutBuffer</a>(&amp;audioOut);</div>
+<div class="line">        <span class="keywordflow">while</span> (pAudioOutBuffer)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordtype">void</span>* pOutBuffer = <a name="a38"></a><a class="code" href="namespacenn_1_1audio.html#a72f6e1e9f45790a74ef3ea4b43a4cf7f">nn::audio::GetAudioOutBufferDataPointer</a>(pAudioOutBuffer);</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(ADTS)</span></div>
+<div class="line">            <span class="comment">// ADTS ヘッダを読み込みます。</span></div>
+<div class="line">            uint8_t* data = aacData + dec;</div>
+<div class="line">            AdtsHeaderReader reader(data, 16);</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(reader.GetSampleRate() == <a name="a39"></a><a class="code" href="namespacenn_1_1codec.html#a3e98cb4db881ea054a60e271b547056f">nn::codec::GetAacDecoderSampleRate</a>(&amp;decoder));</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(reader.GetChannelCount() == <a class="code" href="namespacenn_1_1codec.html#ac30332ad5e16fad715f6866efe9d31b0">nn::codec::GetAacDecoderChannelCount</a>(&amp;decoder));</div>
+<div class="line">            <span class="keyword">auto</span> headerSize = reader.GetHeaderSize();</div>
+<div class="line">            <span class="keyword">auto</span> frameLength = reader.GetFrameLength();</div>
+<div class="line">            data += headerSize;</div>
+<div class="line">            dec += headerSize;</div>
+<div class="line"><span class="preprocessor">#else  // defined(ADTS)</span></div>
+<div class="line">            uint32_t frameLength = 512;</div>
+<div class="line">            uint8_t* data = aacData + dec;</div>
+<div class="line"><span class="preprocessor">#endif  // defined(ADTS)</span></div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// デコード処理を行います。</span></div>
+<div class="line">            <span class="keywordtype">size_t</span> consumed;</div>
+<div class="line">            <span class="keywordtype">int</span> sampleCount;</div>
+<div class="line">            int16_t pcm[2 * 1024 * 4];</div>
+<div class="line">            result = <a name="a40"></a><a class="code" href="namespacenn_1_1codec.html#af43ad18e986f8de4f11fb72f26acfb63">nn::codec::DecodeAacInterleaved</a>(&amp;decoder, &amp;consumed, &amp;sampleCount, pcm, <span class="keyword">sizeof</span>(pcm), data, frameLength);</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(result == <a class="code" href="namespacenn_1_1codec.html#a7c912cb4c2087fe80c1b81f85b08a2e0a6667bf2e4863f4674ba97f18c20d7d31">nn::codec::AacDecoderResult_Success</a>);</div>
+<div class="line">            dec += consumed;</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// デコード結果を AudioOutBuffer にコピーし、再生します。</span></div>
+<div class="line">            memcpy(pOutBuffer, pcm, <span class="keyword">sizeof</span>(int16_t) * <a class="code" href="namespacenn_1_1codec.html#ac30332ad5e16fad715f6866efe9d31b0">nn::codec::GetAacDecoderChannelCount</a>(&amp;decoder) * sampleCount);</div>
+<div class="line">            <a class="code" href="namespacenn_1_1audio.html#a3fe424df5fbd5ec6006dd36298f75f71">nn::audio::AppendAudioOutBuffer</a>(&amp;audioOut, pAudioOutBuffer);</div>
+<div class="line"></div>
+<div class="line">            pAudioOutBuffer = <a class="code" href="namespacenn_1_1audio.html#a609ca184b31d320c7c88079646551fa9">nn::audio::GetReleasedAudioOutBuffer</a>(&amp;audioOut);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a41"></a><a class="code" href="namespacenn_1_1audio.html#a79e886ce13f07e1411638e1410145fd2">nn::audio::StopAudioOut</a>(&amp;audioOut);</div>
+<div class="line">    <a name="a42"></a><a class="code" href="namespacenn_1_1audio.html#ab7e428eda5bf70d99245b5d4ddfc9a7d">nn::audio::CloseAudioOut</a>(&amp;audioOut);</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; bufferCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        allocator.Free(outBuffer[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a43"></a><a class="code" href="namespacenn_1_1codec.html#a325cc68b294f85bfa974fb25dc86e679">nn::codec::FinalizeAacDecoder</a>(&amp;decoder);</div>
+<div class="line">    allocator.Free(aacData);</div>
+<div class="line">    allocator.Free(aacWorkBuffer);</div>
+<div class="line">}  <span class="comment">// NOLINT(readability/fn_size)</span></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

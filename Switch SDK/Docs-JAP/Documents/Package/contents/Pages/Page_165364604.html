@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>トラブルシューティングと既知の問題</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- トラブルシューティングと既知の問題 -->
+<div class="pagetitle" id="PageId_165364604">トラブルシューティングと既知の問題</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_165364604_h1_1">トラブルシューティング</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165364604_h2_1">GUI の「同期」ボタンが有効にならない</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_2">同期は正しく機能するが、プロファイルを開始するとすぐに GUI がクラッシュする</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_3">nn::profiler::Initialize の呼び出しを追加するとクラッシュする</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_4">プロファイラの GUI がクラッシュする</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_5">サンプルグラフが表示されない</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_6">プロファイルの結果が意味をなしていない</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_7">サンプルレートを上げるとスレッドの処理に時間がかかる</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_165364604_h1_2">既知の問題</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165364604_h2_8">コールスタックに無効なデータが含まれる場合がある</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_9">アイドル時間に関して有用な情報が表示されない</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_10">プロファイラがそれ自体のサンプリングスレッドをサンプリングできる場合がある</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_11">「コールツリー」タブで展開するノードが多すぎるとクラッシュする</a>
+      </li>
+      <li>
+        <a href="#Anchor_165364604_h2_12">すべて折りたたむとコールツリーのコアが表示されなくなる</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_165364604_h1_1">トラブルシューティング</h1>
+<p>以下では、一般的な問題とその解決方法をいくつか示しています。</p>
+<h2 id="Anchor_165364604_h2_1">GUI の「同期」ボタンが有効にならない</h2>
+<p>プロファイラ GUI を再起動してください。これで問題が解決する場合があります。</p>
+<p>プロファイラライブラリとアプリケーションが正しく統合されていることを確認してください。少なくとも、<span class="ApiLink_nn__profiler__Initialize">nn::profiler::Initialize</span>() を呼び出してプロファイラライブラリを初期化する必要があります。</p>
+<h2 id="Anchor_165364604_h2_2">同期は正しく機能するが、プロファイルを開始するとすぐに GUI がクラッシュする</h2>
+<p>同期の実行時に正しい NSS ファイルを選択しているかどうかを確認してください。正しいデバッグ/リリースおよび NX32/NX64 バージョンを選択したかどうかを確認してください。</p>
+<h2 id="Anchor_165364604_h2_3">nn::profiler::Initialize の呼び出しを追加するとクラッシュする</h2>
+<p>プロファイラは、初期化されていないと HTCS 通信を開始しようとします。アプリケーションで初期化を再試行すると、この呼び出しでアサートが発生し、実行が停止します。プロファイラを初期化する前に <span class="ApiLink_nn__htcs__Initialize">nn::htcs::Initialize</span>() が呼び出されるようにしてください。</p>
+<h2 id="Anchor_165364604_h2_4">プロファイラの GUI がクラッシュする</h2>
+<p>クラッシュすると、Nintendo NX CPU プロファイラの実行可能ファイルと同じ場所にログファイルが保存されます。この問題が発生した場合は、このログファイルとその他の重要な情報（問題発生時のプロファイラの使用状況、環境の詳細、NPROF のコピーなど）を任天堂に送信してください。迅速に問題を解決いたします。クラッシュが発生したアプリケーションのバージョンを維持してください（問題の診断に必要な場合があります）。</p>
+<h2 id="Anchor_165364604_h2_5">サンプルグラフが表示されない</h2>
+<p>
+  <strong>サンプルグラフ</strong>が表示されずにエラーメッセージが表示される場合は、エラーメッセージの指示に従ってください。</p>
+<p>
+  <strong>サンプルグラフ</strong>は DirectX 10 を使用して描画されるため、DirectX End-User Runtime (June 2010) がインストールされている必要があります。これは以下から取得できます。</p>
+<ul>
+  <li>
+    <a href="https://www.microsoft.com/en-us/download/details.aspx?id=8109">https://www.microsoft.com/en-us/download/details.aspx?id=8109</a>
+  </li>
+</ul>
+<h2 id="Anchor_165364604_h2_6">プロファイルの結果が意味をなしていない</h2>
+<p>結果が非現実的であると思われる場合、その原因として、間違った NSS ファイルが読み込まれたか、指定の NSS が現在実行中のアプリケーションよりも古いことが考えられます。これら 2 つのファイルが相互に同期していることを確認してから、<strong>同期解除</strong>と<strong>同期</strong>を再実行して、もう一度プロファイルを取得してください。</p>
+<h2 id="Anchor_165364604_h2_7">サンプルレートを上げるとスレッドの処理に時間がかかる</h2>
+<p>サンプルレートを上げると、一定の時間が経過した後のスレッドの処理に時間がかかるようになります。これは、プロファイラのオーバーヘッドによるものです。これは想定されている動作です。このことが問題になる場合は、サンプリングレートを下げるか、プロファイリング中にスレッドを無効にしてください。</p>
+<h1 id="Anchor_165364604_h1_2">既知の問題</h1>
+<p>以下は、既知の問題です。</p>
+<h2 id="Anchor_165364604_h2_8">コールスタックに無効なデータが含まれる場合がある</h2>
+<p>コールスタックに <strong>BAD FRAME POINTER</strong> と表示されている場合は、使用されているライブラリまたはモジュールがフレームポインタなしでビルドされたことを示しています。フレームポインタを有効にしてライブラリまたはモジュールをリビルドしてください。64 bit アプリケーションでは、フレームポインタはデフォルトで有効になっています。32 bit アプリケーションでは、フレームポインタを手動で有効にする必要があります。リーフ関数のみが正確であることが保証されており、このマーカの下のその他の関数は無効である可能性が高いです。</p>
+<p>コールスタックに <strong>SENTINEL SAVE</strong> と表示されている場合は、プロファイラがコールスタックのウォークを中止して、バッファの終端までウォークしないようにする必要があることを示しています。このマーカまでのすべてのデータを有効とみなすことができます。</p>
+<h2 id="Anchor_165364604_h2_9">アイドル時間に関して有用な情報が表示されない</h2>
+<p>アイドル時間が記録されている場合は、現在実行中のスレッドがコア上に存在しないことを意味しています。考えられる理由は、1 つまたは複数のスレッドがミューテックスやセマフォなどの同期プリミティブを待機していることです。現時点では、どのスレッドがなぜ待機しているのかを OS が把握することができないため、プロファイラはこの状態についての有用な情報を表示できません。</p>
+<h2 id="Anchor_165364604_h2_10">プロファイラがそれ自体のサンプリングスレッドをサンプリングできる場合がある</h2>
+<p>現在、プロファイラはこれらを '<strong>内部プロファイラスレッド</strong>' とみなしています。</p>
+<h2 id="Anchor_165364604_h2_11">「コールツリー」タブで展開するノードが多すぎるとクラッシュする</h2>
+<p>WPF ツリー制御は、ノードの数が多すぎる（40,000 超）ツリーを処理できません。残念ながら、カスタムツリー制御をプログラミングしないとこの問題を解決することはできません。</p>
+<h2 id="Anchor_165364604_h2_12">すべて折りたたむとコールツリーのコアが表示されなくなる</h2>
+<p>
+  <strong>コールツリー</strong>をすべて展開し、スクロールダウンしてからすべて折りたたむと、<strong>コールツリー</strong>にコア 0 と 1 が表示されなくなる場合があります。コアは実際には表示されていますが、コアと画面上部との間隔が空いて、想定よりも低い位置にオフセットされています。この状況を解決するには、表示されているコアを展開するか、マウスのスクロールホイールを使用してスクロールダウンします。</p>
+<p> </p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__profiler__Initialize', '../../../Api/HtmlNX/namespacenn_1_1profiler.html#a1fd4585e5e75647e1cb20bb264f58f6e' )
+SetUrl( 'ApiLink_nn__htcs__Initialize', '../../../Api/HtmlNX/namespacenn_1_1htcs.html#a2bb276f62d472dd432e66f617b7e2127' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

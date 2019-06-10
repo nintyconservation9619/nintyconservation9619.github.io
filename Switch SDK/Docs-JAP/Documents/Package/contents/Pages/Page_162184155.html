@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>コントローラーサポートアプレット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- コントローラーサポートアプレット -->
+<div class="pagetitle" id="PageId_162184155">コントローラーサポートアプレット</div>
+<div class="text_separate">
+<p>&nbsp;</p>
+<p>コントローラーサポートアプレットは、コントローラーの接続をサポートするUI表示を行うライブラリアプレットです。<br />ここでは、コントローラーサポートアプレットを起動するまでの流れについて説明します。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>コントローラーサポートアプレットの詳細な仕様については、「コントローラーガイド」の「コントローラーサポートアプレット」の項目を参照してください。&nbsp;</p>
+  </div>
+</div>
+<h1 id="Anchor_162184155_h1_1">ヘッダファイルのインクルード</h1>
+<p>libnn_hid.aをプロジェクトにリンクして、プログラム中に下記のコードを記述してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_ControllerSupport.h&gt;
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184155_h1_2">操作形態と持ち方の設定</h1>
+<p>コントローラーサポートアプレットは、呼び出し元のアプリケーションが設定している操作形態と持ち方を引き継ぎます。<br />接続を待ち受けるコントローラーの種類を指定するために、事前に操作形態と持ち方を設定してください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>操作形態と持ち方の詳細については、「コントローラーガイド」の「アプリケーションのコントローラー対応」＞「<span class="sv-ti-title-text">操作形態と持ち方の対応</span>」の項目を参照してください。</p>
+  </div>
+</div>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>サポート外としている操作形態と持ち方の組み合わせがあります。現状、下記の条件のいずれかを満たす場合は <span class="ApiLink_nn__hid__ResultControllerSupportNotSupportedNpadStyle">nn::hid::ResultControllerSupportNotSupportedNpadStyle</span> を返して終了します。</p>
+    <ul>
+      <li>持ち方に NpadJoyHoldType_Vertical が設定されていて、NpadStyleJoyLeft と NpadStyleJoyRight 以外の NpadStyle が有効になっている。</li>
+      <li>NpadStyleJoyLeft と NpadStyleJoyRight のどちらか一方が有効で、もう一方が無効になっている。</li>
+    </ul>
+  </div>
+</div>
+<p>&nbsp;</p>
+<p>特に、持ち方を設定していない場合、デフォルトでは NpadJoyHoldType_Vertical が設定されています。<br /> NpadStyleJoyLeft と NpadStyleJoyRight 以外の NpadStyle を有効にする場合、下記のようなコードでNpadJoyHoldType_Horizontalを明示的に設定する必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::hid::</span><span class="n">SetNpadJoyHoldType</span><span class="p">(</span><span class="nn">nn::hid::</span><span class="n">NpadJoyHoldType_Horizontal</span><span class="p">);</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184155_h1_3">起動パラメータの設定</h1>
+<p>コントローラーサポートアプレットを起動する前に、 引数として渡す <span class="ApiLink_nn__hid__ControllerSupportArg">nn::hid::ControllerSupportArg</span> 構造体の設定を行ってください。<br />設定できる項目は下記の通りです。後述の「デフォルトの設定」によって、簡単に値を設定することもできます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータ名</th>
+      <th>説明</th>
+      <th>設定できる値</th>
+      <th>デフォルト値</th>
+    </tr>
+    <tr>
+      <td>playerCountMin</td>
+      <td>無線コントローラーの接続を受け付ける最少人数です。</td>
+      <td>0~4</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>playerCountMax</td>
+      <td>無線コントローラーの接続を受け付ける最大人数です。</td>
+      <td>1~4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>enableTakeOverConnection</td>
+      <td>既に接続済みのコントローラーの接続を維持するかを指定します。</td>
+      <td>true/false&nbsp;</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>enableLeftJustify</td>
+      <td>コントローラーサポートの終了時にコントローラー番号を前詰めするかを指定します。</td>
+      <td>true/false</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>enablePermitJoyDual</td>
+      <td>2本持ちのコントローラーがある状態での決定を許可するかを指定します。<br />ローカル通信中など、2本持ちを禁止したい場合に使用することを想定しています。</td>
+      <td>true/false</td>
+      <td>true&nbsp;</td>
+    </tr>
+    <tr>
+      <td>enableSingleMode</td>
+      <td>コントローラーサポートを一人専用モードで起動するかを指定します。</td>
+      <td>true/false</td>
+      <td>false&nbsp;</td>
+    </tr>
+    <tr>
+      <td>enableIdentificationColor</td>
+      <td>コントローラーサポートの UI で表示するコントローラー番号ごとの識別用の色を使用するか指定します。</td>
+      <td>true/false</td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>identificationColor[4]</td>
+      <td>コントローラーサポートの UI で表示するコントローラー番号ごとの識別用の色を指定します。<br />値を指定していても、enableIdentificationColor が false の場合は反映されません。</td>
+      <td>
+        <p>RGB(各8bit)</p>
+        <p>alphaは無効</p>
+      </td>
+      <td>
+        <p>enableIdentificationColor&nbsp;を false とした場合、</p>
+        <p>コントローラーサポート側でデフォルトの色を反映します。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>enableExplainText</td>
+      <td>コントローラーサポートの UI で表示するコントローラー番号ごとの文字列を使用するか指定します。</td>
+      <td>true/false</td>
+      <td>false&nbsp;</td>
+    </tr>
+    <tr>
+      <td>explainText[4]</td>
+      <td>
+        <p>コントローラーサポートの UI で表示するコントローラー番号ごとの文字列です。</p>
+        <p>最大 <span class="ApiLink_nn__hid__ExplainTextMaxLength">nn::hid::ExplainTextMaxLength</span> 文字が指定可能です。</p>
+        <p>値を指定していても、enableExplainText が false の場合は反映されません。</p>
+        <p>文字列の幅などが適切に表示されているかは実際の表示を見て確認してください。</p>
+      </td>
+      <td>nn::hid::SetExplainText()<br />を参照してください。</td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<p>より詳細な設定については hid_ControllerSupportArg.h を参照してください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>playerCountMinとplayerCountMaxに範囲外の値を設定した場合、Fatal Errorになります。将来の対応で修正予定です。</p>
+  </div>
+</div>
+<h2 id="Anchor_162184155_h2_1">デフォルトの設定</h2>
+<p>下記のようなコードで、起動パラメータの初期設定を行うことができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::hid::</span><span class="n">ControllerSupportArg</span> <span class="n">controllerArg</span><span class="p">;</span>
+<span class="n">controllerArg</span><span class="p">.</span><span class="n">SetDefault</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184155_h1_4">コントローラーサポートアプレットの起動</h1>
+<p>起動パラメータの設定をおえたのち、<span class="ApiLink_nn__hid__ShowControllerSupport">nn::hid::ShowControllerSupport</span>() に起動パラメータを渡して呼ぶことで、コントローラーサポートアプレットが起動します。<br />この関数はコントローラーサポートアプレットが終了するまで処理をブロックします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 通常起動
+</span><span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">ShowControllerSupport</span><span class="p">(</span> <span class="n">controllerArg</span> <span class="p">);</span>
+ 
+<span class="c1">// 追加の結果を取得する場合
+</span><span class="nn">nn::hid::</span><span class="n">ControllerSupportReturnArg</span> <span class="n">returnArg</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">ShowControllerSupport</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">returnArg</span><span class="p">,</span> <span class="n">controllerArg</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184155_h1_5">結果の取得</h1>
+<p>コントローラーサポートアプレットが終了すると、<span class="ApiLink_nn__hid__ShowControllerSupport">nn::hid::ShowControllerSupport</span>() から戻ります。<br />アプリケーションが起動パラメータで指定した条件を満たしている場合は<span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span>を返します。<br />ユーザーによるキャンセル、Homeボタン押しによる終了、スリープによる終了などで、指定した条件を満たしていない場合は <span class="ApiLink_nn__hid__ResultControllerSupportCanceled">nn::hid::ResultControllerSupportCanceled</span> を返します。</p>
+<p>追加の結果から取得できる項目は下記の通りです。より詳細な設定については hid_ControllerSupportArg.h を参照してください。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータ名</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>playerCount</td>
+      <td>コントローラーサポートで確定したプレイヤーの人数です。<br />一人専用モードでは無効です。</td>
+    </tr>
+    <tr>
+      <td>selectedId</td>
+      <td>一人専用モードで選ばれた NpadIdType です。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__hid__ResultControllerSupportNotSupportedNpadStyle', '../../../Api/HtmlNX/classnn_1_1hid_1_1_result_controller_support_not_supported_npad_style.html' )
+SetUrl( 'ApiLink_nn__hid__ControllerSupportArg', '../../../Api/HtmlNX/structnn_1_1hid_1_1_controller_support_arg.html' )
+SetUrl( 'ApiLink_nn__hid__ExplainTextMaxLength', '../../../Api/HtmlNX/namespacenn_1_1hid.html#ac9e7c640fc5534422c3a8d8626726636' )
+SetUrl( 'ApiLink_nn__hid__ShowControllerSupport', '../../../Api/HtmlNX/namespacenn_1_1hid.html#a2219b18059d44f1f0400587e71e2b1b7' )
+SetUrl( 'ApiLink_nn__ResultSuccess', '../../../Api/HtmlNX/classnn_1_1_result_success.html' )
+SetUrl( 'ApiLink_nn__hid__ResultControllerSupportCanceled', '../../../Api/HtmlNX/classnn_1_1hid_1_1_result_controller_support_canceled.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

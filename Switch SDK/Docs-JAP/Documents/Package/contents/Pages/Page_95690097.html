@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メモリープール</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メモリープール -->
+<div class="pagetitle" id="PageId_95690097">メモリープール</div>
+<div class="text_separate">
+<h1 id="Anchor_95690097_h1_1">メモリープール</h1>
+<h2 id="Anchor_95690097_h2_1">概要</h2>
+<p>メモリープールは、GPU によって利用されるメモリを表現するオブジェクトです。</p>
+<p>ポインターとサイズを指定してメモリープールオブジェクトを初期化することで、その領域を GPU に可視とすることができます。指定する領域のアライメントとサイズは実行環境に依存するページサイズによって制限されることがあることに注意してください。また、デバイス側で別の領域を確保する必要があるプラットフォームまたは低レベルグラフィックス API の場合、指定された領域は直接的に GPU と共有されず、確保するデバイスメモリーの初期値として考慮されます。このとき、初期値が不要であり、かつ対象のクラスがもつメモリープールが要求されるかどうかの真偽値が偽であれば、メモリープールを渡さずにかわりに NULL を渡すことができます。</p>
+<p>バッファーやテクスチャーなど、GPU が参照するメモリーを保持するオブジェクトはメモリープールを要求します。要求はオフセットとサイズで表されるメモリープールの部分であり、複数のオブジェクトがひとつのメモリープールにおける別の領域または同じ領域を参照することができます。ページサイズよりも小さなアライメントとサイズのメモリー要求を満たす際、より大きなメモリープールからその一部を切り出すことは、専用のメモリープールを用意することよりも無駄なメモリーの発生を少なくします。</p>
+<p>作成するメモリープールにはメモリープールの特性を設定することができます。メモリープールの特性は、そのメモリー領域を CPU 側でどのようにアクセスするかや、GPU 側でどのようにアクセスするかなどを表現します。もし CPU からアクセスする必要がなければ、CPU にとって不可視の特性を設定するべきです。</p>
+<p>CPU に可視なメモリープールを作成すれば、メモリープールの部分を CPU 側から読み書きするために、マップを行うことで CPU 用のアドレスを取得することができます。CPU により読み書きされる内容は自動でキャッシュ制御されないため、必要に応じて手動でキャッシュをフラッシュまたは無効化する必要があります。もはや CPU による読み書きが必要でなくなれば、アンマップを行うことでマップ状態を解除します。</p>
+<h2 id="Anchor_95690097_h2_2">情報</h2>
+<p>メモリープールの情報は <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_memory_pool_info.html">MemoryPoolInfo</a>&nbsp;として定義されています。</p>
+<h3 id="Anchor_95690097_h3_1">メモリープールの特性</h3>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_memory_pool_info.html#adc62f3eff287d0ba87baef57f2ba78d6">SetMemoryPoolProperty</a>&nbsp;により、メモリープールとする領域の CPU ページ特性と GPU ページ特性を設定します。<br />CPU のページ特性は、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623ab3cc70e30a942511e9a19ff7a222ce80">MemoryPoolProperty_CpuInvisible</a>、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a663a11b1bc56170998d3ca281574e1f1">MemoryPoolProperty_CpuCached</a>、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a52c9ef53497763d967da50e415056a2e">MemoryPoolProperty_CpuUncached</a> の中からひとつを選択します。複数を選択することは許可されません。<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623ab3cc70e30a942511e9a19ff7a222ce80">MemoryPoolProperty_CpuInvisible</a> を選択した場合は、その領域を CPU でアクセスすることができません。<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a663a11b1bc56170998d3ca281574e1f1">MemoryPoolProperty_CpuCached</a>&nbsp;を選択した場合は、CPU による読み書きがキャッシュされます。そのため GPU との整合性をとるためにはキャッシュのフラッシュや無効化を行う必要があります。<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a52c9ef53497763d967da50e415056a2e">MemoryPoolProperty_CpuUncached</a>&nbsp;を選択した場合は、キャッシュを通さずに CPU による読み書きを行います。この場合、書き込みが最適化される可能性がありますが、キャッシュを利用しないために読み込みが遅くなる場合があります。<br />GPU のページ特性は、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a7ebd960ee014d9b3375e1195bff0df38">MemoryPoolProperty_GpuInvisible</a>、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a98262dd58342754947cd689a64939f13">MemoryPoolProperty_GpuCached</a>、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a410e392d5f1a31852aa4e768707836f7">MemoryPoolProperty_GpuUncached</a>&nbsp;の中からひとつを選択します。複数を選択することは許可されません。 <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a7ebd960ee014d9b3375e1195bff0df38">MemoryPoolProperty_GpuInvisible</a>&nbsp;を選択した場合は、その領域を GPU でアクセスすることができません。<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a98262dd58342754947cd689a64939f13">MemoryPoolProperty_GpuCached</a>&nbsp;を選択した場合は、GPU による読み書きがキャッシュされます。<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623a410e392d5f1a31852aa4e768707836f7">MemoryPoolProperty_GpuUncached</a>&nbsp;を選択した場合は、GPU による読み書きがキャッシュされません。GPU がアクセスするリソースはキャッシュすることがパフォーマンス上で有利なことが多いですが、一度しか提出しないコマンドバッファーなど用途によってはキャッシュしないことが有利な場合があります。<br />メモリープールがシェーダーコードを含んでいる場合は、追加で <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a9bad749884304c5882d4c54e57818623aa62da2fc041aacfdd997af125d47f57a">MemoryPoolProperty_ShaderCode</a>&nbsp;を指定してください。&nbsp;</p>
+<h3 id="Anchor_95690097_h3_2">プール用のメモリー</h3>
+<p>プール用のメモリーへのポインターとサイズを <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_memory_pool_info.html#a1d9cd6cfcf23787d05cfa722af884076">SetPoolMemory</a>&nbsp;により設定します。デバイス側で別の領域を確保する必要があるプラットフォームまたは低レベルグラフィックス API の場合、設定された領域は単に初期値として考慮されます。</p>
+<p>プール用のメモリーはそのアライメントとサイズ粒度について制限をもちます。これらはそれぞれ、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_memory_pool.html#a24ea067d3fd3c752dcb7332ad2ce3b56">nn::gfx::MemoryPool::GetPoolMemoryAlignment</a> と <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_memory_pool.html#aee1bf8475049973f8637ed19653833a1">nn::gfx::MemoryPool::GetPoolMemorySizeGranularity</a>&nbsp;により取得できます。プール用のメモリーのアドレスはここで取得されるアライメントの倍数でなければならず、プール用のメモリーのサイズはここで取得されるサイズ粒度の倍数でなければなりません。</p>
+<h2 id="Anchor_95690097_h2_3">オブジェクト</h2>
+<p>メモリープールのオブジェクトは&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5">nn::gfx::MemoryPool</a> として定義されています。</p>
+<h3 id="Anchor_95690097_h3_3">初期化と破棄</h3>
+<p>メモリープールの初期化と破棄は通常の<a href="../Pages/Page_83955654.html">オブジェクト</a>の方法に従います。</p>
+<h3 id="Anchor_95690097_h3_4">マップ</h3>
+<p>マップを行うには、メモリープールの特性において CPU に可視な特性が指定されている必要があります。メモリープールの特性において CPU のキャッシュを利用する特性を指定している場合は、必要に応じて CPU のキャッシュをフラッシュまたは無効化する必要があります。</p>
+<p>メモリープールをマップし CPU から読み書きするためのアドレスを取得するには、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_memory_pool.html#a5d3bdba22ff2a1ac666916ffd96c4fe6">Map</a> を呼び出します。<br />GPU が書き込んだ内容を読み込むことを確実にするために CPU のキャッシュを無効化するには、&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_memory_pool.html#a40f97df8403e38d5aa114b8537129073">InvalidateMappedRange</a> を呼び出します。<br />CPU により書き込んだ内容を GPU が読み込むことを確実にするために CPU のキャッシュをフラッシュするには、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_memory_pool.html#aad3bd8d831eb63ab9136ee0e40a98010">FlushMappedRange</a> を呼び出します。</p>
+<p>CPU による読み書きが終了すれば <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_memory_pool.html#a213c2b4de9f80ba22eb0cfc7df3c5b5b">Unmap</a> を呼ぶことでマップ状態を解除します。</p>
+<h4 id="Anchor_95690097_h4_1">マップにおける制限</h4>
+<p>&nbsp;現在 GL 版では、メモリープールの内容をマップを使って書き換えても、作成済みのリソースに影響をもちません。また、作成済みのリソースの内容が変わっても、メモリープールのマップを使った読み込みに反映されません。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

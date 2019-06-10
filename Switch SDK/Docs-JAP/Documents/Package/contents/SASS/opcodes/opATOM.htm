@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>ATOM</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    ATOM : Atomic Operation on generic Memory<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Atomic Operation on generic Memory" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "ATOM", subsection => 7 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOM</b>{<b>.E</b>}.op{.sz}</code>    <code>Rd, [Ra + ImmS20], Rb</code>       <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Operation</code>          </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOM" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOM</b>{<b>.E</b>}<b>.CAS</b>{.sz}</code>   <code>Rd, [Ra + ImmS20], Rb, Rc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Swap</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOM" } -->
+
+    s/Omit register Ra to specify an unsigned absolute address:
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOM</b>{<b>.E</b>}.op{.sz}</code>    <code>Rd, [ImmU20], Rb</code>            <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Operation</code>          </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOM" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOM</b>{<b>.E</b>}<b>.CAS</b>{.sz}</code>   <code>Rd, [ImmU20], Rb, Rc</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Swap</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOM" } -->
+
+
+
+
+  .op:    { <b>.ADD, .MIN, .MAX, .INC, .DEC, .AND, .OR, .XOR, .EXCH , .SAFEADD</b>}      Operation
+  .E:     Extended address (64 bits, requires two registers)
+   .sz:    { <b>.U32*, .S32, .U64, S64, .F32.FTZ.RN, .F16x2.FTZ.RN </b>}
+
+2 <b> additional </b>  syntax forms to support sparse predicate. 
+     <b> Note: Immediate offsets are not supported for these variants </b>
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOM</b>{<b>.E</b>}.op{.sz}</code>    <code>Ps, Rd, [Ra], Rb</code>            <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Operation</code>          </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOM" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>ATOM</b>{<b>.E</b>}<b>.CAS</b>{.sz}</code>   <code>Ps, Rd, [Ra], Rb, Rc</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   <code>// Atomic Compare and Swap</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "ATOM" } -->
+
+
+   Ps: Predicate returning sparse tile status. 
+            Indiate that the surface access is happening to a page marked as sparse (not valid).
+            <b>Note:</b> The encoding of Ps is bit inverted ie  0 => PT and  7 => P0
+
+
+            <b>.32 is also accepted and aliases to .U32</b>
+            <b>.64 is also accepted and aliases to .U64</b>
+            <b>.128 aliases to .U128, but is illegal</b>
+          ------------------------------------------------------------------------------------------------------------<b>
+                                Atomic Operations
+          .op    .sz                                                     Description,  M is [Ra + ImmS20]</b>
+          ------------------------------------------------------------------------------------------------------------
+          .ADD   .U32 .S32 .U64  .F32.FTZ.RN  .F16x2.RN .F64.RN          Rd = M; M = M + Rb;
+          .MIN   .U32 .S32 .U64* .S64* .F16x2.RN                         Rd = M; M = min(M, Rb);
+          .MAX   .U32 .S32 .U64* .S64* .F16x2.RN                         Rd = M; M = max(M, Rb);
+          .INC   .U32                                                    Rd = M; M = (M &gt;= Rb)? 0 : (M + 1);
+          .DEC   .U32                                                    Rd = M; M = (M == 0 || M &gt; Rb)? Rb : M - 1;
+          .AND   .U32 .S32 .U64*                                         Rd = M; M = M &amp; Rb;
+          .OR    .U32 .S32 .U64*                                         Rd = M; M = M | Rb;
+          .XOR   .U32 .S32 .U64*                                         Rd = M; M = M ^ Rb;
+          .EXCH  .U32 .S32 .U64                                          Rd = M; M = Rb;
+          .SAFEADD         .U64*                                         Increment put pointer in a circular queue.
+          .CAS   .U32 .S32 .U64                                          Rd = M; if (M == Rb) M = Rc;
+          ------------------------------------------------------------------------------------------------------------
+          * SPA 3.5 (and higher)
+
+
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+<b>ATOM</b>.op performs atomic operation <b>.op</b> with register Rb on global memory at a generic thread address, 
+and returns the prior memory value to register Rd.  
+The generic byte address is computed as the 32-bit addition of register Ra plus the 32-bit sign-extended immediate offset ImmS20, which is then zero-extended to 40-bits.  If the .E extension is specified, the generic byte address is computed as the sum of the 64-bit value (Ra,Ra+1) plus the sign-extended immediate offset ImmS32.</p>
+<p>
+ATOM combines register Rb with global memory location [Ra + ImmS20] atomically, without intervening accesses 
+to that memory location by other threads: </p>
+<pre>
+    atomic {                    // Atomic operation on global memory location [Ra + ImmS20]
+        .sz M = mem[Ra + ImmS20];       // Read memory location
+            Rd = M;                     // Return prior memory location value to register Rd
+            M = .op(M, Rb);             // Form atomic operation result value
+            mem[Ra + ImmS20] = M;       // Write memory location
+    }
+</pre>
+
+<p>
+<b>ATOM.CAS</b> performs an atomic compare-and-swap operation on global memory. 
+It requires one or more extra register(s) for the compare value, which are
+provided as Rc.</p>
+
+<p>
+{Rb,Rc} are expected to be consecutive registers, naturally aligned based on .sz. 
+Specifically, in <b>ATOM.CAS.32</b>, Rb must be R2n+0(even register) (and cannot be RZ), and Rc must be Rb+1 or RZ. 
+Similarly, for <b>ATOM.CAS.64</b>, Rb must be R4n+0 (and cannot be RZ)  and Rc must be Rb+2 or RZ.</p>
+
+<p>Other atomic operations assemble the omitted Rc as RZ.   </p>
+
+<p>
+The generic thread address space accesses global memory, unless it falls in
+the Local or Shared address window. 
+An <b>ATOM</b> instruction must address global memory, otherwise
+it generates an invalid address space error.</p>
+
+<p>
+When used in a pixel shader, <b>ATOM</b> has helper pixels and killed pixels
+automatically predicated off by the HW to prevent unwanted writes to global
+memory.  If the pixel's raster coverage is 0 or it has previously been killed
+using the KIL operation, the threads will not
+participate in any <b>ATOM</b> operations.</p>
+
+<p>
+Memory addresses must be naturally aligned, on a byte address that is a
+multiple of the access size. Misaligned addresses cause a misaligned address
+error. An address outside an allocated memory region causes an address
+out-of-range error. </p> 
+
+<p>
+<b>ATOM</b> interprets memory data in little-endian byte order: the effective
+address specifies the least-significant data bits.</p>  
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>ATOM</b>.ADD.F32.FTZ.RN    R0, [R1 - 400], R9;      #
+<b>ATOM</b>.ADD.U64           R0, [R4 + 8], R2;        # even-odd registers for 64-bit ops
+<b>ATOM</b>.ADD.S32           R9, [0xfff00], R8;       # absolute 20-bit address
+<b>ATOM</b>.MIN.S64           R0, [R4 + 8], R2;        # signed min stored
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>

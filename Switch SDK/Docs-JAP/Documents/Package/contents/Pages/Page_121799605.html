@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>文字コードに関する注意点</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 文字コードに関する注意点 -->
+<div class="pagetitle" id="PageId_121799605">文字コードに関する注意点</div>
+<div class="text_separate">
+<h1 id="Anchor_121799605_h1_1">文字コードに関する注意点</h1>
+<h2 id="Anchor_121799605_h2_1">概要</h2>
+<p>NintendoSDK では、ログ・アサートマクロが使用する標準文字エンコーディングは UTF-8 です。</p>
+<p>そのため、DebugFontTextWriter の入力文字列も UTF-8 であることを前提としています。</p>
+<p>UTF-8 以外の文字列を描画関数に渡すと文字化けが発生することがあります。</p>
+<p>
+  <br />
+</p>
+<p>ただし、Windows 向けのビルドを行った場合、ソースコードを UTF-8 で記述しても文字列リテラルの文字コードは UTF-8 になりません。</p>
+<p>文字列リテラルの文字コードはロケール依存であり、日本語環境では CP932 となります。</p>
+<p>このため、以下のコードは Windows 向けビルドにおいて文字化けの原因となります。</p>
+<!--Remove-->
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#include &lt;nn/gfx/util/gfx_DebugFontTextWriter.h&gt;
+
+void nnMain() {
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::util::DebugFontTextWriter writer;
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;writer.Print(&quot;こんにちは&quot;); // 文字化けする
+&nbsp;&nbsp;&nbsp;&nbsp;...
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>本稿では、この問題の回避方法として、以下の2つを紹介します。</p>
+<ul>
+  <li>Windows 向けビルドで UTF-8 の文字列リテラルを使用する方法</li>
+  <li>
+    <span class="ApiLink_NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET">NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET</span> マクロを使って、描画関数の入力文字列の文字コードを変更する方法</li>
+</ul>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_121799605_h2_2">Windows 向けビルドで UTF-8 の文字列リテラルを使用する</h2>
+<p>Windows 向けビルドで UTF-8 文字列リテラルを使用する方法は、Visual Studio のバージョンによって異なります。</p>
+<h3 id="Anchor_121799605_h3_1">Visual Studio 2012 の場合</h3>
+<p>UTF-8 文字列リテラルを使用する方法はありません。</p>
+<h3 id="Anchor_121799605_h3_2">execution_character_set プラグマを記述する (Visual Studio 2013 / Visual Studio 2015 / Visual Studio 2017 の場合)</h3>
+<p>エンコーディングを UTF-8 に変換するソースファイルに以下の pragma を記述します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#pragma execution_character_set(&quot;utf-8&quot;)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>Visual Studio 2012 でも上記 pragma の対応が謳われていますが、不具合により利用することができません。</p>
+  </div>
+</div>
+<h3 id="Anchor_121799605_h3_3">u8 プレフィックスを使用する (Visual Studio 2015 / Visual Studio 2017 の場合)</h3>
+<p>文字列リテラルに u8 プレフィックスを付加します。u8 プレフィックスは実機でも対応しており、Windows と実機で共通のコードを利用できるため、こちらの方法を推奨します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>auto str = u8&quot;こんにちは&quot;;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_121799605_h2_3">NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET マクロ</h2>
+<p>NintendoSDK のヘッダーファイルをインクルードする前に、<span class="ApiLink_NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET">NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET</span> マクロを定義することで、デバッグ用軽量フォント描画ライブラリーの入力文字コードを Windows のロケールのデフォルト（日本語の場合、CP932）に変更できます。</p>
+<h3 id="Anchor_121799605_h3_4">使用例</h3>
+<!--Remove-->
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#define NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET
+#include &lt;nn/gfx/util/gfx_DebugFontTextWriter.h&gt;
+
+void nnMain() {
+&nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::util::DebugFontTextWriter writer;
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;writer.Print(&quot;こんにちは&quot;); // 文字化けしない
+&nbsp;&nbsp;&nbsp;&nbsp;...
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_NN_GFX_UTIL_DEBUGFONT_USE_DEFAULT_LOCALE_CHARSET
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

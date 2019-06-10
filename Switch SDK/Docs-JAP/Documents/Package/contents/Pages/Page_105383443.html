@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>nnMain() とライブラリの初期化</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- nnMain() とライブラリの初期化 -->
+<div class="pagetitle" id="PageId_105383443">nnMain() とライブラリの初期化</div>
+<div class="text_separate">
+<p>&nbsp;</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_105383443_h1_1">nnMain() 関数とライブラリの初期化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_105383443_h2_1">プログラム動作環境ライブラリ</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_105383443_h1_1">nnMain() 関数とライブラリの初期化</h1>
+<p>NintendoSDK におけるプログラムのメイン関数は nnMain() で定義されます。</p>
+<p>メイン関数の最初の方ではプログラムで使用する各ライブラリの初期化を行ないます。代表的なライブラリの初期化について本章で説明します。</p>
+<p>nnMain() を抜けるとプログラムは終了しますが、通常は明示的な終了要求が通知されるまでは自発的に終了させないで下さい。詳細は <a href="../Pages/Page_162179114.html">プログラムの終了</a> を参照して下さい。</p>
+<h2 id="Anchor_105383443_h2_1">プログラム動作環境ライブラリ</h2>
+<p>プログラム動作環境ライブラリ（<a href="../Pages/Page_107339118.html">OE ライブラリ</a>）とは、システムの状態変化や、アプリケーション自身のフォーカス状態変化、プログラムの動作性能に関する機能を提供しているライブラリです。</p>
+<p>
+  <span class="ApiLink_nn__oe">nn::oe</span> 名前空間にある API を使ってこれらの制御を行ないます。</p>
+<h3 id="Anchor_105383443_h3_1">プログラム動作環境ライブラリの初期化</h3>
+<p>プログラム動作環境ライブラリの初期化は <span class="ApiLink_nn__oe__Initialize">nn::oe::Initialize</span>() で行なわれますが、この API 呼出しはアプリケーションの nnMain() 関数に到達する前に暗黙的に呼ばれています。そのため、この API を明示的に発行する必要はありません（明示的な呼び出しが行なわれても問題ないようになっています）。</p>
+<p>この初期化後に <span class="ApiLink_nn__oe">nn::oe</span> 名前空間にある様々な機能が利用可能になります。</p>
+<p>
+  <span class="ApiLink_nn__oe">nn::oe</span> 名前空間にある機能のうち、各種状態変化の通知を受け取る機能については <a href="../Pages/Page_166065886.html">プログラムへの通知メッセージ</a> のページを参照して下さい。その他の機能については、<a href="../Pages/Page_107339118.html">OE ライブラリ</a> のページを参照して下さい。</p>
+<h3 id="Anchor_105383443_h3_2">その他の初期化</h3>
+<p>各種ライブラリの初期化以外に、例えば浮動小数点の演算精度（丸め方式など）を設定することもできます。これらは必要に応じて設定して下さい。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NintendoSDK の NX64 ビルド開発機環境においては、以下の指定により「非正規化数の Flush-To-Zero モード」を有効にすることができます。デフォルトでは無効です。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">std::</span><span class="n">fesetround</span><span class="p">(</span> <span class="n">FE_SET_FTZ</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>このモードを有効にすると、演算結果の絶対値が、その実行環境で表現可能な最小の正規化数よりも小さな値になった場合にゼロに丸めて扱うようになります。これにより、厳密な演算精度は失われるものの、このような値を扱う演算速度を向上させる効果が期待できます。</p>
+    <p>なお、FPU の設定は各スレッドコンテキストごとに設定値を持ちます。また、<span class="ApiLink_nn__os__CreateThread">nn::os::CreateThread</span>() でスレッドを生成した場合は、呼出元スレッドの FPU 設定値を生成されたスレッドが引き継ぎます。</p>
+    <p>FE_SET_FTZ 指定は NX Addon 1.1.0 以降のバージョンから使用できます。</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe', '../../../Api/HtmlNX/namespacenn_1_1oe.html' )
+SetUrl( 'ApiLink_nn__oe__Initialize', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a9671d51dfedf9f18144ea1d73419fcfd' )
+SetUrl( 'ApiLink_nn__os__CreateThread', '../../../Api/HtmlNX/namespacenn_1_1os.html#a1e7db66d31e254873b613d4eadd0d716' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

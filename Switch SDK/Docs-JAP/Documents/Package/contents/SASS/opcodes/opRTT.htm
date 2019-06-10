@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>RTT</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    RTT : Return From Trap<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Return From Trap" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "RTT", subsection => 13 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code></code>   <code><b>RTT</b>{.op}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "RTT" } -->
+
+  .op: {<b>.POPCRS*</b>, <b>.TERMINATE</b>, <b>.FALLTHROUGH</b>}
+        <b>.POPCRS</b>         Unwind the call return stack (default)
+        <b>.TERMINATE</b>      Normal warp termination
+        <b>.FALLTHROUGH</b>    Do not unwind the call return stack
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>RTT</b> is designed to have a warp exit its trap handler.  <b>RTT</b> is a synchronizing operation (all warps 
+in the SM must either reach a RTT instruction or a <a href="opBPT.htm">BPT.PAUSE</a> instruction before they 
+are allowed to leave the trap handler and resume normal execution).  </p>
+<p>
+When <b>RTT.POPCRS</b> is executed, the stack will be unwound to restore the saved state.  Active masks and disable masks found on 
+the stack will be applied and any other stack tokens (divergence, sync, continue, etc.) will be ignored.</p>
+<p>
+When <b>RTT.FALLTHROUGH</b> is executed, the stack will not be unwound.  The current active mask and disable masks are maintained and 
+program execution falls through to the next instruction.</p>
+<p>
+<b>RTT</b> will clear the "Traps" bit (set via the <a href="opBPT.htm">BPT.TRAP</a> instruction and read via <a href="opS2R.htm">S2R SR64</a> and <a href="opS2R.htm">S2R SR66</a>).</p>
+<p>
+<b>RTT.TERMINATE</b> causes normal warp termination.
+<b>RTT.POPCRS</b> is default behavior and does not cause warp termination. </p>
+
+<p>
+Because the <b>RTT.POPCRS</b> and <b>RTT.FALLTHROUGH</b> instructions are synchronizing, they interact with
+synchronizing barriers instructions in the trap handler: In Kepler, a CTA
+that has executed a <b><a href="opBAR.htm">BAR</a>.SYNCALL</b>
+instruction in any of its warps must execute either a
+<b><a href="opBAR.htm">BAR</a>.SYNCALL</b> or a <b>RTT.TERMINATE</b> instruction
+in all its other warps. <b>RTT.POPCRS</b> and <b>RTT.FALLTHROUGH</b>, cannot be used with an active
+SYNCALL barrier without causing a deadlock in the SM.  <b>RTT.TERMINATE</b> is non 
+synchronizing operations and can be mixed with <b>BAR.SYNCALL</b> without deadlocking.  However, since they
+modify barrier state, they need to be protected in the save.</p>
+
+<p><b>RTT</b> does not interact with user-mode barriers, since user-mode barriers are not active in trap mode.</p>
+
+<p>
+After returning from the trap handler using <b>RTT</b>, there are several possible outcomes,
+depending on the state of the machine.  They will occur with the following priority:</p>
+<ol><li>If single step mode is active, all warps will execute exactly one instruction and then return to the trap handler.
+     Even if an error is encountered while executing the single step, all warps will complete their instruction before 
+     re-entering the trap handler. </li>
+    <li>If an interrupt condition (in the error state register) has a non-zero status, all warps will immediatley vector 
+     back into the trap handler (without executing any instructions).  NOTE that single step mode takes priority over this interrupt behavior.</li>
+    <li>Normal execution will resume until a new trap or error is encountered.</li>
+</ol>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+//Inside Trap Handler
+<b>RTT</b>;
+<b>RTT.TERMINATE</b>;
+<b>RTT.POPCRS</b>;
+<b>RTT.FALLTHROUGH</b>;
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

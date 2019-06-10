@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プラットフォーム固有の情報</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プラットフォーム固有の情報 -->
+<div class="pagetitle" id="PageId_161289849">プラットフォーム固有の情報</div>
+<div class="text_separate">
+<h1 id="Anchor_161289849_h1_1">NX 環境における注意事項</h1>
+<h2 id="Anchor_161289849_h2_1">非キャッシュ領域に同期オブジェクトを配置しないで下さい</h2>
+<p>非キャッシュ領域では ARM プロセッサの排他制御に関する一部命令が正しく実行されません。そのため OS ライブラリが提供している同期オブジェクトを非キャッシュ領域に配置しないで下さい。このような状況は、アプリケーションのメモリ領域を NintendoSDK の何かしらの API に渡した後に、そのメモリ領域に OS ライブラリの同期オブジェクト（<span class="ApiLink_nn__os__EventType">nn::os::EventType</span> や <span class="ApiLink_nn__os__MutexType">nn::os::MutexType</span> など）を配置することで発生することがあります。</p>
+<p>Debug 版ビルド、Develop 版ビルドでは同期オブジェクトの初期化時に配置領域のチェックが行われ、もし非キャッシュ領域に配置されている場合は API 内部のアサートに失敗し、以下のようなログが出力されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>SDK Assertion Failure: '!(memoryInfo.attribute &amp; svc::MemoryAttribute_Uncached)' in InternalCriticalSectionImplByHorizon()
+c:\siglo\sdk\Programs\Chris\Sources\Libraries\os\detail\os_InternalCriticalSection-os.horizon.cpp(35)
+非キャッシュ領域に同期オブジェクトを置こうとしています。</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>一方、Release 版ビルドでは高速化のため、配置領域のチェックが行われないため注意して下さい。</p>
+<h2 id="Anchor_161289849_h2_2">システムに渡したメモリがロック中かどうかの検査</h2>
+<p>NintendoSDK の何かしらの API（グラフィックス や ライブラリアプレット機能の呼出し など）において、アプリケーションのメモリ領域をシステムに渡す場合があります。システムに渡したメモリは一時的にロックされ、使用を終えた時にそのロックが解除されてからアプリケーションに返却されます。返却される前に他の用途に使用しようとするとアボートやユーザ例外などが発生するケースがあります。</p>
+<p>プログラムの開発段階においては、特定のメモリ領域がシステムによってロックされているか否かを検査するための方法として以下の API が使用できます。どちらの API も、address 引数の型が異なるだけで機能的には等価です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#include &lt;nn/os/os/os_InvestigationApiForDebug.h&gt;
+
+bool isLocked1 = nn::os::IsMemoryLocked(uintptr_t address, size_t size);
+bool isLocked2 = nn::os::IsMemoryLocked(void* address, size_t size);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの API が true を返す場合は、指定した範囲のメモリ領域の一部もしくは全てがまだシステムによってロックされている（使用中である）ことを示しています。アプリケーションにとってこれが意図しない結果である場合には、システムに対してメモリの使用終了を正しく指示できていないなどの不具合が考えられます。</p>
+<p>ただし、NintendoSDK の全ての API においてこの検査用 API が期待通りに機能するとは限りません。システムにメモリを渡した場合でも、対象メモリ領域がロックされない API もありますのでご了承ください。検査したい対象のメモリが上記 API によって検査可能かどうかは各モジュールの担当者にお問い合わせ下さい。</p>
+<p>なお、上記 API はいずれも製品実機では使用禁止となっています。あくまで開発段階におけるデバッグ目的でのみ使用できます。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__EventType', '../../../Api/HtmlNX/structnn_1_1os_1_1_event_type.html' )
+SetUrl( 'ApiLink_nn__os__MutexType', '../../../Api/HtmlNX/structnn_1_1os_1_1_mutex_type.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

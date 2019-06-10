@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SHR</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SHR : Shift Right<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Shift Right" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SHR", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>SHR</b>{.fmt}{.mode}{.xmode}{.BREV}</code>   <code>Rd{.CC},Ra,Sb</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SHR" } -->
+
+.fmt:        {.U32,.S32*}
+             Select between logical (unsigned) and arithmetic (signed) shift right
+
+.mode:       {<b>.W, .C*</b>} 
+             .C (Clamp): Sb is treated as an unsigned integer and is clamped to (0-32).
+             .W (Wrap):  Sb is treated as an unsigned integer and is masked by 0x001f
+
+.xmode:      { < NULL >*, .X, .XHI }
+             Extended precision support for shifts.  The default is no
+             extended precision (32-bit shift).
+
+.BREV        Bit reverse all the bits in Ra before the shift operation
+
+.CC:         Write condition codes
+
+
+<b>SHR</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20)
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Shift Ra right by contents of Sb.  The msb insertion is sign_bit for signed Ra source and 0 for unsigned.</p>
+<p>
+An extended-precision right shift is performed by processing words in order from
+least-significant to most-significant.  At the end of the extended-precision shift
+sequence, the condition code flags reflect the overall multi-word result.  The carry flag
+is set by the initial right shift instruction, and sign and overflow flags are set by the
+final right shift instruction using .XHI mode.  The zero flag value is accumulated by
+shift instructions in either .X or .XHI mode.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>SHR.W</b>   R0,R1,R7;
+<b>SHR</b>     R0,R1,0x9;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

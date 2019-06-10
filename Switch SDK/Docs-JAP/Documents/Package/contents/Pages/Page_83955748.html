@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メッセージキュー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メッセージキュー -->
+<div class="pagetitle" id="PageId_83955748">メッセージキュー</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955748_h1_1">メッセージキュー機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955748_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955748_h2_2">メッセージキューの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955748_h2_3">メッセージキューの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955748_h2_4">メッセージキューの関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955748_h2_5">メッセージキュー使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955748_h3_1">メッセージキューバッファについて</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955748_h1_1">メッセージキュー機能</h1>
+<h2 id="Anchor_83955748_h2_1">機能概要</h2>
+<p>メッセージキューは、１つ以上の<a href="../Pages/Page_83955697.html">スレッド</a>間で任意のデータを送受信するための同期機能です。</p>
+<p>
+  <span style="color: rgb(51,51,51);">送受信する個々のデータは uintptr_t 型です。１つのデータの大きさは sizeof(uintptr_t) となります。<br />１つのメッセージキューにキューイングできるデータの最大数と、そのためのバッファ領域は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab7baa013ea5d9d4f9e84eb5d1afcec49">InitializeMessageQueue()</a> で指定します。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">データの送信は、メッセージキューの末尾にデータを追加する <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#afec9c0c3cacf43c7aa82f323da656af5">SendMessageQueue()</a> と、メッセージキューの先頭にデータを挿入する <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7a47bc9d914dbdf48011deeb859cb877">JamMessageQueue()</a> があります。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">データの受信は、メッセージキュー先頭のデータを取り出す <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ace7ad0de1da8fdeeeb01e7de7494dc87">ReceiveMessageQueue()</a> と、メッセージキュー先頭のデータを参照し、実際にはデータを取り出さない <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7fab6d997fb47451e6c9cd47ef754e99">PeekMessageQueue()</a> があります。<br /></span>
+</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955748_h2_2">メッセージキューの使用方法</h2>
+<p>メッセージキューを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_message_queue_type.html">nn::os::MessageQueueType</a> 構造体オブジェクトを用意します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<p>また、メッセージキューのバッファ領域も別途確保しておきます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="k">const</span> <span class="kt">int</span>                  <span class="n">bufferSize</span> <span class="o">=</span> <span class="mi">32</span><span class="p">;</span>
+<span class="kt">uintptr_t</span>                  <span class="n">g_Buffer</span><span class="p">[</span> <span class="n">bufferSize</span> <span class="p">];</span>
+<span class="nn">nn::os::</span><span class="n">MessageQueueType</span>   <span class="n">g_MessageQueue</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>メッセージキューを使用する前に、予め初期化します。<br />第２引数にはバッファー領域、第３引数にはメッセージキューに格納できるデータの最大数を指定します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MessageQueue</span><span class="p">,</span> <span class="n">g_Buffer</span><span class="p">,</span> <span class="n">bufferSize</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、メッセージキューからデータを受信します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">uintptr_t</span>  <span class="n">data</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">ReceiveMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_MessageQueue</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、メッセージキューにデータを送信します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">uintptr_t</span>  <span class="n">data</span> <span class="o">=</span> <span class="n">GetNextDataOfSendPacket</span><span class="p">();</span>       <span class="c1">// 次に送信すべきデータを取得
+</span><span class="nn">nn::os::</span><span class="n">SendMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MessageQueue</span><span class="p">,</span> <span class="n">data</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>メッセージキューを使用し終わったら、破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeMessageQueue</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_MessageQueue</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955748_h2_3">メッセージキューの具体的な使用例</h2>
+<p>具体的な使用例は、<a href="../../../Api/HtmlNX/_page_sample_os_message_queue.html">メッセージキュー機能サンプルプログラム</a> を参照して下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955748_h2_4">メッセージキューの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab7baa013ea5d9d4f9e84eb5d1afcec49">nn::os::InitializeMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af9c98095075b7ef0570c1a449545e392">nn::os::FinalizeMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#afec9c0c3cacf43c7aa82f323da656af5">nn::os::SendMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a78cd82954aa87f10f881a7e34fad596b">nn::os::TrySendMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad5e14ae7d5a67147af209a1029991095">nn::os::TimedSendMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7a47bc9d914dbdf48011deeb859cb877">nn::os::JamMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa6fd916fb5a94b34c37d2b8faa43ce3c">nn::os::TryJamMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad4cfd66c4587832586ee7a50e5fd90b0">nn::os::TimedJamMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ace7ad0de1da8fdeeeb01e7de7494dc87">nn::os::ReceiveMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a921571e9781d3e6fbf60ca8ee4a1825d">nn::os::TryReceiveMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae0838f36e8391d50f81549950611aeb4">nn::os::TimedReceiveMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7fab6d997fb47451e6c9cd47ef754e99">nn::os::PeekMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a6f08aef79a422888383a8ab1d5786fe3">nn::os::TryPeekMessageQueue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0dc5fb4ad2ef7a5dfff029e0128efa55">nn::os::TimedPeekMessageQueue</a>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955748_h2_5">メッセージキュー使用上の注意事項</h2>
+<h3 id="Anchor_83955748_h3_1">メッセージキューバッファについて</h3>
+<p>メッセージキューの内部処理ではメッセージキューバッファを uintptr_t 型の配列として扱います。</p>
+<p>そのため、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab7baa013ea5d9d4f9e84eb5d1afcec49">nn::os::InitializeMessageQueue()</a> の第２引数で指定するメッセージキューバッファの先頭アドレスには、uintptr_t の配列を渡すようにして下さい。</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

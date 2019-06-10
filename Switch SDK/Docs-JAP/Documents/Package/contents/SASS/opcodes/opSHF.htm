@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SHF</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SHF : Funnel Shift<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Funnel Shift" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SHF", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>SHF</b>.dir{.mode}{.maxshift}{.xmode}</code>   <code>Rd{.CC}, Ra, Sb, Rc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SHF" } -->
+
+.dir:        {<b>.R, .L</b>}  
+             .R (Right): Shift [Rc, Ra] right Sb bits
+             .L (Left) : Shift [Rc, Ra] left  Sb bits.  
+            
+.mode:       {<b>.W, .C*</b>} 
+             .C (Clamp ): Sb is treated as an unsigned integer and is clamped  (0-.maxshift).
+             .W (Wrap  ): Sb is treated as an unsigned integer and is masked by (.maxshift -1). 
+
+.maxshift:   {<b>.32*,.U64, .S64 </b>} 
+             .32 : max shift is 32 bits. 
+             .S64: max shift is 64 bits. Also indicates that signed   (arithmetic) shift should be used 
+	     .U64: max shift is 64 bits. Also indicates that unsigned (logical)    shift should be used 
+             .S64 can only be specified with .dir = .R (arithmetic right shift)
+
+.xmode:      { < NULL >*, .X, .HI, .XHI }
+             .X   (must be used with .CC)  accumulates zero flag, preserves other flags (CF/OF/SF)
+	     .XHI (must be used with .CC)  accumulates zero flag, preserves CF, sets OF and SF. 
+                  It also has an effect of shifting by 32 more bits than derrived from Sb/.mode.
+	     .HI  has the effect of shifting by 32 more bits than derrived from Sb/.mode. 
+                  If used with .CC, instruction sets all the flags.
+             If just .CC is used without any .X/.XHI, instruction sets all the flags 
+	     Use .X  and .XHI to update the condition code flags for extended precision multi-word shifts.  
+             Use .HI/.XHI is allowed with only .dir=.R only.
+
+.CC:         Write condition codes based on result Rd
+             
+
+<b>SHF</b> allows the following for source Sb:
+    Sb(register)
+    Sb(unsigned 6-bit integer immediate IMMU6) 
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+SHF funnel shifts a 64-bit concatenation of two registers yielding a 32-bit result, 
+to implement extended precision multi-word shift and rotate operations. </p>
+<p>
+SHF.R shifts the 64-bit concatenation of [Rc, Ra] right by shift amount derived from Sb, 
+extracts the 32 <b>least-significant</b> bits, and writes the result to Rd.  
+Rc holds bits 63:32 and Ra holds bits 31:0 of the 64-bit source.
+Shift amount is specified in Sb and depending upon the clamping/wrapping specified by .mode, 
+varies between 0..maxshift.
+
+The equivalent C expression is: </p>
+<pre>
+  U32 shift =  (.mode == .W) ? ( Sb &amp; (maxshift -1)) :  min ((unsigned) Sb, maxshift);
+  U64 val   =  (Rc &lt;&lt; 32 | Ra); 
+  U32 Rd    =  (.maxshift == .S64) ? ( ((S64)val &gt;&gt; shift) &amp; 0xffff_ffff ):
+                                     ( ((U64)val &gt;&gt; shift) &amp; 0xffff_ffff );
+
+</pre>
+<p>
+SHF.L shifts the 64-bit concatenation of [Rc, Ra] left by shift amount derived from Sb, 
+extracts the 32 <b>most-significant</b> bits, and writes the result to Rd.  
+Rc holds bits 63:32 and Ra holds bits 31:0 of the 64-bit source.
+Shift amount is specified in Sb and depending upon the clamping/wrapping specified by .mode, 
+varies between 0..maxshift.
+The equivalent C expression is: </p>
+<pre>
+  U32 shift =  (.mode == .W) ? ( Sb &amp; (maxshift -1)) :  min ((unsigned) Sb, maxshift);
+  U64 val   =  (Rc &lt;&lt; 32 | Ra); 
+      val   =  (val &lt;&lt; shift) ;
+  U32 Rd    =  (val &gt;&gt; 32) ;
+
+</pre>
+
+<p>
+The default mode .C clamps the Sb value to 0 - maxshift, while mode .W masks the Sb value with (maxshift -1).</p>
+<p>
+Adding the .CC suffix to destination Rd writes the condition code CC register.  
+The .X suffix with .CC writes CC with an extended precision multi-word update rather than writing CC based only on the result value. </p>
+<p>
+Use funnel shift for 64-bit and larger multi-word shift operations and for rotate operations.  
+A left funnel shift by Sb is equivalent to a right funnel shift by (32 - Sb), and conversely. 
+To shift 64 bits or more to the right, use SHF.R to extract the 32 lsbs of 64-bits shifted right.   
+Use the SHR instruction to generate the most-significant result word with zero or sign fill.
+To shift 64 bits or more to the left, use SHL for the least significant word and use SHF.L for the more significant words.
+For 32-bit rotate operations, place the same value in Ra and Rc.  </p>
+<p>
+When using the .CC and .X modes, an extended-precision right shift is performed by processing words in order from
+least-significant to most-significant.  At the end of the extended-precision shift
+sequence, the condition code flags reflect the overall multi-word result.  The carry flag
+is set by the initial SHF.R.X  Rd.CC instruction, and sign and overflow flags are set by the
+final SHR.XHI Rd.CC instruction.  The zero flag value is accumulated by
+shift instructions in .X and .XHI mode.  See example at bottom. </p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+# bitextract 32 bits from a 64 bit data 
+<b>SHF.R</b>        R0, R0, R8,  R1;                  # extract 32 lsbs of [R1,R0] shifted right by R8
+# rotate right                   
+<b>SHF.R</b>        R9, R9, 13,  R9;                  # rotate R9 right 13 bits
+# rotate left                    
+<b>SHF.L</b>        R9, R9, R8,  R9;                  # rotate R9 left by shift amount in R8 
+
+# emulate SHL{.C,.W}
+<b>SHF.L.{C/W}.32</b>          R10, RZ, R8, R4;       # dest(R10) = [R4, 0] &lt;&lt;  (shift=R8)
+# emulate SHR.S32                  
+<b>SHF.R.{C/W}.{S64/32}.HI</b> R10, RZ, R8, R4;       # dest(R10) = [R4, 0] &gt;&gt;  (shift=R8) 
+# emulate SHR.U32                  
+<b>SHF.R.{C/W}.32</b>          R10, R4, R8, RZ;       # dest(R10) = [0 ,R4] &gt;&gt;  (shift=R8) 
+
+# 2 instruction emulation of a unsigned (logical) shift right of 64 bit data [R1,R0] &gt;&gt; R6
+# set proper CC flags, R6 has shift amount.
+<b>SHF.R.{C/W}.{U64/32}</b> R0.CC, R0, R6, R1;        # funnel shift [R1,R0] right by R6, get 32 lsbs. Set all flags. Zero flag used next instruction
+<b>SHR.U32.C.XHI</b>        R1.CC, R1, R6;            # get 32 msbs of result. chain in zero flag from SHF. set sign/overflow
+
+# sequence for same logical right shift as above, but using only SHF
+<b>SHF.R.{C/W}.{U64/32}</b> R10,  R4, R8, R5;         # dlo(R10)  = [R5, R4] &gt;&gt; (shift=R8) 
+<b>SHF.R.{C/W}.U64.XHI</b>  R11,  RZ, R8, R5;         # dHi(R11)  = [R5,  0] &gt;&gt; (shift=R8) 
+
+# 2 instruction emulation of a signed (arithmetic) shift right of 64 bit data [R1,R0] &gt;&gt; R6
+# set proper CC flags, R6 has shift amount.
+<b>SHF.R.{C/W}.S64</b>    R0.CC, R0, R6, R1;          # funnel shift [R1,R0] right by R6, get 32 lsbs. Set all flags. Zero flag used next instruction
+<b>SHR.S32.C.XHI</b>      R1.CC, R1, R6;              # get 32 msbs of result. chain in zero flag from SHF. set sign/overflow
+
+# sequence for  same arithmetic right shift as above, but using only SHF
+<b>SHF.R.{C/W}.S64</b>    R10,  R4, R8, R5;           # dlo(R10)  = [R5, R4] &gt;&gt; (shift=R8) 
+<b>SHF.R.{C/W}.S64.XHI</b>R11,  RZ, R8, R5;           # dHi(R11)  = [R5,  0] &gt;&gt; (shift=R8) 
+
+# 2 instruction emulation sequence for shift left of 64 bit data [R1,R0] &lt;&lt; R6
+# set proper CC flags, R6 has shift amount.
+<b>SHF.L.{C/W}.{U64/32}</b> R1.CC, R0, R6, R1;        # funnel shift [R1,R0] left by R6, get 32 msbs. Set all flags. Zero flag used next instruction
+<b>SHL.C.X</b>              R0.CC, R0, R6;            # get 32 msbs of result. chain in zero flag from SHF. set sign/overflow
+
+# sequence for  same SHL.64 as above, but using only SHF
+<b>SHF.L.U64</b>    R11,  R4, R8, R5;                 # dHi(R11)  = [R5, R4] &lt;&lt; (shift=R8)
+<b>SHF.L.U64.X</b>  R10,  RZ, R8, R4;                 # dLo(R10)  = [R4,  0] &lt;&lt; (shift=R8)
+
+
+# wide shift right (say 128 bit datatype)     [R3,R2,R1,R0] &gt;&gt; 11
+# In general for multi-word right shifts, start construction the result from right-most (least-significant) word of result with SHF.R, 
+# moving to left, accumulating zero flag via SHF.R.X while keeping other flags intact. Finally use an SHR.XHI to commit the final update on CC flags.
+<b>SHF.R.{C/W}.{U64/32}</b>   R4.CC, R0, 11, R1;      # funnel shift [R1,R0] right by 11, get 32 lsbs. Set all flags. Zero flag used next instruction
+<b>SHF.R.{C/W}.{U64/32}.X</b> R5.CC, R1, 11, R2;      # funnel shift [R1,R0] right by 11, get 32 lsbs. accumulate zero flag
+<b>SHF.R.{C/W}.{U64/32}.X</b> R6.CC, R2, 11, R3;      # funnel shift [R1,R0] right by 11, get 32 lsbs. accumulate zero flag
+<b>SHR.{S32/U32}.C.XHI</b>    R7.CC, R1, 11;          # get 32 msbs of result. chain in zero flag from SHF. set sign/overflow
+
+# wide shift left (say 128 bit datatype)     [R3,R2,R1,R0] &lt;&lt; c[0][0]
+# In general for multi-word left shifts, start construction the result from left-most (most-significant) word of result with SHF.L, 
+# moving to right, accumulating zero flag via SHF.L.X while keeping other flags intact. Finally use an SHL.XHI to commit the final update on CC flags.
+<b>SHF.L.{C/W}.{U64/32}</b>   R7.CC, R2, R10, R3 ;    # funnel shift [R3,R2] left by R10, get 32 msbs. Set all flags. Zero flag used next instruction
+<b>SHF.L.{C/W}.{U64/32}.X</b> R6.CC, R1, R10, R2 ;    # funnel shift [R2,R1] left by R10, get 32 msbs. accumulate zero flag
+<b>SHF.L.{C/W}.{U64/32}.X</b> R5.CC, R0, R10, R1 ;    # funnel shift [R1,R0] left by R10, get 32 msbs. accumulate zero flag
+<b>SHL.C.X</b>                R4.CC, R0, R10     ;    # get 32 msbs of result. chain in zero flag from SHF. set sign/overflow
+
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

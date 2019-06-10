@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>LOP3</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    LOP3 : 3-input Logic Operation<br>
+    <!-- SUMMARY_TABLE_INFO { description => "3-input Logic Operation" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "LOP3", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>LOP3</b>.LUT{.X}{.pop}</code>   <code>Pu, Rd,         Ra, Rb, Rc, #Imm8</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LOP3" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LOP3</b>.LUT{.X}{.pop}</code>   <code>    Rd{.CC},    Ra, Sb, Rc, #Imm8</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LOP3" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LOP3</b>.lop{.X}{.pop}</code>   <code>Pu, Rd,      {~}Ra, {~}Rb, {~}Rc</code>    <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LOP3" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LOP3</b>.lop{.X}{.pop}</code>   <code>    Rd{.CC}, {~}Ra, {~}Sb, {~}Rc</code>    <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LOP3" } -->
+
+ .lop:   logical operation   { <b>.AND, .OR, .XOR, .PASS_B</b> }
+ .pop:   predicate operation { .F*, .T, .Z, .NZ }
+ .X  :   Extended precision logical operation
+
+ .CC :   Write condition codes
+
+<b>LOP3</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20)
+</pre>
+
+Note that <b>.pop</b> and Pu can only be used with Sb(register).
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+An arbitrary bitwise logical function of three sources into one destination.
+</p>
+<p>
+The #Imm8 specifies which logic function is desired.  There are 2^(2^3) logic functions possible for 3 inputs,
+so all such functions can be specified.  The #Imm8 acts as the logic table for the desired function.<br>
+For each individual bit i, the result Rd[i] = LUT[ (Ra[i]<<2) | (Sb[i]<<1) | Rc[i] ].
+</p>
+<p>
+Syntactic sugar is provided for .AND, .OR, .XOR, and .PASS_B, along with optional complements on Ra, Sb, and Rc.
+This provides similar syntax as <b>LOP</b>, but those are all assembled down to their respective #Imm8 values;
+a subset of these cases is shown below.
+</p>
+<table>
+<tr> <th> logic function </th> <th> LUT (#Imm8) value </th> </tr>
+<tr> <td> <b>.AND</b>    </td> <td> 0b10000000  </td> </tr>
+<tr> <td> <b>.OR</b>     </td> <td> 0b11111110  </td> </tr>
+<tr> <td> <b>.XOR</b>    </td> <td> 0b10010110  </td> </tr>
+<tr> <td> <b>.PASS_B</b> </td> <td> 0b11001100  </td> </tr>
+<tr> <td colspan="2"> It's also possible to emulate the negation of any input, such as: </td> </tr>
+<tr> <td> <b>.AND</b> with ~Sb and ~Rc </td> <td> 0b00010000 </td> </tr>
+<tr> <td> <b>.OR</b> with ~Ra and ~Rc </td> <td> 0b11011111 </td> </tr>
+<tr> <td colspan="2"> Similarly, one could easily use these functions: </td> </tr>
+<tr> <td> A ^ (B & (A ^ C)) </td> <td> 0b10111000 </td> </tr>
+<tr> <td> (A & B) | (A & C) | (B & C) </td> <td> 0b11101000 </td> </tr>
+</table>
+<p>
+An extended-precision logical operation is performed by processing words in order from
+least-significant to most-significant.  This order is required so that the sign flag will
+be set correctly based on the msb of the most-significant word.  The zero flag is
+accumulated by LOP3.X instructions.
+</p>
+
+<p>
+If a predicate destination is specified, result of the predicate operation is written back to destination register.<br>
+Note that a <b>.pop</b> and predicate destination (Pu) can only be specified if Sb is a register.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>LOP3</b>.OR       R0, R1, R2, R3;
+<b>LOP3</b>.AND  P0, R0, R1, R2, R3;
+<b>LOP3</b>.LUT  P0, R0, R1, R2, R3, 0x45;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

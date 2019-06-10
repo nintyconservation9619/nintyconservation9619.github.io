@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>I2F</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    I2F : Integer To Floating Point Conversion<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer To Floating Point Conversion" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Conversion Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "I2F", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>I2F</b>{.dstfmt.srcfmt}{.rnd}</code>   <code>Rd{.CC},{-}{|}Sb{.extract}{|}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "I2F" } -->
+
+ .dstfmt:     { <b>.F16, .F32*, .F64, INVALID</b> } <br> .srcfmt:     { <b>.U8, .S8, .U16, .S16, .U32, .S32*, .U64, .S64</b> }<br>              ----------------------------------------<br>                 .SRCFMT     .DSTFMT       Status<br>              ----------------------------------------<br>               .S8 ,.U8       .F16           OK<br>               .S8 ,.U8       .F32           OK<br>               .S8 ,.U8       .F64        <b>Illegal</b>
+              ----------------------------------------
+               .S16,.U16      .F16           OK
+               .S16,.U16      .F32           OK
+               .S16,.U16      .F64        <b>Illegal</b>
+              ----------------------------------------
+               .S32,.U32      .F16        <b>Illegal</b>
+               .S32,.U32      .F32           OK
+               .S32,.U32      .F64           OK
+              ----------------------------------------
+               .S64,.U64      .F16        <b>Illegal</b> <br>               .S64,.U64      .F32           OK<br>               .S64,.U64      .F64           OK<br>              ----------------------------------------<br><br> .rnd:        { <b>.RN*, .RM, .RP, .RZ</b> } <br><br> .CC:         Write condition codes<br><br>  .extract:    byte/word extraction parameter<br>               if (.srcfmt = U16/S16) {.H0*,.H1}<br>                where<br>                    .H0 // Sb[15:00]<br>                    .H1 // Sb[31:16]<br>               else                   { B0*,.B1,.B2,.B3}<br>                where<br>                    .B0 // Sb[07:00] <br>                    .B1 // Sb[15:08], .srcfmt must be .U8  or .S8<br>                    .B2 // Sb[23:16], .srcfmt must be .U8  or .S8<br>                    .B3 // Sb[31:24], .srcfmt must be .U8  or .S8<br>               .H0/.H1 only legal if srcfmt=.U16 or .S16<br>               .B0/.B1/.B2/.B3 only legal if srcfmt=.U8 or .S8<br><br>The following source combinations are allowed for all non-64-bit formats:<br>    Sb(register)<br>    Sb(constant with immediate address)<br>    Sb(sign-extended #IMM20)<br><br>The following source combinations are allowed for 64-bit formats:<br>    Sb(register - must be even aligned)<br>    Sb(64-bit constant with immediate address -- <br>       Upper 32-bits are taken from constant, lower 3 address bits must be 0x4, <br>       Lower 32 bits of Sb are always 0)<br>    Sb(sign-extended #IMM20&lt;&lt;32)<br></pre>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+The integer contents of source are moved into destination with optional extraction/conversions.</p>
+
+<p>Here are the steps in the process:</p>
+
+<ol><li>If byte (.U8,.S8) or short (.U16,.S16) .srcfmt is specified, extract raw bits
+<pre>      Sb.H0           // Sb[15:00], .srcfmt must be .U16 or .S16<br>      Sb.H1           // Sb[31:16], .srcfmt must be .U16 or .S16<br>      Sb.B0           // Sb[07:00], .srcfmt must be .U8  or .S8<br>      Sb.B1           // Sb[15:08], .srcfmt must be .U8  or .S8<br>      Sb.B2           // Sb[23:16], .srcfmt must be .U8  or .S8<br>      Sb.B3           // Sb[31:24], .srcfmt must be .U8  or .S8<br></pre></li>
+    <li>Convert input to 2's complement integer, specified by .srcfmt
+<pre>     .U8   :  input  8b,   0 extend<br>     .S8   :  input  8b, sign extend<br>     .U16  :  input 16b,   0 extend<br>     .S16  :  input 16b, sign extend<br>     .U32  :  input 32b,   0 extend          // cannot convert to fp16<br>     .S32  :  input 32b, sign extend         // cannot convert to fp16<br>     .U64  :  input 64b,   0 extend          // cannot convert to fp16<br>     .S64  :  input 64b, sign extend         // cannot convert to fp16<br></pre></li>
+    <li>Optional 2's complement absolute value.</li>
+    <li>Convert to floating point format, rounding mode set with .rnd:
+<pre>      0: .RN - Mantissa lsb round to nearest even<br>      1: .RM - Mantissa lsb round towards -Infinity <br>      2: .RP - Mantissa lsb rount towards +Infinity<br>      3: .RZ - Mantissa lsb round towards 0<br></pre></li>
+    <li>Optional
+negate. Negation will not be performed if the original input value is
+the most negative integer value for the given input format.&nbsp;</li>
+    <li>Write to destination.</li>
+</ol>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><b>I2F</b> R0,R1;<br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">back to Index of Instructions</a></p>
+</div>
+</body></html>

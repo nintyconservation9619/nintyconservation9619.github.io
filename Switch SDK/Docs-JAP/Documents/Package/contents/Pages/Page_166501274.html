@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プログラマ向け変更点</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プログラマ向け変更点 -->
+<div class="pagetitle" id="PageId_166501274">プログラマ向け変更点</div>
+<div class="text_separate">
+<h1 id="Anchor_166501274_h1_1"> プログラマ向け グラフィックスの変更点</h1>
+<p>NintendoSDK 0.15.0 で行われた NintendoWare グラフィックスのプログラマ向け変更点について説明します。<br />NintendoWare グラフィックスは、<span class="ApiLink_nn__g3d">nn::g3d</span>、<span class="ApiLink_nn__ui2d">nn::ui2d</span>、<span class="ApiLink_nn__font">nn::font</span>、<span class="ApiLink_nn__vfx">nn::vfx</span> モジュールのことを指します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_166501274_h1_1"> プログラマ向け グラフィックスの変更点</a>
+    </li>
+    <li>
+      <a href="#Anchor_166501274_h1_2">3D 中間ファイル、グラフィックス中間ファイルバージョンが 3.7.0 に更新</a>
+    </li>
+    <li>
+      <a href="#Anchor_166501274_h1_3">nn::g3d ニュース</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166501274_h2_1">シェーダの初期化を排他処理する仕組みを用意</a>
+      </li>
+      <li>
+        <a href="#Anchor_166501274_h2_2">LOD モデルごとにバウンディング情報を持つように変更</a>
+      </li>
+      <li>
+        <a href="#Anchor_166501274_h2_3">ポリゴンリダクション機能の改善</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_166501274_h1_4">nn::vfx ニュース</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166501274_h2_4">パーティクル形状のバイナリデータを nn::g3d モデルバイナリに切り替え</a>
+      </li>
+      <li>
+        <a href="#Anchor_166501274_h2_5">シェーダ遅延セットアップ機能を追加</a>
+      </li>
+      <li>
+        <a href="#Anchor_166501274_h2_6">EffectMakerBridge を追加</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_166501274_h1_5">nn::ui2d ニュース</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166501274_h2_7">バイナリリソースのバージョンの変更</a>
+      </li>
+      <li>
+        <a href="#Anchor_166501274_h2_8">LayoutConverter のウィンドウペインの不正データーチェックを強化</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<p>&nbsp;</p>
+<h1 id="Anchor_166501274_h1_2">3D 中間ファイル、グラフィックス中間ファイルバージョンが 3.7.0 に更新</h1>
+<p>3D 中間ファイル、グラフィックス中間ファイルのバージョンを 3.7.0 に更新しました。<br /><a href="../Pages/Page_83956125.html">中間ファイルアップデータ </a>を利用して、既存の中間ファイルのバージョン更新を行ってください。<br />バージョン更新の内容については、<a href="../IntermediateFileFormat/Html/3d/html/history.html">3D 中間ファイル仕様書の更新履歴</a>、<a href="../IntermediateFileFormat/Html/Graphics/html/history.html">グラフィックス中間ファイル仕様書の更新履歴</a> をご覧ください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>EffectMaker ( vfx&nbsp; ) から参照される テクスチャ( ftxb ) や プリミティブ( fmdb ) ファイルもアップデートが必要です。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h1 id="Anchor_166501274_h1_3">nn::g3d ニュース</h1>
+<h2 id="Anchor_166501274_h2_1">シェーダの初期化を排他処理する仕組みを用意</h2>
+<p>シェーダの初期化はシェーダアーカイブが初期化されたときには行われず、実際にそのシェーダが使用される直前まで遅延されます。具体的には <span class="ApiLink_nn__g3d__ShaderSelector__UpdateVariation">nn::g3d::ShaderSelector::UpdateVariation</span>() でシェーダが選択された場合に初期化が行われます。この最適化のため、同一のシェーディングモデルを複数スレッドから扱った場合に、排他制御が出来ておらず、シェーダの初期化に失敗する場合がありました。このようなケースにおいて、問題を起こさないために、シェーダの初期化を排他制御する仕組みを用意しました。 <br /><br /> 排他制御を有効にするためには対応する <span class="ApiLink_nn__g3d__ResShaderArchive__Setup">nn::g3d::ResShaderArchive::Setup</span>() を呼び出し、シェーダアーカイブを初期化する必要があります。またこれに伴い、シェーダアーカイブのフォーマットが更新されています。</p>
+<h2 id="Anchor_166501274_h2_2">LOD モデルごとにバウンディング情報を持つように変更</h2>
+<p>LOD モデルごとにバウンディングスフィア、バウンディングボックスの情報を持つように変更しました。これに伴い、リソースデータのバージョンが更新されています。バウンディングスフィア、バウンディングボックスの計算を行う関数は以下です。 <br /><br /> void <span class="ApiLink_nn__g3d__ModelObj__CalculateBounding">nn::g3d::ModelObj::CalculateBounding</span>(int lodLevel) <br /> void <span class="ApiLink_nn__g3d__ShapeObj__CalculateSubMeshBounding">nn::g3d::ShapeObj::CalculateSubMeshBounding</span>(const SkeletonObj* pSkeleton, int meshIndex) <br /><br /> ビューボリュームとの交差判定は以下の関数で行えます。 <br /><br /> bool <span class="ApiLink_nn__g3d__ShapeObj__TestSubMeshIntersection">nn::g3d::ShapeObj::TestSubMeshIntersection</span>(CullingContext* pCtx, const ViewVolume&amp; volume, int meshIndex)</p>
+<p>また、<a href="../Pages/Page_83955705.html">中間ファイルオプティマイザ </a>でサブメッシュ分割されたモデル同士を LOD 結合できるようになりました。</p>
+<p>これにより、ベースモデルとは別にサブメッシュ分割を適用したモデルを LOD モデルとして扱えるようになりました。</p>
+<h2 id="Anchor_166501274_h2_3">ポリゴンリダクション機能の改善</h2>
+<p>
+  <a href="../Pages/Page_83955705.html">中間ファイルオプティマイザ </a>のポリゴンリダクション機能を改善しました。主にリダクション後の UV の品質を向上させる改善を行っています。</p>
+<p>特に --optimize-position-policy が&nbsp;OptimalOnSpace、もしくは&nbsp;OptimalOnFace を指定した場合は UV の破綻が以前より起きにくくなっています。</p>
+<p>&nbsp;</p>
+<h1 id="Anchor_166501274_h1_4">nn::vfx ニュース</h1>
+<h2 id="Anchor_166501274_h2_4">パーティクル形状のバイナリデータを nn::g3d モデルバイナリに切り替え</h2>
+<p>NintendoSDK 0.15.0 にて、fmdb ファイルを入力とするパーティクル形状データを、vfx 独自のフォーマット形式から <span class="ApiLink_nn__g3d">nn::g3d</span> モデルバイナリ へ切り替え、それをエフェクトバイナリに内包するように設計を変更しました。<span class="ApiLink_nn__g3d">nn::g3d</span> モデルバイナリを採用するねらいは以下の通りです。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__g3d">nn::g3d</span> との親和性向上</li>
+  <li>g3dファイルフォーマットを利用したプリミティブバイナリの分離出力</li>
+  <li>パーティクル形状のモーフィング表現や形状切り替えアニメ実装</li>
+  <li>パーティクル形状のLOD</li>
+</ul>
+<p>
+  <span class="status-macro aui-lozenge aui-lozenge-complete">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <td class="highlight-grey">
+        <strong>
+          <a href="../Pages/Page_166051158.html">エフェクトバイナリについて</a>
+        </strong>
+      </td>
+      <td>エフェクトバイナリの構成などの説明があります。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_164722471.html">メモリプールについて</a>
+      </th>
+      <td>メモリプールへの g3dResFile バイナリの配置に関する説明があります。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 title="クリックすると編集できます" id="Anchor_166501274_h2_5">シェーダ遅延セットアップ機能を追加</h2>
+<p>
+  <span class="ApiLink_nn__vfx__System__EntryResource">nn::vfx::System::EntryResource</span>　メソッド経由でエフェクトバイナリ登録 を行う際に、引数にて遅延セットアアップの有無を選択できます。遅延セットアップを有効にすることで、エミッタセット生成時にシェーダセットアップを行うようになり、<span class="ApiLink_nn__vfx__System__EntryResource">nn::vfx::System::EntryResource</span> メソッドのロック時間の短縮が期待できます。</p>
+<p>
+  <u>158 バリエーションの<u>シェーダ </u>を含むエフェクトバイリでの EntryResource 処理時間( Windows版にて計測 )</u>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <td>遅延セットアップ OFF</td>
+      <td>1568158 micro sec</td>
+    </tr>
+    <tr>
+      <td>遅延セットアップ ON</td>
+      <td>58563 micro sec</td>
+    </tr>
+  </tbody>
+</table>
+<h2 title="クリックすると編集できます" id="Anchor_166501274_h2_6">EffectMakerBridge を追加</h2>
+<p>エフェクトメーカーと外部ツールとの連携を行うためのコマンドラインツール、エフェクトメーカーブリッジをリリースしました。</p>
+<p>
+  <span class="status-macro aui-lozenge aui-lozenge-complete">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <td class="highlight-grey">
+        <strong>
+          <a href="../Pages/Page_83955996.html">エフェクトメーカー 便利機能</a>
+        </strong>
+      </td>
+      <td>EffectMakerBrige の利用方法につてい記述されています。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h1 id="Anchor_166501274_h1_5">nn::ui2d ニュース</h1>
+<p>NintendoSDK 0.15.0 で行われた <span class="ApiLink_nn__ui2d">nn::ui2d</span> 関連のプログラマ向けニュースです。</p>
+<h2 id="Anchor_166501274_h2_7">バイナリリソースのバージョンの変更</h2>
+<p>バイナリリソースのバージョンが変更になりました。LayoutConverter で再コンバートしてください。</p>
+<h2 id="Anchor_166501274_h2_8">LayoutConverter のウィンドウペインの不正データーチェックを強化</h2>
+<p>LayoutConverter で、ウィンドウペイン（全方向）で、マテリアル共有を有効にし、かつフレーム間でテクスチャ枚数が一致しない場合にエラーとするように修正しました。</p>
+<p>以前のデーターがエラーとなる場合は、データーの修正をお願いいたします。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__g3d', '../../../Api/HtmlNX/namespacenn_1_1g3d.html' )
+SetUrl( 'ApiLink_nn__ui2d', '../../../Api/HtmlNX/namespacenn_1_1ui2d.html' )
+SetUrl( 'ApiLink_nn__font', '../../../Api/HtmlNX/namespacenn_1_1font.html' )
+SetUrl( 'ApiLink_nn__vfx', '../../../Api/HtmlNX/namespacenn_1_1vfx.html' )
+SetUrl( 'ApiLink_nn__g3d__ShaderSelector__UpdateVariation', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_shader_selector.html#a79873e8ffad5ccd81bc0373f11bf7a44' )
+SetUrl( 'ApiLink_nn__g3d__ResShaderArchive__Setup', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html#a0bd2ecf27e62dd885eb25a1c57e29c9d' )
+SetUrl( 'ApiLink_nn__g3d__ModelObj__CalculateBounding', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_model_obj.html#aa3853429626cb623f9ba39de6ab301b2' )
+SetUrl( 'ApiLink_nn__g3d__ShapeObj__CalculateSubMeshBounding', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#ad3875fc401453548f6e5fdf3928abdee' )
+SetUrl( 'ApiLink_nn__g3d__ShapeObj__TestSubMeshIntersection', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html#a25c0526e70aef8f5ac9512196c1f5d14' )
+SetUrl( 'ApiLink_nn__vfx__System__EntryResource', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a0418cc91c6dceab635cb5117b6aaf5e2' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

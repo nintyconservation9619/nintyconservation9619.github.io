@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ネットワークのスキャン</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ネットワークのスキャン -->
+<div class="pagetitle" id="PageId_183381438">ネットワークのスキャン</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_183381438_h1_1">ネットワークのスキャン</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_183381438_h2_1">準備</a>
+      </li>
+      <li>
+        <a href="#Anchor_183381438_h2_2">スキャンフィルタの作成</a>
+      </li>
+      <li>
+        <a href="#Anchor_183381438_h2_3">スキャンの実行</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_183381438_h1_1">ネットワークのスキャン</h1>
+<h2 id="Anchor_183381438_h2_1">準備</h2>
+<p>スキャンを実行できるのは <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a> 状態、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f">nn::ldn::State_AccessPointCreated</a> 状態のいずれかです。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77a90247f7ec8524d1c74fe0499d8cab40b">nn::ldn::State_Station</a> 状態に遷移する方法については&nbsp;<a href="../Pages/Page_183381476.html">ネットワークへの接続</a>&nbsp;を、<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f">nn::ldn::State_AccessPointCreated</a> 状態に遷移する方法については&nbsp;<a href="../Pages/Page_183381392.html">ネットワークの構築</a>&nbsp;を参照してください。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>
+      <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abc1339e71c5817f213faea9b89d46a77aa69ec0e3820b19c8c03d53afe9638a9f">nn::ldn::State_AccessPointCreated</a> 状態 でネットワークのスキャンを実行すると一時的に通信が滞ります。</p>
+  </div>
+</div>
+<h2 id="Anchor_183381438_h2_2">
+  <br />スキャンフィルタの作成</h2>
+<p>周囲のネットワークをスキャンする際に、無関係のネットワークをスキャン結果から省くために必要な条件を&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_scan_filter.html">nn::ldn::ScanFilter</a> に設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cm">/**
+&nbsp;* @brief         スキャンのフィルタを格納する構造体です。
+&nbsp;*/</span>
+<span class="k">struct</span> <span class="n">ScanFilter</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! ネットワークの識別子です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NetworkId</span>           <span class="n">networkId</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! スキャン対象となるネットワークです。 @ref NetworkType の値を論理和で指定してください。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit32</span>               <span class="n">networkType</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アクセスポイントの BSSID です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// DO NOT USE THIS MEMBER
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MacAddress</span>          <span class="n">bssid</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! アクセスポイントの SSID です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Ssid</span>                <span class="n">ssid</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//  予約領域です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit8</span>                <span class="n">_reserved</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//! フィルタリングに使用する項目を @ref ScanFilterFlag の論理和で指定します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Bit32</span>               <span class="n">flag</span><span class="p">;</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>flag にはフィルタリングに使用する項目を <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4bd95dc91a5214783b591b1b3890c62e">nn::ldn::ScanFilterFlag</a> の論理和で指定すると、flag で指定された項目が完全一致するネットワークのみをスキャン結果としてアプリケーションに返します。</p>
+<p>例えば、<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_id.html">nn::ldn::NetworkId</a> やその一部を使用してスキャン結果をフィルタリングする場合には以下のように設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ローカル通信識別子のみを指定してネットワークをスキャンする
+</span><span class="nn">nn::ldn::</span><span class="n">ScanFilter</span> <span class="n">filter</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">flag</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">ScanFilterFlag_LocalCommunicationId</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">networkId</span><span class="p">.</span><span class="n">intentId</span><span class="p">.</span><span class="n">localCommunicationId</span> <span class="o">=</span> <span class="n">localCommunicationId</span><span class="p">;</span>
+ 
+<span class="c1">// ローカル通信識別子とシーン識別子を指定してネットワークをスキャンする (方法 1)
+</span><span class="nn">nn::ldn::</span><span class="n">ScanFilter</span> <span class="n">filter</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">flag</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">ScanFilterFlag_LocalCommunicationId</span> <span class="o">|</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ldn::</span><span class="n">ScanFilterFlag_SceneId</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">networkId</span><span class="p">.</span><span class="n">intentId</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">MakeIntentId</span><span class="p">(</span><span class="n">localCommunicationId</span><span class="p">,</span> <span class="n">sceneId</span><span class="p">);</span>
+ 
+<span class="c1">// ローカル通信識別子とシーン識別子を指定してネットワークをスキャンする (方法 2)
+</span><span class="nn">nn::ldn::</span><span class="n">ScanFilter</span> <span class="n">filter</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">flag</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">ScanFilterFlag_IntentId</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">networkId</span><span class="p">.</span><span class="n">intentId</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">MakeIntentId</span><span class="p">(</span><span class="n">localCommunicationId</span><span class="p">,</span> <span class="n">sceneId</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>LDN ライブラリでは、フィルタの設定によっては LDN とは無関係の一般のアクセスポイントも同時にスキャンすることができます。LDN ライブラリのアクセスポイントは networkType が NetworkType_Ldn に、それ以外のアクセスポイントは NetworkType_General に相当します。しかし、現時点では NetworkType_General のネットワークを <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a>&nbsp;で発見しても、特に使い道がありません。</p>
+<h2 id="Anchor_183381438_h2_3">スキャンの実行</h2>
+<p>スキャンを実行するには <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a> を使用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::ldn::</span><span class="n">ScanFilter</span> <span class="n">filter</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">flag</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">ScanFilterFlag_LocalCommunicationId</span><span class="p">;</span>
+<span class="n">filter</span><span class="p">.</span><span class="n">networkId</span><span class="p">.</span><span class="n">intentId</span><span class="p">.</span><span class="n">localCommunicationId</span> <span class="o">=</span> <span class="n">localCommunicationId</span><span class="p">;</span>
+ 
+<span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+<span class="nn">nn::ldn::</span><span class="n">NetworkInfo</span><span class="o">*</span> <span class="n">networks</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">nn::ldn::</span><span class="n">Network</span><span class="p">[</span><span class="nn">nn::ldn::</span><span class="n">ScanResultCountMax</span><span class="p">];</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::ldn::</span><span class="n">Scan</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">ScanResultCountMax</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="nn">nn::ldn::</span><span class="n">AutoChannel</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="nn">nn::ldn::ResultDeviceNotAvailable::</span><span class="n">Includes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::err::</span><span class="n">ShowError</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ldn::</span><span class="n">Finalize</span><span class="p">();</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#a4fb84c7a11193d330f25503a7fdd3441">nn::ldn::Scan()</a>&nbsp;は指定された無線チャンネルで周囲のネットワークを探索し、<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_scan_filter.html">nn::ldn::ScanFilter</a>&nbsp;で指定された条件を満たすネットワークを通信品質が良い順にソートして出力します。一度に発見できるネットワークの数は <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#abdfa5a55abf3edc17fe284b38ddf87db">nn::ldn::ScanResultCountMax</a>&nbsp;個に制限されています。</p>
+<p>スキャン結果は&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1ldn_1_1_network_info.html">nn::ldn::NetworkInfo</a> 構造体の配列に出力されます。この構造体は 1,152 Byte と大きいため、スタックに確保することは推奨されません。</p>
+<p>無線チャンネルには 1, 6, 11, 36, 40, 44, 48 あるいは <a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aab9761c065620e355fbd0eb71c1aeced">nn::ldn::AutoChannel</a> を指定できます。<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aab9761c065620e355fbd0eb71c1aeced">nn::ldn::AutoChannel</a>&nbsp;を指定した場合には 1, 6, 11 チャンネルを全て探索します。製品ではここでの指定は無効となり、常に&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aab9761c065620e355fbd0eb71c1aeced">nn::ldn::AutoChannel</a>&nbsp;が使用されます。スキャンに要する時間は各チャンネルあたり 110ms 程度であり、特定の無線チャンネルを指定した方が&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1ldn.html#aab9761c065620e355fbd0eb71c1aeced">nn::ldn::AutoChannel</a>&nbsp;を使用するよりも短時間で終了します。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>LDN ライブラリのスキャン機能は、周囲に存在するネットワークを漏れなく発見できることを保証していません。特に、電波状況が良くない場合には、すぐ近くにあるネットワークを発見できないことも珍しくありません。そのため、エンドユーザに接続先のネットワークを選択させる場合、複数回スキャンした結果を組み合わせることを推奨します。</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

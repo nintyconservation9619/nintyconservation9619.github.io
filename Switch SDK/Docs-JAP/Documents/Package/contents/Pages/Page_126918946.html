@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Resource</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Resource -->
+<div class="pagetitle" id="PageId_126918946">Resource</div>
+<div class="text_separate">
+<h1 id="Anchor_126918946_h1_1">Resource</h1>
+<h2 id="Anchor_126918946_h2_1">概要</h2>
+<p>
+  <span class="ApiLink_nn__mii__Resource">nn::mii::Resource</span> は Mii を描画する際に必要なテクスチャやシェイプデータといったグラフィックスリソースを管理するクラスです。</p>
+<h2 id="Anchor_126918946_h2_2">ResourceInfo</h2>
+<p>品質やガンマなどのリソースの設定は <span class="ApiLink_nn__mii__ResourceInfo">nn::mii::ResourceInfo</span> として定義されます。</p>
+<p>以下の情報を設定する必要があります。詳しくは API リファレンスを参照してください。</p>
+<ul>
+  <li>テクスチャリソースのクオリティ</li>
+  <li>シェイプリソースのクオリティ</li>
+  <li>リソースの読み取り形式</li>
+  <li>ガンマの種類</li>
+</ul>
+<h2 id="Anchor_126918946_h2_3">リソースデータのロード</h2>
+<p>
+  <span class="ApiLink_nn__mii__Resource">nn::mii::Resource</span> の初期化の前に、リソースデータをメモリ上にロードする必要があります。</p>
+<p>NX 開発機では、リソースデータをシステムリソースから取得します。</p>
+<p>Windows 版アプリケーションではシステムリソースから取得することはできないため、アプリケーションでリソースファイルを保持する必要があります。</p>
+<h3 id="Anchor_126918946_h3_1">NX 開発機でのリソースデータのロード</h3>
+<p>似顔絵ライブラリのリソースデータのロード手順は以下の通りです。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__mii__InitializeResourceLoader">nn::mii::InitializeResourceLoader</span>() 関数を呼び、似顔絵リソースのローダーの初期化を行います。</li>
+  <li>
+    <span class="ApiLink_nn__mii__LoadResourceTexture">nn::mii::LoadResourceTexture</span>() 関数を使用してテクスチャリソースのロードを行います。<br />ロード先バッファは <span class="ApiLink_nn__mii__GetResourceTextureSize">nn::mii::GetResourceTextureSize</span>() で取得したサイズ分のメモリを <span class="ApiLink_nn__mii__ResourceMemoryAlignment">nn::mii::ResourceMemoryAlignment</span> でアライメントして確保する必要があります。<span class="ApiLink_nn__mii__LoadResourceTexture">nn::mii::LoadResourceTexture</span>() に渡す <span class="ApiLink_nn__mii__ResourceInfo">nn::mii::ResourceInfo</span> と同じものを <span class="ApiLink_nn__mii__GetResourceTextureSize">nn::mii::GetResourceTextureSize</span>() に渡してサイズを取得してください。</li>
+  <li>テクスチャリソースと同様にして、シェイプ用のロードとサイズ計算の関数を使用してシェイプリソースのロードを行います。</li>
+  <li>各リソースのロードが終了したら、<span class="ApiLink_nn__mii__FinalizeResourceLoader">nn::mii::FinalizeResourceLoader</span>() 関数を使用してローダーの終了処理を行います。</li>
+</ol>
+<p>サンプル MiiSystemResource では、システムリソースからリソースを取得しています。</p>
+<h3 id="Anchor_126918946_h3_2">Windows 版でのリソースデータのロード</h3>
+<p>アプリケーションで使用するリソースファイルを <span class="ApiLink_nn__fs">nn::fs</span> ライブラリを使用してロードしてください。各リソースファイルについては、<a href="../Pages/Page_166054889.html">似顔絵リソースのページ</a>を参考にしてください。</p>
+<p>サンプル MiiSimple では、アプリケーションでリソースを保持し、<span class="ApiLink_nn__fs">nn::fs</span> ライブラリを使用してロードしています。</p>
+<h2 id="Anchor_126918946_h2_4">初期化と終了処理</h2>
+<p>初期化/終了時に注意点に関して説明します。各関数の API リファレンスも合わせて参照してください。</p>
+<h3 id="Anchor_126918946_h3_3">初期化処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__Resource__Initialize">nn::mii::Resource::Initialize</span>() 関数を使用して初期化を行います。<a href="../Pages/Page_126918954.html">CharModel</a> などの他のクラスで Resource を利用するためには初期化が必要です。</p>
+<p>初期化時に必要となるシェイプリソースのデータとテクスチャリソースのデータは、あらかじめ初期化前にメモリ上にロードしておく必要があります。これらのデータは Resource の終了処理を呼ぶまで保持する必要があります。</p>
+<p>初期化のために必要なメモリのサイズとアライメントは、<span class="ApiLink_nn__mii__Resource__CalculateMemorySize">nn::mii::Resource::CalculateMemorySize</span>() と <span class="ApiLink_nn__mii__Resource__CalculateMemoryAlingnment">nn::mii::Resource::CalculateMemoryAlingnment</span>() 関数を使用することで取得できます。これらの関数に渡すリソースデータや ResourceInfo は初期化で使用するものと同じものを使用する必要があります。</p>
+<p>初期化時に渡したメモリやリソースデータは Resource の終了処理を呼ぶまで保持する必要があります。</p>
+<h3 id="Anchor_126918946_h3_4">終了処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__Resource__Finalize">nn::mii::Resource::Finalize</span>() 関数を呼ぶと終了処理を行います。終了処理が行われた後は初期化に使用したメモリやリソースの破棄を行うことができます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__Resource', '../../../Api/HtmlNX/classnn_1_1mii_1_1_resource.html' )
+SetUrl( 'ApiLink_nn__mii__ResourceInfo', '../../../Api/HtmlNX/classnn_1_1mii_1_1_resource_info.html' )
+SetUrl( 'ApiLink_nn__mii__InitializeResourceLoader', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a0b5b54e6e2b1a11dbb40c1e4ebab2d95' )
+SetUrl( 'ApiLink_nn__mii__LoadResourceTexture', '../../../Api/HtmlNX/namespacenn_1_1mii.html#af7ab7be65702d2a02a071effe6dca58e' )
+SetUrl( 'ApiLink_nn__mii__GetResourceTextureSize', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a2ea6cd21e2626b099585377649449533' )
+SetUrl( 'ApiLink_nn__mii__ResourceMemoryAlignment', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a9491e347fa7cac50a79bfd4b0848c06d' )
+SetUrl( 'ApiLink_nn__mii__FinalizeResourceLoader', '../../../Api/HtmlNX/namespacenn_1_1mii.html#af6ffc838c3ca20fe06795c5e1bfebc0e' )
+SetUrl( 'ApiLink_nn__fs', '../../../Api/HtmlNX/namespacenn_1_1fs.html' )
+SetUrl( 'ApiLink_nn__mii__Resource__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_resource.html#afe1c72500638202d3eecf1cdeaa331c2' )
+SetUrl( 'ApiLink_nn__mii__Resource__CalculateMemorySize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_resource.html#aa6097e0d51b3e3acd90c7475c52f559d' )
+// ApiLink_nn__mii__Resource__CalculateMemoryAlingnment
+SetUrl( 'ApiLink_nn__mii__Resource__Finalize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_resource.html#a0d9626cded78680b7b44522445889d24' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,1115 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'],['\\(','\\)']],
+    ignoreClass: ".*",
+    processClass: "math-(display|inline)",
+    processEscapes: false,
+    processRefs: false
+  },
+  "HTML-CSS": {
+    imageFont: null
+  }
+});
+</script>
+<script type="text/javascript" src="../template/js/MathJax/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+<title>オーディオエフェクト</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- オーディオエフェクト -->
+<div class="pagetitle" id="PageId_93362777">オーディオエフェクト</div>
+<div class="text_separate">
+<h3 id="Anchor_93362777_h3_1">エフェクトへの入出力バッファについて</h3>
+<p>
+  <span class="ApiLink_nn__audio">nn::audio</span> のエフェクトは必ずいずれかの SubMix / FinalMix に追加して利用します。すべてのエフェクトは追加した SubMix / FinalMix が管理するミックスバッファへの操作としてエフェクト処理を施します。つまりエフェクトへの入出力は、追加した SubMix / FinalMix が管理するミックスバッファとなります。</p>
+<p>SubMix / FinalMix とミックスバッファの関係については「<a href="../Pages/Page_89991492.html#Anchor_89991492_h3_14">ミックスバッファについて</a>」を参照してください。以下では <span class="ApiLink_nn__audio">nn::audio</span> の各エフェクトと SubMix / FinalMix が管理するエフェクトとの関係について説明します。</p>
+<p>具体的な例として 4 つのミックスバッファを持つ SubMix に対して BufferMixer を追加するケースを考えます。SubMix に対して BufferMixer エフェクトを追加するには <span class="ApiLink_nn__audio__AddBufferMixer">nn::audio::AddBufferMixer</span>() を利用します。追加と同時に BufferMixer エフェクトのインスタンスは初期化されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::audio::SubMixType subMix;
+// 4 つのミックスバッファを持つ SubMixType として初期化する。
+// ...
+
+// BufferMixer エフェクトを subMix に追加する
+nn::audio::BufferMixerType bufferMixer;
+nn::Result result = nn::audio::AddBufferMixer(pConfig, &amp;bufferMixer, &amp;subMix);
+if (result.IsFailure())
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// Error handle
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>BufferMixer はミックスバッファ間のミックス処理を施すエフェクトです。bufferMixer への入出力には subMix が管理する 4 つミックスバッファを指定することができます。例えば subMix のミックスバッファインデックス 0 の内容を 2 へ 、ミックスバッファインデックス 1 の内容を 3 へ、それぞれミックスする設定を施すには以下のコードとなります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// subMix が管理する 4 つのミックスバッファのうち、ミックスバッファ 0 の内容を 2 へ、 1 の内容を 3 へそれぞれミックスする
+const int inOutCount = 2;
+int8_t input[inOutCount] = [0, 1];
+int8_t output[inOutCount] = [2, 3];
+nn::audio::SetBufferMixerInputOutput(&amp;bufferMixer, input, output, inOutCount);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ここまでのコードの結果、入出力関係は下図のようになっています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/159285687.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <span class="ApiLink_nn__audio">nn::audio</span> の Delay や Reverb などの他のエフェクトも、それぞれが追加された SubMix / FinalMix が管理するミックスバッファを入出力エフェクト処理を行います。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>SubMix / FinalMix に追加され初期化されたエフェクトを、SubMix / FinalMix から削除する前に、別の SubMix / FinalMix に追加することは許可されていません。すでに SubMix / FinalMix に対して追加済みのエフェクトを再度 SubMix / FinalMix へ追加した場合、以下の警告文が表示されます。</p>
+    <div style="border-width: 1px;" class="preformatted panel">
+      <div class="preformattedContent panelContent">
+        <pre>[nn::audio] Warning: Passed effect is already initialized. Please confirm if (追加を試みたエフェクトのアドレス) is valid effect object.</pre>
+      </div>
+    </div>
+    <p>警告文に含まれるアドレスが指すエフェクトが、正しく追加されているか確認してください。</p>
+  </div>
+</div>
+<h3 id="Anchor_93362777_h3_2">エフェクトの処理順序について</h3>
+<p>オーディオレンダラ内部ではすべての Voice 処理が完了したのちに、すべてのエフェクトの処理が行われます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/93522081.png" class="embedded-image" />
+  </span>
+</p>
+<p>すべてのエフェクトは追加した順番に処理されます。たとえば FinalMix に対して <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a117bc6e11d5c4ab001795a3684caed45">AddDelay()</a> 、 <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af41adc16d7a0bf1b4f9a4a44e2a3c2fa">AddAux()</a> の順番でエフェクトを追加した場合 Delay 、Aux の順番でエフェクト処理が施されます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/93522082.png" class="embedded-image" />
+  </span>
+</p>
+<p>SDK で提供するオーディオエフェクトには以下の種類があります。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_93362777_h2_1">BufferMixer</a>
+    </li>
+    <li>
+      <a href="#Anchor_93362777_h2_2">Delay</a>
+    </li>
+    <li>
+      <a href="#Anchor_93362777_h2_3">Reverb</a>
+    </li>
+    <li>
+      <a href="#Anchor_93362777_h2_4">I3dl2Reverb</a>
+    </li>
+    <li>
+      <a href="#Anchor_93362777_h2_5">Aux</a>
+    </li>
+  </ul>
+</p>
+<p>以下ではそれぞれのエフェクトについて機能を説明します。</p>
+<h2 id="Anchor_93362777_h2_1">BufferMixer</h2>
+<p>入力となるミックスバッファにボリュームを適用し、出力となるミックスバッファにミックスします。バスルーティングなどの用途を想定したものです。</p>
+<p>BufferMixer によるミックスのルーティングは <span class="ApiLink_nn__audio__SetBufferMixerInputOutput">nn::audio::SetBufferMixerInputOutput</span>() により行います。また、ミックス時に適用されるボリュームは <span class="ApiLink_nn__audio__SetBufferMixerVolume">nn::audio::SetBufferMixerVolume</span>() により設定可能です。入力ミックスバッファ、出力ミックスバッファおよびボリュームの関係は以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>（出力ミックスバッファ）+=（入力ミックスバッファ）*（ボリューム）</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_93362777_h2_2">
+  <span style="color: rgb(117,117,117);">Delay</span>
+</h2>
+<p>一般的なディレイエフェクトを提供します。このエフェクトでは下図で示した処理を波形データに施します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>入力チャンネル数は 1, 2, 4, 6 チャンネルのいずれかを利用可能です。</p>
+  </div>
+</div>
+<h3 id="Anchor_93362777_h3_3">処理フロー</h3>
+<h4 id="Anchor_93362777_h4_1">1 チャンネルの場合</h4>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/93522083.png" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_93362777_h4_2">複数チャンネルの場合</h4>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/93522084.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_93362777_h3_4">ディレイパラメータ</h3>
+<h4 id="Anchor_93362777_h4_3">ローパスフィルタ</h4>
+<p>LPF はローパスフィルタを表します。ローパスフィルタは以下の式で表され Low Pass Amount パラメータによって挙動が決定されます。<br />Low Pass Amount の値を大きくするとよりカットオフ周波数が低くなり、より「こもった音」となります。</p>
+<div class="math-display">\[ LPF(z) = \frac{b_{0}}{1-a_{1}z^{-1}} \]</div>
+<div class="math-display">\[ a_{1} = 0.95 * (LowPassAmount) \]</div>
+<div class="math-display">\[ b_{0} = 1.0 - a_{1} \]</div>
+<p>
+  <br />
+</p>
+<p>各係数とカットオフ周波数 f の関係は以下のように表現できます。</p>
+<div class="math-display">\[ a_{1} = 2 - cos(\omega_{c}) - \sqrt{(2 - cos(\omega_{c}))^2 - 1} \]</div>
+<p>ここでそれぞれの変数は、以下で表されます。</p>
+<div class="math-display">\[ \omega_{c} = 2{\pi}f_{c} \]</div>
+<div class="math-display">\[ f_{c} = \frac{f}{f_{s}} \]</div>
+<div class="math-display">\[ f_{s} : sampling frequency \]</div>
+<p>これらの関係式を用いることで、任意の周波数に対する Low Pass Amount の値を計算することができます。</p>
+<p>また以下のパラメータを指定することで、 <span class="ApiLink_nn__audio__DelayType">nn::audio::DelayType</span> を単純なローパスフィルタとして動作させることができます。<br />各パラメータの意味は、後述する説明を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>dryGain = 0;
+inGain = 1;
+feedbackGain = 0;
+channelSpread = 0;
+delayTime = 0;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_93362777_h4_4">遅延量</h4>
+<p>図中で<span class="embedded-file-wrapper "><img src="../Attachments/Attach_93362777/93522088.png" class="embedded-image" /></span>の記号で表されるブロックは遅延素子を表します。</p>
+<p>ここでは 後述する Delay Time パラメータで設定した時間分サンプルデータを遅延させます。</p>
+<h4 id="Anchor_93362777_h4_5">チャンネルスプレッド</h4>
+<p>Channel Spread Matrix は複数チャンネルの場合にのみ施される処理で、チャンネル間のディレイの効き具合を調整します。具体的には以下の行列演算が施されます。</p>
+<h5 id="Anchor_93362777_h5_1">2 チャンネルの場合</h5>
+<div class="math-display">\[ \begin{bmatrix}
+FeedbackDirect &amp; FeedbackCross \\
+FeedbackCross &amp; FeedbackDirect
+\end{bmatrix} \]</div>
+<p>これは、例えば入力サンプルデータを Input 、 出力サンプルデータを Output と表すと以下の式が結果となります。</p>
+<div class="math-display">\[ \begin{bmatrix}
+Output_{1ch} \\
+Output_{2ch}
+\end{bmatrix}
+=
+\begin{bmatrix}
+FeedbackDirect &amp; FeedbackCross \\
+FeedbackCross &amp; FeedbackDirect
+\end{bmatrix}
+\begin{bmatrix}
+Input_{1ch} \\
+Input_{2ch}
+\end{bmatrix}
+=
+\begin{bmatrix}
+FeedbackDirect * Input_{1ch} + FeedbackCross * Input_{2ch} \\
+FeedbackDirect * Input_{2ch} + FeedbackCross * Input_{1ch} \\
+\end{bmatrix} \]</div>
+<div class="math-display">\[ Output_{1ch} = FeedbackDirect * Input_{1ch} + FeedbackCross * Input_{2ch} \]</div>
+<div class="math-display">\[ Output_{2ch} = FeedbackCross * Input_{1ch} + FeedbackDirect * Input_{2ch} \]</div>
+<h4 id="Anchor_93362777_h4_6">4 チャンネルの場合</h4>
+<div class="math-display">\[ \begin{bmatrix}
+FeedbackDirect &amp; FeedbackCross &amp; FeedbackCross &amp; 0 \\
+FeedbackCross &amp; FeedbackDirect &amp; 0 &amp; FeedbackCross \\
+FeedbackCross &amp; 0 &amp; FeedbackDirect &amp; FeedbackCross \\
+0 &amp; FeedbackCross &amp; FeedbackCross &amp; FeedbackDirect
+\end{bmatrix} \]</div>
+<p>ここで Feedback Direct および Feedback Cross の各値は、以下の式で計算されます。</p>
+<div class="math-display">\[ (FeedbackDirect) = (1 - (ChannelSpread)) * (FeedbackGain) \]</div>
+<div class="math-display">\[ (FeedbackCross) = (ChannelSpread) * (FeedbackGain) \]</div>
+<p>よって Channel Spread の値を大きくするほど、他チャンネルへの影響が大きくなります。</p>
+<h5 id="Anchor_93362777_h5_2">6 チャンネルの場合</h5>
+<p>チャンネルスプレッドは入力チャンネルが FrontLeft, FrontRight, RearLeft, RearRight, FrontCenter, LowFrequency の順に並んでいると仮定しています。</p>
+<div class="math-display">\[ \begin{bmatrix}
+FeedbackDirect &amp; 0 &amp; FeedbackCross &amp; 0 &amp; FeedbackCross &amp; 0 \\
+0 &amp; FeedbackDirect &amp; 0 &amp; FeedbackCross &amp; FeedbackCross &amp; 0 \\
+FeedbackCross &amp; 0 &amp; FeedbackDirect &amp; FeedbackCross &amp; 0 &amp; 0 \\
+0 &amp; FeedbackCross &amp; FeedbackCross &amp; FeedbackDirect &amp; 0 &amp; 0 \\
+FeedbackCross &amp; FeedbackCross &amp; 0 &amp; 0 &amp; FeedbackDirect &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; Feedback 
+\end{bmatrix} \]</div>
+<p>ここで Feedback, Feedback Direct および Feedback Cross の各値は、以下の式で計算されます。</p>
+<div class="math-display">\[ Feedback = 0.98 * (FeedbackGain) \]</div>
+<div class="math-display">\[ FeedbackDirect = (1 - ChannelSpread) * Feedback \]</div>
+<div class="math-display">\[ FeedbackCross = 0.5 * ChannelSpread * Feedback \]</div>
+<h4 id="Anchor_93362777_h4_7">設定方法</h4>
+<p>また図中の各パラメータはそれぞれ以下の API で取得・設定が可能です。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>パラメータ名</th>
+      <th>関連する API</th>
+      <th>値の有効範囲</th>
+    </tr>
+    <tr>
+      <td>Dry Gain</td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ad6992c388e104f7224e3a3e5a27751fc">GetDelayDryGain()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#abcd98e73b4c021adbe9d955f94012675">SetDelayDryGain()</a>
+        </p>
+      </td>
+      <td>0.0f ～ 1.0f</td>
+    </tr>
+    <tr>
+      <td>In Gain</td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ad09aa76632026a43b7722a7a4705cdb4">GetDelayInGain()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af0c3c869c9dc8343090465f4990c3b28">SetDelayInGain()</a>
+        </p>
+      </td>
+      <td>0.0f ～ 1.0f</td>
+    </tr>
+    <tr>
+      <td>Feedback Gain</td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a55a43b4706c48dabdee50c3829ad2e8d">GetDelayFeedbackGain()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af340559a4246e3a82fdc81d0b0372f0b">SetDelayFeedbackGain()</a>
+        </p>
+      </td>
+      <td>0.0f&nbsp;～ 1.0f</td>
+    </tr>
+    <tr>
+      <td>Channel Spread</td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af4f68c1df575fe72d1c2bb81cdd623d3">GetDelayChannelSpread()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#aab0220ba3109416d1300fa6a703a53eb">SetDelayChannelSpread()</a>
+        </p>
+      </td>
+      <td>0.0f&nbsp;～ 1.0f</td>
+    </tr>
+    <tr>
+      <td>Low Pass Filter Amount</td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a91ef9cc6dd35082d2bb7033636f5b875">GetDelayLowPassAmount()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a7f0f159dd42287c4b6e811b651b2d202">SetDelayLowPassAmount()</a>
+        </p>
+      </td>
+      <td>0.0f&nbsp;～ 1.0f</td>
+    </tr>
+    <tr>
+      <td>Delay Time</td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#acfbaeb359e5b19c75b88a625c727a8c5">GetDelayTime()</a>
+        </p>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a20fe3f6b71d7b9209329bbc7c30c9e50">SetDelayTime()</a>
+        </p>
+      </td>
+      <td>
+        <p>
+          <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a117bc6e11d5c4ab001795a3684caed45">AddDelay()</a> で Delay を追加する際に</p>
+        <p>delayTimeMax 引数に設定した時間以下を設定できます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_93362777_h2_3">Reverb</h2>
+<p>Reverb (リバーブ) は閉じた空間内の音の響きをエミュレートするエフェクトです。</p>
+<p>部屋や洞窟などの閉じた空間で発生した音は、空気中を伝わり周囲の壁面で反射を繰り返します。発生した反射音は次々と他の壁面すべてに対しても反射を繰り返すため、次々とエコーを形成します。これらのエコーは、反射のたびに壁面によってエネルギーが吸収されるため、少しずつ弱くなります。このプロセスが続くと、時間の経過とともに徐々にエコーの大きさは下がっていきます。同時にエコーの数が増えていくという効果が生じてきます。このようにして形成される音を残響音といいます。</p>
+<p>リバーブエフェクトと呼んでいるもの、つまり人工的な残響音は、閉じた空間で作成される残響音をエミュレートするよう設計されています。リバーブエフェクトを使用して空間感覚を作り出し、リバーブパラメータ設定を変更してさまざまなタイプの空間を作ったりすることができます。例えば、ゲームのキャラクタが大きな石の部屋の中にいるとします。この場合、最初の反射音は遠くで聞こえ（音が大きな部屋を横切るのに時間がかかるため）、音の減衰に時間がかかる（石の壁と床の反射率が高いため）ような残響効果を使用することになります。このキャラクタが、家具がたくさんあるカーペットが敷かれた小さな部屋にいるとすると、反射音は近くで聞こえ、減衰も速い残響音（壁面で音が吸収されるため）を使用することになります。</p>
+<h3 id="Anchor_93362777_h3_5">Reverb のモデル</h3>
+<p>リバーブエフェクトではその効果を 3 つの音に分けてモデル化しています。</p>
+<ul>
+  <li>直接音 (Direct Sound)<ul><li>&nbsp;音源からリスナーに直接伝わり、最初に耳に到達する音です。直接音は何のエフェクトも適用せずにミキサーを通過する信号によって作成されます。</li></ul></li>
+  <li>初期反射音 (Early Reflection) <br /><ul><li>直接音の後しばらくしてから到達し始める音です。初期反射音はわずかな数しかなく、やがてほとんど分散してしまいます。</li></ul></li>
+  <li>後期残響音 (Late Reverberation)<ul><li>反射音が増加するにつれ、一つ一つのエコーが密集するため区別できなくなります。この時点で後期残響音 (Late Reverberation) になります。後期残響音は聞き取れなくなるまで減衰していきます。</li></ul></li>
+</ul>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/96640999.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_93362777_h3_6">処理フロー</h3>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/96641000.png" width="600" class="embedded-image" />
+  </span>
+</p>
+<p>リバーブエフェクトでは上図の処理が施されます。<br />図中、Early Reflection は初期反射音を生み出すブロックであり下表に示す Early Mode と Predelay Time で調整が可能です。<br />同様に図中の Late Reverberation&nbsp;は後期残響音を生み出すブロックであり Late Mode 、 <span class="argument">Decay Time</span>、 <span class="argument">High Frequency Decay Ratio および <span class="argument">Coloration</span> によって調整が可能です。</span> <br />これらのパラメータの詳しい説明や、図中の各ゲインの意味については、下表をご覧ください。</p>
+<h3 id="Anchor_93362777_h3_7">リバーブパラメータ</h3>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <div class="tablesorter-header-inner">パラメータ名</div>
+      </th>
+      <th>関連する API</th>
+      <th>
+        <div class="tablesorter-header-inner">説明</div>
+      </th>
+      <th>
+        <div class="tablesorter-header-inner">有効範囲</div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>
+        <span class="argument">Early Mode</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbEarlyMode">nn::audio::GetReverbEarlyMode</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbEarlyMode">nn::audio::SetReverbEarlyMode</span>()</p>
+      </td>
+      <td>
+        <p>初期反射音のプリセット値を選択できます。初期反射音には 5 つのプリセット値が <span class="ApiLink_nn__audio__ReverbType__EarlyMode">nn::audio::ReverbType::EarlyMode</span> として準備されています。それぞれ異なるサイズの空間をエミュレートするよう設計されています。</p>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>&nbsp;設定値</th>
+              <th>意味</th>
+            </tr>
+            <tr>
+              <td>EarlyMode_SmallRoom&nbsp;</td>
+              <td>小さい部屋&nbsp;</td>
+            </tr>
+            <tr>
+              <td>EarlyMode_LargeRoom</td>
+              <td>大きい部屋</td>
+            </tr>
+            <tr>
+              <td>EarlyMode_Hall</td>
+              <td>ホール</td>
+            </tr>
+            <tr>
+              <td>EarlyMode_Cavern</td>
+              <td>洞窟</td>
+            </tr>
+            <tr>
+              <td>EarlyMode_NoEarlyReflection</td>
+              <td>初期反射音なし</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <p>左表を参照</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Early Gain</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbEarlyGain">nn::audio::GetReverbEarlyGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbEarlyGain">nn::audio::SetReverbEarlyGain</span>()</p>
+      </td>
+      <td>初期反射音のゲインを調整します。</td>
+      <td>0.0f ～ 1.0f</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Predelay Time</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbPredelayTime">nn::audio::GetReverbPredelayTime</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbPredelayTime">nn::audio::SetReverbPredelayTime</span>()</p>
+      </td>
+      <td>
+        <p>サウンドが最初の初期反射音から後期残響音になるまでの時間を調整します。通常、値が大きいほど、大きな空間にいるように感じられます。</p>
+      </td>
+      <td>
+        <ul>
+          <li>0 ～ 100 ミリ秒 (SDK 1.x 以前）</li>
+          <li>0 ～ 300 ミリ秒（SDK 2.0.0 以降）</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Late Mode</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbLateMode">nn::audio::GetReverbLateMode</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbLateMode">nn::audio::SetReverbLateMode</span>()</p>
+      </td>
+      <td>
+        <p>後期残響音のプリセット値を選択します。後期残響音には反射音の時間分布に影響を与える 5 つのプリセット値が <span class="ApiLink_nn__audio__ReverbType__LateMode">nn::audio::ReverbType::LateMode</span> として用意されています。Late Mode ではこれらプリセット値を選択できます。</p>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>設定値</th>
+              <th>意味</th>
+            </tr>
+            <tr>
+              <td>LateMode_Hall</td>
+              <td>ホール</td>
+            </tr>
+            <tr>
+              <td>LateMode_MetalCorridor</td>
+              <td>金属製の回廊</td>
+            </tr>
+            <tr>
+              <td>LateMode_Cavern</td>
+              <td>
+                <p>洞窟</p>
+              </td>
+            </tr>
+            <tr>
+              <td>LateMode_MaximumDelay</td>
+              <td>最大ディレイ</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>左表を参照</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Late Gain</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbLateGain">nn::audio::GetReverbLateGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbLateGain">nn::audio::SetReverbLateGain</span>()</p>
+      </td>
+      <td>後期残響音のゲインを調整します。</td>
+      <td>0.0f ～ 1.0f</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Decay Time</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbDecayTime">nn::audio::GetReverbDecayTime</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbDecayTime">nn::audio::SetReverbDecayTime</span>()</p>
+      </td>
+      <td>
+        <p>後期残響音が 60 dB 減衰するのにかかる時間を調整します。</p>
+        <p>すべてのパラメータの中でも Decay Time は空間の寸法を認識させる効果が最も大きいものです。Decay Time が長くなるほどサウンドが長く持続するため、大きな空間にいると感じられます。</p>
+      </td>
+      <td>0.1 ～ 20 秒</td>
+    </tr>
+    <tr>
+      <th>
+        <p>
+          <span class="argument">High Frequency Decay Ratio<br /> </span>
+        </p>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbHighFrequencyDecayRatio">nn::audio::GetReverbHighFrequencyDecayRatio</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbHighFrequencyDecayRatio">nn::audio::SetReverbHighFrequencyDecayRatio</span>()</p>
+      </td>
+      <td>
+        <p>低周波の Decay Time に対する高周波の Decay Time を調整します。</p>
+        <p class="argument">例えばこのパラメータの値が 0.5 の場合、高周波は低周波の 2 倍速く減衰します。<span class="argument">&nbsp;</span>1.0 の場合、高周波と低周波の両方が同じ速度で減衰します。</p>
+        <p>一般的な室内では高周波は低周波より早く減衰します。これは、空間の壁面の反射特性、および音が空気を伝搬するときの減衰によるものです。</p>
+      </td>
+      <td>0.1f ～ 1.0f</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Coloration</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbColoration">nn::audio::GetReverbColoration</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbColoration">nn::audio::SetReverbColoration</span>()</p>
+      </td>
+      <td>
+        <p>後期残響音の音色を調整します。</p>
+        <p>音が均一に響く空間では、後期残響音で特定の周波数が際立つことはありません。つまり音色がなくなります。またエコーのパターンが識別できるほど反復されることもありません。一方、音が均一に響かない空間の残響音を設計する必要がある場合もあります。例えば、長い金属の廊下では、特定の周波だけが長く鳴り響くようなエコーのパターンが作成されます。このような特徴をサウンドに追加する場合 Coloration パラメータが有用です。<br />残響音は 0.0 で音色がなくなり、1.0 で音色が豊かになります。</p>
+      </td>
+      <td>
+        <p>0.0f ～1.0f</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Reverb Gain</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbReverbGain">nn::audio::GetReverbReverbGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbReverbGain">nn::audio::SetReverbReverbGain</span>()</p>
+      </td>
+      <td>リバーブアルゴリズムに対する入力ゲインを調整します。</td>
+      <td>0.0f ～ 1.0f</td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Out Gain</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbOutGain">nn::audio::GetReverbOutGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbOutGain">nn::audio::SetReverbOutGain</span>()</p>
+      </td>
+      <td>処理済み出力オーディオのゲインを調整します。<br />未処理の入力オーディオの出力をこのゲインで変更することはできません。</td>
+      <td>
+        <p>0.0f ～ 1.0f</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <span class="argument">Dry Gain</span>
+      </th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__GetReverbDryGain">nn::audio::GetReverbDryGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__SetReverbDryGain">nn::audio::SetReverbDryGain</span>()</p>
+      </td>
+      <td>直接音に対するゲインを調整します。</td>
+      <td>0.0f ～ 1.0f</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_93362777_h2_4">I3dl2Reverb</h2>
+<p>
+  <span class="ApiLink_nn__audio">nn::audio</span> では&nbsp;Interactive 3D Audio Level 2 の仕様に部分的に準拠したリバーブエフェクト( <span class="ApiLink_nn__audio__I3dl2ReverbType">nn::audio::I3dl2ReverbType</span> )を提供します。基本的な利用法はリバーブエフェクトと同様ですが、設定するパラメータが異なります。</p>
+<h3 id="Anchor_93362777_h3_8">I3dl2 リバーブパラメータ</h3>
+<p>I3dl2 リバーブエフェクトで利用するパラメータは下記する通りです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>パラメータ名</th>
+      <th>関連する API</th>
+      <th>説明</th>
+      <th>有効範囲</th>
+    </tr>
+    <tr>
+      <th>Room Gain</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbRoomGain">nn::audio::SetI3dl2ReverbRoomGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbRoomGain">nn::audio::GetI3dl2ReverbRoomGain</span>()</p>
+      </td>
+      <td>
+        <p>初期反射音および後期残響音の双方の、低周波数成分に対する減衰量を調整します。</p>
+      </td>
+      <td>-10000.0f ~ 0.0f [mB]</td>
+    </tr>
+    <tr>
+      <th>Room Hf Gain</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbRoomHfGain">nn::audio::SetI3dl2ReverbRoomHfGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbRoomHfGain">nn::audio::GetI3dl2ReverbRoomHfGain</span>()</p>
+      </td>
+      <td>初期反射音および後期残響音の双方の、高周波数成分に対する減衰量を調整します。</td>
+      <td>-10000.0f ~ 0.0f [mB]</td>
+    </tr>
+    <tr>
+      <th>Decay Time</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbLateReverbDecayTime">nn::audio::SetI3dl2ReverbLateReverbDecayTime</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbLateReverbDecayTime">nn::audio::GetI3dl2ReverbLateReverbDecayTime</span>()</p>
+      </td>
+      <td>
+        <p>残響時間を調整します。</p>
+        <p>この時間は低周波数における後期残響音が 60 dB 減衰するのにかかる時間に相当します。</p>
+      </td>
+      <td>0.1f ~ 20.0f 秒</td>
+    </tr>
+    <tr>
+      <th>Hf Decay Ratio</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbLateReverbHfDecayRatio">nn::audio::SetI3dl2ReverbLateReverbHfDecayRatio</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbLateReverbHfDecayRatio">nn::audio::GetI3dl2ReverbLateReverbHfDecayRatio</span>()</p>
+      </td>
+      <td>
+        <p>低周波の残響時間に対する高周波の残響時間の比を調整します。</p>
+      </td>
+      <td>0.1f ~ 2.0f</td>
+    </tr>
+    <tr>
+      <th>Reflections Gain</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbReflectionsGain">nn::audio::SetI3dl2ReverbReflectionsGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbReflectionsGain">nn::audio::GetI3dl2ReverbReflectionsGain</span>()</p>
+      </td>
+      <td>Room Gain を基準とした初期反射音のレベルを調整します。</td>
+      <td>-10000.0f ~ 1000.0f [mB]</td>
+    </tr>
+    <tr>
+      <th>Reflection Delay Time</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbReflectionDelayTime">nn::audio::SetI3dl2ReverbReflectionDelayTime</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbReflectionDelayTime">nn::audio::GetI3dl2ReverbReflectionDelayTime</span>()</p>
+      </td>
+      <td>直接音を基準とする初期反射音の遅延時間を調整します。通常、値が大きいほど、大きな空間にいるように感じられます。</td>
+      <td>0.0f ~ 0.3f 秒</td>
+    </tr>
+    <tr>
+      <th>Reverb Gain</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbReverbGain">nn::audio::SetI3dl2ReverbReverbGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbReverbGain">nn::audio::GetI3dl2ReverbReverbGain</span>()</p>
+      </td>
+      <td>Room Gain を基準とした後期残響音のレベルを調整します。</td>
+      <td>-10000.0f ~ 2000.0f [mB]</td>
+    </tr>
+    <tr>
+      <th>Late Reverb Delay Time</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbLateReverbDelayTime">nn::audio::SetI3dl2ReverbLateReverbDelayTime</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbLateReverbDelayTime">nn::audio::GetI3dl2ReverbLateReverbDelayTime</span>()</p>
+      </td>
+      <td>初期反射音を基準とする後期残響音の遅延時間を調整します。</td>
+      <td>0.0f ~ 0.1f 秒</td>
+    </tr>
+    <tr>
+      <th>Late Reverb Diffusion</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbLateReverbDiffusion">nn::audio::SetI3dl2ReverbLateReverbDiffusion</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbLateReverbDiffusion">nn::audio::GetI3dl2ReverbLateReverbDiffusion</span>()</p>
+      </td>
+      <td>後期残響音のエコー密度を調整します。</td>
+      <td>0.1f ~ 100.0f</td>
+    </tr>
+    <tr>
+      <th>Late Reverb Density</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbLateReverbDensity">nn::audio::SetI3dl2ReverbLateReverbDensity</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbLateReverbDensity">nn::audio::GetI3dl2ReverbLateReverbDensity</span>()</p>
+      </td>
+      <td>後期残響音のモーダル密度を調整します。</td>
+      <td>0.1f ~ 100.0f</td>
+    </tr>
+    <tr>
+      <th>Hf Reference</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbHfReference">nn::audio::SetI3dl2ReverbHfReference</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbHfReference">nn::audio::GetI3dl2ReverbHfReference</span>()</p>
+      </td>
+      <td>RoomHf や HfDecayRatio が参照周波数として利用する周波数を調整します。<br />この参照周波数を境界として、低周波・高周波それぞれのエフェクト効果が適用されます。</td>
+      <td>20.0f ～ 20000.0f [Hz]</td>
+    </tr>
+    <tr>
+      <th>Dry Gain</th>
+      <td>
+        <p>
+          <span class="ApiLink_nn__audio__SetI3dl2ReverbDryGain">nn::audio::SetI3dl2ReverbDryGain</span>()</p>
+        <p>
+          <span class="ApiLink_nn__audio__GetI3dl2ReverbDryGain">nn::audio::GetI3dl2ReverbDryGain</span>()</p>
+      </td>
+      <td>直接音に対するゲインを調整します。</td>
+      <td>
+        <p>0.0f ～ 1.0f</p>
+        <p>
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_93362777_h3_9">プリセットパラメータ</h3>
+<p>上記パラメータを一括で設定するプリセットが準備されています。それぞれ異なるサイズの空間をエミュレートするよう設計されています。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>設定値</th>
+      <th>意味</th>
+    </tr>
+    <tr>
+      <td>Preset_SmallRoom</td>
+      <td>小さな部屋</td>
+    </tr>
+    <tr>
+      <td>Preset_LargeRoom</td>
+      <td>大きな部屋</td>
+    </tr>
+    <tr>
+      <td>Preset_Hall</td>
+      <td>ホール</td>
+    </tr>
+    <tr>
+      <td>Preset_CavernousCathedral</td>
+      <td>大聖堂</td>
+    </tr>
+    <tr>
+      <td>Preset_MetalCorridor</td>
+      <td>金属製の回廊</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Reverb と I3dl2Reverb との間には以下のようなパラメータの関係があります。各パラメータに対して以下の換算を施すことで、両エフェクトでほぼ同様の効果を得ることができます。</p>
+    <ul>
+      <li>
+        <p>I3dl2Reverb エフェクトの Room Hf Gain および Hf Reference は、 Reverb エフェクトでは提供されていないため、それぞれ固定値を設定する必要があります。</p>
+        <ul>
+          <li>
+            <p>I3dl2Reverb Room Hf Gain</p>
+            <table class="codeblock">
+              <tbody>
+                <tr>
+                  <td class="code">
+                    <div class="codeblock"><pre><span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">roomHf</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span></pre></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p>Room Hf Gain&nbsp;パラメータは、低周波数成分に対する高周波数成分の減衰量として定義されています。<br />このパラメータは ローパスフィルタ(early reflections および late reverb blocks へ入力が渡される前に施されるエフェクト)をコントロールしています。</p>
+          </li>
+          <li>
+            <p>I3dl2Reverb Hf Reference</p>
+            <table class="codeblock">
+              <tbody>
+                <tr>
+                  <td class="code">
+                    <div class="codeblock"><pre><span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span> <span class="n">hfReference</span> <span class="o">=</span> <span class="mf">5000.0</span><span class="p">;</span></pre></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p>Reverb エフェクトでは、このパラメータは 5000 にハードコードされています。I3dl2Reverb エフェクトでは 20 &ndash;20,000 [Hz] 間で任意の値を設定することができます。</p>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>以下のパラメータは、Reverb エフェクト - I3DL2Reverb エフェクト間で、正確に対応します。</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">decayTime</span> <span class="o">=</span> <span class="n">reverb</span><span class="o">-&gt;</span><span class="n">decayTime</span><span class="p">;</span>
+<span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">decayHfRatio</span> <span class="o">=</span> <span class="n">reverb</span><span class="o">-&gt;</span><span class="n">highFrequencyDecayRatio</span><span class="p">;</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+    <ul>
+      <li>
+        <p>以下のパラメータは、線形 - milliBells の変換が行われています。</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">roomGain</span> <span class="o">=</span> <span class="mf">2000.0</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="n">reverb</span><span class="o">-&gt;</span><span class="n">reverbGain</span><span class="p">);</span>
+<span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">reflectionsGain</span> <span class="o">=</span> <span class="mf">2000.0</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="n">reverb</span><span class="o">-&gt;</span><span class="n">earlyGain</span><span class="p">);</span>
+<span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">reverbGain</span> <span class="o">=</span> <span class="mf">2000.0</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="n">reverb</span><span class="o">-&gt;</span><span class="n">lateGain</span><span class="p">);</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>I3DL2Reverb エフェクトの Coloration パラメータは、Reverb エフェクトの diffusion に対応します。</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">diffusion</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">reverb</span><span class="o">-&gt;</span><span class="n">coloration</span><span class="p">);</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>I3DL2Reverb エフェクトの reflectionsDelayTime パラメータは、Reverb エフェクトの predelayTime に対応します。</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="n">i3dl2Reverb</span><span class="o">-&gt;</span><span class="n">reflectionsDelayTime</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">reverb</span><span class="o">-&gt;</span><span class="n">predelayTime</span><span class="p">;</span></pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>I3DL2Reverb エフェクトの Early mode および Late mode は、Reverb エフェクトの late Reverb delay および density にそれぞれ対応します。</p>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre><span class="k">switch</span> <span class="p">(</span><span class="n">reverb</span><span class="o">-&gt;</span><span class="n">earlyMode</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">case</span> <span class="mi">0</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">reverbDelay</span> <span class="o">=</span> <span class="mf">0.012</span><span class="p">;</span>  <span class="c1">// Small room
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">reverbDelay</span> <span class="o">=</span> <span class="mf">0.040</span><span class="p">;</span>  <span class="c1">// Large room
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span> <span class="n">reverbDelay</span> <span class="o">=</span> <span class="mf">0.050</span><span class="p">;</span> <span class="c1">// Hall
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span> <span class="n">reverbDelay</span> <span class="o">=</span> <span class="mf">0.050</span><span class="p">;</span> <span class="c1">// Cavern 
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span> <span class="n">reverbDelay</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>   <span class="c1">// no early reflection
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span> <span class="n">reflectionsGain</span> <span class="o">=</span> <span class="o">-</span><span class="mf">10000.0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">default</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span> <span class="n">reverbDelay</span> <span class="o">=</span> <span class="mf">0.050</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="k">switch</span> <span class="p">(</span><span class="n">reverb</span><span class="o">-&gt;</span><span class="n">lateMode</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">case</span> <span class="mi">0</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">density</span> <span class="o">=</span> <span class="mf">61.0</span><span class="p">;</span>   <span class="c1">// room
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">density</span> <span class="o">=</span> <span class="mf">69.0</span><span class="p">;</span>   <span class="c1">// hall
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">density</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>    <span class="c1">// corridor
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">density</span> <span class="o">=</span> <span class="mf">61.0</span><span class="p">;</span>   <span class="c1">// cavern
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">density</span> <span class="o">=</span> <span class="mf">69.0</span><span class="p">;</span>   <span class="c1">// max delay in the feedback delay network
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="k">default</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">i3dl2Reverb</span> <span class="o">-&gt;</span><span class="n">density</span> <span class="o">=</span> <span class="mf">61.0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </div>
+</div>
+<h2 id="Anchor_93362777_h2_5">Aux</h2>
+<p>ユーザーが独自にオーディオエフェクト処理を実装しオーディオレンダラに組み込むための機能を提供します。この機能は、具体的には以下２機能によって成り立っています。</p>
+<ol>
+  <li>レンダリング過程のサンプルデータをオーディオレンダラから取得する機能 ( <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a0cc038eb2bfee79c21d91e4d42d448c0">ReadAuxSendBuffer()</a> )</li>
+  <li>任意のサンプルデータを、上で取得したレンダリング過程に書き戻す機能 ( <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af5baec6415071c013154030788473957">WriteAuxReturnBuffer() </a>)</li>
+</ol>
+<p>ユーザーは１の機能を用いて取得したサンプルデータに任意の処理を施し、２の機能でサンプルデータをオーディオレンダラに書き戻すことで、任意のエフェクト処理が可能となります。Aux も他のエフェクトと同様に追加した順に処理されます。よってユーザーは任意のレンダリング過程のサンプルデータを Aux で取得可能です。</p>
+<p>この際 Aux では二つのバッファを利用します。( 以下の図は FinalMix に Aux を追加した例です。)</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_93362777/93522094.png" class="embedded-image" />
+  </span>
+</p>
+<ul>
+  <li>Send Buffer は Final Mix の指定のバッファから取り出されたサンプルデータを保持します。</li>
+  <li>Return Buffer はユーザーから渡されたサンプルデータを保持します。このバッファは Aux によってオーディオフレーム毎に読み込まれるため、常に必要な数のサンプルデータが書き出されている必要があります。<br />この書き出しはユーザーが責任を持って行う必要があります。</li>
+</ul>
+<p>Send Buffer 、 Return Buffer それぞれに保持されるサンプルデータのフォーマットや、詳しい扱い方については、<a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a0cc038eb2bfee79c21d91e4d42d448c0">ReadAuxSendBuffer()</a> 、<a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af5baec6415071c013154030788473957">WriteAuxReturnBuffer()</a> の API リファレンスを参照してください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>SendBuffer のサイズおよび Return Buffer のサイズが、ユーザー定義エフェクトが適用されるまでの遅延時間に対応します。また Send Buffer と Return Buffer は同一のバッファを指定することはできません。</p>
+  </div>
+</div>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>ユーザーは Send Buffer からデータを読み取り、Return Buffer に書き戻す責任が発生します。Return Buffer に書き戻されたサンプルデータが不足し、オーディオレンダラが必要とするサンプルデータを読み込めなかった場合、音途切れ等の症状が起きる可能性があります。そのためユーザーは独自定義の信号処理にかかる計算コストと処理時間とのバランスを考慮して、Send Buffer&nbsp;、 Return Buffer のサイズをコントロールする必要があります。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>過去の任天堂提供 SDK では同様の機能はオーディオレンダラにコールバック関数を登録するという方法で実現されていました。この方法ではコールバック関数がオーディオフレーム毎に呼ばれることが前提となっており、ユーザーは固定された頻度で CPU 時間の消費する必要がありました。</p>
+    <p>Aux では Send Buffer 、 Return Buffer のサイズをユーザーがコントロールすることができます。そのため処理負荷のバランスコントロールが可能となっています。</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__audio', '../../../Api/HtmlNX/namespacenn_1_1audio.html' )
+SetUrl( 'ApiLink_nn__audio__AddBufferMixer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a64e2ff6a0becd7888a5915a47da16f83' )
+SetUrl( 'ApiLink_nn__audio__SetBufferMixerInputOutput', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a521246a99840f3af2fcecad1af6fd215' )
+SetUrl( 'ApiLink_nn__audio__SetBufferMixerVolume', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a9356d381249ea40a4973f20cc281eec0' )
+SetUrl( 'ApiLink_nn__audio__DelayType', '../../../Api/HtmlNX/structnn_1_1audio_1_1_delay_type.html' )
+SetUrl( 'ApiLink_nn__audio__GetReverbEarlyMode', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a9c3c058a0c053e2d2ca92f289bc93e7b' )
+SetUrl( 'ApiLink_nn__audio__SetReverbEarlyMode', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a4612c3bc6eecda84e0c6590dd7417ae5' )
+SetUrl( 'ApiLink_nn__audio__ReverbType__EarlyMode', '../../../Api/HtmlNX/structnn_1_1audio_1_1_reverb_type.html#aba28878a06e614f8cfcebe12af7e0d50' )
+SetUrl( 'ApiLink_nn__audio__GetReverbEarlyGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a2bf0becba34d8919858c88627a55ec7d' )
+SetUrl( 'ApiLink_nn__audio__SetReverbEarlyGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a691b1d3c1192352003438bce49edc125' )
+SetUrl( 'ApiLink_nn__audio__GetReverbPredelayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ae22d2bf34c007b9aa84d91b0aa41131d' )
+SetUrl( 'ApiLink_nn__audio__SetReverbPredelayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a50ecce3b7a65125cb42f82a883e1bd43' )
+SetUrl( 'ApiLink_nn__audio__GetReverbLateMode', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a25ecb6393fa1ad1be717b59fda622e65' )
+SetUrl( 'ApiLink_nn__audio__SetReverbLateMode', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a7b1c48f40827af1c888861911b285678' )
+SetUrl( 'ApiLink_nn__audio__ReverbType__LateMode', '../../../Api/HtmlNX/structnn_1_1audio_1_1_reverb_type.html#a180b7274e24a924de18f2523852626ac' )
+SetUrl( 'ApiLink_nn__audio__GetReverbLateGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ab9e3ebe624ca4beba86840befcbbeb17' )
+SetUrl( 'ApiLink_nn__audio__SetReverbLateGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ae0fbeae569733c9d5976ab86210195dd' )
+SetUrl( 'ApiLink_nn__audio__GetReverbDecayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a19faabefa58111687723fd95d79e9b71' )
+SetUrl( 'ApiLink_nn__audio__SetReverbDecayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a696ac1bdc66a5b47644bbeef59651fa5' )
+SetUrl( 'ApiLink_nn__audio__GetReverbHighFrequencyDecayRatio', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a1c34319e746d62a74846cdf07c02af61' )
+SetUrl( 'ApiLink_nn__audio__SetReverbHighFrequencyDecayRatio', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a6be82cf80b00b3a11b166a166e2a1086' )
+SetUrl( 'ApiLink_nn__audio__GetReverbColoration', '../../../Api/HtmlNX/namespacenn_1_1audio.html#acded99b705e7c49010c58d5eee74406d' )
+SetUrl( 'ApiLink_nn__audio__SetReverbColoration', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a3cfc687003ecb186c2a2c6db45640255' )
+SetUrl( 'ApiLink_nn__audio__GetReverbReverbGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a9fe6132ca258312cdb0e322d373edd7e' )
+SetUrl( 'ApiLink_nn__audio__SetReverbReverbGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ac8d7039c17915463a37d073b2d745e51' )
+SetUrl( 'ApiLink_nn__audio__GetReverbOutGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a38bdb849e8c3738b8fd992ac9c12da52' )
+SetUrl( 'ApiLink_nn__audio__SetReverbOutGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a65ae5012bc344f4868b664004fdbc43f' )
+SetUrl( 'ApiLink_nn__audio__GetReverbDryGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a7f5bc1925b371fac489fd3e4a2413659' )
+SetUrl( 'ApiLink_nn__audio__SetReverbDryGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#aaa86b62024d0c2642ec0b1723b18c788' )
+SetUrl( 'ApiLink_nn__audio__I3dl2ReverbType', '../../../Api/HtmlNX/structnn_1_1audio_1_1_i3dl2_reverb_type.html' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbRoomGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a1a71aa256a7c5f2f1004a72b1fd54c84' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbRoomGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a420614275d3b91159237733f15e73ae8' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbRoomHfGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a8e82cf80a533fd55409f46a04c8e8ec8' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbRoomHfGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#afd9564438a8ba07b92fdca4c51e1e78f' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbLateReverbDecayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a6fe905d2c57ed0bd6b8c1dd72659261e' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbLateReverbDecayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a3d30697ed2bfcacdf8ece9f0128c79ba' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbLateReverbHfDecayRatio', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a546d8390c23be243417a3667bffb0666' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbLateReverbHfDecayRatio', '../../../Api/HtmlNX/namespacenn_1_1audio.html#af8bc8421db6e64f8273271a3c2d4736c' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbReflectionsGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a292ecc380f649d78ddaeb2e68429491e' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbReflectionsGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a34b6cba48a75f429154584edce163664' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbReflectionDelayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#acc2341c7f68b219ac523400cb3d1a228' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbReflectionDelayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a86ac58707370ef9e111a6e819fd80607' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbReverbGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a49f7d62ba4bcff02d58f6e3027641e57' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbReverbGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a18fdf3a64a310284e34132d30550d63b' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbLateReverbDelayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#af7f25d72e1713f0e484f582bc0093a7b' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbLateReverbDelayTime', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a921b437e335e770d459b9f4fcc58131d' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbLateReverbDiffusion', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a4da9f508b144d7b20c1aed21398798e2' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbLateReverbDiffusion', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a2f7edc03f43ae0cfc052a719c1868366' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbLateReverbDensity', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a0566aa934de7ee69f034200aa48648df' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbLateReverbDensity', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a73a7b68dbeef98a555fba4359eeae080' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbHfReference', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a39b6eec4d0ef38a38f03fe1c4c1b3738' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbHfReference', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a8c688232f256369377544fbe510a6b4f' )
+SetUrl( 'ApiLink_nn__audio__SetI3dl2ReverbDryGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a052a168fc592998f6013b2f7c9f0ff51' )
+SetUrl( 'ApiLink_nn__audio__GetI3dl2ReverbDryGain', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ae48a4d142631c1b032b7ce8e8079c3b6' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

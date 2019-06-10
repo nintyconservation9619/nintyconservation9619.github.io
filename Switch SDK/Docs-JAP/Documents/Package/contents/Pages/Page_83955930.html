@@ -1,0 +1,453 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>レイアウトバイナリコンバータ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- レイアウトバイナリコンバータ -->
+<div class="pagetitle" id="PageId_83955930">レイアウトバイナリコンバータ</div>
+<div class="text_separate">
+<h1 id="Anchor_83955930_h1_1">レイアウトバイナリコンバータ</h1>
+<h2 id="Anchor_83955930_h2_1">はじめに</h2>
+<p>レイアウトバイナリコンバータ(LayoutConverter)は、レイアウトデータファイルを Layout ライブラリのリソースとなるレイアウトバイナリファイルに変換するためのコマンドラインツールです。本ドキュメントでは、レイアウトバイナリコンバータの使い方と機能について説明します。</p>
+<h2 id="Anchor_83955930_h2_2">レイアウトバイナリコンバータの使い方</h2>
+<h3 id="Anchor_83955930_h3_1">レイアウトバイナリコンバータの実行方法</h3>
+<p>レイアウトバイナリコンバータを使用するには以下の二つの方法があります。</p>
+<ul class="simple">
+  <li>LayoutEditorのセーブファイル（以降、レイアウトデータファイルと呼びます）に対してコマンドラインから実行する方法</li>
+  <li>LayoutEditor から実行する方法</li>
+</ul>
+<p>このうち、「LayoutEditor から実行する方法」は、プログラマが実験用途で利用するもので、本制作での利用はお勧めしません。詳細は、LayoutEditor のドキュメントを参照してください。<br />以降では、コマンドラインから実行する方法を説明します。</p>
+<h4 id="Anchor_83955930_h4_1">コマンドラインから実行する方法</h4>
+<p>レイアウトバイナリコンバータをコマンドラインから使用する場合は以下の形式で実行します。</p>
+<ul class="simple">
+  <li>LayoutConverter.exe [オプション] 入力レイアウトデータファイル（複数指定可） 出力先ディレクトリ</li>
+  <li>LayoutConverter.exe [オプション] 入力ディレクトリ 出力先ディレクトリ</li>
+</ul>
+<p>例:</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>LayoutConverter.exe layout.flyt animarion.flan outDir 
+LayoutConverter.exe -u -g inDir outDir</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>入力レイアウトデータファイルは複数指定することができます。</p>
+<p>また、入力にディレクトリを指定した場合は、指定されたディレクトリに存在するレイアウトデータファイルを検索して入力レイアウトデータファイルとします。</p>
+<p>レイアウトデータとアニメーションデータが同じディレクトリにある場合にはディレクトリを指定するとそれぞれのファイルを指定しなくても一括してバイナリ変換を行うことができます。</p>
+<p>入力に .fcpx ファイルを指定した場合は、出力ディレクトリにコンバート済みの .bfcpx ファイルを出力します。</p>
+<p>例:</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>LayoutConverter.exe multi.fcpx outDir</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83955930_h4_2">flyt と flan</h4>
+<p>下記のような理由から、<strong>flyt と flan は同一フォルダ内に同じ名前で置いておくような運用をおすすめします。</strong></p>
+<ul>
+  <li>コンバータは、flan ファイルを変換する際に、同一フォルダに存在する同名の flyt ファイルを探し、発見できた場合、実際に利用されているアニメーションだけを出力している</li>
+  <li>コンバータは、実際に利用するテクスチャだけを出力し、テクスチャパターンアニメーションについては flyt が無いと正しく処理ができない(回避のためには、cvtr-all-tex オプションを指定しなければならない)</li>
+</ul>
+<h3 id="Anchor_83955930_h3_2">レイアウトバイナリコンバータのオプション</h3>
+<p>LayoutConverter.exe のオプションは、ハイフンと文字の組み合わせによって指定します。「-u」と「-g」のように2つ以上のオプションを同時に指定する場合は、「-ug」で はなく「-u -g」のようにそれぞれ別の引数として指定する必要があります。 オプションの種類は以下のとおりです。</p>
+<p>各オプションの詳細については次章を参照してください。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプメッセージを表示し、終了します。</p>
+<p>
+  <strong>--tile-mode &lt;arg&gt;</strong>
+</p>
+<p>ffnt を使用した fcpx をコンバートする際に、対象とするタイルモードを指定します。</p>
+<p>Windows / OpenGL 向けバイナリを出力する際は、<strong>linear</strong> を指定します。</p>
+<p>Windows / OpenGL 向け以外のバイナリを出力する際は、<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a> を参照してください。</p>
+<p>
+  <strong>--api-type &lt;arg&gt;</strong>
+</p>
+<p>対象とする描画 APIの種類を指定します。廃止予定のオプションです。代わりに、ArchiveShader の --api-type , --code-type をご利用ください。</p>
+<p>
+  <strong>--code-type &lt;arg&gt;</strong>
+  <br />
+  <br />対象とするシェーダーコードの種類を指定します。廃止予定のオプションです。代わりに、ArchiveShader の --api-type , --code-type をご利用ください。</p>
+<p>
+  <strong>-p --platform &lt;arg&gt;</strong>
+</p>
+<p>対象とするプラットフォーム名を指定します。廃止予定のオプションです。代わりに、ArchiveShader の --api-type , --code-type をご利用ください。</p>
+<p>
+  <strong>
+    <span class="option">-u</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>内容が変化するファイルのみ更新します。</p>
+<p>
+  <strong>
+    <span class="option">-g</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>アニメーション区間タグの単位でアニメーションのバイナリファイルを出力します。</p>
+<p>
+  <strong>--tag-split-and-whole</strong>
+</p>
+<p>アニメーション区間タグの単位のアニメーション・バイナリファイルと、アニメーション全体を含むアニメーション・バイナリファイルをともに出力します。</p>
+<p>
+  <strong>
+    <span class="option">--no-convert-cvtrchar</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>テキストボックスの文字列に含まれる &lsquo;^&rsquo; + 00 ～ 1F の 16 進文字列を文字コード 00～1F の文字に変換しません。</p>
+<p>
+  <strong>
+    <span class="option">--discard-textboxtext</span>
+  </strong>
+</p>
+<p>テキストボックスの文字列をバイナリに出力しません。「文字列の長さを強制的に指定」が有効な場合、指定したバッファは確保されます。</p>
+<p>
+  <strong>--omit-samekey</strong>
+</p>
+<p>-g オプションを指定している際に有効なオプションです。 最初のアニメーション区間タグを除き、アニメーション区間タグで指定されたフレーム区間内で値が変化しない場合は、キーを出力しません。</p>
+<p>
+  <strong>
+    <span class="option">--omit-samekey-all</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>-g オプションを指定している際に有効なオプションです。 アニメーション区間タグで指定されたフレーム区間内で値が変化しない場合は、キーを出力しません。</p>
+<p>
+  <strong>
+    <span class="option">--omit-nokey-all</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>-g オプションを指定している際に有効なオプションです。 アニメーション区間タグで指定されたフレーム区間内にキーが無い場合は、アニメーションデータを出力しません。</p>
+<p>
+  <strong>
+    <span class="option">--bake-infinity</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>キーフレーム区間外が「定数」以外のときに、カーブを再現するようにキーをリピートして出力します。</p>
+<p>
+  <strong>--no-taginfo</strong>
+</p>
+<p>ファイルにアニメーション区間タグの情報を含めません。アニメーション区間タグの単位で出力するときに有効です。</p>
+<p>
+  <strong>
+    <span class="option">--no-check-version</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>レイアウトファイルのバージョンのチェックを行いません。このオプションを指定する場合、ファイルのバージョンによってはレイアウトライブラリが正しく動作しない可能性があります。</p>
+<p>
+  <strong>--cvtr-all-tex</strong>
+</p>
+<p>flyt のテクスチャリストに登録されているテクスチャファイルを全て処理し、出力します。このオプションを指定しない場合は、マテリアルやテクスチャパターンアニメで実際に使用されているテクスチャファイルだけを処理します。</p>
+<p>
+  <strong>--no-copy-font</strong>
+</p>
+<p>コンバート時に、出力先にフォントリソースをコピーしません。フォントをレイアウトアーカイブ内に入れず、別に管理する場合に有用なオプションです。</p>
+<p>
+  <strong>
+    <span class="option">--extra-frame-for-onetime</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>ワンタイムアニメーションのフレーム数を、アニメ区間タグで指定された値に1を足した値にします。NW4R及び NW4Cと同じ挙動になりますが、ループアニメーションにした場合とフレーム数が異なってしまう、終了フレームにキーがない場合に、終了フレームの状態で 止まらない可能性がある等の問題があります。</p>
+<p>
+  <strong>
+    <span class="option">--cvtr-all-anim-content</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>関連グループが指定されているアニメタグについて、アニメーションの対象が関連グループに含まれないペインの場合も アニメーションを出力します。このオプションを指定しない場合は、関連グループが指定されているアニメーションタグについては、グループに含まれているペ インのアニメーションのみを出力します。過去バージョンの挙動との互換性のために用意されています。</p>
+<p>
+  <strong>--allow-nogroup-animtag</strong>
+</p>
+<p>関連グループが指定されていないアニメーションタグを許可します。cvtr-all-anim-content が 指定された場合は、無視されます。過去バージョンの挙動との互換性のために用意されています。</p>
+<p>
+  <strong>
+    <span class="option">--degamma-texture</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>テクスチャの色空間を、sRGBからリニアに変換します。RGBのみ変換し、アルファ値はそのままになります。レイアウトをリニアの色空間で描画したい場合に使用します。ただし、インダイレクトに使われるテクスチャにつ いては変換を行いません。インダイレクトに使われるテクスチャのカラーは、実際には移動量ですので、カラーとして変換を行うと使いにくくなるためです。具 体的には以下の場合にインダイレクトで使われるテクスチャと見なされます。</p>
+<ul>
+  <li>テクスチャコンバイナで<strong>インダイレクト[歪みソース=自分、対象=前段]</strong>を指定している段で使用しているテクスチャ</li>
+  <li>テクスチャコンバイナで<strong>インダイレクト[歪みソース=自分と後段の混合結果、対象=前段]</strong>を指定している段で使用しているテクスチャ</li>
+  <li>テクスチャコンバイナで<strong>インダイレクト[歪みソース=自分と後段の混合結果、対象=前段]</strong>を指定している段の次の段(3段目)で使用しているテクスチャ</li>
+</ul>
+<p>
+  <strong>
+    <span class="option">--degamma-parameter</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>白黒補間のカラー及び頂点カラーの色空間を、sRGBからリニアに変換します。<br />「リニアの色空間で表示したいが、ツール上での入力はsRGBガンマの値で行いたい」という場合に使用します。<br />このオプションを使用すると、デザイナーがLayoutEditorで入力した数値と ランタイムでペインのパラメータから取得する数値が異なることになります。このような煩雑さのため、このオプションを利用はお勧めしません。</p>
+<p>
+  <strong>
+    <span class="option">--gpu-encoding &lt;type&gt;<br /></span>
+  </strong>
+</p>
+<p>テクスチャー変換の際に、GPU でエンコードするかどうかを指定します。<br />type は、true, false, auto で指定します。省略時は true になります。<br /></p>
+<p>指定したオプションは、内部で呼び出される 3Dテクスチャーコンバーターに渡されます。<br />詳細は、<a href="../Pages/Page_239574379.html">3Dテクスチャーコンバーターマニュアル</a> の <strong><span class="option">gpu-encoding</span></strong> を参照してください。<br /></p>
+<p>
+  <strong>--mesh-trimming-optimization &lt;type&gt;</strong>
+</p>
+<p>
+  <span class="option">&nbsp;ピクチャペインの使用テクスチャを解析して完全に透明なピクセルを描画しないようなメッシュを生成して描画面積を減らすメッシュ形状トリミング最適化を適用します。<br />メッシュ形状トリミング最適化の詳細については<a href="../Pages/Page_242405100.html">こちら</a>を参照してください。<br />type には以下の表のいずれかを指定します。<br /></span>
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>type</th>
+      <th>効果</th>
+    </tr>
+    <tr>
+      <td>auto</td>
+      <td>ピクチャペインごとに使用可能なすべての最適化タイプを適用して、最も描画ピクセルが少なくなる最適化タイプを自動的に選択します。</td>
+    </tr>
+    <tr>
+      <td>AABB</td>
+      <td>
+        <p>すべてのピクチャペインで AABB を使用して最適化メッシュを生成します。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>OBB</td>
+      <td>
+        <p>すべてのピクチャペインで OBB を使用して最適化メッシュを生成します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>--mesh-trimming-optimization-margin &lt;size&gt;</strong>
+</p>
+<p>
+  <span class="option">&nbsp;メッシュ形状トリミング最適化で生成されるメッシュのサイズにピクセル単位で一定のマージンを設定します。<br />メッシュ形状トリミング最適化処理はレイアウトデータの入力として設定されているテクスチャを使用するため、その後圧縮テクスチャなどにコンバートされた際に透明ピクセルだった場所が不透明になり最適化メッシュの領域からはみ出すことがあります。<br />このオプションで数ピクセル範囲を拡大するように設定することでこういった問題を避けることが可能です。</span>
+</p>
+<p>
+  <strong>--output-optimization-statistics</strong>
+</p>
+<p>
+  <span class="option">&nbsp;レイアウトデータに関する最適化レポートを出力します。<br />このオプションを指定するとレイアウトデータのコンバートは行われずに入力ディレクトリ以下のすべてのレイアウトデータについて最適化処理を適用した結果の統計情報を指定ディレクトリ直下に「OptimizationReport.html」として出力します。<br />メッシュ形状トリミング最適化情報については同時に「--mesh-trimming-optimization」を指定すると、指定したオプションでの最適化結果が出力されます。</span>
+</p>
+<p>
+  <strong>
+    <span class="option">--skip-if-srctexture-not-exist</span>
+  </strong>
+</p>
+<p>
+  <span class="option">&nbsp;</span>
+  <strong>(非推奨)</strong> 変換元となるテクスチャファイルが存在しない場合、変換処理をスキップし、エラーを報告しません。この機能はバイナリコンバータ1.3.0から非推奨にな りました。このオプションを指定すると、変換元のテクスチャファイルが存在しないウインドウペインにおいて、変換に失敗することが確認されています。テク スチャが存在する状態で変換し、変換後のファイルから不要なテクスチャを削除する方法を行ってください。</p>
+<p>
+  <strong>-s --silent</strong>
+</p>
+<p>エラーメッセージのみ表示します。</p>
+<p>
+  <strong>--ftxb-cache-directory</strong>
+</p>
+<p>生成される ftxb ファイルを指定したディレクトリにキャッシュします。テクスチャを使用するレイアウトの2度目以降のコンバートが高速になります。</p>
+<p>
+  <strong>--args-file &lt;arg&gt;</strong>
+</p>
+<p>引数ファイルを指定します。引数ファイルに記述した内容を、引数として指定できます。引数ファイルは複数行に渡って各オプションを記述できます。行頭に # がある行はコメントとして扱います。オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<h2 id="Anchor_83955930_h2_3">レイアウトバイナリコンバータの機能</h2>
+<h3 id="Anchor_83955930_h3_3">レイアウトバイナリファイルに変換可能</h3>
+<p>レイアウトデータファイルの拡張子とレイアウトバイナリファイルの拡張子には、以下のような関係があります。</p>
+<p>表 4-1 拡張子の関係:</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <thead>
+    <tr>
+      <th>変換後に作成される レイアウトバイナリファイルの拡張子</th>
+      <th>レイアウトバイナリコンバータを使って変換する レイアウトファイル</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>bflyt</td>
+      <td>flyt</td>
+    </tr>
+    <tr>
+      <td>bflan</td>
+      <td>flan</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955930_h3_4">リソースの種類</h3>
+<p>レイアウトバイナリコンバータは出力先のディレクトリにリソースの種類ごとのディレクトリを作成し、バイナリ変換後のレイアウトファイルやレイアウトに使用するフォント、テクスチャイメージを格納します。</p>
+<p>表 4-2　リソースの種類と格納先ディレクトリ名:</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> <col /> </colgroup>
+  <thead>
+    <tr>
+      <th>リソースの種類</th>
+      <th>拡張子</th>
+      <th>格納先ディレクトリ名</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>レイアウトデータ</td>
+      <td>bflyt</td>
+      <td>blyt</td>
+    </tr>
+    <tr>
+      <td>アニメーションデータ</td>
+      <td>bflan</td>
+      <td>anim</td>
+    </tr>
+    <tr>
+      <td>フォントリソース</td>
+      <td>bffnt</td>
+      <td>font</td>
+    </tr>
+    <tr>
+      <td>テクスチャイメージ</td>
+      <td>ftxb</td>
+      <td>timg</td>
+    </tr>
+    <tr>
+      <td>複合フォント</td>
+      <td>fcpx</td>
+      <td>bfcpx</td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>Layout ライブラリは上記のディレクトリ名に従ってリソースを取得します。 そのため、変換されたファイルはその種類に対応するディレクトリに格納されていなければなりません。</li>
+  <li>拡張子 ftxb のファイルは TGA ファイルから変換されたイメージファイルです。 <br /><ul><li>TGAファイルはレイアウトエディタがサポートする形式のものとしてください。</li><li>ftxb ファイルは最終的に、LayoutArchiver&nbsp; で 一つの bntx ファイルに統合されます。</li></ul></li>
+</ul>
+<h3 id="Anchor_83955930_h3_5">リソース内に名前を格納</h3>
+<p>レイアウトバイナリファイルには、レイアウトデータファイル同様、 ペインやグループにそれぞれ名前が格納されます。 Layout ライブラリはこの名前を見て、データを検索したり、アニメーションを反映したりします。</p>
+<p>ただし、レイアウトバイナリファイルではテクスチャなどのリソース名は一意でなければなりません。 リソースの種類ごとに変換後のファイルが保存されるため、変換元の保存場所が異なる場合でも同じ種類、 名前を持つリソースは最後に変換されたファイルが残ります。</p>
+<p>ただし例外として、テクスチャイメージはファイル名にフォーマット毎にユニークな文字が付きますので、 同じテクスチャを異なるフォーマットとして使っている場合は(例えばA8とL8など)、 異なるファイルとして出力されます。</p>
+<h3 id="Anchor_83955930_h3_6">アニメーションデータのバイナリ変換</h3>
+<h4 id="Anchor_83955930_h4_3">アニメーションのデータ形式</h4>
+<p>レイアウトデータファイルをレイアウトバイナリファイルに変換する際、 アニメーションの種類によって格納されるアニメーションのデータ形式が変化します。</p>
+<h4 id="Anchor_83955930_h4_4">ステップ形式</h4>
+<p>(frame, value) を組とするキー・データを格納します。</p>
+<p>frame を単精度の浮動小数、value を符号なし 16 ビット整数で格納します。</p>
+<h4 id="Anchor_83955930_h4_5">エルミート補間形式</h4>
+<p>(frame, value, slope) を組とするキー・データを格納します。</p>
+<p>frame, value, slope いずれも単精度の浮動小数で格納します。</p>
+<h3 id="Anchor_83955930_h3_7">アニメーションの種類とデータ形式</h3>
+<p>アニメーションの種類によってアニメーションデータがステップ形式またはエルミート補間形式で 格納されるのかが決定されます。</p>
+<p>表 4-3 アニメーションの種類と格納されるデータ形式:</p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <thead>
+    <tr>
+      <th>アニメーションの種類</th>
+      <th>データ形式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ペインSRTアニメーション</td>
+      <td>エルミート補間形式</td>
+    </tr>
+    <tr>
+      <td>ビジビリティアニメーション</td>
+      <td>ステップ形式</td>
+    </tr>
+    <tr>
+      <td>頂点カラーアニメーション</td>
+      <td>エルミート補間形式</td>
+    </tr>
+    <tr>
+      <td>マテリアルカラーアニメーション</td>
+      <td>エルミート補間形式</td>
+    </tr>
+    <tr>
+      <td>テクスチャSRTアニメーション</td>
+      <td>エルミート補間形式</td>
+    </tr>
+    <tr>
+      <td>テクスチャパターンアニメーション</td>
+      <td>ステップ形式</td>
+    </tr>
+    <tr>
+      <td>インダイレクトSRTアニメーション</td>
+      <td>エルミート補間形式</td>
+    </tr>
+    <tr>
+      <td>アルファコンペアアニメーション</td>
+      <td>エルミート補間形式</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955930_h3_8">ファイル変換オプション</h3>
+<h4 id="Anchor_83955930_h4_6">-u</h4>
+<p>-u オプションの指定によって変換後のファイルと既存ファイルをバイナリ比較し、内容が同じであればファイルを更新しないようにすることもできます。<br />これによって不用意にファイルのタイムスタンプが変更されるのを防ぐことができます。</p>
+<h4 id="Anchor_83955930_h4_7">-g</h4>
+<p>-g オプションの指定によって、アニメーション中に打たれたタグごとにアニメーションのバイナリファイルを作成します。<br />一連のアニメーションから任意の区間を取り出して使用する場合に使います。</p>
+<h5 id="Anchor_83955930_h5_1">命名ルール</h5>
+<p>アニメーションのバイナリファイルは、「レイアウト名_アニメーション区間タグ名」という命名ルールで、出力されます。</p>
+<h4 id="Anchor_83955930_h4_8">--no-convert-cvtrchar</h4>
+<p>--no-convert-cvtrchar オプションが指定されない場合は、テキストボックスの文字列に含まれる &lsquo;^&rsquo; + 00 ～ 1F の 16進文字 2 桁の文字列を、文字コード 00 ～ 1F の文字に変換します。このオプションが指定された場合はこの変換は行いません。</p>
+<h4 id="Anchor_83955930_h4_9">--omit-samekey、--omit-samekey-all、--omit-nokey-all</h4>
+<p>--omit-samekey、--omit-samekey-all、--omit-nokey-all は、-g オプションを指定している際に有効なオプションです。通常、フレーム区間全体で 1 つでもキーが設定されている場合は、アニメーション区間タグで指定されたフレーム区間内で値が変化しない場合でも、1 つのキーが出力されます。--omit-samekey、または --omit-samekey-all オプションを指定した場合は、アニメーション区間タグで指定されたフレーム区間内で値が変化しない場合はキーを出力しません。ただし、--omit- samekey のオプション場合は「バイナリ出力する」にチェックが入ったアニメーション区間タグのなかで、最初のアニメーション区間タグは必ずキーを出力します。-- omit-nokey-all オプションを指定した場合は、アニメーション区間タグで指定されたフレーム区間内にキーが打たれていない場合にはアニメーションデータを出力しません。こ の場合、値が変化するかどうかは無視されます。 アニメーションを途中で切り替えることがなく、必ずアニメーション区間タグのフレーム数分アニメーションを再生する場合は、これらのオプションを指定する ことでアニメーションバイナリのサイズを小さくすることができます。</p>
+<h4 id="Anchor_83955930_h4_10">--bake-infinity</h4>
+<p>--bake-infinity は、キーフレーム区間外が「定数」以外のときに、カーブを再現するようにキーをリピートして出力します。リピートされる分、出力されるアニメーションバイナリファイルのサイズが増加しますので注意してください。</p>
+<h4 id="Anchor_83955930_h4_11">--no-taginfo</h4>
+<p>--no-taginfo は、-g オプションを指定している際に有効なオプションです。通常、アニメーション区間タグごとにバイナリファイルを出力する場合は、バイナリファイル内にアニ メーション区間タグに関する情報を含めます。このオプションが指定された場合は、バイナリファイルにアニメーション区間タグの情報を含めません。</p>
+<h4 id="Anchor_83955930_h4_12">--no-check-version</h4>
+<p>--no-check-version が指定された場合は、レイアウトファイルのバージョンのチェックを行いません。通常はレイアウトファイルのバージョンをチェックし、バイナリコンバータが 認識できないバージョンの場合は処理を中断します。このオプションを指定する場合、ファイルのバージョンによってはレイアウトライブラリが正しく動作しな い可能性があります。</p>
+<h4 id="Anchor_83955930_h4_13">--cvtr-all-tex</h4>
+<p>--cvtr-all-tex が指定された場合は、レイアウトファイル (flyt) に登録されている全てのテクスチャファイルを変換します。このオプションを指定しない場合は、レイアウトファイルに登録されているテクスチャファイルのう ち、マテリアルやテクスチャパターンアニメーションで実際に使用されているテクスチャファイルだけを変換するようにします。このオプションを指定しない際 に flan ファイルにテクスチャパターンアニメーションが使用されている場合は、ファイル名が同じflyt ファイルを flan ファイルと同じフォルダに置いておく必要があります。</p>
+<h4 id="Anchor_83955930_h4_14">-no-copy-font</h4>
+<p>-no-copy-font が指定された場合は、コンバート時に、出力先にフォントリソースをコピーしません。Cafeではフォントのサイズが大き くなるため、レイアウトアーカイブ毎にコピーを持つと大量のメモリを消費してしまいます。このオプションは、そのような問題を避けるために、フォントをレイアウトアーカイブと別に管理する場合に有用です。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

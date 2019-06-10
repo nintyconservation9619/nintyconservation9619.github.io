@@ -1,0 +1,413 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>スレッド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- スレッド -->
+<div class="pagetitle" id="PageId_83955697">スレッド</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955697_h1_1">スレッド機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955697_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955697_h3_1">スレッドの状態</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955697_h3_2">スレッドの優先度</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955697_h3_3">CPU コアマスクについて</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_83955697_h4_1">優先コア番号について</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_83955697_h3_4">浮動小数点演算ユニットついて</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955697_h2_2">スケジューリング</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955697_h2_3">スレッドの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955697_h2_4">スレッドの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955697_h2_5">スレッド機能の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955697_h2_6">スレッド使用上の注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955697_h3_5">スレッドスタックのミラーリング</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955697_h3_6">スレッドスタックに指定できるメモリ領域</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955697_h3_7">スレッド終了時の注意事項</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955697_h3_8">スレッドの破棄について</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955697_h1_1">スレッド機能</h1>
+<h2 id="Anchor_83955697_h2_1">機能概要</h2>
+<p style="color: rgb(51,51,51);">スレッドとは、プロセッサ上で複数の処理を同時に実行するための最小の実行単位です。本 OS ライブラリでは、プログラムを複数の実行単位に分割して実行するためのスレッド機能を提供しています。</p>
+<p style="color: rgb(51,51,51);">プログラムが実行を開始すると、まず最初にメインスレッドと呼ばれる最初のスレッドが１つだけ実行されています。プログラムは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">CreateThread()</a> にて新しいスレッドを作成し、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">StartThread()</a> することで、そのスレッドの実行を開始します。また、実行を開始したスレッドを制御するために後述するいくつかの機能が提供されます。</p>
+<p style="color: rgb(51,51,51);">スレッドは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">CreateThread()</a> 時に指定したスレッドエントリ関数から実行を開始、スレッドエントリ関数からリターンすることで終了します。終了したスレッドについては、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">DestroyThread()</a> にて当該スレッドを破棄することができます。</p>
+<p style="color: rgb(51,51,51);">各スレッドには以下に示す状態や属性などがあります。</p>
+<ul>
+  <li style="color: rgb(51,51,51);">スレッドの状態</li>
+  <li style="color: rgb(51,51,51);">スレッドの優先度</li>
+  <li style="color: rgb(51,51,51);">CPU コアマスク</li>
+  <li style="color: rgb(51,51,51);">優先コア番号</li>
+  <li style="color: rgb(51,51,51);">浮動小数点ユニットのコンテキスト</li>
+</ul>
+<h3 style="color: rgb(51,51,51);" id="Anchor_83955697_h3_1">スレッドの状態</h3>
+<p>スレッドは <span class="ApiLink_nn__os__ThreadType">nn::os::ThreadType</span> オブジェクトを使って操作します。<span class="ApiLink_nn__os__ThreadType">nn::os::ThreadType</span> オブジェクトは以下のいずれかの状態を持ちます。スレッドを制御する各種 API を使用する場合、事前条件としていずれかのオブジェクト状態を満たしている必要があります。詳細は各 API リファレンスを参照して下さい。なお、<span class="ApiLink_nn__os__ThreadType">nn::os::ThreadType</span> オブジェクトは&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">DestroyThread()</a> でスレッドを破棄するまで内容を破壊してはいけません。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>オブジェクトの状態</th>
+      <th>状態の意味</th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">NotInitialized</td>
+      <td>オブジェクトが未だ初期化されていない、<br />もしくは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">DestroyThread()</a> によって明確な未初期化状態になった</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">Initialized</td>
+      <td>対象スレッドが <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">CreateThread()</a> によって生成された</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">Started</td>
+      <td>対象スレッドが <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">StartThread()</a> によって動作を開始した</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">Exited</td>
+      <td>対象スレッドが終了した</td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="color: rgb(51,51,51);" id="Anchor_83955697_h3_2">スレッドの優先度</h3>
+<p style="color: rgb(51,51,51);">個々のスレッドには優先度が割り当てられ、スケジューリングの際に勘案されます。</p>
+<p style="color: rgb(51,51,51);">アプリケーションのスレッド優先度は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a44ed3b4dddf9ebfb69bc33167369b816">nn::os::HighestThreadPriority</a>（0） から <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a88510f5f630a16612aa8d479c10b56de">nn::os::LowestThreadPriority</a>（31） で指定することができ、数字が小さいほど高い優先度となります。また、スレッド優先度の標準値は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a>（16） で示されます。</p>
+<p style="color: rgb(51,51,51);">スレッドの優先度がスケジューリングにどのような影響を与えるかは、ターゲット環境によって異なります。スケジューリングアルゴリズムについては後述します。</p>
+<h3 id="Anchor_83955697_h3_3">CPU コアマスクについて</h3>
+<p>自スレッドがどの CPU コア上で動作可能かをビットパターン値で示したものを CPU コアマスク（もしくはアフィニティマスク）と言います。</p>
+<p>自スレッドに現在設定されている CPU コアマスクは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a91345e6e4543ab561f49480b89ae9a65">nn::os::GetThreadAvailableCoreMask()</a> で取得することができます。また、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask()</a> を使って指定することもできます。この時、複数の CPU コアが利用可能に設定されている場合は、複数の CPU コア上をスレッドが自動的に移動します。スレッドを単一の CPU コア上にバインドしたい場合には、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask()</a> で単一の CPU コアだけを使用するような設定にして下さい。</p>
+<p>各スレッドのデフォルトの CPU コアマスクは、desc 内に設定された &lt;MinCoreNumber&gt; と &lt;MaxCoreNumber&gt; の設定値によって決まります。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Windows 環境と実機環境では、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask()</a> で指定された複数の CPU コア上をスレッドが移動するときのスケジューリングアルゴリズムは異なります。</p>
+  </div>
+</div>
+<h4 id="Anchor_83955697_h4_1">優先コア番号について</h4>
+<p>優先コア（Ideal Core）番号は、スレッドが複数の CPU コアで実行可能であるときに優先的に使用する CPU コア番号を表します。具体的には、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask()</a> にて複数のコアを使用するような CPU コアマスクが指定された場合に優先して使用される CPU コア番号です。全てのスレッドにおいて、デフォルトのスレッド優先コア番号は 0 となります。そのため、プログラム起動直後のメインスレッド（nnMain）は CPU コア番号 0 で動作を開始します。</p>
+<p>各スレッドの優先コア番号は、以下の API で指定することができます。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread()（対象スレッドの優先コア番号指定あり版）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask()</a>
+  </li>
+</ul>
+<p>「スレッド優先コア番号指定なし版」の <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1e7db66d31e254873b613d4eadd0d716">nn::os::CreateThread()</a> でスレッドを生成した場合、生成されたスレッドの優先コア番号は 0 となります。生成元スレッドの優先コア番号を引き継ぐわけではないため注意して下さい。</p>
+<p>また、優先コア番号は、その CPU コア上でスレッドが動作することを保証するものではありません。対象 CPU コアがアイドルの状態であっても、自スレッドが他コアで動作することもあり得ます。どうしても対象 CPU コア上でのみスレッドを動作させたい場合には、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask()</a> で単一の CPU コアだけを使用するような設定にして下さい。</p>
+<h3 id="Anchor_83955697_h3_4">浮動小数点演算ユニットついて</h3>
+<p>FPU（浮動小数点演算ユニット）の各レジスタは、スレッドコンテキストの一部として扱われます。つまり、スレッド毎に異なる値を保持します。</p>
+<p>また、浮動小数点演算ユニットの設定値（std::fesetround() 等で指定できる各種設定値）もスレッド毎に異なる値を保持します。<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread()</a> でスレッドを生成する際には、生成されたスレッドの FPU 設定値の初期値は、生成元スレッドの FPU 設定値を引き継ぎます。</p>
+<p>メインスレッドである nnMain() の FPU 設定値については、nnMain() の先頭付近で明示的に指定することを推奨します（<a href="../Pages/Page_105383443.html">nnMain() とライブラリの初期化</a> も参照して下さい）。</p>
+<h2 id="Anchor_83955697_h2_2">スケジューリング</h2>
+<p>スレッドは、プロセッサの CPU コアの数だけ並行して同時に動作することができます（利用可能な CPU コア数はターゲット環境によって異なります）。各 CPU コア上で実行すべきスレッドを決定することをスケジューリングといいます。</p>
+<p>単一の CPU コア上では同時に一つのスレッドのみが実行でき、各スレッドに付与されている優先度によって次に実行すべきスレッドが一つ決定されます。通常は実行可能なスレッドの中から最も優先度の高いスレッドに実行権が与えられます。とあるスレッドＡが動作している最中に、それよりも優先度の高いスレッドＢが実行可能になった場合は、即座にスケジューリングが行われ、より優先度の高いスレッドＢが実行権を得ることができます（このような振舞いを、スレッドＡがプリエンプションされると言います）。</p>
+<p>スケジューラには各優先度ごとのスレッドのキューがあり、ここに同一の優先度を持つスレッド群が並びます。同一優先度を持つスレッド同士では、このキューの先頭にいるスレッドに実行権が与えられます。何かしらの同期オブジェクトを待機していたスレッドが起床した場合は、各優先度のキューの末尾に繋がり、自スレッドに実行権が与えられるまで実行が遅延させられます。また、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8bd5e5e72c058eb7d1b5f0ebfbb2cf6f">nn::os::YieldThread()</a> を発行すると意図的に自スレッドをその優先度のキューの末尾に移動させ、同一優先度の他スレッドに CPU の実行権を移譲することもできます。</p>
+<p>これらをまとめると、各 CPU コアごとに以下の条件を満たすスレッドに実行権が与えられます。</p>
+<ul>
+  <li>動作可能なスレッドである（つまり、待機中ではない）</li>
+  <li>上記スレッドの中で最も優先度が高い</li>
+  <li>上記スレッドのうち、同一優先度スレッドの中で、キューの最も先頭にいる</li>
+</ul>
+<p>このようなスケジューリング機構のため、高い優先度を持つスレッドが無限ループなどで実行を継続していると、それよりも優先度の低いスレッドがいつまでも実行されないということが起こります。各スレッドは OS ライブラリで提供されている各種同期機能を使うことで、他のスレッドが実行権を得られるように設計および実装することができます。</p>
+<p>なお、優先度が <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a88510f5f630a16612aa8d479c10b56de">nn::os::LowestThreadPriority</a> のスレッド群には、上記のスケジューリング機構に加えてラウンドロビンの仕組みが適用されます。具体的には、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a88510f5f630a16612aa8d479c10b56de">nn::os::LowestThreadPriority</a> の優先度のキューの先頭にあるスレッドが一定時間 CPU を使い続けると、そのスレッドは自動的にキューの末尾に移動させられます。このとき、次にキューの先頭に来たスレッドに CPU の実行権が与えられます。</p>
+<p>優先度によるスケジューリングは各 CPU コア単位で行なわれるため、他のコアでは自スレッドよりも優先度の低いスレッドが動作することがあります。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Windows 環境では、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1e7db66d31e254873b613d4eadd0d716">nn::os::CreateThread()</a> 等で指定する全てのスレッド優先度は無視され、スレッドのスケジューリングは Windows のスケジューリング機構に委ねられています。通常、Windows では全てのスレッドに少なからず CPU の実行権が与えられるようなスケジューリングが行なわれます。</p>
+    <p>このように、実機環境と Windows 環境ではスケジューリングモデルが異なりますが、実機環境を前提にスレッド優先度を設計しつつ、スレッド間の同期制御を確実に行なうようにして下さい。つまり、優先度の高いスレッドが優先度の低いスレッドを必ずブロックするという前提に立つのではなく、いずれの環境でも同じように動作する同期制御機構を使ってスレッド間の排他制御や同期制御を行なうようにして下さい。先のような優先度によるブロッキングを前提でプログラムを設計してしまうと、後述の複数の CPU コア間をスレッドが移動するような動作環境で正しく動作しないことになります。</p>
+  </div>
+</div>
+<h2 id="Anchor_83955697_h2_3">スレッドの使用方法</h2>
+<p>スレッドを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a> 構造体オブジェクトを使用します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<p>また、スレッドで使用するスタック領域も別途確保しておきます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/nn_Macro.h&gt;
+#include &lt;nn/os.h&gt;
+</span>
+<span class="k">const</span> <span class="kt">size_t</span>                     <span class="n">threadStackSize</span> <span class="o">=</span> <span class="mi">8192</span><span class="p">;</span>
+<span class="n">NN_OS_ALIGNAS_THREAD_STACK</span> <span class="kt">char</span>  <span class="n">g_ThreadStack</span><span class="p">[</span> <span class="n">threadStackSize</span> <span class="p">];</span>
+<span class="nn">nn::os::</span><span class="n">ThreadType</span>               <span class="n">g_Thread</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>また、スレッドはある特定の関数をスレッドのエントリとして登録するため、以下のようにスレッド関数を定義しておきます。<br />スレッド関数は、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#abec974a5d224f7c62cfa9af4af3c954a">ThreadFunction</a> 型をとり、以下のような形で記述します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span>  <span class="nf">ThreadEntryFunction</span><span class="p">(</span> <span class="kt">void</span> <span class="o">*</span><span class="n">arg</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// スレッドの処理
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>以上の準備が整った上で、スレッドは以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>まず最初に、スレッドを生成します。この時、同時にスレッド構造体も初期化されます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::</span><span class="n">Result</span>  <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">CreateThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Thread</span><span class="p">,</span> <span class="n">ThreadEntryFunction</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">g_ThreadStack</span><span class="p">,</span> <span class="n">threadStackSize</span><span class="p">,</span> <span class="nn">nn::os::</span><span class="n">DefaultThreadPriority</span> <span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// スレッド生成に失敗
+</span><span class="p">}</span> 
+<span class="c1">// スレッド生成に成功
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>スレッドの生成に成功したら、適切なタイミングでスレッドの実行を開始します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">StartThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Thread</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>スレッドを破棄する場合は、そのスレッドが終了するまで待機してから破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">WaitThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Thread</span> <span class="p">);</span>
+<span class="nn">nn::os::</span><span class="n">DestroyThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Thread</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955697_h2_4">スレッドの具体的な使用例</h2>
+<p>具体的な使用例は、 <a href="../../../Api/HtmlNX/_page_sample_os_thread.html">スレッド機能サンプルプログラム</a>  を参照して下さい。</p>
+<h2 id="Anchor_83955697_h2_5">スレッド機能の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread （コア番号あり）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a1e7db66d31e254873b613d4eadd0d716">nn::os::CreateThread （コア番号なし）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ad106866a5b13bc3d430104333966b479">nn::os::GetCurrentThread</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8bd5e5e72c058eb7d1b5f0ebfbb2cf6f">nn::os::YieldThread</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac7eb0e6eae11777e92308cdee62e6cb2">nn::os::ChangeThreadPriority</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a912a6d5e17c206344f177bc192cb1e50">nn::os::GetThreadPriority</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9b6b2e5e1968e008dde27d6c4762b33d">nn::os::GetThreadCurrentPriority</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a05cbcb85bd308694ec37eff49be93cf1">nn::os::SetThreadName</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a90f2d7d33024e710d09a2b6d01b15522">nn::os::SetThreadNamePointer</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2941b0122ed1f1af2d7007af285d83b5">nn::os::GetThreadNamePointer</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a4b94c321b41c4fb4d0a4e87473297c48">nn::os::GetCurrentCoreNumber</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac50b86561c15ee3e8195c83fddc8e732">nn::os::SetThreadCoreMask</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a39edb8f3e676c4bab13047a5ad1894f8">nn::os::GetThreadCoreMask</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a91345e6e4543ab561f49480b89ae9a65">nn::os::GetThreadAvailableCoreMask</a>
+  </li>
+</ul>
+<h2 id="Anchor_83955697_h2_6">スレッド使用上の注意事項</h2>
+<h3 id="Anchor_83955697_h3_5">スレッドスタックのミラーリング</h3>
+<p>NX32 および NX64 ビルド環境においては、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread()</a> で指定するスタック領域は一度他の空間にミラーリングされてから実際のスタック領域として使用されます。この時、ミラーリング元のメモリ領域はアクセス禁止となり、ミラーリング先のメモリ領域の前後にはアクセス不可なガードページが隣接配置されます。これにより、作成されたスレッドでは、スタック領域に対するオーバーフローやアンダーフローをメモリアクセス違反例外として捕捉できるようにしています（ただし、ガードページは有限であるため、そのサイズを超えてのスタックアクセスが必ずしもメモリアクセス違反例外となることが保証されるわけではありません）。このミラーリングは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread()</a> によって解除されます。</p>
+<p>Win32 および x64 ビルド環境においては、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread()</a> で指定するスタック領域は実際には一時的なワーク領域として少しだけ使用するのみで、実際に生成されたスレッドのスタック領域として使用されるわけではありません。NintendoSDK では、NX ビルド時と API 仕様を合わせるためにスタック領域を指定するようになっています。</p>
+<h3 id="Anchor_83955697_h3_6">スレッドスタックに指定できるメモリ領域</h3>
+<p>スレッドスタックは前述の通り、一度ミラーリングされて実際のスタック領域として使用され、ミラーリング元の領域はその間アクセス禁止になります。そのため、既にいずれかのスレッドスタックとして使用されているスタックメモリを新たに生成するスレッドのスタック領域として使用することはできません。例えば、関数内で定義した自動変数の配列を <span class="ApiLink_nn__os__CreateThread">nn::os::CreateThread</span>() のスタック領域として渡すことはできません。このようなことを行うと、API の内部でメモリ状態異常を検出し、アボートするようになっています。</p>
+<p>スレッドのスタック領域には以下のようなメモリを渡すようにして下さい。</p>
+<ul>
+  <li>静的に確保したメモリ領域（下記コード例を参照）</li>
+  <li>
+    <a href="../Pages/Page_83956147.html">メモリヒープ領域</a> から <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">nn::os::AllocateMemoryBlock()</a> で確保したメモリ領域</li>
+</ul>
+<p>なお、スレッドスタックのメモリ領域は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8b116319f3d483f3805c193661f22150">nn::os::ThreadStackAlignment</a> でアライメントされた領域を指定する必要があります。例えば、前述の「静的に確保したメモリ領域」は以下のような記述で定義することができます。<a href="../../../Api/HtmlNX/os___thread_common_8h.html#a5ce0c3c0aaceb976178a60a18d90f470">NN_OS_ALIGNAS_THREAD_STACK</a> はスレッドスタックのアライメントを指定するとき用のマクロです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="n">NN_OS_ALIGNAS_THREAD_STACK</span> <span class="kt">char</span> <span class="n">g_ThreadStack</span><span class="p">[</span><span class="mh">0x4000</span><span class="p">];</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955697_h3_7">スレッド終了時の注意事項</h3>
+<p>スレッドは<a href="../Pages/Page_83955800.html">ミューテックス</a>などの資源を獲得したまま終了してはいけません。<br />そのような状況でスレッドを終了させると、当該ミューテックスの状態は不定となります。</p>
+<h3 id="Anchor_83955697_h3_8">スレッドの破棄について</h3>
+<p>スレッドの破棄は、実行を開始前の状態にあるスレッド か 終了後のスレッド に対してのみ 行なって下さい。<br />また、スレッドの破棄を自スレッドで行なうことはできないため、必ず他のスレッドから行なってください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__ThreadType', '../../../Api/HtmlNX/structnn_1_1os_1_1_thread_type.html' )
+SetUrl( 'ApiLink_nn__os__CreateThread', '../../../Api/HtmlNX/namespacenn_1_1os.html#a1e7db66d31e254873b613d4eadd0d716' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

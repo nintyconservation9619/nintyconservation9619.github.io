@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ユーザーシェーダー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ユーザーシェーダー -->
+<div class="pagetitle" id="PageId_126563338">ユーザーシェーダー</div>
+<div class="text_separate">
+<h1 id="Anchor_126563338_h1_1">ユーザーシェーダー</h1>
+<p>レイアウトデータの描画時にレイアウトランタイムデフォルトのシェーダーではなく<br />ユーザーが作成したシェーダー(<strong>ユーザーシェーダー</strong>)を使用する方法を紹介します。</p>
+<h2 id="Anchor_126563338_h2_1">ユーザーシェーダーサンプル</h2>
+<p>Samples\Sources\Applications\Ui2dUserShader にユーザーシェーダーを使用したサンプルアプリケーションがあります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_126563338/125191811.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p>このサンプルアプリケーションではピクチャペインを描画する際に「頂点シェーダー」「ピクセルシェーダー」「ジオメトリシェーダー」をユーザーが作成したシェーダーに差し替えています。</p>
+<h2 id="Anchor_126563338_h2_2">ユーザーシェーダーの作成</h2>
+<h3 id="Anchor_126563338_h3_1">作成方法</h3>
+<p>ユーザーシェーダーはレイアウトランタイムのデフォルトのシェーダーコードをカスタマイズして作成します。<br />以下のディレクトリにレイアウトランタイムのデフォルトシェーダーのソースコードがあります。</p>
+<p>NintendoSDK\Sources\Resources\Ui2dShaders</p>
+<p>シェーダーの入力に関しては、ユーザーシェーダーではコンスタントバッファを経由したデータの設定のみ行うことができます。<br />それ以外の入力頂点やテクスチャなどはレイアウトランタイムが固定で設定するため変更することはできません。&nbsp;<br />シェーダーコードについては自由に変更することが可能です。&nbsp;<br />なお、ジオメトリシェーダーはデフォルトでは使用しないためシェーダーコードは存在しません。<br />Ui2dUserShader サンプルにてジオメトリシェーダーを使用しているためそちらのシェーダーコードを参考にしてください。&nbsp;</p>
+<h3 id="Anchor_126563338_h3_2">ユーザーシェーダー用のデータ追加方法</h3>
+<p>ユーザーシェーダー用のデータをコンスタントバッファに追加するにはレイアウトランタイムがデフォルトで使用するパラメータの後ろへ<br />ユーザーシェーダーで使用するパラメータを設定してください。<br />ここで拡張したサイズをランタイムでユーザーシェーダーを初期化する際に設定する必要があります。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">uConstantBufferForPixelShader</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">uInterpolateWidth</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">uInterpolateOffset</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">uIndirectMtx0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">uIndirectMtx1</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">mat4</span> <span class="n">uVertexColorPsh</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">uTextureMode</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">uColorEffectMode</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec2</span> <span class="n">uPadding0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ここから下へユーザーシェーダーで使用する変数を定義する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ここから下で定義した変数のサイズに応じてピクセルシェーダーのユーザーシェーダーコンスタントバッファのサイズを指定する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">uUserShaderColor</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">uTime</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">uDistortion</span><span class="p">;</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126563338_h3_3">シェーダーのコンバート</h3>
+<p>作成したシェーダーコードは ShaderConverter を使用してシェーダーバイナリデータ(.bnsh)に変換します。<br />ShaderConverter の使用方法については「<a href="../Pages/Page_89982392.html">シェーダコンバータ</a>」を参照してください。&nbsp;</p>
+<h2 id="Anchor_126563338_h2_3">ユーザーシェーダーのセットアップ</h2>
+<h3 id="Anchor_126563338_h3_4">読み込みの仕組み</h3>
+<p>ユーザーシェーダーはレイアウトランタイムの「<strong>アーカイブシェーダー</strong>」を読み込む仕組みを利用して初期化されます。</p>
+<p>アーカイブシェーダーとは、基本的なシェーダー以外を必要に応じてレイアウトバイナリデータ内に取り込んだシェーダーバイナリ(.bnsh)です。<br />アーカイブシェーダーは LayoutConverter でデータをコンバートする際に必要なシェーダーを判別して取り込んでいます。&nbsp;<br />この仕組みは本来、不要なシェーダーバイナリを削減するために用意されたものですが、仕様を大きく変えずにユーザーシェーダーに対応するために読み込みに使用しています。</p>
+<p>アーカイブシェーダー用のシェーダーバイナリは以下のルールで名前をつけられています。</p>
+<p style="margin-left: 60.0px;">ArchiveShader-XXXXX.bnsh</p>
+<p>XXXXX には任意の 5 文字の文字が入ります。</p>
+<p>本来のアーカイブシェーダーではシェーダーバイナリのファイル名でバリエーションを切り替えるため、以下の名前は予約されておりユーザーシェーダーの名前としては使用できません。</p>
+<p style="margin-left: 60.0px;">「ArchiveShader-<strong>[A]</strong>_<strong>[B]</strong>」 の&nbsp;<strong>[A]</strong>、<strong>[B]&nbsp;</strong>ともに 1 から 11 までの数字</p>
+<p>また、アーカイブシェーダーはシェーダーバイナリ内の&nbsp;0 番目のバリエーションを必ず使用するため、ユーザーシェーダーも同様にバリエーションの切り替えには対応していません。</p>
+<h3 id="Anchor_126563338_h3_5">データの準備</h3>
+<p>アーカイブシェーダー用のシェーダーバイナリはバイナリコンバートしたレイアウトデータの bgsh ディレクトリに配置されます。<br />ユーザーシェーダー用のシェーダーバイナリを追加するには、LayoutConverter でレイアウトデータをバイナリコンバートして出力された bgsh ディレクトリに<br />ユーザーシェーダーとして使用したいシェーダーバイナリ(.bnsh)をコピーした上で LayoutArchiver でアーカイブします。&nbsp;</p>
+<h3 id="Anchor_126563338_h3_6">ランタイムでの初期化処理</h3>
+<p>ユーザーシェーダーを使用するためにはレイアウトデータのセットアップ時にコールバックを使用して<br />ユーザーシェーダーの情報をレイアウトランタイムに通知する必要があります。</p>
+<p>ビルド時に渡される BuildOption を使用してコールバック関数を設定します。</p>
+<p style="margin-left: 60.0px;">nn::ui2d::Layout::BuildOption::pGetUserShaderInformationFromUserDataCallback</p>
+<p>このコールバック関数はレイアウトデータ内でシェーダーがセットアップされるたびに呼び出されます。<br />すべてのシェーダーのセットアップ時に呼び出されるため、必要なペインのみユーザーシェーダーを有効化するような仕組みが必要です。<br />Ui2dUserShader サンプルではユーザー拡張データを利用してユーザーシェーダーを使用するペインかどうかの判定を行っています。&nbsp;<br />ユーザー拡張データには使用するユーザーシェーダーの名前や拡張したコンスタントバッファのサイズなどが入っておりレイアウトランタイムに引き渡しています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ペインに設定したユーザー拡張データからユーザーシェーダーの情報を取得して
+// userShaderInfomation に設定します。
+// 下記のユーザー拡張データの解釈はサンプル仕様のため
+// 名前などはアプリケーションが自由に決定できます。
+</span><span class="k">if</span> <span class="p">(</span><span class="n">pExtUserDataList</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザーシェーダー名。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ArchiveShader-XXXXX.bnsh の「XXXXX」部分。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アーカイブシェーダーの仕様により長さは nn::ui2d::ArchiveShaderNameMax-1 文字分。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">ResExtUserData</span><span class="o">*</span> <span class="n">pShaderName</span> <span class="o">=</span> <span class="n">GetExtUserData</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pExtUserDataList</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">&quot;UserShaderName&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pShaderName</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">isValidShaderNameSet</span> <span class="o">=</span> <span class="n">userShaderInfomation</span><span class="p">.</span><span class="n">SetShaderName</span><span class="p">(</span><span class="n">pShaderName</span><span class="o">-&gt;</span><span class="n">GetString</span><span class="p">());</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザー頂点シェーダーで拡張したコンスタントバッファのサイズ
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">ResExtUserData</span><span class="o">*</span> <span class="n">pVertexShaderConstantBufferSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="n">GetExtUserData</span><span class="p">(</span><span class="n">pExtUserDataList</span><span class="p">,</span> <span class="s">&quot;UserVertexShaderConstantBufferSize&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pVertexShaderConstantBufferSize</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">userShaderInfomation</span><span class="p">.</span><span class="n">vertexShaderConstantBufferExtendSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="n">pVertexShaderConstantBufferSize</span><span class="o">-&gt;</span><span class="n">GetIntArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザージオメトリシェーダーで拡張したコンスタントバッファのサイズ
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">ResExtUserData</span><span class="o">*</span> <span class="n">pGeometryShaderConstantBufferSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="n">GetExtUserData</span><span class="p">(</span><span class="n">pExtUserDataList</span><span class="p">,</span> <span class="s">&quot;UserGeometryShaderConstantBufferSize&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pGeometryShaderConstantBufferSize</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">userShaderInfomation</span><span class="p">.</span><span class="n">geometryShaderConstantBufferExtendSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="n">pGeometryShaderConstantBufferSize</span><span class="o">-&gt;</span><span class="n">GetIntArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザーピクセルシェーダーで拡張したコンスタントバッファのサイズ
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">ResExtUserData</span><span class="o">*</span> <span class="n">pPixelShaderConstantBufferSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="n">GetExtUserData</span><span class="p">(</span><span class="n">pExtUserDataList</span><span class="p">,</span> <span class="s">&quot;UserPixelShaderConstantBufferSize&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pPixelShaderConstantBufferSize</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">userShaderInfomation</span><span class="p">.</span><span class="n">pixelShaderConstantBufferExtendSize</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="n">pPixelShaderConstantBufferSize</span><span class="o">-&gt;</span><span class="n">GetIntArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>このコールバック関数が true を返すと <span class="ApiLink_nn__ui2d__UserShaderInfomation">nn::ui2d::UserShaderInfomation</span> に設定された値を使用してユーザーシェーダーを初期化します。</p>
+<p>ただし、ペインに詳細コンバイナの設定が行われている場合は、ユーザーシェーダーは利用出来ません。</p>
+<h2 id="Anchor_126563338_h2_4">ユーザーシェーダー更新処理</h2>
+<p>ユーザーシェーダーに設定するコンスタントバッファを更新するには、以下のメソッドを使用して更新するためのコールバック関数を設定します。</p>
+<p>
+  <span class="ApiLink_nn__ui2d__DrawInfo__SetUpdateUserShaderCallback">nn::ui2d::DrawInfo::SetUpdateUserShaderCallback</span>
+</p>
+<p>このコールバック関数はレイアウトデータ内のすべてのピクチャペインとウインドウペインの更新処理の際に呼び出されます。<br />Ui2dUserShader サンプルではペインの名前でユーザーシェーダー用の処理が必要なペインかどうか判定しています。</p>
+<p>コールバック関数には対象ペインが引数として渡されるため、ペインからマテリアルをたどりユーザーシェーダー用のコンスタントバッファを取得することができます。&nbsp;&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span> <span class="nf">UpdateUserShaderConstantBuffers</span><span class="p">(</span><span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">DrawInfo</span><span class="o">&amp;</span> <span class="n">drawInfo</span><span class="p">,</span> <span class="nn">nn::ui2d::</span><span class="n">Pane</span><span class="o">*</span> <span class="n">pPane</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">pUserData</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザーシェーダーを使用するように設定したペインからマテリアルを取得し
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザーシェーダーのコンスタントバッファに必要な情報を書き込む。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザーシェーダーのコンスタントバッファは前フレームに書き込まれた値は保持されないため
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// すべてのパラメータを毎フレーム書き込む必要がある。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="nn">std::</span><span class="n">strcmp</span><span class="p">(</span><span class="n">pPane</span><span class="o">-&gt;</span><span class="n">GetName</span><span class="p">(),</span> <span class="s">&quot;UserShader&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::ui2d::</span><span class="n">Material</span><span class="o">*</span> <span class="n">pMaterial</span> <span class="o">=</span> <span class="n">pPane</span><span class="o">-&gt;</span><span class="n">GetMaterial</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザーシェーダーで拡張したコンスタントバッファの領域へのポインタを取得して値を書き込む。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">UserShaderConstantBufferForPixelShader</span><span class="o">*</span> <span class="n">pConstantBufferForUserPixelShader</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">UserShaderConstantBufferForPixelShader</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pMaterial</span><span class="o">-&gt;</span><span class="n">GetConstantBufferForUserPixelShader</span><span class="p">(</span><span class="n">drawInfo</span><span class="p">));</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">pConstantBufferForUserPixelShader</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pConstantBufferForUserPixelShader</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5f</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pConstantBufferForUserPixelShader</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.75f</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pConstantBufferForUserPixelShader</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0f</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pConstantBufferForUserPixelShader</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0f</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユーザー拡張データアニメーションから値を取得してコンスタントバッファへ設定する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">ResExtUserData</span><span class="o">*</span>   <span class="n">pTimeUserData</span> <span class="o">=</span> <span class="n">pPane</span><span class="o">-&gt;</span><span class="n">FindExtUserDataByName</span><span class="p">(</span><span class="s">&quot;Time&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pConstantBufferForUserPixelShader</span><span class="o">-&gt;</span><span class="n">time</span> <span class="o">=</span> <span class="n">pTimeUserData</span><span class="o">-&gt;</span><span class="n">GetFloatArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="nn">nn::ui2d::</span><span class="n">ResExtUserData</span><span class="o">*</span>   <span class="n">pDistortionUserData</span> <span class="o">=</span> <span class="n">pPane</span><span class="o">-&gt;</span><span class="n">FindExtUserDataByName</span><span class="p">(</span><span class="s">&quot;Distortion&quot;</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pConstantBufferForUserPixelShader</span><span class="o">-&gt;</span><span class="n">distortion</span> <span class="o">=</span> <span class="n">pDistortionUserData</span><span class="o">-&gt;</span><span class="n">GetFloatArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__ui2d__UserShaderInfomation
+SetUrl( 'ApiLink_nn__ui2d__DrawInfo__SetUpdateUserShaderCallback', '../../../Api/HtmlNX/classnn_1_1ui2d_1_1_draw_info.html#a56a8df0da5fcd248b871be39ed872f4e' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,448 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>3DEditorBridge</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 3DEditorBridge -->
+<div class="pagetitle" id="PageId_105678555">3DEditorBridge</div>
+<div class="text_separate">
+<p>3DEditorBridge の使用方法と注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_105678555_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_105678555_h1_2">オプション一覧</a>
+    </li>
+    <li>
+      <a href="#Anchor_105678555_h1_3">機能詳細</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_105678555_h2_1">3DEditor を起動</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_2">3DEditor を終了</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_3">3DEditor 上情報の取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_4">3DEditor の中間ファイル編集状態を一時中間ファイルに出力</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_5">一時中間ファイルを 3DEditor に再読み込み</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_6">ファイルを 3DEditor に読み込み</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_7">3DEditor に読み込まれているファイルを上書き保存</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_8">3DEditor に読み込まれている未保存の変更があるファイルを全て保存</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_9">3DEditor に読み込まれているファイルを全て閉じる</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_10">ランタイムに接続</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_11">ランタイム連携を切断</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_12">編集履歴を消去</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_13">シェーダー最適化の有効/無効を切り替え</a>
+      </li>
+      <li>
+        <a href="#Anchor_105678555_h2_14">ランタイムの接続状態を表示</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_105678555_h1_1">概要</h1>
+<p>3DEditorBridge は 3DEditor と外部ツールとの連携を行うためのコマンドラインツールです。</p>
+<p>3DEditor で編集中の中間ファイル情報を取得したり、外部で編集した中間ファイルを 3DEditor にロードするなどの処理を行うことができます。</p>
+<p>実行ファイルは %NINTENDO_SDK_ROOT%\Tools\Graphics\3dEditor\3dEditorBridge.exe です。</p>
+<p>
+  <span style="color: rgb(42,42,42);">
+    <span style="color: rgb(42,42,42);">3DEditorBridge を実行した際、</span>3DEditor が起動していない等のエラーが起きる場合を除き、指定した処理が 3DEditor で完了してから 3DEditorBridge は終了します。</span>
+</p>
+<p>
+  <span style="color: rgb(42,42,42);">動作が正常終了した場合は 0 を返し、それ以外の場合は 0 以外の値を返します。エラーメッセージ等の 3DEditor からのメッセージは標準出力されます。</span>
+</p>
+<h1 id="Anchor_105678555_h1_2">オプション一覧</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe [--args-file] [--version] [-h] 
+[start-3deditor [--team-settings-file チーム設定ファイルパスもしくはファイル名]]  |
+[close-3deditor] |
+[export-info --output &quot;&quot;] |
+[export-temporary-files --path &quot;&quot; 中間ファイル名 ... ] |
+[reload-temporary-files --path &quot;&quot; 中間ファイル名 ... ] |
+[load-files ファイルパスもしくはフォルダパス ... ] |
+[save-files [--disable-file-info] ファイルパスもしくはファイル名 ... ] |
+[save-all [--disable-file-info]]  |
+[close-all] |
+[connect-runtime --target &quot;Device&quot;|&quot;Pc&quot; [--platform プラットフォーム名]]  |
+[disconnect-runtime] |
+[clear-history] |
+[optimize-shader [--disable]] 
+[query-connection-state]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>--args-file &quot;&quot;</strong>
+</p>
+<p>引数ファイルを指定します。<br />引数ファイルに記述した内容を、引数として指定できます。&nbsp;<br />引数ファイルは複数行に渡って各オプションを記述できます。&nbsp;<br />行頭に # がある行はコメントとして扱います。&nbsp;<br />オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<p>
+  <strong>--version</strong>
+</p>
+<p>バージョン情報を表示します。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプを表示します。</p>
+<p>
+  <strong>start-3deditor</strong>
+</p>
+<p>3DEditor を起動します。</p>
+<p>
+  <strong>--team-settings-file</strong>
+</p>
+<p>チーム設定ファイルパスもしくはファイル名を指定します。</p>
+<p>
+  <strong>close-3deditor</strong>
+</p>
+<p>3DEditor を終了します。</p>
+<p>
+  <strong>export-info</strong>
+</p>
+<p>3DEditor に読み込まれているファイルやプレビュー情報を出力するサブコマンドです。</p>
+<p>
+  <strong>-o &quot;&quot; --output &quot;&quot;</strong>
+</p>
+<p>出力ファイルを指定します。 　</p>
+<p>
+  <strong>export-temporary-files</strong>
+</p>
+<p>3DEditor 上で編集されているモデルなどを中間ファイルとして指定されたフォルダに出力するサブコマンドです。</p>
+<p>
+  <strong>--path &quot;&quot;</strong>
+</p>
+<p>中間ファイルを含むフォルダを指定します。</p>
+<p>
+  <strong>reload-temporary-files</strong>
+</p>
+<p>3DEditor 上に読み込まれている中間ファイルを指定されたフォルダから再読み込みをするサブコマンドです。</p>
+<p>
+  <strong>load-files</strong>
+</p>
+<p>指定されたプロジェクトファイル、中間ファイルまたはフォルダ以下のファイルを読み込むサブコマンドです。</p>
+<p>
+  <strong>save-files</strong>
+</p>
+<p>指定されたファイルパスまたはファイル名のファイルを上書き保存するサブコマンドです。変更がないファイルは保存されません。</p>
+<p>
+  <strong>save-all</strong>
+</p>
+<p>未保存の変更があるすべてのファイルを上書き保存するサブコマンドです。</p>
+<p>
+  <strong>close-all</strong>
+</p>
+<p>3DEditor に開かれているすべてのファイルを閉じるサブコマンドです。</p>
+<p>未保存ファイルの保存確認ダイアログは表示されません。</p>
+<p>
+  <strong>connect-runtime</strong>
+</p>
+<p>ランタイムに接続するサブコマンドです。</p>
+<p>
+  <strong>--target</strong>
+</p>
+<p>接続するターゲットを指定します。</p>
+<p>
+  <strong>--platform</strong>
+</p>
+<p>接続するプラットフォームを指定します。</p>
+<p>
+  <strong>disconnect-runtime</strong>
+</p>
+<p>ランタイム接続を切断するサブコマンドです。</p>
+<p>自動接続が有効になっている場合は自動接続も無効になります。既に切断されている場合は何も行われません。</p>
+<p>
+  <strong>clear-history</strong>
+</p>
+<p>編集履歴を消去するサブコマンドです。</p>
+<p>
+  <strong>optimize-shader</strong>
+</p>
+<p>シェーダー最適化の有効/無効を切り替えるサブコマンドです。</p>
+<p>
+  <strong>query-connection-state</strong>
+</p>
+<p>ランタイムの接続状態を表示します。</p>
+<h1 id="Anchor_105678555_h1_3">機能詳細</h1>
+<h2 id="Anchor_105678555_h2_1">3DEditor を起動</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe start-3deditor [--team-settings-file チーム設定ファイルパスもしくはファイル名]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>3DEditor を起動します。&nbsp;既に 3DEditor が起動済みのときは何も行いません。</li>
+  <li>--team-settings-file でチーム設定ファイルを指定することも出来ます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_2">3DEditor を終了</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe close-3deditor</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>3DEditor を終了します。&nbsp;既に 3DEditor が終了済みのときは何も行いません。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_3">3DEditor 上情報の取得</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe export-info --output &quot;出力先ファイル&quot;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>現在ファイルビューに読み込まれているファイル情報などを XML ファイルに出力します。</li>
+  <li>下記が取得できます。<ul><li>モデルフルパス<ul><li>（モデルごとに）アニメーションセット情報、バインドアニメーションフルパス</li></ul></li><li>アニメーションフルパス</li><li>テクスチャフルパス</li><li>シェーダー定義フルパス</li><li>シーンアニメフルパス</li><li>アニメーションカレントフレーム位置</li></ul></li>
+</ul>
+<h2 id="Anchor_105678555_h2_4">3DEditor の中間ファイル編集状態を一時中間ファイルに出力</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe export-temporary-files --path &quot;出力先フォルダ&quot; [ファイル名]...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>3DEditor 上で編集されているモデルなどを中間ファイルとして出力します。</li>
+  <li>パス違いの同名ファイルは出力できません。</li>
+  <li>3DEditor でモーダルダイアログが表示されている状態でも出力が行われます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_5">一時中間ファイルを 3DEditor に再読み込み</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe reload-temporary-files --path &quot;再読み込み先フォルダ&quot; [ファイル名]...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>出力した一時中間ファイルを再読み込みして 3DEditor に反映させます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_6">ファイルを 3DEditor に読み込み</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe load-files [ファイルパスもしくはフォルダパス]...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>ファイルを 3DEditor に読み込ませます。</li>
+  <li>フォルダを指定したときは、フォルダ以下の中間ファイルが読み込まれます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_7">3DEditor に読み込まれているファイルを上書き保存</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe save-files [--disable-file-info] [ファイルパスもしくはファイル名]...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>3DEditor に読み込まれているファイルを上書き保存します。</li>
+  <li>変更がないファイルは保存されません。</li>
+  <li>同名のファイルが複数読み込まれていないときは、ファイル名を指定できます。</li>
+  <li>--disable-file-info&nbsp;オプションが指定されているときは、中間ファイルの &lt;file_info&gt;&nbsp;を更新しないで保存します。</li>
+</ul>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>--disable-file-info は NintendoSDK 1.0.0 以降のバージョンに含まれます。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h2 id="Anchor_105678555_h2_8">3DEditor に読み込まれている未保存の変更があるファイルを全て保存</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe save-all [--disable-file-info]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>未保存の変更があるすべてのファイルを上書き保存します。</li>
+  <li>--disable-file-info&nbsp;オプションが指定されているときは、中間ファイルの&nbsp;&lt;file_info&gt;&nbsp;を更新しないで保存します。</li>
+</ul>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>--disable-file-info は NintendoSDK 1.0.0 以降のバージョンに含まれます。&nbsp;</p>
+  </div>
+</div>
+<h2 id="Anchor_105678555_h2_9">3DEditor に読み込まれているファイルを全て閉じる</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe close-all</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>3DEditor に読み込まれているファイルを全て閉じます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_10">ランタイムに接続</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe connect-runtime --target &quot;Device&quot;|&quot;Pc&quot; [--platform プラットフォーム名]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>--target オプションで指定された接続先に接続します。&quot;Device&quot; を指定すると実機版に接続し、&quot;Pc&quot; を指定すると PC 版に接続します。</li>
+  <li>--platform&nbsp;オプションで指定されたプラットフォームに接続します。指定しない場合は現在のプラットフォームに接続します。&nbsp;</li>
+  <li>既に異なる接続先に接続中の場合は、切断後、接続先を切り替えて接続を試みます。</li>
+  <li>既に指定された接続先に接続している場合は何も行われません。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_11">ランタイム連携を切断</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe disconnect-runtime</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>ランタイム連携を切断します。</li>
+  <li>既に切断されている場合は何も行われません。</li>
+  <li>3DEditor で自動接続が有効になっている場合は、無効に変更されます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_12">編集履歴を消去</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe clear-history</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>編集履歴を消去します。</li>
+  <li>履歴の保持に使用されるメモリも開放されます。</li>
+</ul>
+<h2 id="Anchor_105678555_h2_13">シェーダー最適化の有効/無効を切り替え</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe optimize-shader [--disable]</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>シェーダー最適化の有効/無効を切り替えます。</li>
+  <li>--disable オプションが指定されていないときはシェーダー最適化を有効にします。</li>
+  <li>--disable オプションが指定されているときはシェーダー最適化を無効にします。</li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_105678555_h2_14">ランタイムの接続状態を表示</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dEditorBridge.exe query-connection-state</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>ランタイムの接続状態を表示します。</li>
+  <li>切断されている場合は「Disconnected」と表示されます。</li>
+  <li>接続されている場合は「Connected」と表示されます。</li>
+  <li>接続されていて、さらに通信中の場合は「Communicating」と表示されます。</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

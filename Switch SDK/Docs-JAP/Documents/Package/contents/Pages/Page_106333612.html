@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>最適化</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 最適化 -->
+<div class="pagetitle" id="PageId_106333612">最適化</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_106333612_h2_1">ボトルネックの特定</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333612_h3_1">フレームの特定</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_2">CPU/GPU の切り分け</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106333612_h2_2">描画の最適化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333612_h3_3">CPU  GPU 必要なドローのみ行う</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_4">CPU  コマンドの作成を最小限に抑える</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_5">CPU  GPU LOD を用いる</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106333612_h2_3">データの最適化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333612_h3_6">GPU  圧縮テクスチャを用いる</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_7">GPU  ポスト頂点キャッシュを有効に用いる</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_8">GPU  頂点量子化を用いる</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_9">GPU  サブメッシュ分割を用いる</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_10">CPU アニメーション量子化を用いる</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_11">CPU アニメーションのコマ化を用いる</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_12">CPU  GPU マテリアル・ボーン・シェイプ圧縮で不要なデータを削除する</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_13">CPU  GPU 問題のある中間ファイルを監視する</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106333612_h2_4">シェーダの最適化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333612_h3_14">GPU 分岐命令を避ける</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_15">GPU ユニフォームブロックへの動的アクセスを避ける</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_16">GPU ステージ間で受け渡す変数を減らす</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333612_h3_17">GPU interleave で効率的なパッキングや不要なデータを削除する</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106333612_h2_5">キャッシュの最適化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333612_h3_18">CPU  GPU キャッシュヒット率を高める</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h2 id="Anchor_106333612_h2_1">ボトルネックの特定</h2>
+<p>ボトルネック以外の箇所を高速化しても、その効果は限定的です。ボトルネックを適切に発見して高速化することで、最適化の効果が高まります。</p>
+<h3 id="Anchor_106333612_h3_1">フレームの特定</h3>
+<p>負荷の高いフレームで行っている処理を高速化することで、最適化の効果が高まります。毎フレームの処理時間を数値やグラフとして画面に表示することで、負荷の高いフレームを特定します。</p>
+<h3 id="Anchor_106333612_h3_2">CPU/GPU の切り分け</h3>
+<p>CPU と GPU のどちらの処理が溢れているのかによって、最適化すべき場所が変わります。コマンドバッファの実行をスキップすることで、CPU の負荷がわかります。CPU と GPU がほとんど同期を行わないフレームワークを使用している場合は、それぞれの処理時間を毎フレーム表示して直接確認することもできます。</p>
+<h2 id="Anchor_106333612_h2_2">描画の最適化</h2>
+<h3 id="Anchor_106333612_h3_3">
+  <span style="color: rgb(255,0,0);">CPU&nbsp; </span>
+  <span style="color: rgb(51,102,255);">GPU</span> 必要なドローのみ行う</h3>
+<p>GPU は画面外がオブジェクトに対しても途中まで描画処理を行ってしまいます。アプリケーションで役割を終えたオブジェクトは描画処理を行わないように実装してください。常に描画が必要なオブジェクトの場合であっても、フラスタムカリングやオクルージョンカリングを行うことで不要な GPU 処理を行わないようにしてください。フラスタムカリングは g3d ライブラリでサポートされています。</p>
+<h3 id="Anchor_106333612_h3_4">
+  <span style="color: rgb(255,0,0);">CPU&nbsp; </span>コマンドの作成を最小限に抑える</h3>
+<p>コマンドが増えると、コマンドを作成する CPU コストとコマンドを処理する GPU コストが増加します。マテリアルソートや直前のステートをキャッシュしておくことでコマンドの作成を抑制することができます。ただし、最適なソート方法やキャッシュ方法はプロジェクトの仕様や描画方法によって変わるため、適切に実装してください。</p>
+<h3 id="Anchor_106333612_h3_5">
+  <span style="color: rgb(255,0,0);">CPU&nbsp; </span>
+  <span style="color: rgb(51,102,255);">GPU</span> LOD を用いる</h3>
+<p>カメラに映る面積が小さいモデルに関して LOD を用いることで CPU/GPU の処理を抑えます。例えば、アニメーションの更新頻度を切り替えることで CPU の負荷を抑えることができます。また、頂点数の少ないモデルに切り替えることで GPU の頂点・トライアングル処理を抑えることができます。</p>
+<h2 id="Anchor_106333612_h2_3">データの最適化</h2>
+<h3 id="Anchor_106333612_h3_6">
+  <span style="color: rgb(51,102,255);">GPU</span>&nbsp; 圧縮テクスチャを用いる</h3>
+<p>圧縮テクスチャを用いることで GPU からのテクスチャ参照にかかる負荷を抑えることができます。g3d では可能な限り BC フォーマットでテクスチャを作成することを推奨します。</p>
+<h3 id="Anchor_106333612_h3_7">
+  <span style="color: rgb(51,102,255);">GPU</span>&nbsp; ポスト頂点キャッシュを有効に用いる</h3>
+<p>ポスト頂点キャッシュは計算後の頂点をキャッシュすることで頂点シェーダなどの負荷を抑える機能です。g3d では中間ファイルオプティマイザで最適なインデクスの順に並び替えることができます。DCC ツールからの Export 時には自動的に一定程度の最適化が行われた状態で出力されます。</p>
+<h3 id="Anchor_106333612_h3_8">
+  <span style="color: rgb(51,102,255);">GPU</span>&nbsp; 頂点量子化を用いる</h3>
+<p>頂点量子化は頂点に用いるビット幅を圧縮することで、GPU が参照するデータ量を抑える機能です。g3d では中間ファイルオプティマイザの量子化分析で頂点属性に応じた量子化が行われます。DCC ツールからの Export 時には自動的に最適な量子化のフォーマットが指定された状態で出力されます。</p>
+<h3 id="Anchor_106333612_h3_9">
+  <span style="color: rgb(51,102,255);">GPU</span>&nbsp; サブメッシュ分割を用いる</h3>
+<p>サブメッシュ分割はバウンディング単位で描画を分割し、フラスタムカリングなどに利用することで GPU の頂点負荷を抑える g3d の最適化です。g3d では中間ファイルオプティマイザのサブメッシュ分割で入力引数と頂点に応じて分割が行われます。分割されたサブメッシュは AABB を持つ二分木でバイナリに格納されます。下記のように、サブメッシュ分割は中間ファイルオプティマイザにモードと幅を指定することで実行します。AABB を可視化するなどして適切な幅を指定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre> 3dIntermediateFileOptimizer.exe --divide-submesh --divide-submesh-options=&quot;--max-bounding-box-width=100.0&quot; ground.fmdb</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ランタイムでは nw::g3d::ViewVolume を用いることでサブメッシュ単位でフラスタムカリングを判定できます。</p>
+<h3 id="Anchor_106333612_h3_10">
+  <span style="color: rgb(255,0,0);">CPU</span> アニメーション量子化を用いる</h3>
+<p>アニメーション量子化はアニメーションに用いるビット幅を圧縮し、キャッシュ効率を高める g3d の最適化です。中間ファイルオプティマイザで許容誤差とアニメーションデータに応じて量子化が行われます。DCC ツールからの Export 時に許容誤差を設定をすることにより、量子化のフォーマットが指定された状態で出力されます。</p>
+<h3 id="Anchor_106333612_h3_11">
+  <span style="color: rgb(255,0,0);">CPU</span> アニメーションのコマ化を用いる</h3>
+<p>アニメーションのコマ化はフレームの検索処理を省略することができるために、アニメーションの更新処理の負荷を軽減することができます。アニメーションのコマ化はランタイムでセットアップ時に実行することができます。コマ化を解除するのも同様にランタイムで行うことができます。</p>
+<h3 id="Anchor_106333612_h3_12">
+  <span style="color: rgb(255,0,0);">CPU&nbsp; </span>
+  <span style="color: rgb(51,102,255);">GPU</span> マテリアル・ボーン・シェイプ圧縮で不要なデータを削除する</h3>
+<p>マテリアル・ボーン・シェイプ圧縮は、描画に影響を与えない不要なデータを削除する g3d の最適化です。DCC ツールからの Export 時に設定をすることにより、不要なデータが削除された状態で出力されます。</p>
+<h3 id="Anchor_106333612_h3_13">
+  <span style="color: rgb(255,0,0);">CPU&nbsp; </span>
+  <span style="color: rgb(51,102,255);">GPU</span> 問題のある中間ファイルを監視する</h3>
+<p>コマンドラインツールの中間ファイルフィルタで、ゲーム開発プロジェクトにとって問題のある中間ファイルをリストアップできます。問題のある中間ファイルを常に意識できる開発環境を構築することにより、パフォーマンスを悪化させる中間ファイルを排除できます。</p>
+<h2 id="Anchor_106333612_h2_4">シェーダの最適化</h2>
+<h3 id="Anchor_106333612_h3_14">
+  <span style="color: rgb(51,102,255);">GPU</span> 分岐命令を避ける</h3>
+<p>シェーダで分岐命令を用いると GPU パフォーマンスの低下に繋がります。特にフラグメントシェーダでは分岐命令を用いずに ifdef を用いてシェーダバリエーションを生成することを推奨します。g3d のシェーダシステムでは option を用いた記述により、シェーダバリエーションの生成をサポートしています。</p>
+<h3 id="Anchor_106333612_h3_15">
+  <span style="color: rgb(51,102,255);">GPU</span> ユニフォームブロックへの動的アクセスを避ける</h3>
+<p>ユニフォームブロックへの動的アクセス（配列への変数インデックスを用いたアクセス）はテクスチャアクセスと同程度のコストがかかります。可能な限り動的アクセスを避けることで負荷を軽減することができます。</p>
+<h3 id="Anchor_106333612_h3_16">
+  <span style="color: rgb(51,102,255);">GPU</span> ステージ間で受け渡す変数を減らす</h3>
+<p>受け渡す変数が増えるとインタポレータの負荷が増加します。インタポレータがボトルネックの場合、vec2 2つを vec4 1つにまとめることなどで、負荷を軽減することができます。</p>
+<h3 id="Anchor_106333612_h3_17">
+  <span style="color: rgb(51,102,255);">GPU</span> interleave で効率的なパッキングや不要なデータを削除する</h3>
+<p>interleave アノテーションを用いることで、モデルデータに含まれる頂点属性のインタリーブを組み替えることができます。 また、シェーダで使わない頂点属性のデータを削除することができます。詳しくはサンプルのデモシェーダを参照してください。</p>
+<h2 id="Anchor_106333612_h2_5">キャッシュの最適化</h2>
+<h3 id="Anchor_106333612_h3_18">
+  <span style="color: rgb(255,0,0);">CPU&nbsp; </span>
+  <span style="color: rgb(51,102,255);">GPU</span> キャッシュヒット率を高める</h3>
+<p>CPU・GPU 共に、データサイズを小さくしたり、関連する変数を近くに配置することで、キャッシュヒット率を向上させることができます。アライメントやパディングで無駄なメモリ領域ができないようになるべく注意してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

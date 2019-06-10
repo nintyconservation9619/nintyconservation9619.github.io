@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>PLONGJMP/LONGJMP</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    LONGJMP : Long-Jump<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "LONGJMP", description => "Long-Jump" } -->
+    PLONGJMP : Pre-Long-Jump<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "PLONGJMP", description => "Pre-Long-Jump" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "PLONGJMP", subsection => 11.5 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "LONGJMP", subsection => 11.5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code></code>           <code><b>PLONGJMP</b></code>   <code>#OffsetS24</code>              <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MIO_NOSCBD") --></code>           <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "PLONGJMP" } -->
+<code>        <code></code>           <code><b>PLONGJMP</b></code>   <code>c[#BankU05][#AddrU16]</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MIO_NOSCBD") --></code>           <code>;</code>   <code><b>// This form is not patchable and is deprecated</b></code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "PLONGJMP" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>LONGJMP</b></code>    <code>{CC.test}</code>               <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LONGJMP" } -->
+
+
+  .test:  { <b>.F,      .LT,     .EQ,     .LE,      .GT,      .NE,      .GE,   .NUM, </b>    Signed numeric tests
+            <b>.NAN,    .LTU,    .EQU,    .LEU,     .GTU,     .NEU,     .GEU,  .T*,  </b>    Signed or Unordered tests 
+            <b>.OFF,    .LO,     .SFF,    .LS,      .HI,      .SFT,     .HS,   .OFT, </b>    Unsigned integer tests
+            <b>.CSM_TA, .CSM_TR, .CSM_MX, .FCSM_TA, .FCSM_TR, .FCSM_MX, .RLE,  .RGT  </b>}   Clip State Machine tests
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Together, PLONGJMP and LONGJMP implement one step of the stack
+unwind mechanism used to implement setjump and longjmp.</p>
+
+<dl>
+<dt>PLONGJMP:</dt>
+<dd>
+<p>
+   Set program pre-longjmp synchronization point.</p>
+<p>
+   This instruction is used before (and outside) a routine that calls
+   setjmp.  It specifies the target address for execution to resume at
+   after the <b>LONGJMP</b>.</p>
+<p>
+   The target address is relative to the program counter of the
+   instruction following the <b>PLONGJMP</b> instruction, and is a
+   signed byte address with the two lsbs being 0.</p>
+<p>
+   The <b>PLONGJMP</b> instruction results in a token being pushed onto the 
+   CallReturnStack (CRS) but does not alter the program flow, execution 
+   continues normally to the next sequential instruction.</p>
+</dd>
+<dt>LONGJMP:</dt>
+<dd>
+<p>
+   The long jump condition is based on a predicate AND condition code bits. 
+   To just long jump on predicate, use CC.TRUE.  To just long jump on CC, use PT.</p>
+<p>
+   When all active threads have executed a <b>LONGJMP</b>, the stack will be
+   unwound until a matching <b>PLONGJMP</b> token is found.  The <b>PLONGJMP</b> stack entry
+   will be popped from the stack and execution will resume at the address
+   specified by the <b>PLONGJMP</b>, with the active mask updated according
+   to the mask in the <b>PLONGJMP</b>.  Thus making this a synchronizing event.</p>
+<p>
+   <b>LONGJMP</b> can be executed within any arbitrarily nested control
+   structure, and will jump to the nearest enclosing <b>PLONGJMP</b>
+   point.  Thus it provides one level of stack unwinding.  Together
+   with some additional code, arbitrary-depth stack unwinding can be
+   implemented.</p>
+<p>
+   A <b>LONGJMP</b> without a matching <b>PLONGJMP</b> will result in an error.</p>
+</dd>
+</dl>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+     <b>PLONGJMP</b>       LABEL0;
+     NOP;
+     <b>LONGJMP</b>        CC.EQ;      // Executes if CC.EQ condition evaluates to TRUE
+
+LABEL0:                         // Program execution resumes here after LONGJMP execution
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>

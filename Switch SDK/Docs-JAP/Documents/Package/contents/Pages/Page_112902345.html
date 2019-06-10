@@ -1,0 +1,451 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>クラスタリングモード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- クラスタリングモード -->
+<div class="pagetitle" id="PageId_112902345">クラスタリングモード</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_112902345_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_112902345_h1_2">クラスタリングモード</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902345_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902345_h2_2">設定項目</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902345_h2_3">出力フォーマット</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_112902345_h1_3">クラスタリングモードの使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902345_h2_4">クラスタリングモードのサンプル</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_112902345_h1_1">はじめに</h1>
+<p>クラスタリングモードは、 モーションIRカメラ上にある物体をクラスタとして検出するモードです。</p>
+<h1 id="Anchor_112902345_h1_2">クラスタリングモード</h1>
+<h2 id="Anchor_112902345_h2_1">概要</h2>
+<p>画像の中から明るい「かたまり」 (クラスタ) を見つけ、そのクラスタの座標や大きさを計算します。<br />最大16個のクラスタを同時に取得することができます。</p>
+<p>以下は、見つけたクラスタを画面上に描画した図になります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_112902345/125191145.png" class="embedded-image" />
+  </span>
+</p>
+<p>出力されるデータの座標系については、「<a href="../Pages/Page_112902609.html#Anchor_112902609_IR センサーのデータ座標系">モーションIRカメラのデータ座標系</a>」を参照してください。</p>
+<h2 id="Anchor_112902345_h2_2">設定項目</h2>
+<p>クラスタリングモードには、以下の設定項目があり、クラスタを検出する条件を変更することができます。<br />IRカメラと、クラスタリングモードの設定を変えることで、検出したい対象をとらえることができます。<br /><br /></p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+      <th>定義域</th>
+    </tr>
+    <tr>
+      <td>windowOfInterest</td>
+      <td>
+        <p>画像のどの部分を使用するかを設定します。</p>
+        <p>画像の端など、一部を除きたいときに設定します。</p>
+        <p>たとえば、画像の一部に明るい箇所があり、その箇所の明るい点をクラスタとして検出してほしくない場合、</p>
+        <p>その箇所を除くように、WOI を設定します。</p>
+      </td>
+      <td>
+        <p>(0,0)~(319, 239)</p>
+        <p>のQVGA画像全領域</p>
+      </td>
+      <td>
+        <p>320 x 240 の画像全体を指定可能です。</p>
+        <p>左上座標 (0, 0) から右下座標 (319, 239) までの領域</p>
+      </td>
+    </tr>
+    <tr>
+      <td>objectPixelCountMin</td>
+      <td>
+        <p>検出するクラスタの最小の面積 (画素数)。</p>
+        <p>これ以下の大きさの明るい領域はクラスタとして検出されません。</p>
+        <p>小さいクラスタが余分に検出されてしまう場合、この値を大きくして検出しないようにします。<br />objectPixelCountMax - 1 の値以上の値を設定すると、何も検出されなくなります。</p>
+      </td>
+      <td>3</td>
+      <td>0 以上 65535 以下</td>
+    </tr>
+    <tr>
+      <td>objectPixelCountMax</td>
+      <td>
+        <p>検出するクラスタの最大の面積 (画素数)。</p>
+        <p>これ以上の大きさの明るい領域はクラスタとして検出されません。</p>
+        <p>大きいクラスタが余分に検出されてしまう場合、この値を小さくして検出しないようにします。</p>
+        <p>objectPixelCountMin + 1 の値以下の値を設定すると、何も検出されなくなります。</p>
+      </td>
+      <td>76800</td>
+      <td>0 以上　76800 (= 320x240) 以下</td>
+    </tr>
+    <tr>
+      <td>objectIntensityMin</td>
+      <td>
+        <p>検出における輝度の閾値です。</p>
+        <p>この閾値以下の画素は暗い点であるとみなされ、クラスタには含まれません。</p>
+        <p>暗いクラスタを検出したい場合に閾値を下げます。</p>
+        <p>また、暗いクラスタを余分に検出してしまう場合、閾値を挙げます。(カメラの画像を調整する手もあります。</p>
+      </td>
+      <td>150</td>
+      <td>
+        <p>0 以上 255 以下<br /></p>
+      </td>
+    </tr>
+    <tr>
+      <td>isExternalLightFilterEnabled</td>
+      <td>
+        <p>外部光フィルタ機能の有効無効を設定します。</p>
+        <p>あえて外部光を検出対象としたい場合は、フィルタ機能を無効に設定してください。</p>
+        <p>詳細については、<a href="../Pages/Page_112902609.html#Anchor_112902609_IR%E3%82%BB%E3%83%B3%E3%82%B5%E3%83%BC%E3%81%AE%E5%A4%96%E9%83%A8%E5%85%89%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E6%A9%9F%E8%83%BD">共通機能</a> の「モーションIRカメラの外部光フィルタ機能」の項目を参照してください。</p>
+      </td>
+      <td>true</td>
+      <td>true/false</td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの設定値は<span class="external-link"> <span class="ApiLink_nn__irsensor__ClusteringProcessorConfig">nn::irsensor::ClusteringProcessorConfig</span></span> 構造体のメンバとして持っています。 IRカメラの設定については、 <a href="../Pages/Page_112902609.html">共通機能</a> の項目をご覧ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">ClusteringProcessorConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraConfig</span> <span class="n">irCameraConfig</span><span class="p">;</span>     <span class="c1">//!&lt; IRカメラの設定です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Rect</span> <span class="n">windowOfInterest</span><span class="p">;</span>             <span class="c1">//!&lt; 撮影画像で処理対象となる矩形領域です（左上隅のピクセルを (0, 0) とする、幅 IrCameraImageWidth、高さ IrCameraImageHeight の領域内）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">objectPixelCountMin</span><span class="p">;</span>           <span class="c1">//!&lt; 検出するオブジェクトの最小サイズです（0 以上 ClusteringProcessorObjectPixelCountMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">objectPixelCountMax</span><span class="p">;</span>           <span class="c1">//!&lt; 検出するオブジェクトの最大サイズです（0 以上 ClusteringProcessorObjectPixelCountMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">objectIntensityMin</span><span class="p">;</span>            <span class="c1">//!&lt; 検出するオブジェクトを構成するピクセルの最小輝度値です（0 以上 255 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">isExternalLightFilterEnabled</span><span class="p">;</span> <span class="c1">//!&lt; 外部光フィルタ機能が有効かどうか。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Window of Interest を表す矩形領域、<span class="ApiLink_nn__irsensor__Rect">nn::irsensor::Rect</span> 構造体のメンバは以下の通りです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">Rect</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span> <span class="n">x</span><span class="p">;</span>      <span class="c1">//!&lt; X 座標
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span> <span class="n">y</span><span class="p">;</span>      <span class="c1">//!&lt; Y 座標
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span> <span class="n">width</span><span class="p">;</span>  <span class="c1">//!&lt; 幅
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int16_t</span> <span class="n">height</span><span class="p">;</span> <span class="c1">//!&lt; 高
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />これらの設定を、 <span class="ApiLink_nn__irsensor__RunClusteringProcessor">nn::irsensor::RunClusteringProcessor</span> 関数に渡すことで、指定した設定でクラスタリングモードを起動することができます。</p>
+<h2 id="Anchor_112902345_h2_3">出力フォーマット</h2>
+<p>クラスタリングモードの出力は以下の様なフォーマットになります。</p>
+<p>画像の左上 (0, 0) から水平方向にスキャンを行うため、16 個より多い数のクラスタが存在した場合は、画像のより上にあるクラスタ、<br />また、同行のピクセルでは左側にあるクラスタが優先して検出されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>samplingNumber</td>
+      <td>処理結果を受け取る度に増加する値です。</td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>timeStamp</td>
+      <td>
+        <p>処理開始から処理結果を取得した時点までの時間情報です。<br />前に取得したデータの timeStamp との差分情報を見て、パケットロスを検知することができます。</p>
+      </td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>objectCount</td>
+      <td>検出されたクラスタ数です。</td>
+      <td>0 以上 16 以下</td>
+    </tr>
+    <tr>
+      <td>ambientNoiseLevel</td>
+      <td>
+        <p>環境ノイズの状態です。</p>
+        <p>環境ノイズ(外部光)が多い場合はこの変数を見て、</p>
+        <p>例えばユーザへプレイ環境を変えるように案内する、</p>
+        <p>といったような通知をすることができます。</p>
+        <p>外部光フィルタが無効の場合は Unknown が返ります。</p>
+        <p>詳細については、<a href="../Pages/Page_112902609.html#Anchor_112902609_IR%E3%82%BB%E3%83%B3%E3%82%B5%E3%83%BC%E3%81%AE%E5%A4%96%E9%83%A8%E5%85%89%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E6%A9%9F%E8%83%BD">共通機能</a> の</p>
+        <p>「モーションIRカメラの外部光フィルタ機能」の項目を参照してください。</p>
+      </td>
+      <td>
+        <p>IrCameraAmbientNoiseLevel_Low/</p>
+        <p>IrCameraAmbientNoiseLevel_Middle/</p>
+        <p>IrCameraAmbientNoiseLevel_High/</p>
+        <p>IrCameraAmbientNoiseLevel_Unknown</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>objects</p>
+      </td>
+      <td>各クラスタの詳細データです。<br />バッファの先頭から検出された順にデータが格納されます。</td>
+      <td>後述</td>
+    </tr>
+  </tbody>
+</table>
+<p>各クラスタの詳細は以下のフォーマットになります。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>averageIntensity</td>
+      <td>クラスタの輝度平均値です。</td>
+      <td>
+        <p>0.0 以上 255.0 以下</p>
+      </td>
+    </tr>
+    <tr>
+      <td>centroid</td>
+      <td>クラスタの重心座標です。</td>
+      <td>(0.0, 0.0) ~ (319.0, 239.0)</td>
+    </tr>
+    <tr>
+      <td>pixelCount</td>
+      <td>クラスタの面積（画素数）です。</td>
+      <td>0 以上 65535 以下</td>
+    </tr>
+    <tr>
+      <td>bound</td>
+      <td>クラスタの外接長方形です。</td>
+      <td>水平方向のサイズが 1 以上、 <span class="ApiLink_nn__irsensor__IrCameraImageWidth">nn::irsensor::IrCameraImageWidth</span> 以下、<br />垂直方向のサイズが 1 以上、 <span class="ApiLink_nn__irsensor__IrCameraImageHeight">nn::irsensor::IrCameraImageHeight</span> 以下、<br />かつ、設定した windowsOfInterest の範囲に収まる矩形領域</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>出力の pixelCount について、実際に検出したクラスタのサイズが 65535 より大きい場合も 65535 と表示されてしまう不具合がありますが、こちらは仕様となります。</p>
+  </div>
+</div>
+<p>これらの出力値は、 <span class="ApiLink_nn__irsensor__ClusteringProcessorState">nn::irsensor::ClusteringProcessorState</span> 構造体のメンバとして持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">ClusteringProcessorState</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int64_t</span> <span class="n">samplingNumber</span><span class="p">;</span>                                    <span class="c1">//!&lt; クラスタリングプロセッサから処理結果を得る度に増加する値です（0 以上）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::</span><span class="n">TimeSpanType</span> <span class="n">timeStamp</span><span class="p">;</span>                              <span class="c1">//!&lt; 処理開始から処理結果を取得した時点までの時間情報です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int8_t</span> <span class="n">objectCount</span><span class="p">;</span>                                        <span class="c1">//!&lt; 検出したオブジェクトの数です（0 以上 ClusteringProcessorObjectCountMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PADDING3</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel</span> <span class="n">ambientNoiseLevel</span><span class="p">;</span>               <span class="c1">//!&lt; 検出した環境ノイズの状態です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">ClusteringData</span> <span class="n">objects</span><span class="p">[</span><span class="n">ClusteringProcessorObjectCountMax</span><span class="p">];</span> <span class="c1">//!&lt; 検出したオブジェクトのデータです。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各クラスタの詳細データは、 &nbsp;<span class="ApiLink_nn__irsensor__ClusteringData">nn::irsensor::ClusteringData</span> 構造体のメンバとして持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">ClusteringData</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">averageIntensity</span><span class="p">;</span>      <span class="c1">//!&lt; オブジェクトの平均輝度値です（0 以上 IrCameraIntensityMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::util::</span><span class="n">Float2</span> <span class="n">centroid</span><span class="p">;</span> <span class="c1">//!&lt; オブジェクトの重心座標です（ClusteringProcessorConfig::windowOfInterest で指定した領域内）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int32_t</span> <span class="n">pixelCount</span><span class="p">;</span>          <span class="c1">//!&lt; オブジェクトの面積です（ClusteringProcessorConfig::objectPixelCountMin 以上 ClusteringProcessorConfig::objectPixelCountMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Rect</span> <span class="n">bound</span><span class="p">;</span>                  <span class="c1">//!&lt; オブジェクトの外接矩形です（ClusteringProcessorConfig::windowOfInterest で指定した領域内）。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの出力データは、 <span class="ApiLink_nn__irsensor__GetClusteringProcessorState">nn::irsensor::GetClusteringProcessorState</span> 、または <span class="ApiLink_nn__irsensor__GetClusteringProcessorStates">nn::irsensor::GetClusteringProcessorStates</span> に出力フォーマットのバッファを渡して、呼び出すことで取得することができます。</p>
+<h1 id="Anchor_112902345_h1_3">クラスタリングモードの使用方法</h1>
+<p>クラスタリングモードは以下のような流れで使用します。</p>
+<ol>
+  <li>
+    <p>
+      <span class="ApiLink_nn__hid__NpadIdType">nn::hid::NpadIdType</span> を元に、<span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を取得し、モーションIRカメラを初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/irsensor.h&gt;
+</span>
+<span class="nn">nn::irsensor::</span><span class="n">IrCameraHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">GetIrCameraHandle</span><span class="p">(</span><span class="n">npadIdType</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>クラスタリングモードの初期設定を生成します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">ClusteringProcessorConfig</span> <span class="n">config</span><span class="p">;</span>
+<span class="c1">// デフォルト設定値を取得 (個別に設定したい場合はユーザが直接設定しても構いません。)
+</span><span class="nn">nn::irsensor::</span><span class="n">GetClusteringProcessorDefaultConfig</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>取得した <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、&nbsp; <span class="ApiLink_nn__irsensor__RunClusteringProcessor">nn::irsensor::RunClusteringProcessor</span> 関数を呼び、キャプチャを開始します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre> <span class="nn">nn::irsensor::</span><span class="n">RunClusteringProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">config</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>出力用の <span class="ApiLink_nn__irsensor__ClusteringProcessorState">nn::irsensor::ClusteringProcessorState</span> のバッファを準備して、 <span class="ApiLink_nn__irsensor__GetClusteringProcessorState">nn::irsensor::GetClusteringProcessorState</span> 関数または、 <span class="ApiLink_nn__irsensor__GetClusteringProcessorStates">nn::irsensor::GetClusteringProcessorStates</span> 関数を呼びます。&nbsp; <br />&nbsp;<span class="ApiLink_nn__irsensor__GetClusteringProcessorStates">nn::irsensor::GetClusteringProcessorStates</span> 関数では一度に最大&nbsp;<span class="ApiLink_nn__irsensor__ClusteringProcessorStateCountMax">nn::irsensor::ClusteringProcessorStateCountMax</span> 個の処理結果を取得できます。<br />呼び出した時点の最新の処理結果を取得しますが、コントローラの BT 転送の都合上最速でも15ms 間隔での更新になるため、<br />例えば、ゲームフレームなどと同期する形で、ポーリング方式で使用することを推奨します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">ClusteringProcessorState</span> <span class="n">state</span><span class="p">[];</span>
+<span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+<span class="nn">nn::irsensor::</span><span class="n">GetClusteringProcessorStates</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>停止したい <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、 <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を呼び、クラスタリングモードを停止します。<br />その後、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を呼び、 モーションIRカメラを終了します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">StopImageProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Finalize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>&nbsp;</p>
+    <h2 id="Anchor_112902345_h2_4">クラスタリングモードのサンプル</h2>
+    <p>Samples\Sources\Applications\IrSensorClusteringBasic に配置されているサンプルを参照してください。<br />簡単にクラスタリングモードの挙動を確認したい場合は、 Samples\Sources\Applications\IrSensorViewer に配置されているサンプルを参照してください。</p>
+  </li>
+</ol>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__irsensor__ClusteringProcessorConfig', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_clustering_processor_config.html' )
+SetUrl( 'ApiLink_nn__irsensor__Rect', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_rect.html' )
+SetUrl( 'ApiLink_nn__irsensor__RunClusteringProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a95a6afcb715377961a0f5382d16408c8' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraImageWidth', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a63bf35bb56e0d8d50733b01a61f1f4a6' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraImageHeight', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#ab2ad760b9f753dd1253b3e4172932baf' )
+SetUrl( 'ApiLink_nn__irsensor__ClusteringProcessorState', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_clustering_processor_state.html' )
+SetUrl( 'ApiLink_nn__irsensor__ClusteringData', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_clustering_data.html' )
+SetUrl( 'ApiLink_nn__irsensor__GetClusteringProcessorState', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6572060a5c7f41d2c19edde462fb5136' )
+SetUrl( 'ApiLink_nn__irsensor__GetClusteringProcessorStates', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#af83d851b9b53c14d5e661f240ac482c2' )
+SetUrl( 'ApiLink_nn__hid__NpadIdType', '../../../Api/HtmlNX/namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraHandle', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_handle.html' )
+SetUrl( 'ApiLink_nn__irsensor__ClusteringProcessorStateCountMax', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a20ebaaa373036fe0859a0315e33a42fe' )
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3052171f2c63aafc0e4a164366ae22d7' )
+SetUrl( 'ApiLink_nn__irsensor__Finalize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6265f5c6e6d6fc0e67fc6882a8945284' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

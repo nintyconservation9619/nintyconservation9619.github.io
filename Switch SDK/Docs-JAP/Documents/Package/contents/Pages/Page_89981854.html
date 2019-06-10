@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダーコンパイラー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダーコンパイラー -->
+<div class="pagetitle" id="PageId_89981854">シェーダーコンパイラー</div>
+<div class="text_separate">
+<h1 id="Anchor_89981854_h1_1">概要</h1>
+<h2 id="Anchor_89981854_h2_1">目的</h2>
+<p>GFX ShaderCompiler は、GFX ライブラリーが低レベルグラフィックス API を抽象化するのと似たように、低レベルシェーダーコンパイラーを抽象化することを目的としています。<br />これは、同じ入力・同じインターフェイスで異なるターゲット向けのシェーダーを生成できることを意味します。<br />GFX ShaderCompiler が内部的に低レベルシェーダーコンパイラーを呼び出します。</p>
+<p>GFX ShaderCompiler は、バリエーション（下記の<a href="#Anchor_89981854_Variation">バリエーション</a>の節を参照）の仕組みを提供します。<br />バリエーションは現状、シェーダーを使う開発者によって利用されることが多い仕組みであり、これを GFX のレイヤーで提供することで、ミドルウェアやアプリケーションなどの上位層で用意する必要を取り除きます。<br />バリエーションが必要ない場合は、1 つのバリエーションとすることで、おおよそ同等の機能となります。</p>
+<h3 id="Anchor_89981854_h3_1">入出力のイメージ図</h3>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89981854/90144854.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_89981854_h2_2">方針</h2>
+<p>低レベルシェーダーコンパイラー間やシェーダー言語間にはいくつもの相違点があり、その機能性や入出力のインターフェイスは同等ではありません。<br />GFX ShaderCompiler ではこれらをなるべく抽象化しますが、低レベルシェーダーコンパイラーに特有と考えられる箇所については無理に抽象化せず、それ専用の入力または出力を追加する形をとっています。</p>
+<p>GFX ShaderCompiler はファイル入出力を扱いません。<br />すべての API 呼び出しをメモリー上で完結できるように設計されています。</p>
+<p>利用側を含む全体のフローを考えた際に、冗長な処理がなるべく少なくなる方針で設計されています。<br />たとえば何度もソースの解析が行われてしまうことなどをなるべく避けます。&nbsp;</p>
+<h2 id="Anchor_89981854_h2_3">提供形態</h2>
+<p>.dll として提供されており、また、対応する .pdb も提供されています。</p>
+<p>現在は 32bit 版のみ提供されていますが、将来的には 64bit 版も提供予定です。<br />低レベルのターゲットによっては、ランタイムが 32bit 版であれば 32bit 版を、64bit 版であれば 64bit 版を使う必要があります。&nbsp;</p>
+<h3 id="Anchor_89981854_h3_2">利用方法</h3>
+<p>ヘッダーファイルで宣言されている関数を .dll から取得して呼び出してください。</p>
+<h2 id="Anchor_89981854_h2_4">配置</h2>
+<h3 id="Anchor_89981854_h3_3">32bit 版バイナリー</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Tools/Graphics/GraphicsTools/x86/ShaderCompiler.pdb
+Tools/Graphics/GraphicsTools/x86/ShaderCompiler.dll</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_89981854_h3_4">ヘッダーファイル</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Include/nn/gfxTool/gfxTool_ShaderCompilerApi.h</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_89981854_h1_2">全体的な仕様<a name="Anchor_89981854_spec_overview"></a></h1>
+<p>それぞれの機能は、関数とその入出力の定義によって提供されています。</p>
+<h2 id="Anchor_89981854_h2_5">関数</h2>
+<p>関数は C スタイルで記述されています。</p>
+<p>ハンドル（下記参照）を引数にとる関数については、その呼び出しの順序や並列実行に制限があるため注意してください。<br />詳細な条件については、それぞれの関数のリファレンスを参照してください。</p>
+<h2 id="Anchor_89981854_h2_6">入力</h2>
+<p>&nbsp;関数への入力はハンドルと構造体からなります。</p>
+<h3 id="Anchor_89981854_h3_5">ハンドル</h3>
+<p>ハンドルは、GFX ShaderCompiler のコンテキストを表現します。<br />まずハンドルを作成し、ハンドルに対して操作を行い、最後にハンドルを削除するのが全体の使用の流れです。</p>
+<p>制限として、同じハンドルを引数とする関数呼び出しを並列に行うことはできません。&nbsp;<br />ハンドルを削除すると、その後そのハンドルについて操作を行うことはできません。</p>
+<h3 id="Anchor_89981854_h3_6">構造体</h3>
+<p>&nbsp;関数呼び出しへの引数です。</p>
+<p>POD 型であることが保証されており、また将来のために予約領域をもっています。</p>
+<p>利用しないフィールドと予約領域はゼロ初期化されていることが要求されます。</p>
+<h2 id="Anchor_89981854_h2_7">出力</h2>
+<p>関数からの出力は結果コードと構造体です。</p>
+<h3 id="Anchor_89981854_h3_7">結果コード</h3>
+<p>成功した場合は 0 の値である nngfxToolResultCode_Success を返します。</p>
+<p>失敗した場合は失敗内容に応じた 0 以外の値を返します。</p>
+<h3 id="Anchor_89981854_h3_8">構造体</h3>
+<p>内部でメモリー確保される出力については、構造体へのポインターを出力します。<br />ハンドルを削除しても出力構造体は削除されず、存続します。<br />出力構造体を削除するには対応する専用の関数を呼び出します&nbsp;。</p>
+<p>内部でメモリー確保されない出力については、渡された構造体に直接値を埋めます。</p>
+<h1 id="Anchor_89981854_h1_3">機能</h1>
+<h2 id="Anchor_89981854_h2_8">ハンドルの作成</h2>
+<p>nngfxToolShaderCompilerCreateHandle 関数により、GFX ShaderCompiler のコンテキストを表すハンドルを作成します。</p>
+<p>コンパイルなどのその他の操作はここで作成されるハンドルに対して行います。<br />よって、GFX ShaderCompiler の利用にはまずハンドルを作成する必要があります。</p>
+<h3 id="Anchor_89981854_h3_9">入力</h3>
+<p>現在&nbsp;なにも設定はなく、将来のために予約された構造体を入力します。</p>
+<h3 id="Anchor_89981854_h3_10">出力</h3>
+<p>作成されたハンドルを出力します。</p>
+<h2 id="Anchor_89981854_h2_9">ハンドルのリセット</h2>
+<p>nngfxToolShaderCompilerResetHandle 関数により、GFX ShaderCompiler のハンドルをリセットします。</p>
+<p>それまでハンドルに対して行われた操作がリセットされ、ハンドルの作成直後と同じ状態になります。<br />新しいハンドルを作成するよりも効率がよくなる場合があります。</p>
+<h3 id="Anchor_89981854_h3_11">入力</h3>
+<p>&nbsp;対象のハンドル以外に入力はありません。</p>
+<h2 id="Anchor_89981854_h2_10">シェーダーコンパイル</h2>
+<p>nngfxToolShaderCompilerCompile 関数により、シェーダーのコンパイルを行います。</p>
+<h3 id="Anchor_89981854_h3_12">入力</h3>
+<p>
+  <strong>ソースコード</strong>
+</p>
+<p>それぞれのシェーダーステージのソースコードです。<br />null の場合はそのシェーダーステージが存在しないことを意味します。</p>
+<p>
+  <strong>ファイル IO のコールバック</strong>
+</p>
+<p>シェーダーコンパイラーはファイルの入出力を扱わないため、ファイルの入出力を扱うためのコールバックをここで指定します。<br />並列に呼ばれることがあることに注意してください。<br />コールバックに NULL が指定されている場合は対象の機能を使わないことを意味します。</p>
+<p>
+  <strong>ターゲットの情報</strong>
+</p>
+<p>どのターゲット向けにシェーダーをコンパイルするかを指定します。<br />この情報により、内部的に使われる低レベルシェーダーコンパイラーが決定されます。</p>
+<p>
+  <strong>バリエーション情報</strong>
+</p>
+<p>バリエーション情報を指定します。<br />バリエーションが不要な場合、null を指定することで、1 つだけシェーダーをコンパイルします。<br />バリエーションの詳細については下記の<a href="#Anchor_89981854_Variation">バリエーション</a>の節を参照してください。</p>
+<p>
+  <strong>コンパイルオプション&nbsp;</strong>
+</p>
+<p>コンパイルオプションを追加することができます。<br />低レベルシェーダーコンパイラ特有のオプションはここで指定します。<br />同じ種類のオプションを複数指定することはできません。<br />入力のソースが glsl の場合、#version と #extension はソースコードに直接記述するのではなく、nngfxToolShaderCompilerCompileOptionGlsl コンパイルオプションにおいて指定してください。</p>
+<h3 id="Anchor_89981854_h3_13">出力</h3>
+<p>
+  <strong>&nbsp;バリエーション構造</strong>
+</p>
+<p>出力の構造は入力されたバリエーションやシェーダーステージの構造に従っています。</p>
+<p>
+  <strong>gfx シェーダー情報</strong>
+</p>
+<p>
+  <span class="ApiLink_nn__gfx__Shader">nn::gfx::Shader</span> の Initialize に入力する <span class="ApiLink_nn__gfx__ShaderInfo">nn::gfx::ShaderInfo</span> です。<br />バリエーションやシェーダーステージの構成に応じて必要な数だけ存在しています。<br />pCode の先にはシェーダーコードが格納されています。<br />シェーダーコードが同じ場合、バリエーション間で同一のアドレスを指している可能性があります。&nbsp;</p>
+<p>
+  <strong>追加情報</strong>
+</p>
+<p>コンパイルオプションなどによって追加の情報が出力されます。</p>
+<h2 id="Anchor_89981854_h2_11">ハンドルの削除</h2>
+<p>nngfxToolShaderCompilerDeleteHandle &nbsp;関数により、GFX ShaderCompiler のハンドルを削除します。</p>
+<h3 id="Anchor_89981854_h3_14">入力</h3>
+<p>削除対象のハンドル以外に入力はありません。</p>
+<h2 id="Anchor_89981854_h2_12">コンパイル結果の削除</h2>
+<p>nngfxToolShaderCompilerDeleteCompileOutput 関数により、nngfxToolShaderCompilerCompile 関数によって作成されたコンパイル結果を削除します。</p>
+<p>ハンドルに紐付けられない処理なため、ハンドル削除後に呼ぶことができます。&nbsp;</p>
+<h3 id="Anchor_89981854_h3_15">入力</h3>
+<p>削除対象のコンパイル結果以外に入力はありません。</p>
+<h1 id="Anchor_89981854_h1_4">必須ではない機能</h1>
+<h2 id="Anchor_89981854_h2_13">ログ出力ストリームの設定</h2>
+<p>nngfxToolShaderCompilerSetLogStream 関数により、ログ出力先を標準出力以外に設定することができます。</p>
+<h3 id="Anchor_89981854_h3_16">入力</h3>
+<p>
+  <strong>ログ出力先設定引数</strong>
+</p>
+<p>設定対象のログ出力タイプとログ出力先のハンドルを指定します。</p>
+<h2 id="Anchor_89981854_h2_14">バージョン情報の取得</h2>
+<p>nngfxToolShaderCompilerGetApiVersion 関数により、シェーダーコンパイラーのバージョン情報を取得することができます。</p>
+<h3 id="Anchor_89981854_h3_17">出力</h3>
+<p>
+  <strong>バージョン情報</strong>
+</p>
+<p>取得されるメジャーバージョンが nngfxToolShaderCompilerVersion_Major と異なる場合、動作は保証されません。</p>
+<p>取得されるマイナーバージョンが&nbsp;nngfxToolShaderCompilerVersion_Minor より小さい場合、動作は保証されません。</p>
+<h1 id="Anchor_89981854_h1_5">バリエーション<a name="Anchor_89981854_Variation"></a></h1>
+<p>
+  <span style="color: rgb(51,51,51);">バリエーションは、シェーダーの処理内容の違いを表現します。</span>
+</p>
+<p>ひとつのシェーダーにおいて条件分岐として記述するのではなく、バリエーションとしてあらかじめ別のシェーダーにしておくことで、実行時の効率を向上させます。</p>
+<p>バリエーションは、バリエーション定数とプリプロセッサー定義から構成され、両方を組み合わせることも、どちらか一方のみを使うことも可能です。</p>
+<p>バリエーションは、その定義がひとつと、その値の列挙によって構成されます。<br />たとえばバリエーションを 20 種類作成したい場合は、20 の値を列挙します。</p>
+<h2 id="Anchor_89981854_h2_15">バリエーション定数</h2>
+<p>バリエーション定数は、定数バッファーを利用したバリエーションの仕組みです。<br />定数バッファーにおける指定された変数を、静的定数として扱うことでバリエーション化します。</p>
+<p>出力が中間言語表現の場合、低レベルのターゲットによっては、バリエーション定数はシェーダーとは別に管理できます。<br />これは、バリエーションの数にかかわらずシェーダーがひとつになることを意味し、メモリー効率やオフラインコンパイル速度を大きく改善する可能性があります。<br />また、バイナリー表現の場合も、内部的に一度中間言語表現にしてからそれぞれのバリエーションについてコンパイルすることがあり、これにより特に多数のバリエーションを扱うシェーダーについてオフラインコンパイル速度を大きく改善する可能性があります。<br />よって、バリエーションを構成する際は、可能な限りプリプロセッサー定義ではなくバリエーション定数を 使うことが推奨されます。</p>
+<h3 id="Anchor_89981854_h3_18">具体例</h3>
+<p>シェーダーソースにおいて定数バッファーとして記述します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>layout( std140 ) uniform VariationConstant
+{
+&nbsp;&nbsp;&nbsp;&nbsp;vec3 a;
+&nbsp;&nbsp;&nbsp;&nbsp;int b;
+&nbsp;&nbsp;&nbsp;&nbsp;mat4x4 c;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記において、たとえば a を以下の 2 つにバリエーション化します。</p>
+<ul>
+  <li>( 1.0, 1.5, 2.0 )</li>
+  <li>( 0.5, 0.0, -4.0 )</li>
+</ul>
+<p>バリエーション化したら、a をランタイムでバインドして設定することはしません。</p>
+<h3 id="Anchor_89981854_h3_19">制限</h3>
+<p>GL4 版などではエミュレーションによってバリエーション定数を実現しますが、現在、&ndash;preprocess オプションを利用しない場合、プリプロセスを行わずにバリエーション定数バッファーを解析しています。<br />よって、バリエーション定数バッファーにマクロやコメントを使っている場合、GFX ShaderCompiler が解析に失敗することがあります。</p>
+<h3 id="Anchor_89981854_h3_20">入力が SPIR-V の場合</h3>
+<p>バリエーション定数は、入力が SPIR-V の場合は SPIR-V の Specilization Constant に対応します。<br />この場合、定数バッファーを使ってバリエーションを作成することはできません。<br />対象の変数は、シンボルではなく、レイアウト修飾子によって修飾される constant_id により指定します。<br />その他、Specilization Constant の仕様については SPIR-V の仕様に準拠します。</p>
+<p>例:</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>layout( constant_id = 1 ) const bool useTexture=bool(1);
+layout( constant_id = 2 ) const bool useMaterial=bool(1);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記において、たとえば constant_id = 1 を以下の 2 つにバリエーション化します。</p>
+<ul>
+  <li>true</li>
+  <li>false</li>
+</ul>
+<h2 id="Anchor_89981854_h2_16">プリプロセッサー定義</h2>
+<p>プリプロセッサー定義は、&quot;#define ...&quot; の機能を利用したバリエーションの仕組みです。</p>
+<p>ソースコードにおいて、指定されるバリエーション分、それぞれ異なる &quot;#define ...&quot; を挿入します。<br />よって、バリエーション定数と異なり、必ずシェーダーは別になります。</p>
+<h3 id="Anchor_89981854_h3_21">具体例</h3>
+<p>&nbsp;VARIATION_MACRO( x ) という名前のプリプロセッサー定義を、以下の 2 つでバリエーション化します。</p>
+<ul>
+  <li>( x ## _Position )</li>
+  <li>( x ## _TexCoord )</li>
+</ul>
+<p>この際、以下の 2 つのバリエーションのシェーダーが生成されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#define VARIATION_MACRO( x ) ( x ## _Position )</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#define VARIATION_MACRO( x ) ( x ## _TexCoord )</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_89981854_h2_17">バリエーションの定義</h2>
+<p>バリエーションの定義は、キーと値のペアで例えたときのキーの部分です。<br />全バリエーションで共通であり、よってひとつだけ指定します。</p>
+<p>
+  <strong>バリエーション定数の場合</strong>
+</p>
+<p>変数名や型などを指定します。</p>
+<p>
+  <strong>プリプロセッサー定義の場合</strong>
+</p>
+<p>&quot;#define &quot; のあとのスペースで区切られる前の文字列部分を指定します。&nbsp;</p>
+<h2 id="Anchor_89981854_h2_18">バリエーションの値</h2>
+<p>バリエーションの定義に対する、値の部分です。<br />全バリエーション分を列挙します。&nbsp;</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__Shader', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a134193f9c28fadc8dfd08e80f55677b1' )
+SetUrl( 'ApiLink_nn__gfx__ShaderInfo', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_shader_info.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

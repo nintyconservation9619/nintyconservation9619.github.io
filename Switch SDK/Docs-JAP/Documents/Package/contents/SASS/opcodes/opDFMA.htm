@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>DFMA</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    DFMA : FP64 Fused Mutiply Add<br>
+    <!-- SUMMARY_TABLE_INFO { description => "FP64 Fused Mutiply Add" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "DFMA", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>DFMA</b>{.rnd}</code>   <code>Rd{.CC},{-}Ra,{-}Sb,{-}Sc</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("REDIRECTABLE") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("REDIRECTABLE") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "DFMA" } -->
+
+ .rnd:       { <b>.RN*, .RM, .RP, .RZ</b> } 
+             .RN - Round to the nearest even.
+             .RM - Round towards -Infinity
+             .RP - Round towards +Infinity
+             .RZ - Round towards 0
+
+ .CC:        Write condition codes
+
+The following sources Sb, Sc are allowed:
+    Sb(register),                         Sc(register)
+    Sb(constant with immediate address),  Sc(register) 
+    Sb(register),                         Sc(constant with immediate address)
+    Sb(#IMM20&lt;&lt;44),                       Sc(register)
+
+The constant operand has two modes:
+	if lower 3 address bits are 0x4, the 64 bit constant is (c[][addr&amp;~7|0x4] &lt;&lt; 32)
+	if lower 3 address bits are 0x0, the 64 bit constant is (c[][addr|0x4] &lt;&lt; 32) | c[][addr])
+</pre>
+
+<p>
+Note that the registers have to be even aligned.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+The product of Ra and Sb is computed to infinite precision and then Sc is 
+added with a precision sufficient to guarantee that after rounding, the
+result is identical to that of an add with infinite precision followed by
+the rounding. The rounding is done to double precision (fp64) using the
+.rnd rounding mode.</p>
+
+<p>
+See the IEEE-754 2008 standard, section 5.4.1 for details.</p>
+
+</div>
+
+<!-- ###################################### -->
+<!-- # IEEE Rounding Modes                # -->
+<!-- ###################################### -->
+<h3>IEEE Rounding Modes</h3>
+<div class="IEEERoundingModes">
+
+<p>
+Fp64 operations support all 4 required IEEE-754 2008 rounding modes:</p>
+<dl>
+<dt>.RN</dt><dd>roundTiesToEven</dd>
+<dt>.RM</dt><dd>roundTowardNegative</dd>
+<dt>.RP</dt><dd>roundTowardPositive</dd>
+<dt>.RZ</dt><dd>roundTowardZero</dd>
+</dl>
+
+<p>
+The optional IEEE rounding mode <em>roundTiesToAway</em> is not supported.</p>
+
+<p>See the IEEE-754 2008 specification, Section 4.3.3.</p>
+
+</div> <!-- IEEERoundingModes -->
+
+
+<!-- ###################################### -->
+<!-- # NaN Behavior                       # -->
+<!-- ###################################### -->
+<h3>NaN Behavior:</h3>
+<div class="NaNBehavior">
+
+<p>
+The chosen NaN behavior for fp64 operations is different than that of fp32
+operations. The chosen DFMA behavior is in the spirit of Intel's SSE behavior,
+and is IEEE-754 2008 compliant. See the
+IEEE-754 2008 specification, Section 6.2.</p>
+
+</div> <!-- NanBehavior -->
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>DFMA</b> R0,R2,R4,R6;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

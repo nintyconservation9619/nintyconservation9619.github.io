@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>TextureShader</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- TextureShader -->
+<div class="pagetitle" id="PageId_126918987">TextureShader</div>
+<div class="text_separate">
+<h1 id="Anchor_126918987_h1_1">TextureShader</h1>
+<h2 id="Anchor_126918987_h2_1">概要</h2>
+<p>
+  <span class="ApiLink_nn__mii__TextureShader">nn::mii::TextureShader</span> は顔輪郭テクスチャとマスクテクスチャをレンダリングするためのシェーダークラスです。</p>
+<p>似顔絵ライブラリが用意したシェーダーを使用して、任意のテクスチャに各テクスチャをレンダリングする機能を提供します。各クラスから取得できる <a href="../Pages/Page_126918978.html">DrawParam</a> を使用すれば、TextureShader を使用せずに独自のシェーダーでテクスチャをレンダリングすることも可能です。</p>
+<h2 id="Anchor_126918987_h2_2">TextureShaderInfo</h2>
+<p>
+  <span class="ApiLink_nn__mii__TextureShaderInfo">nn::mii::TextureShaderInfo</span> は TextureShader を使用するために必要な情報を設定するクラスです。</p>
+<p>TextureShaderInfo に設定できる値は以下の通りです。</p>
+<ul>
+  <li>レンダリング先の顔輪郭テクスチャのイメージフォーマット</li>
+  <li>レンダリング先のマスクテクスチャのフォーマット</li>
+  <li>顔輪郭テクスチャ生成時のアルファをテクスチャに残すかの指定<br />顔モデルを描画するアプリケーションのシェーダに合わせて指定してください。似顔絵ライブラリが提供する <a href="../Pages/Page_157463941.html">IconShader</a> を使用して Mii のアイコンをレンダリングする場合は、顔輪郭テクスチャにアルファを残すように設定してください。</li>
+</ul>
+<h2 id="Anchor_126918987_h2_3">シェーダーファイルの準備</h2>
+<p>TextureShader の初期化の前に、使用するシェーダーファイルを準備する必要があります。</p>
+<p>以下にあるシェーダーファイルをロードします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$(NINTENDO_SDK_ROOT)/Resources/Mii/$(プラットフォーム)/shader/TextureShader.bnsh</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ロードしたデータを <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> へキャストし、初期化を行ってください。</p>
+<h2 id="Anchor_126918987_h2_4">初期化/終了処理</h2>
+<p>初期化と終了処理の注意点に関して説明します。各関数の API リファレンスも合わせて参照してください。</p>
+<h3 id="Anchor_126918987_h3_1">初期化処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__TextureShader__Initialize">nn::mii::TextureShader::Initialize</span>() 関数を使用して初期化を行います。</p>
+<p>シェーダーファイルの準備の項目に沿って、初期化済みの <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> と初期化の過程で取得した <span class="ApiLink_nn__gfx__ShaderCodeType">nn::gfx::ShaderCodeType</span> を Initialize() 関数に渡すようにしてください。</p>
+<p>初期化に必要なメモリのサイズとアライメントは <span class="ApiLink_nn__mii__TextureShader__CalculateMemorySize">nn::mii::TextureShader::CalculateMemorySize</span>() と <span class="ApiLink_nn__mii__TextureShader__CalculateMemoryAlignment">nn::mii::TextureShader::CalculateMemoryAlignment</span>() 関数を使用することで取得できます。これらの関数に渡す <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> や <span class="ApiLink_nn__gfx__ShaderCodeType">nn::gfx::ShaderCodeType</span>、TextureShaderInfo は初期化時に渡すものと同じものを渡す必要があります。また、<span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> は初期化されている必要があります。</p>
+<p>初期化時に受け取った <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> と TextureShaderInfo からテクスチャをレンダリングするためのシェーダーを構成します。初期化した内容は終了処理を呼ぶまで変更できません。</p>
+<p>初期化時に利用したメモリや <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> は終了処理を呼ぶまで保持する必要があります。</p>
+<h3 id="Anchor_126918987_h3_2">終了処理</h3>
+<p>
+  <span class="ApiLink_nn__mii__TextureShader__Finalize">nn::mii::TextureShader::Finalize</span>() を呼ぶと終了処理を行います。終了処理が行われた後は初期化に使用したメモリや <span class="ApiLink_nn__gfx__ResShaderFile">nn::gfx::ResShaderFile</span> の破棄を行うことができます。</p>
+<h2 id="Anchor_126918987_h2_5">顔輪郭テクスチャのレンダリング</h2>
+<p>テクスチャのレンダリングに必要な定数バッファやカラーターゲットビューを保持する <span class="ApiLink_nn__mii__FacelineGpuBuffer">nn::mii::FacelineGpuBuffer</span> を準備します。</p>
+<p>以下の手順で FacelineGpuBuffer を <span class="ApiLink_nn__mii__TextureShader__DrawFaceline">nn::mii::TextureShader::DrawFaceline</span>() 関数に渡す準備を行います。<span class="ApiLink_nn__mii__Faceline">nn::mii::Faceline</span> やレンダリング先の顔輪郭テクスチャ（通常は <span class="ApiLink_nn__mii__CharModel">nn::mii::CharModel</span> が持つ Faceline テクスチャ）はすでに準備されている前提です。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__mii__FacelineGpuBuffer__Initialize">nn::mii::FacelineGpuBuffer::Initialize</span>() 関数を呼び出して初期化を行います。<br />メモリやメモリプールのサイズは FacelineGpuBuffer にある各 Calculate 関数を使用してください。</li>
+  <li>
+    <span class="ApiLink_nn__mii__FacelineGpuBuffer__SetFaceline">nn::mii::FacelineGpuBuffer::SetFaceline</span>() 関数を使用して、レンダリングしたい <span class="ApiLink_nn__mii__Faceline">nn::mii::Faceline</span> をセットします。<br />初期化時に渡したメモリプールのプロパティが CpuCached な場合、この関数の呼び出し後にメモリプールをフラッシュする必要があります。</li>
+  <li>
+    <span class="ApiLink_nn__mii__FacelineGpuBuffer__SetColorTarget">nn::mii::FacelineGpuBuffer::SetColorTarget</span>() 関数を使用して、レンダリング先のテクスチャをセットします。<br />レンダリング先のテクスチャと幅と高さ、ミップマップ数、使用する TextureShader 初期化時に渡した TextureShaderInfo を設定してください。</li>
+</ol>
+<p>コマンドバッファへのコマンドの追加関数呼出し後、<span class="ApiLink_nn__mii__TextureShader__DrawFaceline">nn::mii::TextureShader::DrawFaceline</span>() 関数を呼び出してください。</p>
+<p>DrawFaceline 関数には、コマンドバッファと、準備した FacelineGpuBuffer、サンプラを渡します。サンプラは <span class="ApiLink_nn__mii__GetSamplerInfo">nn::mii::GetSamplerInfo</span>() を使用して作成したサンプラを渡してください。</p>
+<p>DrawFaceline() 関数内で、引数として受け取ったコマンドバッファに顔輪郭テクスチャをレンダリングするコマンドを追加していきます。DrawFaceline() 関数の呼び出しの後でコマンドバッファへのコマンドの終了関数を呼び、コマンドの実行を行ってください。</p>
+<p>顔輪郭テクスチャのレンダリングのためのコマンドが完了次第、FacelineGpuBuffer や Faceline が不要な場合は破棄が可能です。</p>
+<h2 id="Anchor_126918987_h2_6">マスクテクスチャのレンダリング</h2>
+<p>まず、テクスチャのレンダリングに必要な定数バッファやカラーターゲットビューを保持する <span class="ApiLink_nn__mii__MaskGpuBuffer">nn::mii::MaskGpuBuffer</span> を準備します。</p>
+<p>以下の手順で <span class="ApiLink_nn__mii__MaskGpuBuffer">nn::mii::MaskGpuBuffer</span> を <span class="ApiLink_nn__mii__TextureShader__DrawMask">nn::mii::TextureShader::DrawMask</span>() 関数に渡す準備を行います。<span class="ApiLink_nn__mii__Mask">nn::mii::Mask</span> やレンダリング先の顔輪郭テクスチャ（通常は <span class="ApiLink_nn__mii__CharModel">nn::mii::CharModel</span> が持つ Mask テクスチャ）はすでに準備されている前提です。</p>
+<ol>
+  <li>
+    <span class="ApiLink_nn__mii__MaskGpuBuffer__Initialize">nn::mii::MaskGpuBuffer::Initialize</span>() 関数を呼び出して初期化を行います。<br />メモリやメモリプールのサイズは <span class="ApiLink_nn__mii__MaskGpuBuffer">nn::mii::MaskGpuBuffer</span> にある各 Calculate 関数を使用してください。</li>
+  <li>
+    <span class="ApiLink_nn__mii__MaskGpuBuffer__SetMask">nn::mii::MaskGpuBuffer::SetMask</span>() 関数を使用して、レンダリングしたい <a href="../Pages/Page_126918972.html">Mask</a> と表情の種類をセットします。<br />指定する表情の種類は Mask の初期化時に設定した表情フラグに含まれる表情である必要があります。初期化時に渡したメモリプールのプロパティが CpuCached な場合、この関数の呼び出し後にメモリプールをフラッシュする必要があります。</li>
+  <li>
+    <span class="ApiLink_nn__mii__MaskGpuBuffer__SetColorTarget">nn::mii::MaskGpuBuffer::SetColorTarget</span>() 関数を使用して、レンダリング先のテクスチャをセットします。<br />レンダリング先のテクスチャと幅と高さ、ミップマップ数、使用する TextureShader 初期化時に渡した TextureShaderInfo を設定してください。</li>
+</ol>
+<p>コマンドバッファへのコマンドの追加関数呼出し後、<span class="ApiLink_nn__mii__TextureShader__DrawMask">nn::mii::TextureShader::DrawMask</span>() 関数を呼び出してください。</p>
+<p>DrawMask() 関数には、コマンドバッファと MaskGpuBuffer、サンプラを渡します。サンプラは <span class="ApiLink_nn__mii__GetSamplerInfo">nn::mii::GetSamplerInfo</span>() を使用して作成したサンプラを渡してください。</p>
+<p>DrawMask() 関数内で、引数として受け取ったコマンドバッファに Mask テクスチャをレンダリングするコマンドを追加していきます。DrawMask() 関数の呼び出しの後でコマンドバッファへのコマンドの終了関数を呼び、コマンドの実行を行ってください。</p>
+<p>Mask テクスチャのレンダリングのためのコマンドが完了次第、MaskGpuBuffer や Mask が不要な場合は破棄が可能です。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__TextureShader', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html' )
+SetUrl( 'ApiLink_nn__mii__TextureShaderInfo', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader_info.html' )
+SetUrl( 'ApiLink_nn__gfx__ResShaderFile', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_file.html' )
+SetUrl( 'ApiLink_nn__mii__TextureShader__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html#a4a0a83bf2c8695381b482a6b74695489' )
+SetUrl( 'ApiLink_nn__gfx__ShaderCodeType', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ad67937775401e7564a312a54dedf6455' )
+SetUrl( 'ApiLink_nn__mii__TextureShader__CalculateMemorySize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html#a865b97c77e39e1327b9d3d4b8645feef' )
+SetUrl( 'ApiLink_nn__mii__TextureShader__CalculateMemoryAlignment', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html#a005caf75648db242f8dd7e4d0a5e066a' )
+SetUrl( 'ApiLink_nn__mii__TextureShader__Finalize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html#a13c162a8817d443e688c80f33aa39c8b' )
+SetUrl( 'ApiLink_nn__mii__FacelineGpuBuffer', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline_gpu_buffer.html' )
+SetUrl( 'ApiLink_nn__mii__TextureShader__DrawFaceline', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html#a5afa8087e7bca441159195dd32567314' )
+SetUrl( 'ApiLink_nn__mii__Faceline', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline.html' )
+SetUrl( 'ApiLink_nn__mii__CharModel', '../../../Api/HtmlNX/classnn_1_1mii_1_1_char_model.html' )
+SetUrl( 'ApiLink_nn__mii__FacelineGpuBuffer__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline_gpu_buffer.html#a3bb8dff5bf7a953882e040f151dacea1' )
+SetUrl( 'ApiLink_nn__mii__FacelineGpuBuffer__SetFaceline', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline_gpu_buffer.html#a869866d810adfbeb6094167e1fe4b578' )
+SetUrl( 'ApiLink_nn__mii__FacelineGpuBuffer__SetColorTarget', '../../../Api/HtmlNX/classnn_1_1mii_1_1_faceline_gpu_buffer.html#a38eb4f496f382ff3739668bc055dc891' )
+SetUrl( 'ApiLink_nn__mii__GetSamplerInfo', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a7b31fffe1758ba0a5ec80843410a0549' )
+SetUrl( 'ApiLink_nn__mii__MaskGpuBuffer', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask_gpu_buffer.html' )
+SetUrl( 'ApiLink_nn__mii__TextureShader__DrawMask', '../../../Api/HtmlNX/classnn_1_1mii_1_1_texture_shader.html#af4637e08073f1598162a266af3bd3cbd' )
+SetUrl( 'ApiLink_nn__mii__Mask', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask.html' )
+SetUrl( 'ApiLink_nn__mii__MaskGpuBuffer__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask_gpu_buffer.html#afbb0b50516bd080ea64643a0df87e313' )
+SetUrl( 'ApiLink_nn__mii__MaskGpuBuffer__SetMask', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask_gpu_buffer.html#a42f7a9fcb1796fa7eadd700a64543bb8' )
+SetUrl( 'ApiLink_nn__mii__MaskGpuBuffer__SetColorTarget', '../../../Api/HtmlNX/classnn_1_1mii_1_1_mask_gpu_buffer.html#a33228d259ca8937d9a1a6f5591f8cb4e' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

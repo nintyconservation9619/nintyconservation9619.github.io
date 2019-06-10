@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>opus エンコーダ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- opus エンコーダ -->
+<div class="pagetitle" id="PageId_164723624">opus エンコーダ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_164723624_h1_1">opus エンコーダ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_164723624_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_164723624_h2_2">符号化モード </a>
+      </li>
+      <li>
+        <a href="#Anchor_164723624_h2_3">内部遅延の取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_164723624_h2_4">使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_164723624_h2_5">API リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_164723624_h2_6">制約事項</a>
+      </li>
+      <li>
+        <a href="#Anchor_164723624_h2_7">注意点</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_164723624_h1_1">opus エンコーダ</h1>
+<h2 id="Anchor_164723624_h2_1">機能概要</h2>
+<p>opus エンコーダは PCM データ をエンコードして&nbsp;opus データに変換するための機能を提供します。</p>
+<p>opus エンコーダとして、以下のクラスが提供されています。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th>クラス名</th>
+      <th>概要</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html">nn::codec::OpusEncoder</a>
+      </td>
+      <td>CPU リソースにより opus エンコードを行います</td>
+    </tr>
+  </tbody>
+</table>
+<p>opus エンコーダは作業用のバッファを利用者に要求します。</p>
+<p>エンコードに必要な作業用バッファのサイズは以下のパラメータを用いて&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a250e685d3d9e0f1b12db713c575b3475">nn::codec::OpusEncoder::GetWorkBufferSize()</a>&nbsp;により取得することができます。</p>
+<ul>
+  <li>サンプルレート</li>
+  <li>チャンネル数</li>
+</ul>
+<p>上記のパラメータに加えて、作業用バッファの情報を&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a3c4e0988c58b635d857125652ad4eafa">nn::codec::OpusEncoder::Initialize()</a>&nbsp;に与えて初期化することにより、opus エンコーダは利用可能になります。初期化処理以降、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a79563521bbbcabc420513f55cb1d93b9">nn::codec::OpusEncoder::Finalize()</a>&nbsp;を呼ぶまでは作業用バッファの内容を改変してはいけません。</p>
+<p>エンコード処理は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a6c3294cd3af29d44303442c5e1982ac5">nn::codec::OpusEncoder::EncodeInterleaved()</a>&nbsp;により行われます。入出力バッファに関して、以下に注意する必要があります。</p>
+<ul>
+  <li>入力バッファ<br /><ul><li>サンプル数 (チャンネル当たり) には、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html">nn::codec::OpusEncoder</a> がサポートするフレーム (2.5、5.0、10.0、20.0 ms) に相当するサンプル数のみが指定可能です。<ul><li style="list-style-type: none; background-image: none;"><ul><li><a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a68ced6ee6fafb7808d928fd3b54b22e5">nn::codec::OpusEncoder::CalculateFrameSampleCount()</a> により取得できます</li></ul></li></ul></li></ul></li>
+  <li>出力バッファ<ul><li><a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#adca7d12653ef7695e8ce6864d58f7011">nn::codec::OpusPacketSizeMaximum</a> バイトを準備すれば十分です</li></ul></li>
+</ul>
+<p>エンコード処理により出力されたデータのサイズは&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a6c3294cd3af29d44303442c5e1982ac5">nn::codec::OpusEncoder::EncodeInterleaved()</a>&nbsp;の引数に指定する値から知ることができます。</p>
+<p>エンコード処理パラメータとして、以下の項目を任意のタイミングで設定することが可能です。</p>
+<ul>
+  <li>ビットレート</li>
+  <li>ビットレート制御</li>
+</ul>
+<p>ビットレートは <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a5a6933e7579e40390c8ebe1988ef1b7a">nn::codec::OpusEncoder::SetBitRate()</a> により設定します。ビットレートの初期値は、<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a3c4e0988c58b635d857125652ad4eafa">nn::codec::OpusEncoder::Initialize()</a> に指定したサンプルレート、チャンネル数より計算されます。</p>
+<p>ビットレート制御は&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a59b40f7ee5545cd7a2fc57d4937725f9">nn::codec::OpusEncoder::SetBitRateControl()</a> により設定します。ビットレート制御の初期値には <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a3a2d885fcb1cff929552d0a81ba26872ac5c2fb789093ec4453f359a69b50282d">nn::codec::OpusBitRateControl_Vbr</a> が設定されています。</p>
+<p>符号化モードは、一度も <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a6c3294cd3af29d44303442c5e1982ac5">nn::codec::OpusEncoder::EncodeInterleaved()</a>&nbsp;を呼び出していない <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html">nn::codec::OpusEncoder</a>&nbsp;に対して、&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#abe7ac4df1df684bab0846ed3f07b8882">nn::codec::OpusEncoder::BindCodingMode()</a> により設定ができます。</p>
+<p>符号化モードの初期値には <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfa8919df620449726b867ab74825a6fc8e">nn::codec::OpusCodingMode_Auto</a>&nbsp;が設定されています。</p>
+<p>符号化モードに関する詳細を、<a href="#Anchor_164723624_CodingMode">符号化モード</a>&nbsp;で説明しています。</p>
+<h2 id="Anchor_164723624_h2_2">符号化モード&nbsp;<a name="Anchor_164723624_CodingMode"></a></h2>
+<p>符号化モードには、<a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfa1ab64f14137951c75d53c073bbdfaa70">nn::codec::OpusCodingMode_Celt</a><a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfabe6634ee1371b268050b40b8abacb259">、</a><a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfabe6634ee1371b268050b40b8abacb259">nn::codec::OpusCodingMode_Silk</a>、<a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfa8919df620449726b867ab74825a6fc8e">nn::codec::OpusCodingMode_Auto</a>&nbsp;を指定することができます。</p>
+<p>以下の表で、それぞれのモードについて説明します。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>符号化モード</th>
+      <th>説明</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfa1ab64f14137951c75d53c073bbdfaa70">nn::codec::OpusCodingMode_Celt</a>
+      </td>
+      <td>音楽データの圧縮を想定したエンコード方式を使用します。</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfabe6634ee1371b268050b40b8abacb259">nn::codec::OpusCodingMode_Silk</a>
+      </td>
+      <td>音声データの圧縮を想定したエンコード方式を使用します。</td>
+      <td>
+        <p>指定可能なフレームが限られます。</p>
+        <p>以下の注意をご確認ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfa8919df620449726b867ab74825a6fc8e">nn::codec::OpusCodingMode_Auto</a>
+      </td>
+      <td>
+        <p>NintendoSDK 0.15.0 時点では、<a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfa1ab64f14137951c75d53c073bbdfaa70">nn::codec::OpusCodingMode_Celt</a> 方式でエンコードされます。</p>
+      </td>
+      <td>
+        <br />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>符号化モードを変更する際、以下の点にご注意ください。</p>
+<ul>
+  <li>一度も&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a6c3294cd3af29d44303442c5e1982ac5">nn::codec::OpusEncoder::EncodeInterleaved()</a>&nbsp;を呼び出していない&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html">nn::codec::OpusEncoder</a>&nbsp;に対してのみ、<a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#abe7ac4df1df684bab0846ed3f07b8882">nn::codec::OpusEncoder::BindCodingMode()</a>&nbsp;を呼び出すことで設定できます。</li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a9b257771e1088b6cba2836bbe3a53ccfabe6634ee1371b268050b40b8abacb259">nn::codec::OpusCodingMode_Silk</a> を指定する場合、サポートしているフレームは 10.0、20.0 ms のみになります。<ul><li>2.5、5.0 ms に相当するサンプル数を <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#a6c3294cd3af29d44303442c5e1982ac5">nn::codec::OpusEncoder::EncodeInterleaved()</a>&nbsp;に指定すると、<a href="../../../Api/HtmlNX/namespacenn_1_1codec.html#a375cd42044f1aabca06eba955018b7d5ad01d9f871fbb7a54a17099a32f4ce8e9">nn::codec::OpusResult_UnsupportedSampleCount</a>&nbsp;が返ります。</li></ul></li>
+</ul>
+<h2 id="Anchor_164723624_h2_3">内部遅延の取得</h2>
+<p>一般的に音声 CODEC は内部に遅延要素を持ちます。opus エンコーダも内部遅延を持ちます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html#aa3f3ee81d0825b7526c4f96ba8a939cb">nn::codec::OpusEncoder::GetPreSkipSampleCount()</a> で取得できる値は、このエンコーダ遅延をサンプル数単位で表したものです (遅延サンプル数)。</p>
+<p>詳細は<a href="../Pages/Page_99805007.html#Anchor_99805007_OpusCodecInternalDelayCorrection">内部遅延の補正</a>をご覧ください。</p>
+<h2 id="Anchor_164723624_h2_4">使用例</h2>
+<p>
+  <a href="../../../Api/HtmlNX/_page_sample_codec_opus_encoder.html">opus エンコーダのサンプル</a>を参照してください。</p>
+<h2 id="Anchor_164723624_h2_5">API リファレンス</h2>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1codec.html">nn::codec 名前空間</a>&nbsp;の&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1codec_1_1_opus_encoder.html">OpusEncoder クラス</a>&nbsp;を参照してください。</p>
+<h2 id="Anchor_164723624_h2_6">制約事項</h2>
+<p>特にありません。</p>
+<h2 id="Anchor_164723624_h2_7">注意点</h2>
+<ul>
+  <li>エンコードした結果をデコードした際に、パラメータによってはクリッピングノイズが発生することがあります<ul><li>入力波形の振幅をあらかじめ小さくしておくことで、問題を回避することができます</li></ul></li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: ManagedCommandBuffer.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">ManagedCommandBuffer.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_managed_command_buffer_8cpp.html" title="This file defines a class that manages memory for command buffers by using multiple chunks of of GPU ...">ManagedCommandBuffer.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_managed_command_buffer_8h.html">nvntutorial/ManagedCommandBuffer.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer Constructor</span></div>
+<div class="line"><span class="comment"> * --------------------------------</span></div>
+<div class="line"><span class="comment"> * Initialize the managers memory pool with the proper</span></div>
+<div class="line"><span class="comment"> * size for command and control memory and set initial</span></div>
+<div class="line"><span class="comment"> * values for the manager.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">ManagedCommandBuffer::ManagedCommandBuffer(<a name="_a0"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice, <span class="keywordtype">size_t</span> commandChunkSize, <span class="keywordtype">size_t</span> controlChunkSize, <span class="keywordtype">int</span> numChunks<span class="comment">/* = 2 */</span>)</div>
+<div class="line">    :</div>
+<div class="line">    m_NumChunks(numChunks),</div>
+<div class="line">    m_ControlMemoryPool(NULL),</div>
+<div class="line">    m_CommandMemoryChunkSize(commandChunkSize),</div>
+<div class="line">    m_ControlMemoryChunkSize(controlChunkSize),</div>
+<div class="line">    m_CommandMemoryPoolSize(0),</div>
+<div class="line">    m_ControlMemoryPoolSize(0),</div>
+<div class="line">    m_CurrentChunk(0),</div>
+<div class="line">    m_pDevice(pDevice)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a1"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(m_NumChunks &gt; 0, <span class="stringliteral">&quot;Zero or negative number of chunks requested of uniform buffer manager\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferCommandAlignment = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferControlAlignment = 0;</div>
+<div class="line">    <a name="a2"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a3"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ada72f2b5ef4df11606b61aaa86f6f22c">NVN_DEVICE_INFO_COMMAND_BUFFER_COMMAND_ALIGNMENT</a>, &amp;commandBufferCommandAlignment);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a4"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a743ea42e337a76b9d8ed34181a0d802e">NVN_DEVICE_INFO_COMMAND_BUFFER_CONTROL_ALIGNMENT</a>, &amp;commandBufferControlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize Command memory */</span></div>
+<div class="line">    m_CommandMemoryPoolSize = commandChunkSize * m_NumChunks;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Align the size properly. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (m_CommandMemoryPoolSize &lt; g_MinimumPoolSize)</div>
+<div class="line">    {</div>
+<div class="line">        m_CommandMemoryPoolSize = g_MinimumPoolSize;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        m_CommandMemoryPoolSize = Align(m_CommandMemoryPoolSize, <a name="a5"></a><a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the command buffer. */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a name="a6"></a><a class="code" href="group__nvn__c__functions.html#gab146b70a699dfee69d0724e430d5694e">nvnCommandBufferInitialize</a>(&amp;m_CommandBuffer, m_pDevice))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;nvnCommandBufferInitialize failed&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create the memory pool. */</span></div>
+<div class="line">    m_CommandMemoryPool.Init(NULL, m_CommandMemoryPoolSize, <a name="a7"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a name="a8"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>, m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize Control memory */</span></div>
+<div class="line">    m_ControlMemoryPoolSize = controlChunkSize * m_NumChunks;</div>
+<div class="line">    m_ControlMemoryPool = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(AlignedAllocate(m_ControlMemoryPoolSize, commandBufferControlAlignment));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get proper alignment necessary for command and contol memory */</span></div>
+<div class="line">    <span class="keywordtype">int</span> commandAlignment = 0;</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ada72f2b5ef4df11606b61aaa86f6f22c">NVN_DEVICE_INFO_COMMAND_BUFFER_COMMAND_ALIGNMENT</a>, &amp;commandAlignment);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">int</span> controlAlignment = 0;</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a743ea42e337a76b9d8ed34181a0d802e">NVN_DEVICE_INFO_COMMAND_BUFFER_CONTROL_ALIGNMENT</a>, &amp;controlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Get the size of the per frame chunks. &quot;Indexing&quot; into different chunks</span></div>
+<div class="line"><span class="comment">         * takes the chunk size into account, so if the number of chunks requested</span></div>
+<div class="line"><span class="comment">         * does not evenly divide into the resulting memory size you can run into</span></div>
+<div class="line"><span class="comment">         * issues of chunks not being sized equally.  Due to the nature of command</span></div>
+<div class="line"><span class="comment">         * buffers, if a chunk&#39;s memory is overflowed by writing too much to it,</span></div>
+<div class="line"><span class="comment">         * the out of memory callback will be hit instead of clobbering another</span></div>
+<div class="line"><span class="comment">         * chunk, though in this example an assert will instead be hit to alert</span></div>
+<div class="line"><span class="comment">         * the user.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    m_CommandMemoryChunkSize = Align(m_CommandMemoryPoolSize / m_NumChunks, commandAlignment);</div>
+<div class="line">    m_ControlMemoryChunkSize = Align(m_ControlMemoryPoolSize / m_NumChunks, controlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Provide initial memory for command buffer */</span></div>
+<div class="line">    <a name="a9"></a><a class="code" href="group__nvn__c__functions.html#ga2c0d758cfa73c25f2a34486353f46d92">nvnCommandBufferAddCommandMemory</a>(&amp;m_CommandBuffer, m_CommandMemoryPool.GetMemoryPool(), 0, m_CommandMemoryChunkSize);</div>
+<div class="line">    <a name="a10"></a><a class="code" href="group__nvn__c__functions.html#ga8de6ce290ee0180d9bcd700c1d08d0bf">nvnCommandBufferAddControlMemory</a>(&amp;m_CommandBuffer, m_ControlMemoryPool, m_CommandMemoryChunkSize);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set out of memory callback */</span></div>
+<div class="line">    <a name="a11"></a><a class="code" href="group__nvn__c__functions.html#ga69eb92c349d648988d02b9b7a7a94a75">nvnCommandBufferSetMemoryCallback</a>(&amp;m_CommandBuffer, outOfMemory);</div>
+<div class="line">    <a name="a12"></a><a class="code" href="group__nvn__c__functions.html#ga8656f3468c263124963216458569ec07">nvnCommandBufferSetMemoryCallbackData</a>(&amp;m_CommandBuffer, <span class="keyword">this</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer Destructor</span></div>
+<div class="line"><span class="comment"> * -------------------------------</span></div>
+<div class="line"><span class="comment"> * Clean up NVN data and memory allocations.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">ManagedCommandBuffer::~ManagedCommandBuffer()</div>
+<div class="line">{</div>
+<div class="line">    m_CommandMemoryPool.Shutdown();</div>
+<div class="line">    AlignedDeallocate(m_ControlMemoryPool);</div>
+<div class="line">    m_ControlMemoryPool = NULL;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer::SwapPools</span></div>
+<div class="line"><span class="comment"> * -------------------------------</span></div>
+<div class="line"><span class="comment"> * Swap the memory memory pools so that memory written to</span></div>
+<div class="line"><span class="comment"> * in the previous frame isn&#39;t written to until a later frame</span></div>
+<div class="line"><span class="comment"> *</span></div>
+<div class="line"><span class="comment"> * NOTE: This function should only be called if you can guarantee</span></div>
+<div class="line"><span class="comment"> *       that the memory in the next chunk is safe to start writing</span></div>
+<div class="line"><span class="comment"> *       to.  This can be done by registering an instance of this</span></div>
+<div class="line"><span class="comment"> *       class with an instance of the FrameBufferedSyncManager and</span></div>
+<div class="line"><span class="comment"> *       inserting a sync through InsertFence().</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> ManagedCommandBuffer::SwapPools()</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* If there is only undivided chunk in the memory pool, then there is nothing to swap */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (m_NumChunks == 1)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_CurrentChunk = (m_CurrentChunk + 1) % m_NumChunks;</div>
+<div class="line"></div>
+<div class="line">    ptrdiff_t commandChunkStart = m_CurrentChunk * m_CommandMemoryChunkSize;</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga2c0d758cfa73c25f2a34486353f46d92">nvnCommandBufferAddCommandMemory</a>(&amp;m_CommandBuffer, m_CommandMemoryPool.GetMemoryPool(), commandChunkStart, m_CommandMemoryChunkSize);</div>
+<div class="line"></div>
+<div class="line">    ptrdiff_t controlChunkStart = m_CurrentChunk * m_ControlMemoryChunkSize;</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga8de6ce290ee0180d9bcd700c1d08d0bf">nvnCommandBufferAddControlMemory</a>(&amp;m_CommandBuffer, controlChunkStart + m_ControlMemoryPool, m_ControlMemoryChunkSize);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer::GetNumChunks</span></div>
+<div class="line"><span class="comment"> * ----------------------------------</span></div>
+<div class="line"><span class="comment"> * Retrieve number of chunks command memory is using</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">int</span> ManagedCommandBuffer::GetNumChunks()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_NumChunks;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer::BeginRecording</span></div>
+<div class="line"><span class="comment"> * ------------------------------------</span></div>
+<div class="line"><span class="comment"> * Begin recording with the command buffer</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> ManagedCommandBuffer::BeginRecording()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a13"></a><a class="code" href="group__nvn__c__functions.html#gaeb763d2bdad2c058c75802190fef4748">nvnCommandBufferBeginRecording</a>(&amp;m_CommandBuffer);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer::EndRecording</span></div>
+<div class="line"><span class="comment"> * ----------------------------------</span></div>
+<div class="line"><span class="comment"> * End recording with the command buffer</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><a class="code" href="group__nvn__c__handle.html#gab7f10945ffe1f6161c87238c75ae411d">NVNcommandHandle</a> ManagedCommandBuffer::EndRecording()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> <a name="a14"></a><a class="code" href="group__nvn__c__functions.html#ga7d97d4cbf72259b6e867f3080f223b95">nvnCommandBufferEndRecording</a>(&amp;m_CommandBuffer);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer::GetCommandBuffer</span></div>
+<div class="line"><span class="comment"> * --------------------------------------</span></div>
+<div class="line"><span class="comment"> * Returns a pointer to the command buffer</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><a name="_a15"></a><a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a>* ManagedCommandBuffer::GetCommandBuffer()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> &amp;m_CommandBuffer;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * ManagedCommandBuffer::outOfMemory</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Static function that serves as the callback for out</span></div>
+<div class="line"><span class="comment"> * of memory events</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keyword">inline</span> <span class="keywordtype">void</span> NVNAPIENTRY ManagedCommandBuffer::outOfMemory(<a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a> *cmdBuf, <a class="code" href="group__nvn__c__enum.html#gae2139078091cb0df6f7c6ae2866e7024">NVNcommandBufferMemoryEvent</a> event, <span class="keywordtype">size_t</span> minSize, <span class="keywordtype">void</span> *callbackData)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a16"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(callbackData);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(cmdBuf);</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(minSize);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * When an out of memory event is hit, this function will be</span></div>
+<div class="line"><span class="comment">         * hit, reporting to the user information about the event including</span></div>
+<div class="line"><span class="comment">         * whether command or control memory has run out, the minimum</span></div>
+<div class="line"><span class="comment">         * size of memory necessary to provide, and a user-provided</span></div>
+<div class="line"><span class="comment">         * pointer.  In this example, this function will just assert to</span></div>
+<div class="line"><span class="comment">         * alert the user, however, if memory is successfully provided to</span></div>
+<div class="line"><span class="comment">         * the command buffer then it will continue working, though there</span></div>
+<div class="line"><span class="comment">         * are some caveats with regards to reporting memory used.</span></div>
+<div class="line"><span class="comment">         *</span></div>
+<div class="line"><span class="comment">         * When using the functions that query command buffers for memory</span></div>
+<div class="line"><span class="comment">         * usage(nvnCommandBufferGetCommandMemoryUsed, etc.), the value</span></div>
+<div class="line"><span class="comment">         * returned represents the amount of memory the command buffer is</span></div>
+<div class="line"><span class="comment">         * currently managing, not the cumulative amount it has been given</span></div>
+<div class="line"><span class="comment">         * over the lifespan of the application.</span></div>
+<div class="line"><span class="comment">         *</span></div>
+<div class="line"><span class="comment">         * For example :</span></div>
+<div class="line"><span class="comment">         * If the command buffer is initialized with a 256 kb sized buffer</span></div>
+<div class="line"><span class="comment">         * and 200 kb has been used so far :</span></div>
+<div class="line"><span class="comment">         * nvnCommandBufferGetCommandMemoryUsed : 200 kb</span></div>
+<div class="line"><span class="comment">         *  Actual Memory Used : 200 kb</span></div>
+<div class="line"><span class="comment">         *  Total Memory Given : 256 kb</span></div>
+<div class="line"><span class="comment">         *</span></div>
+<div class="line"><span class="comment">         * If another 60 kb is used before the next query for memory used,</span></div>
+<div class="line"><span class="comment">         * an out of memory event will be triggered.The user can register</span></div>
+<div class="line"><span class="comment">         * a function to be used as a callback to provide it with more</span></div>
+<div class="line"><span class="comment">         * memory if need be.In the case of providing another 256 kb to the</span></div>
+<div class="line"><span class="comment">         * command buffer, calling nvnCommandBufferGetCommandMemoryUsed after</span></div>
+<div class="line"><span class="comment">         * the out of memory callback is hit would instead give :</span></div>
+<div class="line"><span class="comment">         * nvnCommandBufferGetCommandMemoryUsed : 4 kb</span></div>
+<div class="line"><span class="comment">         *  Actual Memory Used : 260 kb</span></div>
+<div class="line"><span class="comment">         *  Total Memory Given : 512 kb</span></div>
+<div class="line"><span class="comment">         *</span></div>
+<div class="line"><span class="comment">         * The function returns 4 kb because, of the new 256 kb chunk that</span></div>
+<div class="line"><span class="comment">         * it is currently using, only 4 kb of memory has been used.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (event == <a name="a17"></a><a class="code" href="group__nvn__c__enum.html#ggae2139078091cb0df6f7c6ae2866e7024a5fa468a73a426b9179ec191f6698a7a7">NVN_COMMAND_BUFFER_MEMORY_EVENT_OUT_OF_COMMAND_MEMORY</a>)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(!<span class="stringliteral">&quot;Command buffer has run out of command memory.&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (event == <a name="a18"></a><a class="code" href="group__nvn__c__enum.html#ggae2139078091cb0df6f7c6ae2866e7024a4af24ef45165ead1938bdae0f7972b38">NVN_COMMAND_BUFFER_MEMORY_EVENT_OUT_OF_CONTROL_MEMORY</a>)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(!<span class="stringliteral">&quot;Command buffer has run out of control memory&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

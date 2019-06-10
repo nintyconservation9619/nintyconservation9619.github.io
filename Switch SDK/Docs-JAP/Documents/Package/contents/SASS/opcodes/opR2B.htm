@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>R2B</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    R2B : Move Register to Barrier <br>
+    <!-- SUMMARY_TABLE_INFO { description => "Move Register to Barrier " } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "R2B", subsection => 13.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>R2B</b>{.mode}</code>   <code>#BarNameU4, Ra</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "R2B" } -->
+
+ .mode: { .BAR*, .WARP }
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>R2B</b> writes the data contained in the Barrier specified by #BarNameU4 with Ra.  The intention 
+of this instruction is to enable writing and restoring of barrier state for context restore.  
+Use <b>B2R</b> to access barrier state.  </p>
+<p>
+For <b>R2B.BAR</b>, the source must contain counts associated with the given barrier.  The register must have the format of 
+BarrierState_t</p>
+
+<p>
+If the BarInUse field is 0, the rest of the values are UNPREDICTABLE.</p>
+<p>
+Barriers are shared resources across a CTA and thus among the threads in a warp.  If multiple threads in a 
+warp execute <b>R2B.BAR</b>, the hardware selects an arbitrary thread to perform the last write.</p>
+
+<p>
+<b>R2B.WARP</b> writes into the per-warp RedCntResult, WaitingOnBarrier, and BarSel state.  Use <b>B2R.WARP</b> to read this state.  <b>R2B.WARP</b> ignores #BarNameU4.
+</p>
+
+<p>
+If multiple threads in a warp execute <b>R2B</b>, the hardware selects an arbitrary thread to perform the last write.
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>R2B</b>     0, R5;                            // Barrier[0] = R5;
+<b>R2B</b>     3, R0;                            // Barrier[3] = R0;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,321 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アルバムファイルへのアクセス機能</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アルバムファイルへのアクセス機能 -->
+<div class="pagetitle" id="PageId_318893862">アルバムファイルへのアクセス機能</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_318893862_h1_1">アルバムファイルへのアクセス機能について</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_318893862_h2_1">アルバムファイルの識別子</a>
+      </li>
+      <li>
+        <a href="#Anchor_318893862_h2_2">アルバム静止画ファイルへのアクセス機能</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_318893862_h3_1">静止画ファイルのファイルリスト取得機能</a>
+        </li>
+        <li>
+          <a href="#Anchor_318893862_h3_2">静止画ファイルの読み込み</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_318893862_h2_3">アルバム動画ファイルへのアクセス機能</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_318893862_h3_3">動画ファイルのファイルリスト取得機能</a>
+        </li>
+        <li>
+          <a href="#Anchor_318893862_h3_4">動画ファイルからの静止画画像の読み込み</a>
+        </li>
+        <li>
+          <a href="#Anchor_318893862_h3_5">動画ファイルからの動画データ読込み</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_318893862_h1_1">アルバムファイルへのアクセス機能について</h1>
+<p>アルバムファイルとは、本体のアルバム内に保存されているスクリーンショット画像や、動画ファイルのことを指します。</p>
+<p>NX においては、ユーザーがキャプチャーボタンを短押しや長押しすることによって、スクリーンショットの静止画画像やプレイ動画が撮影され、アルバムファイルとして保存されます。これらのアルバムファイルは、アプリケーションのセーブデータとは独立して保存されます。</p>
+<p>本章では、ALBUM ライブラリを使って、これらのアルバム静止画ファイルやアルバム動画ファイルにアクセスする方法を提供します。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>本章に記載の API 仕様は全て NX Addon 6.0 以降で使用可能となっています。</p>
+  </div>
+</div>
+<h2 id="Anchor_318893862_h2_1">アルバムファイルの識別子</h2>
+<p>アルバムの個々のファイルには、<span class="ApiLink_nn__album__AlbumFileEntry">nn::album::AlbumFileEntry</span> 構造体を識別子としてアクセスします。この構造体の内部メンバに直接アクセスしてはいけません。</p>
+<p>プログラムは、API からこの構造体のリストを取得し、それを識別子として各種 API に渡すことで、個々のファイルの操作や情報取得を行うことができます。</p>
+<h2 id="Anchor_318893862_h2_2">アルバム静止画ファイルへのアクセス機能</h2>
+<h3 id="Anchor_318893862_h3_1">静止画ファイルのファイルリスト取得機能</h3>
+<p>アルバムに保存された静止画ファイルのファイルリストを取得するには以下のようにします。自プログラムの画像を撮影したもののみが収集対象となります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 必要なインクルード
+</span><span class="cp">#include &lt;nn/nn_Abort.h&gt;
+#include &lt;nn/album.h&gt;
+</span>
+<span class="c1">// 事前初期化
+</span><span class="nn">nn::album::</span><span class="n">Initialize</span><span class="p">();</span>
+
+<span class="c1">// 実装例
+</span><span class="k">const</span> <span class="kt">int</span> <span class="n">ImageListCountMax</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+<span class="nn">nn::album::</span><span class="n">AlbumFileEntry</span> <span class="n">imageList</span><span class="p">[</span><span class="n">ImageListCountMax</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">NN_ABORT_UNLESS_RESULT_SUCCESS</span><span class="p">(</span><span class="nn">nn::album::</span><span class="n">GetAlbumScreenshotFileList</span><span class="p">(</span><span class="o">&amp;</span><span class="n">count</span><span class="p">,</span> <span class="n">imageList</span><span class="p">,</span> <span class="n">ImageListCountMax</span><span class="p">));</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記 <span class="ApiLink_nn__album__GetAlbumScreenshotFileList">nn::album::GetAlbumScreenshotFileList</span>() 関数で、各ファイルの識別子リストを imageList[] 構造体配列に受け取ることができ、count には取得に成功したファイル数が入ります。count が 0 だった場合には対象ファイルがなかったことを表します。</p>
+<p>ファイルリストを受け取ったら、各ファイルの識別子を使ってそれらのファイルにアクセスすることができます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>上記関数にて取得できる静止画ファイルリストの最大数は、NX Addon 6.0 時点では 11,000 個となっています。将来的にはこの最大数が変更になる可能性もあるため、そのようなファームウェア上で上記 API を使用したプログラムをそのまま動作させた場合には、全てのファイルリストを取得できないこともあります。</p>
+  </div>
+</div>
+<h3 id="Anchor_318893862_h3_2">静止画ファイルの読み込み</h3>
+<p>取得した静止画ファイルの <span class="ApiLink_nn__album__AlbumFileEntry">nn::album::AlbumFileEntry</span> 識別子を使い、ファイルの作成日時、イメージ画像、サムネイル画像を取得する実装例を以下に示します。実際には、各 API の返値の Result を詳細にハンドリングされることを推奨します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 必要なインクルード
+</span><span class="cp">#include &lt;nn/nn_Abort.h&gt;
+#include &lt;nn/album.h&gt;
+</span>
+<span class="n">NN_ALIGNAS</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span> <span class="kt">uint8_t</span> <span class="n">g_ScreenShotImage</span><span class="p">[</span> <span class="nn">nn::album::</span><span class="n">AlbumScreenShotImageDataSize</span> <span class="p">];</span>
+<span class="n">NN_ALIGNAS</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span> <span class="kt">uint8_t</span> <span class="n">g_ScreenShotWorkBuffer</span><span class="p">[</span> <span class="nn">nn::album::</span><span class="n">RequiredWorkMemorySizeToLoadImage</span> <span class="p">];</span>
+<span class="n">NN_ALIGNAS</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span> <span class="kt">uint8_t</span> <span class="n">g_ThumbnailImage</span><span class="p">[</span> <span class="nn">nn::album::</span><span class="n">AlbumThumbnailImageDataSize</span> <span class="p">];</span>
+<span class="n">NN_ALIGNAS</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span> <span class="kt">uint8_t</span> <span class="n">g_ThumbnailWorkBuffer</span><span class="p">[</span> <span class="nn">nn::album::</span><span class="n">RequiredWorkMemorySizeToLoadThumbnailImage</span> <span class="p">];</span>
+
+<span class="c1">// 実装例
+</span><span class="kt">bool</span> <span class="nf">LoadAlbumImageFile</span><span class="p">(</span><span class="k">const</span> <span class="nn">nn::album::</span><span class="n">AlbumFileEntry</span><span class="o">&amp;</span> <span class="n">entry</span><span class="p">)</span>
+<span class="p">{</span>
+ &nbsp; &nbsp;<span class="c1">// 作成日時の取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">createdDateTime</span> <span class="o">=</span> <span class="nn">nn::album::</span><span class="n">GetAlbumFileCreatedTime</span><span class="p">(</span><span class="n">entry</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// イメージ画像の取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nn">nn::album::</span><span class="n">LoadAlbumImage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">width</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">height</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="n">g_ScreenShotImage</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_ScreenShotImage</span><span class="p">),</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="n">g_ScreenShotWorkBuffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_ScreenShotWorkBuffer</span><span class="p">),</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="n">entry</span><span class="p">).</span><span class="n">IsSuccess</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp; <span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+
+ &nbsp; &nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">width</span> <span class="o">==</span> <span class="mi">1280</span> <span class="o">&amp;&amp;</span> <span class="n">height</span> <span class="o">==</span> <span class="mi">720</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アプリケーションが対応しない解像度の画像は読み込まない
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+ &nbsp; &nbsp;<span class="c1">// サムネイル画像の取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">thumbnailWidth</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">thumbnailHeight</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nn">nn::album::</span><span class="n">LoadAlbumThumbnailImage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">thumbnailWidth</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">thumbnailHeight</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="n">g_ThumbnailImage</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_ThumbnailImage</span><span class="p">),</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="n">g_ThumbnailWorkBuffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_ThumbnailWorkBuffer</span><span class="p">),</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="n">entry</span><span class="p">).</span><span class="n">IsSuccess</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp; <span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">thumbnailWidth</span> <span class="o">==</span> <span class="mi">320</span> <span class="o">&amp;&amp;</span> <span class="n">thumbnailHeight</span> <span class="o">==</span> <span class="mi">180</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アプリケーションが対応しない解像度のサムネイルは読み込まない
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>ファイルの作成日時は <span class="ApiLink_nn__album__GetAlbumFileCreatedTime">nn::album::GetAlbumFileCreatedTime</span>() で取得できます。返値は <span class="ApiLink_nn__time__CalendarTime">nn::time::CalendarTime</span> 型の構造体で取得できます。</p>
+<p>静止画ファイルは JPEG などでエンコードされていますが、<span class="ApiLink_nn__album__LoadAlbumImage">nn::album::LoadAlbumImage</span>() ではデコード済みの画像を取得できます。画像のフォーマット等は&nbsp; API リファレンスを参照して下さい。画像サイズは通常 1280x720 ピクセルのものが取得できますが、将来的にファームウェア更新等によって異なるサイズのものが取得される場合があります。</p>
+<p>サムネイル画像の取得は <span class="ApiLink_nn__album__LoadAlbumThumbnailImage">nn::album::LoadAlbumThumbnailImage</span>() でデコード済みの画像を取得できます。画像のフォーマット等は&nbsp; API リファレンスを参照して下さい。画像サイズは通常 320x180 ピクセルのものが取得できますが、将来的にファームウェア更新等によって異なるサイズのものが取得される場合があります。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_318893862_h2_3">アルバム動画ファイルへのアクセス機能</h2>
+<h3 id="Anchor_318893862_h3_3">動画ファイルのファイルリスト取得機能</h3>
+<p>アルバムに保存された動画ファイルのファイルリストを取得するには以下のようにします。自プログラムの画像を撮影したもののみが収集対象となります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 必要なインクルード
+</span><span class="cp">#include &lt;nn/nn_Abort.h&gt;
+#include &lt;nn/album.h&gt;
+</span>
+<span class="c1">// 実装例
+</span><span class="k">const</span> <span class="kt">int</span> <span class="n">movieListCountMax</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+<span class="nn">nn::album::</span><span class="n">AlbumFileEntry</span> <span class="n">movieList</span><span class="p">[</span><span class="n">movieListCountMax</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">NN_ABORT_UNLESS_RESULT_SUCCESS</span><span class="p">(</span><span class="nn">nn::album::</span><span class="n">GetAlbumMovieFileList</span><span class="p">(</span><span class="o">&amp;</span><span class="n">count</span><span class="p">,</span> <span class="n">movieList</span><span class="p">,</span> <span class="n">movieListCountMax</span><span class="p">));</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記 <span class="ApiLink_nn__album__GetAlbumMovieFileList">nn::album::GetAlbumMovieFileList</span>() 関数で、各ファイルの識別子リストを movieList[] 構造体配列に受け取ることができ、count には取得に成功したファイル数が入ります。count が 0 だった場合には対象ファイルがなかったことを表します。</p>
+<p>ファイルリストを受け取ったら、各ファイルの識別子を使ってそれらのファイルにアクセスすることができます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>上記関数にて取得できる動画ファイルリストの最大数は、NX Addon 6.0 時点では 1,100 個となっています。将来的にはこの最大数が変更になる可能性もあるため、そのようなファームウェア上で上記 API を使用したプログラムをそのまま動作させた場合には、全てのファイルリストを取得できないこともあります。</p>
+  </div>
+</div>
+<h3 id="Anchor_318893862_h3_4">動画ファイルからの静止画画像の読み込み</h3>
+<p>アルバムの動画ファイルには、動画ストリームの実データのほか、動画の映像から 1 フレームを切り出した静止画画像とサムネイル画像（一覧表示用の縮小画像）が納められています。プログラムは前述の「静止画ファイルの読み込み」に記載の実装例で示した <span class="ApiLink_nn__album__LoadAlbumImageFile">nn::album::LoadAlbumImageFile</span>() や <span class="ApiLink_nn__album__LoadAlbumThumbnailImage">nn::album::LoadAlbumThumbnailImage</span>() 関数を利用することで、これらの静止画画像とサムネイル画像を同じように取得することができます。</p>
+<h3 id="Anchor_318893862_h3_5">動画ファイルからの動画データ読込み</h3>
+<p>動画ファイルを読み込むには、まず最初に <span class="ApiLink_nn__album__AlbumFileEntry">nn::album::AlbumFileEntry</span> 識別子を使って動画ストリームをオープンし、そこで取得した <span class="ApiLink_nn__album__MovieStreamHandle">nn::album::MovieStreamHandle</span> 型のハンドルを使って動画ストリームから動画データを読み込みます。また、最後に動画ストリームをクローズして動画ファイルの読み込みを終了します。</p>
+<p>動画ストリームのオープンからクローズまでの実装例を以下に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// 必要なインクルード
+</span><span class="cp">#include &lt;nn/nn_Abort.h&gt;
+#include &lt;nn/util/util_ScopeExit.h&gt;
+#include &lt;nn/album.h&gt;
+</span>
+<span class="c1">// 実装例
+</span><span class="kt">bool</span> <span class="nf">LoadMovieFile</span><span class="p">(</span><span class="kt">size_t</span><span class="o">*</span> <span class="n">pOutReadSize</span><span class="p">,</span> <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">buffer</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">offset</span><span class="p">,</span> <span class="k">const</span> <span class="nn">nn::album::</span><span class="n">AlbumFileEntry</span><span class="o">&amp;</span> <span class="n">entry</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 動画ストリームのオープン
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::album::</span><span class="n">MovieStreamHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="p">{};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="nn">nn::album::</span><span class="n">OpenAlbumMovieStream</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">entry</span><span class="p">).</span><span class="n">IsSuccess</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 動画ストリームのクローズ処理の宣言（スコープから出る時に実行される）
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UTIL_SCOPE_EXIT</span><span class="p">{</span> <span class="nn">nn::album::</span><span class="n">CloseAlbumMovieStream</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span> <span class="p">};</span>
+
+ &nbsp; &nbsp;<span class="c1">// 動画ファイルのサイズ取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">uint64_t</span> <span class="n">dataSize</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ABORT_UNLESS_RESULT_SUCCESS</span><span class="p">(</span> <span class="nn">nn::album::</span><span class="n">GetAlbumMovieStreamSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dataSize</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">dataSize</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 動画ファイルの読み込み（ストリーミングの際には必要に応じて少しずつ読み出すようにする）
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">size_t</span> <span class="n">readSize</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nn">nn::album::</span><span class="n">ReadAlbumMovieStream</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readSize</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">offset</span><span class="p">).</span><span class="n">IsSuccess</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">*</span><span class="n">pOutReadSize</span> <span class="o">=</span> <span class="n">readSize</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記はあくまで API の使い方を示しているため、動画ファイルをストリーミング的に読み出す実装にはなっていませんが、イメージは掴めるのではないかと思います。実際には最初に <span class="ApiLink_nn__album__MovieStreamHandle">nn::album::MovieStreamHandle</span> 型のハンドルを取得したら、その後は必要な量だけ <span class="ApiLink_nn__album__ReadAlbumMovieStream">nn::album::ReadAlbumMovieStream</span>() で動画データを随時読み込み、全て読み込み終わった段階でハンドルをクローズします。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本節の API でメモリ上に配置した動画データは、MOVIE ライブラリを使うことでデコードおよび再生を行なうことが可能です。詳細は「機能／コーデック／MOVIE ライブラリ／プログラミングガイド」を参照して下さい。</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__album__AlbumFileEntry
+// ApiLink_nn__album__GetAlbumScreenshotFileList
+// ApiLink_nn__album__GetAlbumFileCreatedTime
+SetUrl( 'ApiLink_nn__time__CalendarTime', '../../../Api/HtmlNX/structnn_1_1time_1_1_calendar_time.html' )
+// ApiLink_nn__album__LoadAlbumImage
+// ApiLink_nn__album__LoadAlbumThumbnailImage
+// ApiLink_nn__album__GetAlbumMovieFileList
+// ApiLink_nn__album__LoadAlbumImageFile
+// ApiLink_nn__album__MovieStreamHandle
+// ApiLink_nn__album__ReadAlbumMovieStream
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

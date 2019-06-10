@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プログラムの起動と初期化</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プログラムの起動と初期化 -->
+<div class="pagetitle" id="PageId_92310396">プログラムの起動と初期化</div>
+<div class="text_separate">
+<div>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_92310396_h1_1">プログラムの起動</a>
+    </li>
+    <li>
+      <a href="#Anchor_92310396_h1_2">nninitStartup() の呼び出し</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_92310396_h2_1">デフォルトの nninitStartup()</a>
+      </li>
+      <li>
+        <a href="#Anchor_92310396_h2_2">nninitStartup() の置き換え</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_92310396_h1_3">C++ 静的オブジェクトのグローバルコンストラクタ</a>
+    </li>
+    <li>
+      <a href="#Anchor_92310396_h1_4">nnMain() の呼び出し</a>
+    </li>
+    <li>
+      <a href="#Anchor_92310396_h1_5">malloc() などのメモリ獲得機能について</a>
+    </li>
+  </ul>
+  <h1 id="Anchor_92310396_h1_1">プログラムの起動</h1>
+  <p>アプリケーションプログラムの起動は、NintendoSDK として定義しているエントリポイントから開始されます。NintendoSDK では ASLR（<span lang="en">Address Space Layout Randomization</span>）をサポートしているため、このエントリポイントの具体的なアドレスは実行する度に異なります（下記コラムも参照して下さい。）。</p>
+  <p>エントリポイントからは以下の順序で初期化処理を行ないます。アプリケーションがこの初期化処理の順序を変更することはできません。</p>
+  <ol>
+    <li>&nbsp; ZI セクションのゼロクリア</li>
+    <li>&nbsp; ランタイムライブラリの初期化 その 0（NintendoSDK 非依存部分の初期化）</li>
+    <li>&nbsp; OS ライブラリの初期化</li>
+    <li>&nbsp; ランタイムライブラリの初期化 その 1（OS ライブラリ依存部分の初期化）</li>
+    <li>&nbsp; nninitStartup() の呼び出し（★）</li>
+    <li>&nbsp; ランタイムライブラリの初期化 その 2（NintendoSDK 依存部分の初期化）</li>
+    <li>&nbsp; C++ 静的オブジェクトのグローバルコンストラクタの呼び出し（★）</li>
+    <li>&nbsp; nnMain() の呼び出し（★）</li>
+  </ol>
+  <p>このうち、アプリケーションで独自の処理を行なうことができるのは 5、7、8 となります（上記★マーク部分）。次節以降ではこれらで独自の処理を行なうためにはどのようにすべきかを説明します。</p>
+  <div class="info_new">
+    <div class="info_new_left">参考：</div>
+    <div class="info_new_right">
+      <p>アプリケーションの起動にはいくつかの方法があり、その起動方法によって ASLR になるか否かが変わります。下記の方法で起動した場合には ASLR は無効化されており、プログラムは固定アドレスに配置されます。</p>
+      <ul>
+        <li>
+          <a href="../Pages/Page_89106692.html">VSI（Visual Studio Integration）</a>からの実行</li>
+        <li>
+          <a href="../Pages/Page_93359711.html">TargetManager</a> からの実行</li>
+        <li>
+          <a href="../Pages/Page_107320466.html">RunOnTarget</a> で &quot;--disable-aslr&quot; オプションを使用して実行した場合</li>
+      </ul>
+      <p>上記以外の方法では ASLR 起動になり、プログラムの配置アドレスは起動する度に異なります。</p>
+      <p>メモリヒープ領域については起動方法によらず常に ASLR が適用されます。</p>
+    </div>
+  </div>
+  <h1 id="Anchor_92310396_h1_2">
+    <a name="Anchor_92310396_call_nninitStartup"></a>nninitStartup() の呼び出し</h1>
+  <p>
+    <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> は C++ 静的オブジェクトのグローバルコンストラクタの実行前に自動的に呼び出される関数で、アプリケーションがメモリ管理機構の初期化を行なうためのものです。</p>
+  <p>アプリケーションで独自の <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数を定義しなかった場合は、後述の「デフォルトの nninitStartup()」関数が呼び出されます。アプリケーションで独自の <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数を定義した場合はそちらが呼び出されますので、これにより独自のメモリ管理機構の初期化処理を記述することができます。</p>
+  <h2 id="Anchor_92310396_h2_1">デフォルトの nninitStartup()</h2>
+  <p>NintendoSDK では <a href="../Pages/Page_107780149.html">INIT ライブラリ</a> の中でデフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> を定義しています。デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> ではメモリ管理周りの初期化を行なうことで、C++ 静的オブジェクトのグローバルコンストラクタの中でも malloc や new などの言語標準のメモリ獲得機能をすぐに利用できるようにしています。</p>
+  <p>NX32 および NX64 開発機向けの環境では、デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> では以下のことを行なっています。</p>
+  <ol>
+    <li>
+      <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2be8bac50d8d37a91f866d9e0c55886e">nn::os::SetMemoryHeapSize()</a> で最大限確保可能なだけメモリヒープを確保します。<br /><ul><li>仮に確保に失敗した場合は、32MByte のメモリヒープを確保します。</li><li>それでもメモリヒープの確保に失敗した場合は、デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 内部でアボートします。</li></ul></li>
+    <li>上記 1 で確保したメモリヒープと同サイズのメモリを <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">nn::os::AllocateMemoryBlock()</a> で獲得します。</li>
+    <li>上記 2 で獲得したメモリブロックを <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> を使って言語標準のメモリ獲得機能用に割り当てます。<br /><ul><li>これ以降、malloc() などのメモリ獲得機能が利用可能になります。詳細は後述の「<a href="#Anchor_92310396_FunctionToAllocateMemory">malloc() などのメモリ獲得機能について</a>」も参照して下さい。</li></ul></li>
+  </ol>
+</div>
+<p>デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> を使用した場合には、上記の通り全てのメモリヒープを最初に確保して言語標準のメモリ獲得機能に割り当ててしまうことに注意して下さい。つまり、アプリケーションが他の用途向けにもメモリヒープを使い分けたい場合には、次節の通り独自の&nbsp;<a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数を定義するようにして下さい。</p>
+<p>また、Win 環境向けの場合、デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> では何も行いません。そのため、メモリヒープは 0 Byte のままで消費していません。malloc() 等のメモリ獲得機能の扱いについては「<a href="#Anchor_92310396_FunctionToAllocateMemory">malloc() などのメモリ獲得機能について</a>」を参照して下さい。</p>
+<h2 id="Anchor_92310396_h2_2">nninitStartup() の置き換え</h2>
+<p>デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> を適用せずに、アプリケーションが独自に <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数を定義して置き換えることができます。特に、メモリ獲得機能で使用するメモリ領域やサイズを具体的に指定したい場合は、独自の <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数を定義しなければなりません。</p>
+<p>デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> は libnn_init 系ライブラリの中で定義されています。アプリケーションプログラムで同名の関数を定義することで、デフォルトの&nbsp;<a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> よりも優先してリンクされるようになり、アプリケーションで定義した <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> が呼び出されます。C++ で記述する場合は <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数は C リンケージでなければなりません（下記コード参照）。また、<a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> 関数は C++ 静的オブジェクトのグローバルコンストラクタよりも前に実行されますので、そのようなコンストラクタの実行を前提とするコードは記述してはいけません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nninitStartup</span><span class="p">()</span>
+<span class="p">{</span>
+ &nbsp; &nbsp;<span class="c1">// アプリケーション独自の処理
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> ではメモリ管理周りの初期化以外は行なわないようにすることを推奨します。</p>
+<p>
+  <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> を置き換える際、その中で <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> を使用することで、後述の「<a href="#Anchor_92310396_FunctionToAllocateMemory">malloc() などのメモリ獲得機能について</a>」の通り malloc などが使用するメモリ領域の場所とサイズを自由に指定することができます。独自の <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> の中でこれらの呼び出しを行なうサンプルとして「<a href="../../../Api/HtmlNX/_page_sample_init_startup.html">nninitStartup() サンプルプログラムその 1</a> 」を参考にして下さい。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> を呼び出さなかった場合には、malloc などのメモリ獲得機能が使用するメモリは用意されないため、これらの関数を使ってメモリ獲得を行なうことは出来ません。</p>
+<p>一方で、アプリケーションが独自に malloc などの関数を定義して置き換えることもできます。詳細は「<a href="#Anchor_92310396_FunctionToAllocateMemory">malloc() などのメモリ獲得機能について</a>」を参照して下さい。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Windows の Visual C++ ビルド環境にて、アプリケーション独自の nninitStartup() の定義を追加した直後のビルド時に LNK2005 のリンクエラーが出る場合があります。</p>
+    <p>詳細は「<a href="../Pages/Page_94754958.html">実装に際しての注意事項</a>」にある通り、もう一度「ビルド」もしくは「リビルド」して頂くことで解消されます。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_92310396_h1_3">C++ 静的オブジェクトのグローバルコンストラクタ</h1>
+<p>C++ 静的オブジェクトのグローバルコンストラクタは、C++ の言語仕様で定義される初期化処理の一つです。NintendoSDK では、C++ 静的オブジェクトのグローバルコンストラクタは <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> の実行が完了した後に自動的に呼び出されます。</p>
+<p>C++&nbsp;静的オブジェクトのグローバルコンストラクタでは、その処理の中で明示的に new を呼び出してメモリ獲得した場合のほか、明示的なメモリ獲得を行なわない場合でも暗黙のメモリ獲得が行なわれる場合があります。そのため、C++&nbsp;静的オブジェクトのグローバルコンストラクタが呼び出される前にメモリ管理機構が使用可能になっていなければなりません。</p>
+<p>
+  <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> と静的オブジェクトのグローバルコンストラクタの呼び出し順については、「<a href="../../../Api/HtmlNX/_page_sample_init_startup.html">nninitStartup() サンプルプログラムその 1</a> 」の解説も参考にして下さい。</p>
+<h1 id="Anchor_92310396_h1_4">nnMain() の呼び出し</h1>
+<p>nnMain() は NintendoSDK におけるプログラムのメイン関数です。メイン関数ではアプリケーション独自の処理を記述することになります。nnMain() が定義されていないとリンク時にエラーとなります。C++ で記述する場合、nnMain() は C リンケージが必要です。C リンケージは以下のように明示的に指定するようにして下さい。</p>
+<p>
+  <br />
+</p>
+<div>
+  <p>
+    <br />
+  </p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+ &nbsp; &nbsp;<span class="c1">// アプリケーションのメイン処理
+</span><span class="p">}</span></pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>nnMain() の先頭で行うべき処理については「<a href="../Pages/Page_105383443.html">nnMain() とライブラリの初期化</a>」のページを参照して下さい。</p>
+</div>
+<h1 id="Anchor_92310396_h1_5">
+  <a name="Anchor_92310396_FunctionToAllocateMemory"></a>malloc() などのメモリ獲得機能について</h1>
+<p>NintendoSDK では、以下のメモリ獲得機能を使用することが出来ます。</p>
+<ul>
+  <li>malloc()</li>
+  <li>free()</li>
+  <li>calloc()</li>
+  <li>realloc()</li>
+  <li>aligned_alloc()</li>
+  <li>malloc_usable_size()</li>
+  <li>グローバルスコープ operator new</li>
+  <li>グローバルスコープ operator delete</li>
+</ul>
+<p>NX 開発機環境では、これらのメモリ獲得機能が使用するメモリ領域は <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> で設定します。この設定を行なわない場合には上記のメモリ獲得機能が利用できません。デフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> を利用している場合は、その中で <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> が呼ばれるため暗黙のうちに上記メモリ獲得機能が利用可能になっています。アプリケーションが独自に定義した <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> の中で <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> を呼び出した場合も上記メモリ獲得機能が利用できます。具体的な利用方法については「<a href="../../../Api/HtmlNX/_page_sample_init_startup.html">nninitStartup サンプルプログラムその 1</a> 」を参考にして下さい。</p>
+<p>また、NX 開発機環境においては、上記メモリ獲得機能の個々の関数を独自に定義することもできます。その場合は <a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> を使用せずに、上記メモリ獲得関数自体をアプリケーションで独自に定義し実装するようにして下さい（最低限、malloc(), free(), calloc(), realloc(), aligned_alloc(), malloc_usable_size() の 6 つは必ず同時に定義しなければなりません）。具体的な方法については「<a href="../../../Api/HtmlNX/_page_sample_init_startup_with_malloc.html">nninitStartup サンプルプログラムその 2</a> 」を参考にして下さい。メモリ獲得関数を独自に定義した場合、<a href="../../../Api/HtmlNX/namespacenn_1_1init.html#a216ae7a5ca53a1c1e6dc0514f7283974">nn::init::InitializeAllocator()</a> を呼び出す記述が残っていたり、定義すべき関数が不足していると、シンボル重複定義のリンクエラーが発生するようになっています。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Windows 環境においては標準の malloc() 関数などをそのまま使用して下さい。つまり、以下のことに注意して下さい。</p>
+    <ul>
+      <li>
+        <span class="ApiLink_nn__init__InitializeAllocator">nn::init::InitializeAllocator</span>() は何もせずにリターンする実装になっているため呼び出す必要はありません（デフォルトの nninitStartup() からも呼び出されません）。</li>
+      <li>malloc() などの関数を独自に定義しないで下さい。</li>
+      <li>Windows 環境専用の SDK リリースパッケージには「<a href="../../../Api/HtmlNX/_page_sample_init_startup_with_malloc.html">nninitStartup サンプルプログラムその 2</a> 」のビルド環境は収録されていません。</li>
+    </ul>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>std::aligned_alloc() は C++11 から、aligned_alloc() は C11 から定義された仕様であるため、環境によって使用できる場合と使用できない場合があります。 そのため、以下のように使い分ける必要があります。</p>
+    <ul>
+      <li>NX 開発機環境では aligned_alloc() および std::aligned_alloc() が利用可能です。C11 および C++11 標準のリファレンスに沿ってご使用下さい。</li>
+      <li>Windows 環境では VisualStudio のバージョンによって利用できない場合があります。代替機能が別 API で提供されている場合がありますので詳細は msdn などを参照して下さい。</li>
+    </ul>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__init__InitializeAllocator', '../../../Api/HtmlNX/namespacenn_1_1init.html#aeabe2bac6132fbe8b94175d525537b18' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

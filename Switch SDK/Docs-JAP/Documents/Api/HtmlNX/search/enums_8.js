@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['imagecopyflag',['ImageCopyFlag',['../namespacenn_1_1gfx.html#ab4ec3f26b32ff15b2eec7eae4a229f05',1,'nn::gfx']]],
+  ['imagedimension',['ImageDimension',['../namespacenn_1_1gfx.html#ae5b7c631f74a2dbfeff59cc3764d488f',1,'nn::gfx']]],
+  ['imageformat',['ImageFormat',['../namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605',1,'nn::gfx']]],
+  ['imageformatpropertyflag',['ImageFormatPropertyFlag',['../namespacenn_1_1gfx.html#a55913236bc36fb66d7f5ae176a7f7b56',1,'nn::gfx']]],
+  ['imageorientation',['ImageOrientation',['../namespacenn_1_1album.html#a5ed8768ea50a1623474f1aa50da9faf2',1,'nn::album']]],
+  ['imageprocessorstatus',['ImageProcessorStatus',['../namespacenn_1_1irsensor.html#a29c9901e3b1df19725d41e8351305c2c',1,'nn::irsensor']]],
+  ['imagesize',['ImageSize',['../namespacenn_1_1friends.html#a189555d8b1c0dd4bd127964383c936c0',1,'nn::friends::ImageSize()'],['../namespacenn_1_1album.html#a69fc07931e25a09d0446e29dbd22979e',1,'nn::album::ImageSize()']]],
+  ['imagestoragedimension',['ImageStorageDimension',['../namespacenn_1_1gfx.html#a52703c69a29adb8ba4cf3d02c6be65d6',1,'nn::gfx']]],
+  ['imagetransferprocessorformat',['ImageTransferProcessorFormat',['../namespacenn_1_1irsensor.html#ad36a4c874ca3be558b04447fde22aae6',1,'nn::irsensor']]],
+  ['indexformat',['IndexFormat',['../namespacenn_1_1gfx.html#aef2ddd2bcaa4d6af0f04681470e3f3fb',1,'nn::gfx']]],
+  ['infoplacement',['InfoPlacement',['../namespacenn_1_1lmem.html#abd1164e3a948696645a06c70e009f8c2',1,'nn::lmem']]],
+  ['infotype',['InfoType',['../structnn_1_1ui2d_1_1_res_tex_map_additional_info.html#a782d061226df15a5542bb71c689c50b5',1,'nn::ui2d::ResTexMapAdditionalInfo']]],
+  ['initialcursorpos',['InitialCursorPos',['../namespacenn_1_1swkbd.html#ae722c596c7ee1ee457a68ce251d1aeb3',1,'nn::swkbd']]],
+  ['inputformmode',['InputFormMode',['../namespacenn_1_1swkbd.html#a5523925543194fb677cca29679b1b3ae',1,'nn::swkbd']]],
+  ['internalpki',['InternalPki',['../classnn_1_1ssl_1_1_context.html#a094a0f3361e096c181f837294525ede6',1,'nn::ssl::Context']]],
+  ['interpolatecolor',['InterpolateColor',['../namespacenn_1_1ui2d.html#a7ecccb319ac5a8a023cfc5901f997c00',1,'nn::ui2d']]],
+  ['interpolatemode',['InterpolateMode',['../classnn_1_1g3d_1_1_skeletal_anim_blender.html#a252f231648a731e9fd26342ca0ecf33c',1,'nn::g3d::SkeletalAnimBlender']]],
+  ['invalidchar',['InvalidChar',['../namespacenn_1_1swkbd.html#a551453b60c5e1602a39436fba766be85',1,'nn::swkbd']]],
+  ['invalidvalueid',['InvalidValueId',['../namespacenn_1_1vfx.html#aeeb32884492f0014f10af5a6645fc62c',1,'nn::vfx']]],
+  ['ioctlcommand',['IoctlCommand',['../namespacenn_1_1socket.html#a047cb0e8a33ab75269a940a59ac7f62a',1,'nn::socket']]],
+  ['iomode',['IoMode',['../classnn_1_1ssl_1_1_connection.html#a519f207d2aa0c74d025756eb78dabb58',1,'nn::ssl::Connection']]],
+  ['ircameraambientnoiselevel',['IrCameraAmbientNoiseLevel',['../namespacenn_1_1irsensor.html#a703533208b1dbc28e3cdaab0273feb57',1,'nn::irsensor']]],
+  ['ircameralighttarget',['IrCameraLightTarget',['../namespacenn_1_1irsensor.html#a02bb8cb4cc068779bd279a75ca0a4d5b',1,'nn::irsensor']]],
+  ['ircamerastatus',['IrCameraStatus',['../namespacenn_1_1irsensor.html#a0fb1b253296b92663904ac18e7416b60',1,'nn::irsensor']]]
+];

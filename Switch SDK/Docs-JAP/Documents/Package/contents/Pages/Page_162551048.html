@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プログラマ向け変更点</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プログラマ向け変更点 -->
+<div class="pagetitle" id="PageId_162551048">プログラマ向け変更点</div>
+<div class="text_separate">
+<p>NintendoSDK 0.13.0 で行われた NintendoWare オーディオ (<span class="ApiLink_nn__atk">nn::atk</span>) の変更点について説明します。</p>
+<h2 id="Anchor_162551048_h2_1">目次</h2>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_162551048_h2_1">目次</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_162551048_h3_1">AtkOpus サンプルを改訂</a>
+      </li>
+      <li>
+        <a href="#Anchor_162551048_h3_2">AtkSound3D サンプルを改訂</a>
+      </li>
+      <li>
+        <a href="#Anchor_162551048_h3_3">nn::atk::EffectDelay が不安定になる不具合を修正</a>
+      </li>
+      <li>
+        <a href="#Anchor_162551048_h3_4">音量、ピッチの最終的な上限値、下限値の変更</a>
+      </li>
+      <li>
+        <a href="#Anchor_162551048_h3_5">プログラミングガイドを改訂</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h3 id="Anchor_162551048_h3_1">AtkOpus サンプルを改訂</h3>
+<p>Opus デコーダーの終了処理を呼ぶタイミングに問題があり、AtkOpus サンプル終了時にアサートで停止する可能性があったため、正しいタイミングで終了処理を呼ぶように修正しました。</p>
+<p>これまでは <span class="ApiLink_nn__atk__SoundSystem">nn::atk::SoundSystem</span> などの <span class="ApiLink_nn__atk">nn::atk</span> ライブラリの終了処理よりも前で Opus デコーダーの終了処理を行っていましたが、<span class="ApiLink_nn__atk">nn::atk</span> ライブラリの終了処理の後で処理するように変更しています。</p>
+<p>以前のサンプルを参考に実装されていた場合には、処理を変更していただく必要がありますのでご注意ください。</p>
+<p>AtkOpus サンプルやサンプル解説書も併せてご確認ください。</p>
+<h3 id="Anchor_162551048_h3_2">AtkSound3D サンプルを改訂</h3>
+<p>
+  <span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span> の終了処理を <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span> の終了処理よりも先に行うと、不正なメモリアクセスが起こる場合がある不具合に対応するため、サンプルの終了処理の順番を修正しました。</p>
+<p>これまでは <span class="ApiLink_nn__atk__Sound3DManager">nn::atk::Sound3DManager</span> の終了処理を行ってから <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span> の終了処理を行っていましたが、今回の修正で <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span> の終了処理を先に行うようにしています。また、初期化処理の順番も終了処理の順番の修正に合わせて変更しています。</p>
+<p>以前のサンプルを参考に実装されていた場合には、処理を変更していただく必要がありますのでご注意ください。</p>
+<p>AtkSound3D&nbsp;サンプルやサンプル解説書も併せてご確認ください。</p>
+<h3 id="Anchor_162551048_h3_3">nn::atk::EffectDelay が不安定になる不具合を修正</h3>
+<p>
+  <span class="ApiLink_nn__atk__EffectDelay">nn::atk::EffectDelay</span> のパラメータ DelayTimeMax と DelayTime を同じ値にすると動作が不安定になることがありましたが、<span class="ApiLink_nn__audio__DelayType">nn::audio::DelayType</span> の問題が修正されたことに伴い、<span class="ApiLink_nn__atk__EffectDelay">nn::atk::EffectDelay</span> が不安定になる問題も修正されました。</p>
+<h3 id="Anchor_162551048_h3_4">音量、ピッチ<span style="color: rgb(51,51,51);">の最終的な上限値、下限値の変更</span></h3>
+<p>
+  <span style="color: rgb(51,51,51);">音量、ピッチのパラメータについて、乗算後の最終的な上限値、下限値を <span class="ApiLink_nn__audio">nn::audio</span> ライブラリの API を用いて設定するよう変更しました。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">それぞれ以下が上限値、下限値となります。&nbsp;</span>
+</p>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">音量は <span class="ApiLink_nn__audio__VoiceType__GetVolumeMax">nn::audio::VoiceType::GetVolumeMax</span>, <span class="ApiLink_nn__audio__VoiceType__GetVolumeMin">nn::audio::VoiceType::GetVolumeMin</span></span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">ピッチは <span class="ApiLink_nn__audio__VoiceType__GetPitchMax">nn::audio::VoiceType::GetPitchMax</span>, <span class="ApiLink_nn__audio__VoiceType__GetPitchMin">nn::audio::VoiceType::GetPitchMin</span></span>
+  </li>
+</ul>
+<p>
+  <span style="color: rgb(51,51,51);">音量の上限値はこれまでの 2.0f から拡大される形になりますので、適切な音量に収まるよう調整ください。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">音量やピッチの最終的な値の計算方法の詳細については&nbsp;<a href="../Pages/Page_83955829.html">サウンドパラメータ制御の動作</a>&nbsp;を参照ください。</span>
+</p>
+<h3 id="Anchor_162551048_h3_5">プログラミングガイドを改訂</h3>
+<p>以下の項目を追加しました。</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_83956038.html">メモリー管理</a>の項目に、メモリプールからの自動デタッチに関する説明を追加しました。</li>
+  <li>Atk ライブラリが内部で使用しているスレッドについて説明（<a href="../Pages/Page_162560000.html">スレッド</a>）を追加しました。</li>
+  <li>各チャンネルに流すサウンドの音量を決めるミックスについて説明（<a href="../Pages/Page_162953246.html">ミックス</a>）を追加しました。</li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk', '../../../Api/HtmlNX/namespacenn_1_1atk.html' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html' )
+SetUrl( 'ApiLink_nn__atk__Sound3DManager', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_manager.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html' )
+SetUrl( 'ApiLink_nn__atk__EffectDelay', '../../../Api/HtmlNX/classnn_1_1atk_1_1_effect_delay.html' )
+SetUrl( 'ApiLink_nn__audio__DelayType', '../../../Api/HtmlNX/structnn_1_1audio_1_1_delay_type.html' )
+SetUrl( 'ApiLink_nn__audio', '../../../Api/HtmlNX/namespacenn_1_1audio.html' )
+SetUrl( 'ApiLink_nn__audio__VoiceType__GetVolumeMax', '../../../Api/HtmlNX/structnn_1_1audio_1_1_voice_type.html#ac6d89779386cd19549ce2832096d4f55' )
+SetUrl( 'ApiLink_nn__audio__VoiceType__GetVolumeMin', '../../../Api/HtmlNX/structnn_1_1audio_1_1_voice_type.html#a5ec8e45c2cddf7a2f30f85f038bd8f5c' )
+SetUrl( 'ApiLink_nn__audio__VoiceType__GetPitchMax', '../../../Api/HtmlNX/structnn_1_1audio_1_1_voice_type.html#af10ada0ecc6c7f231636c224bd6e9bf7' )
+SetUrl( 'ApiLink_nn__audio__VoiceType__GetPitchMin', '../../../Api/HtmlNX/structnn_1_1audio_1_1_voice_type.html#a365b8f1cbfb815e641cf0c3d3244ce43' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

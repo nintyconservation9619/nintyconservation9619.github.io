@@ -1,0 +1,298 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: HidNpadSimple.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">HidNpadSimple.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_hid_npad_simple.html">Npadを使ったボタン入力の取得</a> および <a class="el" href="_hid_npad_simple_8cpp.html" title="Npadを使ってボタン入力を取得するためのサンプルプログラム ">HidNpadSimple.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___macro_8h.html">nn/nn_Macro.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="os___thread_8h.html">nn/os/os_Thread.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="os___system_event_8h.html">nn/os/os_SystemEvent.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/hid.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___npad_8h.html">nn/hid/hid_Npad.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___npad_joy_8h.html">nn/hid/hid_NpadJoy.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace</span></div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">bool</span>    waits = <span class="keyword">true</span>;</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6">nn::hid::NpadIdType</a> g_NpadIds[] = {<a name="a0"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">nn::hid::NpadId::No1</a>,</div>
+<div class="line">                                       <a name="a1"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa127a6d25de9fd544768ee18734f5b6f">nn::hid::NpadId::No2</a>,</div>
+<div class="line">                                       <a name="a2"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#ab910ee335a59d4354dab5a7f0b51b8a4">nn::hid::NpadId::No3</a>,</div>
+<div class="line">                                       <a name="a3"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#a8b6f8bb30c834fa2441f2673b5449a73">nn::hid::NpadId::No4</a>,</div>
+<div class="line">                                       <a name="a4"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#afc19a9a80ac740645b567fc7e1dc36cf">nn::hid::NpadId::Handheld</a>,</div>
+<div class="line">                                       };</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> NpadIdCountMax = <span class="keyword">sizeof</span>(g_NpadIds) / <span class="keyword">sizeof</span>(<a class="code" href="namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6">nn::hid::NpadIdType</a>);</div>
+<div class="line">    <a name="_a5"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html">nn::hid::NpadHandheldState</a> oldNpadHandheldState;</div>
+<div class="line">    <a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html">nn::hid::NpadHandheldState</a> currentNpadHandheldState;</div>
+<div class="line">    <a name="_a6"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html">nn::hid::NpadFullKeyState</a> oldNpadFullKeyState[NpadIdCountMax];</div>
+<div class="line">    <a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html">nn::hid::NpadFullKeyState</a> currentNpadFullKeyState[NpadIdCountMax];</div>
+<div class="line">    <a name="_a7"></a><a class="code" href="structnn_1_1hid_1_1_npad_joy_dual_state.html">nn::hid::NpadJoyDualState</a> oldNpadJoyDualState[NpadIdCountMax * 2];</div>
+<div class="line">    <a class="code" href="structnn_1_1hid_1_1_npad_joy_dual_state.html">nn::hid::NpadJoyDualState</a> currentNpadJoyDualState[NpadIdCountMax * 2];</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> PrintNpadButtonState(<span class="keyword">const</span> <a name="_a8"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::NpadButtonSet</a>&amp; state)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">char</span> buttons[37];</div>
+<div class="line">        buttons[0]   = (state.<a name="a9"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a name="_a10"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::A</a>&gt;())         ? <span class="charliteral">&#39;A&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[1]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::B</a>&gt;())         ? <span class="charliteral">&#39;B&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[2]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::X</a>&gt;())         ? <span class="charliteral">&#39;X&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[3]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Y</a>&gt;())         ? <span class="charliteral">&#39;Y&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[4]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickL</a>&gt;())    ? <span class="charliteral">&#39;L&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[5]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickL</a>&gt;())    ? <span class="charliteral">&#39;S&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[6]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickR</a>&gt;())    ? <span class="charliteral">&#39;R&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[7]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickR</a>&gt;())    ? <span class="charliteral">&#39;S&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[8]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::L</a>&gt;())         ? <span class="charliteral">&#39;L&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[9]   = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::R</a>&gt;())         ? <span class="charliteral">&#39;R&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[10]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::ZL</a>&gt;())        ? <span class="charliteral">&#39;Z&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[11]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::ZL</a>&gt;())        ? <span class="charliteral">&#39;L&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[12]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::ZR</a>&gt;())        ? <span class="charliteral">&#39;Z&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[13]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::ZR</a>&gt;())        ? <span class="charliteral">&#39;R&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[14]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Plus</a>&gt;())      ? <span class="charliteral">&#39;+&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[15]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Minus</a>&gt;())     ? <span class="charliteral">&#39;-&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[16]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Left</a>&gt;())      ? <span class="charliteral">&#39;&lt;&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[17]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Up</a>&gt;())        ? <span class="charliteral">&#39;^&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[18]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Right</a>&gt;())     ? <span class="charliteral">&#39;&gt;&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[19]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::Down</a>&gt;())      ? <span class="charliteral">&#39;v&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[20]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::LeftSL</a>&gt;())    ? <span class="charliteral">&#39;S&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[21]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::LeftSL</a>&gt;())    ? <span class="charliteral">&#39;L&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[22]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::LeftSR</a>&gt;())    ? <span class="charliteral">&#39;S&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[23]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::LeftSR</a>&gt;())    ? <span class="charliteral">&#39;R&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[24]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::RightSL</a>&gt;())   ? <span class="charliteral">&#39;S&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[25]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::RightSL</a>&gt;())   ? <span class="charliteral">&#39;L&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[26]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::RightSR</a>&gt;())   ? <span class="charliteral">&#39;S&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[27]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::RightSR</a>&gt;())   ? <span class="charliteral">&#39;R&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[28]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickLRight</a>&gt;()) ? <span class="charliteral">&#39;&gt;&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[29]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickLUp</a>&gt;())    ? <span class="charliteral">&#39;^&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[30]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickLLeft</a>&gt;())  ? <span class="charliteral">&#39;&lt;&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[31]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickLDown</a>&gt;())  ? <span class="charliteral">&#39;v&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[32]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickRRight</a>&gt;()) ? <span class="charliteral">&#39;&gt;&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[33]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickRUp</a>&gt;())    ? <span class="charliteral">&#39;^&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[34]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickRLeft</a>&gt;())  ? <span class="charliteral">&#39;&lt;&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[35]  = (state.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadJoyButton::StickRDown</a>&gt;())  ? <span class="charliteral">&#39;v&#39;</span> : <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line">        buttons[36]  = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"></div>
+<div class="line">        <a name="a11"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%s&quot;</span>, buttons);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> PrintNpadStickState(<span class="keyword">const</span> <a name="_a12"></a><a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html">nn::hid::AnalogStickState</a>&amp; state)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;(%6d, %6d)&quot;</span>, state.<a name="a13"></a><a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>,</div>
+<div class="line">                             state.<a name="a14"></a><a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TState&gt;</div>
+<div class="line">    <span class="keywordtype">void</span> PrintNpadState(<span class="keyword">const</span> TState&amp; state)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[%6lld] &quot;</span>, state.samplingNumber);</div>
+<div class="line">        PrintNpadButtonState(state.buttons);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; L&quot;</span>);</div>
+<div class="line">        PrintNpadStickState(state.analogStickL);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; R&quot;</span>);</div>
+<div class="line">        PrintNpadStickState(state.analogStickR);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> Init()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a15"></a><a class="code" href="namespacenn_1_1hid.html#a54ad6953b9cef17b4d79171e819b0048">nn::hid::InitializeNpad</a>();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">//使用する操作形態を設定</span></div>
+<div class="line">        <a name="a16"></a><a class="code" href="namespacenn_1_1hid.html#ac04a55a989058f9d69c5c3e4e29c4480">nn::hid::SetSupportedNpadStyleSet</a>(nn::hid::NpadStyleFullKey::Mask | nn::hid::NpadStyleJoyDual::Mask | nn::hid::NpadStyleHandheld::Mask);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 使用する Npad を設定</span></div>
+<div class="line">        <a name="a17"></a><a class="code" href="namespacenn_1_1hid.html#a82326d8c0d5f888fce443798bb829e97">nn::hid::SetSupportedNpadIdType</a>(g_NpadIds, NpadIdCountMax);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> Update()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i = 0; i &lt; NpadIdCountMax; i++)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">//現在有効な操作形態(NpadStyleSet)を取得</span></div>
+<div class="line">            <a name="_a18"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::NpadStyleSet</a> style = <a name="a19"></a><a class="code" href="namespacenn_1_1hid.html#a50e56789aa106765d43935bb1838c797">nn::hid::GetNpadStyleSet</a>(g_NpadIds[i]);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// フルキー操作が有効な場合</span></div>
+<div class="line">            <span class="keywordflow">if</span> (style.<a name="a20"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadStyleFullKey</a>&gt;() == <span class="keyword">true</span>)</div>
+<div class="line">            {</div>
+<div class="line">                oldNpadFullKeyState[i] = currentNpadFullKeyState[i];</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">//最新のNpadのステートを取得</span></div>
+<div class="line">                <a name="a21"></a><a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;(currentNpadFullKeyState[i]), g_NpadIds[i]);</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">//ボタンが押された</span></div>
+<div class="line">                <span class="keywordflow">if</span> ((currentNpadFullKeyState[i].buttons ^ oldNpadFullKeyState[i].buttons &amp; currentNpadFullKeyState[i].buttons).IsAnyOn())</div>
+<div class="line">                {</div>
+<div class="line">                    <span class="comment">// Npad の入力状態を表示</span></div>
+<div class="line">                    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;NpadFullKey (%d)     &quot;</span>, i);</div>
+<div class="line">                    PrintNpadState(currentNpadFullKeyState[i]);</div>
+<div class="line">                }</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">// ＋ と - ボタンを同時に押されたら終了</span></div>
+<div class="line">                <span class="keywordflow">if</span> (currentNpadFullKeyState[i].buttons.Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Plus</a>&gt;() &amp;&amp; currentNpadFullKeyState[i].<a name="a22"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#ab47273cb70afeff22b5a21a62db2abab">buttons</a>.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Minus</a>&gt;())</div>
+<div class="line">                {</div>
+<div class="line">                    waits = <span class="keyword">false</span>;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">            <span class="comment">// Joy-Con 操作が有効な場合</span></div>
+<div class="line">            <span class="keywordflow">if</span> (style.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadStyleJoyDual</a>&gt;() == <span class="keyword">true</span>)</div>
+<div class="line">            {</div>
+<div class="line">                oldNpadJoyDualState[i] = currentNpadJoyDualState[i];</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">//最新のNpadのステートを取得</span></div>
+<div class="line">                <a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;(currentNpadJoyDualState[i]), g_NpadIds[i]);</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">//ボタンが押された</span></div>
+<div class="line">                <span class="keywordflow">if</span> ((currentNpadJoyDualState[i].buttons ^ oldNpadJoyDualState[i].buttons &amp; currentNpadJoyDualState[i].buttons).IsAnyOn())</div>
+<div class="line">                {</div>
+<div class="line">                    <span class="comment">// Npad の入力状態を表示</span></div>
+<div class="line">                    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;NpadJoyDual (%d)     &quot;</span>, i);</div>
+<div class="line">                    PrintNpadState(currentNpadJoyDualState[i]);</div>
+<div class="line">                }</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">// ＋ と - ボタンを同時に押されたら終了</span></div>
+<div class="line">                <span class="keywordflow">if</span> (currentNpadJoyDualState[i].buttons.Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Plus</a>&gt;() &amp;&amp; currentNpadJoyDualState[i].<a name="a23"></a><a class="code" href="structnn_1_1hid_1_1_npad_joy_dual_state.html#a20f30af87a2ff958638de04d8f4a59b1">buttons</a>.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Minus</a>&gt;())</div>
+<div class="line">                {</div>
+<div class="line">                    waits = <span class="keyword">false</span>;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">            <span class="comment">// 携帯機コントローラー操作が有効な場合</span></div>
+<div class="line">            <span class="keywordflow">if</span> (style.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadStyleHandheld</a>&gt;() == <span class="keyword">true</span>)</div>
+<div class="line">            {</div>
+<div class="line">                oldNpadHandheldState = currentNpadHandheldState;</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">//最新のNpadのステートを取得</span></div>
+<div class="line">                <a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;(currentNpadHandheldState), g_NpadIds[i]);</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">//ボタンが押された</span></div>
+<div class="line">                <span class="keywordflow">if</span> ((currentNpadHandheldState.<a name="a24"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a> ^ oldNpadHandheldState.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a> &amp; currentNpadHandheldState.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a>).IsAnyOn())</div>
+<div class="line">                {</div>
+<div class="line">                    <span class="comment">// Npad の入力状態を表示</span></div>
+<div class="line">                    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;NpadHandheld         &quot;</span>);</div>
+<div class="line">                    PrintNpadState(currentNpadHandheldState);</div>
+<div class="line">                }</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">// ＋ と - ボタンを同時に押されたら終了</span></div>
+<div class="line">                <span class="keywordflow">if</span> (currentNpadHandheldState.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a>.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Plus</a>&gt;() &amp;&amp; currentNpadHandheldState.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a>.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Minus</a>&gt;())</div>
+<div class="line">                {</div>
+<div class="line">                    waits = <span class="keyword">false</span>;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">}<span class="comment">//namespace</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a25"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Npad Sample Start.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    Init();</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;If you push any button, button state log will appear on the console.\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Push (+) and (-) Button to shutdown this application.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">while</span>(waits)</div>
+<div class="line">    {</div>
+<div class="line">        Update();</div>
+<div class="line">        <a name="a26"></a><a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">::nn::os::SleepThread</a>(<a name="a27"></a><a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(15));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Npad Sample Done.\n&quot;</span>);</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

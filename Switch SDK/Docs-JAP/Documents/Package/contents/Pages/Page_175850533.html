@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>GPU のリソース制限</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- GPU のリソース制限 -->
+<div class="pagetitle" id="PageId_175850533">GPU のリソース制限</div>
+<div class="text_separate">
+<p>NX ではアプリケーションとシステムが GPU を同時に使用するため、それぞれが利用できる GPU のリソース割当て制御が行われます。ここではその仕様について説明します。</p>
+<h1 id="Anchor_175850533_h1_1">アプリケーションへの GPU リソースの割り当て</h1>
+<p>アプリケーションには複数の「フォーカス状態」があり、それぞれの状態で利用できる GPU 時間が異なります。（フォーカス状態についての詳細は&nbsp;<a href="../Pages/Page_166065886.html#Anchor_166065886_%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E3%81%B8%E3%81%AE%E9%80%9A%E7%9F%A5%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8-%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E3%81%AE%E3%83%95%E3%82%A9%E3%83%BC%E3%82%AB%E3%82%B9%E7%8A%B6%E6%85%8B%E3%81%AE%E5%A4%89%E6%9B%B4%E9%80%9A%E7%9F%A5">プログラムのフォーカス状態の変更通知</a>&nbsp;を参照）</p>
+<p>アプリケーションとシステムには時分割によって GPU 時間が割り当てられます。配分の比率は次の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>アプリケーションの状態</th>
+      <th>システムの GPU 時間</th>
+      <th>アプリケーションの GPU 時間</th>
+    </tr>
+    <tr>
+      <td>インフォーカス状態</td>
+      <td style="text-align: right;">3%</td>
+      <td style="text-align: right;">97%</td>
+    </tr>
+    <tr>
+      <td>アウトフォーカス状態</td>
+      <td style="text-align: right;">73%</td>
+      <td style="text-align: right;">27%</td>
+    </tr>
+  </tbody>
+</table>
+<p>ただし、アプリケーション起動時のアプリ起動ロゴ再生期間は、アプリ起動ロゴ表示のためにシステムが GPU 時間を追加で 100us 使用します。アプリ起動ロゴ再生時間は 1.63 秒ですが、<a href="../Pages/Page_166503043.html">nmeta ファイル</a> において LogoHandling を Manual にした場合は、再生時間を過ぎても <a href="../../../Api/HtmlNX/namespacenn_1_1oe.html#ae84f10193f67da27df3b73c6bf10ac2d">nn::oe::FinishStartupLogo()</a> を呼び出すまで再生が続きます。</p>
+<p>GPU 時間の配分は VSync を基点として PresentInterval に同期して行われます。以降、VSync から次の VSync までの配分時間を次の通り表し、説明します。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span style="white-space: pre-wrap;">アプリケーションの状態</span>
+      </th>
+      <th>
+        <span style="white-space: pre-wrap;">システムの GPU 時間</span>
+      </th>
+      <th>
+        <span style="white-space: pre-wrap;">アプリケーションの GPU 時間</span>
+      </th>
+    </tr>
+    <tr>
+      <td>インフォーカス状態</td>
+      <td style="text-align: right;">Sf ms</td>
+      <td style="text-align: right;">Af ms</td>
+    </tr>
+    <tr>
+      <td>アウトフォーカス状態</td>
+      <td style="text-align: right;">Sb ms</td>
+      <td style="text-align: right;">Ab ms</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_175850533_h2_1">アプリケーションがインフォーカス状態の場合</h2>
+<p>アプリケーションの PresentInterval を n とすると、アプリケーションは次の流れで GPU の実行権を得ます。</p>
+<ol>
+  <li>アプリケーションが出画（VSync）</li>
+  <li>システムが GPU の実行権を取得（n*Sf ms）</li>
+  <li>アプリケーションが GPU の実行権を取得（n*Af ms）</li>
+  <li>前回の出画から n 回目の VSync<ol><li>出画リクエストが行われていた場合、1 へ戻る</li><li>出画リクエストが行われていない場合、出画が行われるまで 2 と 3 を繰り返す<ul><li>2 もしくは 3 の途中の VSync でも、アプリケーションの出画が行われた時点で打ち切って 1 へ戻る</li></ul></li></ol></li>
+</ol>
+<h2 id="Anchor_175850533_h2_2">アプリケーションがアウトフォーカス状態の場合</h2>
+<p>アプリケーションの PresentInterval によらず、アプリケーションは次の流れで GPU の実行権を得ます。</p>
+<ol>
+  <li>システムが出画（VSync）</li>
+  <li>システムが GPU の実行権を取得（Sb ms）</li>
+  <li>アプリケーションが GPU の実行権を取得（Ab ms）</li>
+  <li>VSync<ul><li>1 へ戻る</li></ul></li>
+</ol>
+<h1 id="Anchor_175850533_h1_2">開発用機能</h1>
+<p style="text-align: left;">本機能によって想定外の動作をしていると疑われる場合、DevMenuCommand を使用して本機能を一時的に無効化することで問題の切り分けを行うことができます。DevMenuCommand については&nbsp;<a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;をご参照ください。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>DevMenuCommand -- debug disable-gpu-resource-limitation</pre>
+  </div>
+</div>
+<h1 id="Anchor_175850533_h1_3">制限事項</h1>
+<ul>
+  <li>GPU の実行権が切り替わる際、GPU のコンテキストスイッチが発生します。コンテキストスイッチに関する詳細は&nbsp;<a href="../../../Api/HtmlNX/gpu_overview__maxwell_technical_overview_index.html">Maxwell テクニカルオーバービュー</a>&nbsp;をご参照ください。</li>
+  <li>GPU コンテキストスイッチにおけるプリエンプションはコマンド単位で行われます。そのため、割り当てられた GPU 時間が終了するタイミングで GPU がアイドル状態ではない場合、フルパイプラインフラッシュが発生し、結果としてオーバーランが起こります。割り当てられた GPU 時間を越えて実行された場合、次に割り当てられる GPU 時間から償却されます。</li>
+  <li>アプリケーションが GPU を使わない時間が 5ms 程度続いた場合、省電力状態から復帰するために次回 GPU を使用する際の復帰に 200us 程度かかります。</li>
+  <li>アプリケーションがアウトフォーカス状態の際は、アプリケーションの PresentInterval によらず VSync 毎に GPU の実行権が変わることにご注意ください。GPU 実行中にコンテキストスイッチが発生するとパイプラインが阻害されるため、連続した GPU 時間が割り当てられた場合よりも実行時間が長くなります。</li>
+  <li>本機能は GPU 時間のみを制限するものであり、CPU やディスプレイコントローラー、その他のシステムが動作することによるメモリアクセスなどの影響を完全に制限するものではありません。&nbsp;</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

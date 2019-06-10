@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>カスタムシェーダの例</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- カスタムシェーダの例 -->
+<div class="pagetitle" id="PageId_83955731">カスタムシェーダの例</div>
+<div class="text_separate">
+<h1 id="Anchor_83955731_h1_1">カスタムシェーダの例</h1>
+<p>いろんな表現をカスタムシェーダを利用して実装する例を紹介します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955731_h2_1">カスタムシェーダのサンプルについて</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955731_h2_2">シェーダ内で独自のコンスタントバッファを利用する</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955731_h2_3">法線マップを実装する</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955731_h2_4">シェーダ内での深度値の参照方法をカスタマイズする</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955731_h2_5">シェーダ内でアプリが用意したテクスチャを利用する</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955731_h2_6">全カスタムシェーダで参照するコンスタントバッファを設定する</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_83955731_h2_1">カスタムシェーダのサンプルについて</h2>
+<p>Samples\Sources\Applications\VfxCustomShader にカスタムシェーダのサンプルアプリケーションがあります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955731/124259975.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p>このサンプルでは、以下の機能の実装例を確認できます。</p>
+<ul>
+  <li>最終出力カラーを調整する</li>
+  <li>各パーティクルの描画位置を調整する</li>
+  <li>シンプルなライティング</li>
+  <li>法線の状態をカラー値として出力する</li>
+  <li>ノーマルマップを適用する</li>
+  <li>シンプルなライトマップを適用する</li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955731_h2_2">シェーダ内で独自のコンスタントバッファを利用する</h2>
+<p>RenderStateSet コールバックを利用して、アプリ独自のユニフォームブロックパラメータを設定する方法です。</p>
+<h3 id="Anchor_83955731_h3_1">テンポラリバッファを利用してコンスタントバッファを設定する</h3>
+<p>利用するシェーダコード側で、sysCustomShaderUniformBlock0 というコンスタントバッファを宣言します。sysCustomShaderUniformBlock0 は予約語です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>layout( std140, binding = SYS_CUSTOM_SHADER_UNIFORM_BLOCK_ID_0 ) uniform sysCustomShaderUniformBlock0
+{
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam0;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam1;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam2;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam3;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>RenderStateSet コールバック内で、シェーダコード側で宣言した sysCustomShaderUniformBlock0 にバッファを設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>bool _RenderStateSetCallback( nn::vfx::RenderStateSetArg&amp; arg )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;struct UserUniformBlock0
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4    param0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4    param1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4    param2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float4    param3;
+&nbsp;&nbsp;&nbsp;&nbsp;};
+
+ &nbsp;&nbsp;&nbsp;&nbsp;nn::gfx::GpuAddress gpuAddress;
+&nbsp;&nbsp;&nbsp;&nbsp;void* buffer = GetTemporaryBuffer().Map( &amp;gpuAddress, sizeof( UserUniformBlock ) );
+&nbsp;&nbsp;&nbsp;&nbsp;if ( buffer )
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memcpy( buffer , parameter, sizeof( UserUniformBlock ) );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GetTemporaryBuffer().Unmap();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// シェーダ上の nn::vfx::CustomShaderConstantBufferIndex_0( sysCustomShaderUniformBlock0 ) に対して
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// ユニフォームブロックを設定する
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg.GetSystem()-&gt;GetShader()-&gt;BindCustomShaderUniformBlock( pCommandBuffer,
+　　　　　　　　　　　　　　　　&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::vfx::CustomShaderConstantBufferIndex_0, 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;gpuAddress, sizeof( UserUniformBlock ) );
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;return true;
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この例で利用している テンポラリバッファ は、エフェクトシステムが抱えている GPU参照用のバッファになります。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_91194043.html">ランタイム内部で消費するメモリについて</a>
+      </th>
+      <td>テンポラリバッファについての記述があります。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955731_h2_3">法線マップを実装する</h2>
+<p>以下の手順で法線マップを実装します。全てをカスタムフラグメントシェーダで実装します。</p>
+<ol>
+  <li>法線マップテクスチャを登録するテクスチャを利用不可にする。</li>
+  <li>法線マップテクスチャから法線情報を取得する。</li>
+  <li>頂点の法線、接線、従法線 からそのピクセルの法線を求める。</li>
+</ol>
+<p>本例では、テクスチャ０をアルベドカラー、テクスチャ１を法線マップ に割り当てます。<br />エフェクトメーカ側ＵＩには、以下の1つのチェックボックスを準備します。</p>
+<ul>
+  <li>テクスチャ１を法線マップとして利用する ( USE_NORMAL_TEX1 )</li>
+</ul>
+<h3 id="Anchor_83955731_h3_2">1.&nbsp;法線マップテクスチャを登録するテクスチャを利用不可にする</h3>
+<p>法線マップテクスチャを登録する場所を テクスチャ 0/1/2 の中から選択し利用できなくします。<br />以下のようにテクスチャ０/１ ブレンド関数を上書きすることで、標準のテクスチャ１の処理をキャンセルできます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>//---------------------------------------------
+// テクスチャ1を法線マップとして利用するのでキャンセルする
+//---------------------------------------------
+#ifdef USE_NORMAL_TEX1
+#define USE_USR_BLEND_TEXTURE1_COLOR
+vec4 BlendTexture1Color( vec4 texture0, vec4 texture1 )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;return texture0;
+}
+#endif</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955731_h3_3">2. 法線マップテクスチャから法線情報を取得する</h3>
+<p>以下のように法線マップテクスチャからテクスチャカラーを取得します。<br />サンプラーは、<strong>sysTextureSampler1 </strong>、テクスチャ座標は、<strong>sysInTexCoord1</strong> を利用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>//---------------------------------------------
+// 最終出力カラー調整
+//---------------------------------------------
+#define USE_USR_FINAL_ADJUSTMENT_FRAGMENT_COLOR
+void FinalAdjustmentFragmentColor()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;vec3  normal = sysWorldNormalVary;
+
+#ifdef USE_NORMAL_TEX1
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 法線マップテクスチャカラーを取得する。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vec3 normalFromMap = texture2D( sysTextureSampler1, sysInTexCoord1 ).xyz;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955731_h3_4">3. 頂点の法線、接線、従法線 からそのピクセルの法線を求める</h3>
+<p>取得した法線マップ情報をもとにピクセルの法線を求めます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normalFromMap.z = sqrt( clamp(  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.0 -( normalFromMap.x*normalFromMap.x + normalFromMap.y*normalFromMap.y ), 0.0, 1.0 ) );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normal = normalFromMap.x * sysWorldTangentVary  +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normalFromMap.y * sysWorldBinormalVary +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normalFromMap.z * sysWorldNormalVary;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normal = normalize( normal );
+#endif　// #ifdef USE_NORMAL_TEX1
+
+&nbsp;&nbsp;&nbsp;&nbsp;// normal を利用してライティング計算を行う。
+&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT_COLOR.xyz = CalcShading( normal );
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955731_h2_4">シェーダ内での深度値の参照方法をカスタマイズする</h2>
+<p>ソフトパーティクルなどが有効な場合、シェーダ内でアプリから入力されたデプステクスチャから深度値を参照し処理を行います。アプリ側で既に線形変換後のデプステクスチャを入力する場合は、以下深度値関数をカスタマイズする必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>#define USE_USR_GET_DEPTH_VALUE_FROM_TEXTURE
+float GetDepthValueFromTexture( vec4 projection )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float depth = texture2DProj( sysDepthBufferTexture, projection ).r;
+&nbsp;&nbsp;&nbsp;&nbsp;return depth;
+}
+#endif</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>本関数は、頂点シェーダ、フラグメントシェーダ、どちらにも存在しますので、カスタマイズする場合は、両方のシェーダに対してカスタマイズする必要があります。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955731_h2_5">シェーダ内でアプリが用意したテクスチャを利用する</h2>
+<p>パーティクルの描画に対してライトマップを適用する場合など、アプリ側で用意されたテクスチャをカスタムシェーダ内で利用する方法について説明します。フラグメントカスタムシェーダでアプリ側のテクスチャを利用する例を説明します。<strong>　</strong>まずは、<strong>シェーダコード</strong> と <strong>ランタイムコード</strong> を準備する必要があります。</p>
+<h3 id="Anchor_83955731_h3_5">シェーダコード</h3>
+<p>シェーダコード内では、<strong>テクスチャサンプラの宣言</strong> と <strong>宣言したサンプラを利用してテクスチャカラーを引く </strong>コードを記述する必要があります。 宣言可能なテクスチャサンプラ名は決められていますので、その中から利用したいテクスチャタイプ( 2D、Cube・・・ ) を選択してカスタムシェーダコード内に記述します。利用可能なテクスチャサンプラ <strong>eft_ParticleDeclaration.glsl</strong> に記述されています。また、テクスチャサンプラレイアウトIDが必須ですので、SYS_CUSTOM_SHADER_TEXTURE_SAMPLER_ID_0 ～ 7 の中から空いているIDを割り当ててください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// テクスチャサンプラ宣言
+layout( binding = SYS_CUSTOM_SHADER_TEXTURE_SAMPLER_ID_0 ) uniform sampler2D sysCustomShaderTextureSampler0;
+
+// シェーダ内コールバック関数
+#define USE_USR_FINAL_ADJUSTMENT_FRAGMENT_COLOR
+void FinalAdjustmentFragmentColor()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;lightMap = texture2D( sysCustomShaderTextureSampler0, textureCoord );
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955731_h3_6">ランタイムコード</h3>
+<p>カスタムシェーダ内で利用したいテクスチャを　RenderStateSet コールバックを利用して描画コマンドに設定します。本例では、シェーダコード内でサンプラを <strong>sysCustomShaderTextureSampler0</strong> で宣言するので、BindCustomShaderTexture メソッドでテクスチャを設定する際、<strong>sysCustomShaderTextureSampler0</strong> に対応するID、<strong><span class="ApiLink_nn__vfx__CustomShaderTextureType_2d0">nn::vfx::CustomShaderTextureType_2d0</span></strong> を指定します。サンプラの宣言とカスタムテクスチャIDの対応関係は、カスタムシェーダドキュメントの方を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>bool _RenderStateSetCallback( nn::vfx::RenderStateSetArg&amp; arg )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;arg.GetSystem()-&gt;BindCustomShaderTexture( pCommandBuffer,
+　　　　　　　　　　　　　　　　&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn::vfx::CustomShaderTextureType_2d0, 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lightMapTextureDescriptorSlot );
+&nbsp;&nbsp;&nbsp;&nbsp;return true;
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955731_h2_6">全カスタムシェーダで参照するコンスタントバッファを設定する</h2>
+<p>全てのカスタムシェーダで参照するようなコンスタントバッファを一括で設定できます。<br />大域的なコンスタントバッファ準備し１度だけ設定することで、各シェーダそれぞれで設定するよりもCPU処理が最適化されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::vfx::CustomShaderConstantBufferIndex_0　をグローバルなコンスタントバッファとして利用する
+
+//-----------------------------------------------------
+// シェーダ側 コンスタントバッファ定義
+//-----------------------------------------------------
+layout( std140, binding = SYS_CUSTOM_SHADER_UNIFORM_BLOCK_ID_0 ) uniform sysCustomShaderUniformBlock0
+{
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam0;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam1;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam2;
+&nbsp;&nbsp;&nbsp;&nbsp;vec4    customShaderUniformBlockParam3;
+};
+
+//-----------------------------------------------------
+// ランタイム側 コンスタントバッファ設定
+//-----------------------------------------------------
+struct GlobalConstantBuffer
+{
+&nbsp;&nbsp;&nbsp;&nbsp;float4    param0;
+&nbsp;&nbsp;&nbsp;&nbsp;float4    param1;
+&nbsp;&nbsp;&nbsp;&nbsp;float4    param2;
+&nbsp;&nbsp;&nbsp;&nbsp;float4    param3;
+};
+
+GlobalConstantBuffer globalConstantBuffer;
+nn::vfx::System::SetCommonCustomShaderConstantBuffer( nn::vfx::CustomShaderConstantBufferIndex_0,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;globalConstantBuffer, sizeof( GlobalConstantBuffer ) );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__CustomShaderTextureType_2d0', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#aeec6ab136a4353215b4c02584d3cdc7ca41285fe23391804285b4dac1e9d7d87b' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

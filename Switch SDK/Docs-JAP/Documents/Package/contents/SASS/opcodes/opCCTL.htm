@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>CCTL, CCTLL</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    CCTL, CCTLL : Cache Control<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Cache Control" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "CCTLL", subsection => 8 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "CCTL", subsection => 8 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTL</b>{<b>.E</b>}{.cache}.cop</code>   <code>[Ra + ImmS32]</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code></code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   <code>// Cache control</code>                         </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTL</b>{.cache}.IVALL</code>     <code></code>                <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code></code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   <code>// Cache invalidate</code>                      </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTL</b>.C.IVALL</code>           <code></code>                <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code></code>         <code></code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTL</b>.I.IVALL</code>           <code></code>                <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code></code>         <code></code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTL" } -->
+
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTLL</b>.cop</code>              <code>[Ra + ImmS24]</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code></code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   <code>// Cache control with Local address</code>      </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTLL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTLL</b>.IVALL</code>            <code></code>                <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code></code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTLL" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTLL</b>.CRS.WBALL</code>        <code></code>                <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code></code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTLL" } -->
+
+Omit register Ra to specify an unsigned absolute address like this:
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTL</b>{<b>.E</b>}{.cache}.cop</code>   <code>[ImmU32]</code>        <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code></code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>           <code>;</code>   <code>// Cache control with absolute address</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTL" } -->
+
+ .E:      Extended address (64 bits, requires two registers)
+
+ .cache:  { <b>.D*, .U, .C, .I, .CRS  </b>}
+          <b>.D</b>*   Data cache hierarchy   L1, L2 with generic byte address, default*
+          <b>.U</b>    Deprecated, implemented merely as an alias for <b>.D</b>
+          <b>.C</b>    Constant cache hierarchy L1, L2 with constant (slot&lt;&lt;16) + byte address
+          <b>.I</b>    Instruction cache hierarchy L1, L2 with instruction byte address
+	  <b>.CRS</b>  Call return stack cache hierarchy. Only valid with CCTLL.CRS.WBALL
+
+ .cop:    { <b>.PF1, .PF2, .WB, .IV, .IVALL, .RS </b>}
+          <b>.cache    .D  |   .C  |  .I  |.CRS |                                                   </b><u>
+          <b>.cop    L1 L2 | L1 L2 | L1 L2 pre-L1   Cache operation                                   </b></u>
+          <b>.PF1</b>    Y  Y    -   -    -   -   -   Pre-fetch line into cache level 1
+          <b>.PF2</b>    -  Y    -   -    -   -   -   Pre-fetch line into cache level 2
+          <b>.WB</b>     Y  -    -   -    -   -   -   Write back dirty cache line (flush to memory)
+          <b>.WBALL</b>  -  -    -   -    -   -   Y   Write back dirty cache line (flush to memory)
+          <b>.IV</b>     Y  -    -   -    -   -   -   Invalidate cache line (if dirty, first writeback)
+          <b>.IVALL</b>  Y  -    Y   -    Y   -   -   Invalidate all cache lines (if dirty, first writeback)
+          <b>.RS</b>     Y  -    -   -    -   -   -   Reset line (mark invalid, without prior writeback)
+
+Exceptions:
+
+    .IVALL and .WBALL require Ra to be RZ and the Immediate to be zero, and cannot be used with .E.
+
+    CCTL.C.IVALL and CCTL.I.IVALL cannot be specified with a &rd scoreboard.
+    Because CCTL.C.IVALL and CCTL.I.IVALL are executed in dispatch, they do not go into any VQ.
+
+    <b>.QRY1 is currently unimplemented, and will signal an illegal instruction encoding. </b>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+<b>CCTL</b> and <b>CCTLL</b> control or query a cache line that contains a specified address.</p>
+<p>
+The generic byte address is computed as the 32-bit addition of register Ra plus the 32-bit signed immediate offset ImmS32 (or ImmS24), which is then zero-extended to 40-bits.  If the .E extension is specified, the generic byte address is computed as the sum of the 64-bit value (R[a],R[a+1]) plus the sign-extended immediate offset ImmS32.
+If register Ra is omitted, equal to RZ, or beyond the set of registers supported for the shader, the effective
+address is the zero-extended absolute immediate byte offset.  An omitted Ra register is assembled as RZ, which 
+reads as zero.  An omitted immediate offset is assembled as zero.  All offsets are specified in bytes.</p>
+<p>
+The effective address is interpreted within the cache address space specified by CCTL.cache.</p>
+<p>
+There are three cached address spaces that can be controlled or queried with <b>CCTL</b>: the
+data addresses, the constant addresses, and the instruction addresses.
+Use a generic thread byte address for the .D cache hierarchies. 
+Use a constant byte address for the .C cache hierarchy ((slot&lt;&lt;16) + address).
+Use an instruction byte address for the .I cache hierarchy.</p>
+<p>
+Local memory <b>CCTLL</b> addresses are within the Local data window.</p>
+<p>
+The <b>CCTL</b> instruction controls or queries the cache line that contains the
+supplied address. 
+<b>CCTLL</b> evaluates the effective per-thread Local address of [Ra + ImmS24] within the Local window
+and performs operation .cop on the selected Local data cache line. </p>
+<p>
+Cache operation <b>CCTLL.CRS.WBALL</b> writes back the contents of the call return stack cache hierarchy for 
+the issuing warp.  The contents of SM's top of stack cache is written back to L1.  This 
+instruction is to be used to ensure the CRS data in L1 reflects the data in the SM top of stack cache.  
+The CRS caches for other warps may also be written back as a side effect.</p>
+<p>
+<b>CCTLL.CRS.WBALL</b> must interlock on L1 accepting all pending CRS token writebacks such that any subsequent 
+<b>CCTLL.IVALL</b> can be used to flush all written back CRS data out of L1.</p>
+<p>
+SOFTWARE NOTE: <b>CCTLL.CRS.WBALL</b> is used to save the current contents of CRS to memory.  It cannot be used 
+for the reverse operation: to "backfill" data into the CRS from the local memory backing store.  To restore 
+CRS data from the backing store, first use <a href="opSETCRSPTR.htm"><b>SETCRSPTR</b></a> to set the call return stack pointer to 0 (so that the 
+stack is empty), restore the backing store data, and finally restore the stack pointer to the desired 
+value.  See <a href="opSETCRSPTR.htm"><b>SETCRSPTR</b></a> for details.</p>
+
+<p>
+CCTL.D.IVALL does not take an address; it will always invalidate all global lines in the L1 LG cache.
+Similarly, CCTL.U.IVALL does not take an address; it will always invalidate all global lines in the 
+indexed constant cache. CCTLL.IVALL will always invalidate all local lines in the L1 LG cache, 
+potentially triggering a writeback.  Unlike other suffixes for CCTL and CCTLL, CCTL and CCTLL with the
+.IVALL suffix do not take in an address specification.  As a result, the Ra field in the instruction
+encoding is assembled as RZ and the immediate field is assembled as 0.  Binary encodings attempting
+to specify different values for Ra and the immediate fields for the .IVALL suffix are considered illegal 
+encodings.</p>
+<p>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>CCTL.D.PF1</b>      [R3 + 4];
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

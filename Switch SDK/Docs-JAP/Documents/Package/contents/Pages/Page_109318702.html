@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>SDEV IP アドレスの固定化</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- SDEV IP アドレスの固定化 -->
+<div class="pagetitle" id="PageId_109318702">SDEV IP アドレスの固定化</div>
+<div class="text_separate">
+<!--Remove-->
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_109318702_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_109318702_h1_2">メリット</a>
+    </li>
+    <li>
+      <a href="#Anchor_109318702_h1_3">IP アドレスの固定化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_109318702_h2_1">SDEV の IP アドレスを固定する </a>
+      </li>
+      <li>
+        <a href="#Anchor_109318702_h2_2">ホスト PC のネットワーク設定を調整する </a>
+      </li>
+      <li>
+        <a href="#Anchor_109318702_h2_3">設定完了を見守る</a>
+      </li>
+      <li>
+        <a href="#Anchor_109318702_h2_4">設定されているか確認する</a>
+      </li>
+      <li>
+        <a href="#Anchor_109318702_h2_5">Target Manager に再登録する</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_109318702_h1_4">トラブルシューティング</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_109318702_h1_1">概要</h1>
+<p>通常の SDEV のセットアップは、 <a href="../Pages/Page_96563591.html">SDEV の初期化</a>&nbsp;で示された手順を進めることで完了しますが、SDEV の IP アドレスを固定化しておくことでいくつかのメリットがあります。</p>
+<p>このドキュメントでは、そのメリットと IP アドレスの固定化方法を説明します。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>出荷時の SDEV は、IP アドレスを自動取得するように設定されています。<br /> <a href="../Pages/Page_96563591.html">SDEV の初期化</a>&nbsp;および、 <a href="../Pages/Page_107777269.html">チュートリアル</a>&nbsp;で示される内容は「自動取得」のままでも問題なく動作します。</p>
+  </div>
+</div>
+<h1 id="Anchor_109318702_h1_2">メリット</h1>
+<p>SDEV の IP アドレスを固定化することで次のようなメリットがあります。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelHeader" style=" border-bottom-width: 1px;">
+    <b>メリット１</b>
+  </div>
+  <div class="panelContent">
+    <p>SDEV の電源投入 (ACアダプターの接続) 直後でも、Target Manager&nbsp;が SDEV をすぐに発見・接続することができます。<br />これにより、電源投入直後から NX アプリケーション実行までの時間が短縮されます。</p>
+    <p>IP を固定化していない場合は、電源投入直後から Targe Manager が SDEV に接続できるようになるまでに、最大 60 秒ほど待つ必要があります。</p>
+  </div>
+</div>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelHeader" style=" border-bottom-width: 1px;">
+    <b>メリット２</b>
+  </div>
+  <div class="panelContent">
+    <p>IP アドレスを手動で固定化しているネットワーク上で利用できるようになります。</p>
+    <p>たとえば、Wii U の開発機である CAT-DEV の IP アドレスを固定化していた場合に、同様の使い勝手を実現できます。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>「IP アドレスを自動取得」にしていると、電源投入直後に Target Manager から「ターゲットに接続」すると、失敗することがあります。 <br />一度「ターゲットに接続」に失敗すると、ターゲットの削除&rarr;追加を再度繰り返す必要があります (このとき SDEV の IP アドレスが変更されています)。</p>
+    <p>この問題を回避するには、このページで説明する IP アドレスの固定化を行うか、電源投入直後に 60 秒ほど待ってから「ターゲットに接続」すれば OK です。</p>
+  </div>
+</div>
+<h1 id="Anchor_109318702_h1_3">IP アドレスの固定化</h1>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>以下で示す方法のほか、 <a href="../Pages/Page_93359711.html#Anchor_93359711_SetIpAddress">Target Manager を利用して IP アドレスを固定化する</a> ことも可能です。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>SDEV の IP を固定化するには、主に次の&nbsp;3 ステップが必要です。</p>
+<ul>
+  <li>SDEV の IP アドレスを固定する</li>
+  <li>ホスト PC のネットワーク設定を調整する&nbsp;</li>
+  <li>Target Manager に再登録する</li>
+</ul>
+<h2 id="Anchor_109318702_h2_1">SDEV の IP アドレスを固定する&nbsp;</h2>
+<p>NintendoSDK NX Addon に付属する <a href="../Pages/Page_107334824.html">ControlTarget</a> という CUI アプリケーションを利用します。<br />ControlTarget ツールは、Tools\CommandLineTools に配置されています。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>Target Manager を起動していると、ControlTarget の実行に失敗することがありますので、あらかじめ Target Manager を終了しておいてください。</p>
+    <p>Target Manager はタスクトレイに格納されている場合があります。Target Manager が起動しているかどうか？を確認する際は、タスクトレイもご確認ください。</p>
+  </div>
+</div>
+<p>ControlTarget の利用例は以下の通りです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&gt; ControlTarget.exe set-ip --target XAW02131008023 192.168.10.11 --netmask 255.255.255.0</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この例では次のような値を設定しています。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>内容</th>
+    </tr>
+    <tr>
+      <td>固定したい SDEV&nbsp;の名前 (--target オプション)</td>
+      <td>XAW02131008023</td>
+    </tr>
+    <tr>
+      <td>IP アドレス</td>
+      <td>192.168.10.11</td>
+    </tr>
+    <tr>
+      <td>サブネットマスク&nbsp; (--netmask オプション)</td>
+      <td>255.255.255.0</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <strong>「固定したい SDEV の名前」の探し方</strong>
+    </p>
+    <p>「SDEV の名前」は ControlTarget の detect-target サブコマンドで確認することができます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>&gt; ControlTarget.exe detect-target
+40-D2-8A-B4-72-B3       10.121.33.212
+XAW02131008023  169.254.10.228</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>このコマンドの出力結果における「40-D2-8A-B4-72-B3」や「XAW02131008023」が「SDEV の名前」です。</p>
+    <p>「SDEV の名前」のデフォルト値は、次のように決まっています。</p>
+    <table class="wrapped">
+      <colgroup>
+        <col />
+        <col />
+      </colgroup>
+      <tbody>
+        <tr>
+          <th>SDEV のバージョン</th>
+          <th>名前のデフォルト値と確認方法</th>
+        </tr>
+        <tr>
+          <td>SDEV MP</td>
+          <td>
+            <div class="content-wrapper">
+              <p>シリアル番号：</p>
+              <p>
+                <br />
+              </p>
+              <p>SDEV 底面・左側のシールに SDEV のシリアル番号が印刷されています。</p>
+              <p>下の写真の SDEV の場合、シリアル番号＝すなわち名前のデフォルト値は「XAW02131008023」になります。</p>
+              <p>
+                <span class="embedded-file-wrapper ">
+                  <img src="../Attachments/Attach_109318702/113969178.jpg" width="500" class="embedded-image" />
+                </span>
+              </p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<p>アプリケーション実行後、次のログが表示されたら、次項「ホスト PC のネットワーク設定を調整する」に進んでください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&gt; ControlTarget.exe set-ip --target XAW02131008023 192.168.10.11 --netmask 255.255.255.0
+Discovering target...
+Network setting has been changed to:
+&nbsp;&nbsp;&nbsp;&nbsp;IP address:      192.168.10.11
+&nbsp;&nbsp;&nbsp;&nbsp;Subnet mask:     255.255.255.0
+Change Internet Protocol Version 4 (TCP/IPv4) Properties to &quot;Use the following IP address&quot;.</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_109318702_h2_2">ホスト PC のネットワーク設定を調整する&nbsp;</h2>
+<p>ホスト PC の IP アドレスを、SDEV と通信可能な IP アドレスに割り当てておく必要があります。</p>
+<p>ネットワークデバイスのプロパティを次のように調整してください。</p>
+<ol>
+  <li>ネットワークデバイスのプロパティ画面を出します</li>
+  <ol>
+    <li>[Windows キー + R] で現れる「ファイル名を指定して実行」に ncpa.cpl を入力して実行<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_109318702/109446154.png" class="embedded-image" /></span></li>
+    <li>SDEV が接続されているネットワークデバイスの「プロパティ」を開きます<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_109318702/109446162.png" class="embedded-image" /></span></li>
+    <li>「インターネット プロトコル バージョン 4 (TCP/IPv4)」を選択し、「プロパティ」を開きます<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_109318702/109446168.png" class="embedded-image" /></span></li>
+  </ol>
+  <li>次に IP アドレス、サブネットマスクを設定します</li>
+  <ol>
+    <li>「IP アドレスを自動的に取得する」を「次の IP アドレスを使う」に変更します<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_109318702/109446173.png" class="embedded-image" /></span></li>
+    <li>IP アドレス、サブネットマスクを次のように設定します<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_109318702/109446172.png" class="embedded-image" /></span></li>
+  </ol>
+</ol>
+<h2 id="Anchor_109318702_h2_3">設定完了を見守る</h2>
+<p>設定が完了すると、次のようなログが表示されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Change Internet Protocol Version 4 (TCP/IPv4) Properties to &quot;Use the following IP address&quot;.
+Discovering target...
+Discovering target...
+Done.</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>詳細は、<a href="../Pages/Page_107334824.html">ControlTarget</a> の「set-ip」サブコマンドの章をご確認ください。</p>
+<p>IP アドレスを自動的に取得する設定に戻すことも可能です。上記の 「set-ip」サブコマンドの章に書かれていますので、合わせてご覧ください。</p>
+<h2 id="Anchor_109318702_h2_4">設定されているか確認する</h2>
+<p>正常に設定されたかどうかは、<a href="../Pages/Page_107334824.html">ControlTarget</a> の「detect-target」サブコマンドを利用することで確認できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&gt; ControlTarget.exe detect-target
+XAW02131008023      192.168.10.11</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この表示は「XAW0213008023」という名前の SDEV に対し、「192.168.10.11」という IP アドレスが設定されていることを示しています。</p>
+<p>「192.168.10.11」という IP アドレスは、「SDEV の IP アドレスを固定する」で指定した IP アドレスと同じですので、設定が正しく完了していることが確認できたことになります。</p>
+<h2 id="Anchor_109318702_h2_5">Target Manager に再登録する</h2>
+<p>IP アドレスが固定化された SDEV 上で実際に NX アプリケーションを動作させるには、「IP アドレスが変更された状態の SDEV」 を Target Manager に登録する必要があります。</p>
+<p>通常の手順で SDEV をセットアップした場合、「IP アドレスが固定化されていない状態の SDEV」が Target Manager に登録されていますので、この場合は次の 2 つのステップで再登録をする必要があります。</p>
+<ol>
+  <li>Target Manager を起動し、「IP アドレスが固定化されていない状態の SDEV」 を「ターゲット削除」する</li>
+  <li>「ターゲット追加」を選択し、「IP アドレスが変更された状態の SDEV」を追加する</li>
+</ol>
+<h1 id="Anchor_109318702_h1_4">トラブルシューティング</h1>
+<p>「ホスト PC のネットワーク設定を調整する」の完了タイミングによっては、次のようなログが表示されることもあります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Change Internet Protocol Version 4 (TCP/IPv4) Properties to &quot;Use the following IP address&quot;.
+Discovering target...
+Discovering target...
+Warning: Failed to discover specified target: XAW0213008023.
+Done.</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;この場合でも、「設定されているか確認する」で紹介した detect-target サブコマンドを実行後、設定した IP アドレスが表示されれば、問題なく設定できていることが確認できます。</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

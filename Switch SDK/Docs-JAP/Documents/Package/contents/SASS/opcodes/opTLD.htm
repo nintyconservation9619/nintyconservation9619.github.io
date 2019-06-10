@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>TLD</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TLD : Texture Load<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Load" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TLD", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>TLD</b>{.B}.lod{.AOFFI}{.MS}{.CL}{.NODEP}{.phase}</code>   <code>{Ps, } Rd, Ra{, Rb}, #tsPtrIdxU13, #paramA{, #wmskU04}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TLD" } -->
+
+  .B:      Bindless mode, where the texture header pointer and sampler pointer is packed into a 32 bit register as:
+           samplerPtr[31:20] | headerPtr[19:0]// sampler is not used in this instruction
+           Data is sent via register Rb.
+
+  .lod:    LOD adjust mode.
+              .LZ - LOD level 0 (finest)       // no register required
+              .LL - LOD absolute               // 1 U32 register required\
+	       LOD Level 0 actually selects the level set by textureHeader.resViewMinMapLevel.
+
+  .AOFFI:   Programmable Texture Offset.
+              _aoffimmi(u,v,w)  [DX10]   // 1 register required
+		  ((w &amp; 0xf)&lt;&lt;8) | ((v &amp; 0xf)&lt;&lt;4) | (u &amp; 0xf)
+              Each 4b field is a 2's complement integer from -8 to +7.
+
+  .MS:     Programmable Multisample location. 
+           .MS can only be used with the .LZ LOD option, and 2D/ARRAY_2D textures.
+           .MS cannot be combined with .CL
+	      Multisample location             // 1 U32 register required
+
+  .CL:     Enable edge clamp (feature added for video). Normally, per dx10, TLD 
+           will return black border color for an out-of-range coordinate or 
+           out-of-range array index. When TLD.CL is specified, edge clamping is 
+           forced ON. Note that in neither case is the sampler clamping state 
+           observed. Note that for 1D-array and 2D-array cases, the array index 
+           will also be clamped to [0..array_size-1] when .CL is requested 
+	   .CL cannot be combined with .MS
+
+  .NODEP:  Indicates that there is no subsequent quad derivatives to be calculated.
+	   Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.<br><br>  .phase:  Allows control on the current warps texture hash, used for scheduling.<br>               &lt; NONE &gt;<br>               .T - postfix increment of the 3 bit texture component of the hash.<br>	       .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. <br><br>Ps:<br>            Predicate returning sparse tile status. Indicate that the surface access is happening to a page marked as sparse (valid, not mapped).<br><br><br>Immediate Inputs:<br><br>  #tsPtrIdxU13:<br>	 This immediate index (word address) is used to fetch the packed header+sampler pointer entry from constant cache.  The bank from<br>	 which it is fetched is determined by bundle state. The constant bank entry is 32 bit structure of the form<br>	 "samplerPtr[31:20] | headerPtr[19:0]". Only headerPtr is used by this instruction.<br>	 Note: Ignored if .B option is used.<br>	 Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex will be regarded as an "invalid"<br>	 texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).<br></pre>
+
+<pre>#paramA: source coordinate description.<br></pre>
+<div style="margin-left: 2em; font-size: 100%;">
+<table border="1" cellpadding="5%">
+    <caption><em>Valid paramA specifiers for TLD </em></caption>
+    <tbody><tr><th>parameter</th><th>Coordinate Registers implied</th></tr>
+     <tr><td> 1D</td><td>s</td></tr>
+     <tr><td> 2D</td><td>s,t</td></tr>
+     <tr><td> 3D</td><td>s,t,r</td></tr>
+     <tr><td> RESERVED</td><td>// for CUBE</td></tr>
+     <tr><td> ARRAY_1D</td><td>a,s</td></tr>
+     <tr><td> ARRAY_2D</td><td>a,s,t</td></tr>
+     <tr><td> RESERVED</td><td>// for ARRAY_3D</td></tr>
+     <tr><td> RESERVED</td><td>// for ARRAY_CUBE</td></tr>
+</tbody></table>
+</div>
+<pre>           s,t,r are S32, <br>           a is U16 integer<br></pre>
+
+<pre>     If the source coordinate description does not match the texture type of the texture header,<br>     zeroes will be returned.  The array specifiers can be freely used with non-array textures<br>     (and the opposite holds as well), provided the number of coordinates (1D,2D,3D) matches.<br><br>  #wmskU04       destination write mask (decimated contiguous writes)<br>     Allows for write masking the returning data writes via a bit enable<br>     for each of R,G,B,A. A four-vector is always returned from TEX.<br>     #wmskU04 defaults to 0xf.<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Texture load (point sample only) using a texture coordinates/parameters
+packed in Ra/Rb registers. The assignment of parameters to Ra/Rb is as
+follows:</p>
+<p>
+</p><ol>
+<table border="1" cellpadding="5%">
+    <caption><em>Texture parameter packing in Ra and Rb </em></caption>
+    <tbody><tr><th>Reg</th><th>parameter</th><th>format</th></tr>
+    <tr><td>Ra+0</td><td>array[15:0]</td><td>u32</td></tr>
+    <tr><td>Ra+1</td><td>s</td><td>S32</td></tr>
+    <tr><td>Ra+2</td><td>t</td><td>S32</td></tr>
+    <tr><td>Ra+3</td><td>r</td><td>S32</td></tr>
+    <tr><td>Rb+0</td><td>SamplerPtr[31:20] | HeaderPtr[19:0]</td><td>u32</td></tr>
+    <tr><td>Rb+1</td><td>LOD (absolute)</td><td>U32</td></tr>
+    <tr><td>Rb+2</td><td>toff[11:0]</td><td>u32</td></tr>
+    <tr><td>Rb+3</td><td>Multisample Location(MS)</td><td>u32</td></tr>
+</tbody></table>
+<br> In the table above, "+0/1/2/3" represents the order of packing
+parameters in Ra/Rb. If a parameter is not specified, then the rest are
+compacted upwards <em>within</em> the same Ra or Rb register.
+<p>
+The texture parameter source registers Ra/Rb and the destination (result) register Rd
+have alignment restrictions based on the number of scalar registers being read/written. Specifically, 
+</p><ol> 
+	<li> Rd should be aligned to number of valid components being returned (as specified by wmask) </li>
+	<li> Ra/Rb should always be aligned to </li>
+	<ol style="list-style-type: lower-alpha;">
+		<li> 1 (scalar register) if the scalar count for that register (Ra or Rb) is 1 </li>
+		<li> 2 (vec2 register)   if the scalar count for that register (Ra or Rb) is 2 </li>
+		<li> 4 (vec4 register)   if the scalar count for that register (Ra or Rb) is 3 or 4 </li>
+	</ol>
+    <li>
+Rb should be specified as RZ if no parameters need to be packed in Rb.
+(However no error is generated if non-RZ register is specified)</li>
+	<li> Ra/Rb must not be specified as RZ if any parameters need to be packed in Ra/Rb.</li>
+</ol>
+
+<p>
+Some input texture values will be sanitized before being used.</p>
+
+</ol></div>
+
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+Corresponds to these DX ops:</p>
+<pre>   ld        =  TLD                    // load<br>   ld2ms     =  TLD.MS                 // load multisample<br></pre>
+
+
+<h4>Texture Header State Overrides</h4>
+<p>
+Unlike other texture instructions, TLD overrides a great deal of texture header/sampler state 
+with different values.  The following tables show how the texture state will be treated for these instructions</p>
+<pre>    +--------------------------+--------------------------+<br>    |        Header Field      |         TLD Value        |<br>    +--------------------------+--------------------------+<br>    |    UseHeaderOptControl   |           FALSE          |<br>    |        MaxAnisotropy     |        ANISO_1_TO_1      |<br>    +--------------------------+--------------------------+<br><br>    +--------------------------+--------------------------+<br>    |       Sampler Field      |         TLD Value        |<br>    +--------------------------+--------------------------+<br>    |         MagFiler         |         MAG_POINT        |<br>    |        MinFilter         |         MIN_POINT        |<br>    |        MipFilter         |         MIP_POINT        |<br>    |       MaxAnisotropy      |        ANISO_1_TO_1      |<br>    |       BorderColorR       |             0            |<br>    |       BorderColorG       |             0            |<br>    |       BorderColorB       |             0            |<br>    |       BorderColorA       |             0            |<br>    |     sRGBBorderColorR     |             0            |<br>    |     sRGBBorderColorR     |             0            |<br>    |     sRGBBorderColorR     |             0            |<br>    |     sRGBBorderColorR     |             0            |<br>    |       DepthCompare       |           FALSE          |<br>    +--------------------------+--------------------------+<br></pre>
+<p>
+The following texture sampler fields have their values overriden based on the 
+presence of the TLD.CL opcode extension.</p>
+<pre>    +--------------------------+--------------------------+--------------------------+<br>    |       Sampler Field      |         TLD Value        |       TLD.CL Value       |<br>    +--------------------------+--------------------------+--------------------------+<br>    |         AddressU         |          BORDER          |      CLAMP_TO_EDGE       |<br>    |         AddressV         |          BORDER          |      CLAMP_TO_EDGE       |<br>    |         AddressO         |          BORDER          |      CLAMP_TO_EDGE       |<br>    +--------------------------+--------------------------+--------------------------+<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><b>TLD</b>.LZ     R0, R4, 0, 2D, 0xf;<br><b>TLD</b>.LZ.MS  R0, R4, R6, 0, 2D, 0xf;<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>セマフォ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- セマフォ -->
+<div class="pagetitle" id="PageId_83955700">セマフォ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955700_h1_1">セマフォ機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955700_h2_1">機能概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955700_h2_2">セマフォの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955700_h2_3">セマフォの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955700_h2_4">セマフォの関数リファレンス</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955700_h1_1">セマフォ機能</h1>
+<h2 id="Anchor_83955700_h2_1">機能概要</h2>
+<p>セマフォは、計数カウンタを利用して有限な共有リソースを複数の<a href="../Pages/Page_83955697.html">スレッド</a>間で排他的に利用できるように制御するための同期機能です。</p>
+<p>セマフォは、初期化する段階で共有リソースの数を予め設定しておきます。以後、共有リソースが尽きるまで <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac9e1d42bdb0279e887dc1caef45fcff1">AcquireSemaphore()</a> によるセマフォの獲得が可能です。共有リソースが 0 の時に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac9e1d42bdb0279e887dc1caef45fcff1">AcquireSemaphore()</a> を発行すると、そのスレッドはセマフォ獲得待ちに入ります。</p>
+<p>一方、獲得した共有リソースは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#acf2cbceb4266858d27387ff2cb29a5ae">ReleaseSemaphore()</a> で返却します。この時、獲得待ちしている<a href="../Pages/Page_83955697.html">スレッド</a>がいればそれらの<a href="../Pages/Page_83955697.html">スレッド</a>が起床されます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af76bc96a9333f18ed5d7bead209eb4f3">InitializeSemaphore()</a> で指定したセマフォカウンタの最大値を超えて <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#acf2cbceb4266858d27387ff2cb29a5ae">ReleaseSemaphore()</a> することは出来ません。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955700_h2_2">セマフォの使用方法</h2>
+<p>セマフォを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_semaphore_type.html">nn::os::SemaphoreType</a> 構造体オブジェクトを用意します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">SemaphoreType</span>    <span class="n">g_Semaphore</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>セマフォを使用する前に、予め初期化します。<br />第２引数にはセマフォカウンタの初期値、第３引数にはセマフォカウンタの最大値を指定します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeSemaphore</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Semaphore</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、セマフォを獲得します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">AcquireSemaphore</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Semaphore</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、セマフォを返却します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">ReleaseSemaphore</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Semaphore</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>セマフォを使用し終わったら、破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeSemaphore</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Semaphore</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955700_h2_3">セマフォの具体的な使用例</h2>
+<p>具体的な使用例は、<a href="../../../Api/HtmlNX/_page_sample_os_semaphore.html">セマフォ機能サンプルプログラム</a> を参照して下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955700_h2_4">セマフォの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af76bc96a9333f18ed5d7bead209eb4f3">nn::os::InitializeSemaphore</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a201a00464d5606e40bef1798cba2ace8">nn::os::FinalizeSemaphore</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac9e1d42bdb0279e887dc1caef45fcff1">nn::os::AcquireSemaphore</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af5fa41594b3b3072d78735f366bdb7ce">nn::os::TryAcquireSemaphore</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a54c8209e58cabbf5ab5173867dcad732">nn::os::TimedAcquireSemaphore</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#acf2cbceb4266858d27387ff2cb29a5ae">nn::os::ReleaseSemaphore （１カウント返却）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a40039d059051bc9970e072417ac9576d">nn::os::ReleaseSemaphore （複数カウント返却）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa6a315a7f4822cee3e62e9912737edfa">nn::os::GetCurrentSemaphoreCount</a>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

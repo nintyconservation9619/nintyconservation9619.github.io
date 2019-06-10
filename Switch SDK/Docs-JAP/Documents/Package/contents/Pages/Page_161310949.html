@@ -1,0 +1,492 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>動的モジュール</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 動的モジュール -->
+<div class="pagetitle" id="PageId_161310949">動的モジュール</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_161310949_h1_1">はじめに</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_161310949_h2_1">概要</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_161310949_h1_2">RO ライブラリ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_161310949_h2_2">1: RO ライブラリの初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_161310949_h2_3">2: 動的モジュールの情報を登録</a>
+      </li>
+      <li>
+        <a href="#Anchor_161310949_h2_4">3: 動的モジュールの読み込み</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_161310949_h3_1">読み込むことが出来る動的モジュールの個数</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_161310949_h2_5">4: シンボルの検索</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_161310949_h3_2">nn::ro::LookupSymbol()</a>
+        </li>
+        <li>
+          <a href="#Anchor_161310949_h3_3">nn::ro::LookupModuleSymbol()</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_161310949_h2_6">5: 動的モジュールの解放</a>
+      </li>
+      <li>
+        <a href="#Anchor_161310949_h2_7">6: 動的モジュールの情報を削除</a>
+      </li>
+      <li>
+        <a href="#Anchor_161310949_h2_8">7: RO ライブラリの終了処理</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_161310949_h1_3">シンボル</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_161310949_h2_9">シンボルのバインド</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_161310949_h3_4">シンボルのバインドの制御方法</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_161310949_h2_10">シンボルの可視性</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_161310949_h3_5">シンボルの可視性の制御方法</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_161310949_h2_11">シンボル解決</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_161310949_h3_6">関数のシンボル解決</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_161310949_h4_1">即時解決</a>
+          </li>
+          <li>
+            <a href="#Anchor_161310949_h4_2">遅延解決</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_161310949_h3_7">変数のシンボル解決</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_161310949_h2_12">動的モジュールを解放するときの注意事項</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_161310949_h1_1">はじめに</h1>
+<h2 id="Anchor_161310949_h2_1">概要</h2>
+<p>モジュールとは、実行可能なデータ、読み込みのみ可能なデータ、読み書きが可能なデータをひとまとめにしたものです。</p>
+<p>シンボルはモジュール内の関数や変数などのデータがメモリ上のどこに置かれているかを示しています。</p>
+<p>シンボルが公開されていると、そのシンボルを他のモジュールが参照することができます。</p>
+<p>
+  <br />
+</p>
+<p>モジュールの種類には二種類あります。</p>
+<p>
+  <br />
+</p>
+<p>
+  <strong>静的モジュール</strong>
+</p>
+<p>静的モジュールはプログラムの起動時に読み込まれるモジュールです。</p>
+<p>nnMain が含まれるモジュールは静的モジュールになります。</p>
+<p>静的モジュールは、一度読み込まれるとアプリケーションが終了するまで解放されることがありません。</p>
+<p>静的モジュールのファイルの拡張子は nso になります。</p>
+<p>
+  <br />
+</p>
+<p>
+  <strong>動的モジュール</strong>
+</p>
+<p>動的モジュールは、プログラムの実行中に動的に読み込むことが出来るモジュールです。</p>
+<p>また、使い終わったら解放することが出来ます。</p>
+<p>動的モジュールのファイルの拡張子は nro になります。</p>
+<p>
+  <br />
+</p>
+<p>RO ライブラリは、動的モジュールを管理するための機能を提供します。</p>
+<p>本節では以下の説明を行います。</p>
+<ul style="list-style-type: square;">
+  <li>RO ライブラリの使い方</li>
+  <li>シンボルの概要と制御方法</li>
+</ul>
+<p>VSI を使用せずに独自のビルドシステムで nro, nrr ファイルを作成する方法については、<a href="../Pages/Page_94757421.html">独自のビルドシステムを構築する (NX 開発機環境)</a> を参照してください。</p>
+<h1 id="Anchor_161310949_h1_2">RO ライブラリ</h1>
+<p>一つの動的モジュールを読み込んで利用し、全てのリソースを解放するまでのフローに沿って、 RO ライブラリの利用方法を説明します。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_2">1: RO ライブラリの初期化</h2>
+<p>RO ライブラリを利用する前に <span class="ApiLink_nn__ro__Initialize">nn::ro::Initialize</span>() を呼び出しライブラリを初期化する必要があります。</p>
+<p>この処理は通常アプリケーションの実行中に一回だけ行えば十分です。</p>
+<p>一度 <span class="ApiLink_nn__ro__Initialize">nn::ro::Initialize</span>() を呼び出した後、 <span class="ApiLink_nn__ro__Finalize">nn::ro::Finalize</span>() を呼び出すまで <span class="ApiLink_nn__ro__Initialize">nn::ro::Initialize</span>() を呼び出してはいけません。</p>
+<p>
+  <br />
+</p>
+<p>&nbsp;<span class="ApiLink_nn__ro__Initialize">nn::ro::Initialize</span>() を呼び出さないと使えない API は以下の通りです。</p>
+<ul style="list-style-type: square;">
+  <li>
+    <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>()</li>
+  <li>
+    <span class="ApiLink_nn__ro__UnregisterModuleInfo">nn::ro::UnregisterModuleInfo</span>()</li>
+  <li>
+    <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>()</li>
+  <li>
+    <span class="ApiLink_nn__ro__UnloadModule">nn::ro::UnloadModule</span>()</li>
+</ul>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_3">2: 動的モジュールの情報を登録</h2>
+<p>動的モジュールを読み込む前に、読み込む動的モジュールの情報が格納されている nrr ファイルを登録する必要があります。</p>
+<p>nrr ファイルを ROM FS からヒープ領域に読み込みます。</p>
+<p>この時、読み込む先のアドレスは <span class="ApiLink_nn__os__MemoryPageSize">nn::os::MemoryPageSize</span> にアラインされている必要があります。</p>
+<p>
+  <br />
+</p>
+<p>次に読み込んだアドレスを <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() に渡して、 nrr ファイルを登録します。</p>
+<p>nrr ファイルには複数の nro ファイルの情報を登録することが出来るので、登録されている nro を読み込むのであれば、 <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() の呼び出しは一度で十分です。</p>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>作成した nrr ファイルは必ず ROM-FS に格納し、 ROM-FS のルートディレクトリを <code>/</code> としたときに <code>/.nrr</code> ディレクトリ直下に 格納する必要があります。</p>
+    <p>/.nrr ディレクトリに nrr ファイル以外を入れたり、nrr ファイルを暗号化したり、圧縮したりしてはいけません。</p>
+    <p>また、<span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() は VSI の RAW 形式の実行では必ず失敗するようになっています。NSP 形式で実行する必要があります。</p>
+    <p>ただし、DevMenu の <span class="toc-item-body"><a href="../Pages/Page_310879077.html">開発支援機能の設定</a></span> に存在する <span class="toc-item-body"><span class="toc-link">Ease Nro Restriction</span></span> が有効になっている場合、これらの制限は無効となります。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() の呼び出しに成功した場合、 <span class="ApiLink_nn__ro__UnregisterModuleInfo">nn::ro::UnregisterModuleInfo</span>() が呼び出されるまで渡したメモリ領域を利用することはできません。</p>
+<p>利用できなくなる領域は、引数として渡したアドレスから、 nrr ファイルのサイズで指定される領域です。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_4">3: 動的モジュールの読み込み</h2>
+<p>nro ファイルをヒープ領域に読み込みます。</p>
+<p>この時、読み込む先のアドレスは <span class="ApiLink_nn__os__MemoryPageSize">nn::os::MemoryPageSize</span> にアラインされている必要があります。</p>
+<p>
+  <br />
+</p>
+<p>次に動的モジュールが BSS 領域として利用するためのヒープ領域を用意します。</p>
+<p>必要な BSS 領域のサイズは <span class="ApiLink_nn__ro__GetBufferSize">nn::ro::GetBufferSize</span>() を用いて取得することが出来ます。</p>
+<p>用意するメモリ領域の先頭アドレスは <span class="ApiLink_nn__os__MemoryPageSize">nn::os::MemoryPageSize</span> にアラインされている必要があります。</p>
+<p>
+  <br />
+</p>
+<p>二つのヒープ領域を <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() に渡して、動的モジュールを利用できるようにします。</p>
+<p>このとき、 <span class="ApiLink_nn__ro__BindFlag_Now">nn::ro::BindFlag_Now</span> を指定すると即時解決、 <span class="ApiLink_nn__ro__BindFlag_Lazy">nn::ro::BindFlag_Lazy</span> を指定すると遅延解決を指定することが出来ます。</p>
+<p>
+  <br />
+</p>
+<p>この API の中で、ロードする動的モジュールが持つ静的オブジェクトのコンストラクタが呼び出されます。</p>
+<p>静的オブジェクトのコンストラクタ内で <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>()&nbsp; , <span class="ApiLink_nn__ro__UnloadModule">nn::ro::UnloadModule</span>() , <span class="ApiLink_nn__ro__Finalize">nn::ro::Finalize</span>() を呼び出してはいけません。</p>
+<p>
+  <br />
+</p>
+<p>呼び出しに成功すると、 二つのヒープ領域は利用できなくなります。</p>
+<p>nro ファイルを読み込んだメモリ領域は、引数に渡したアドレスから nro ファイルのサイズで指定される領域が利用できなくなります。</p>
+<p>BSS 領域として渡したメモリ領域は、引数に渡したアドレスから、引数で渡したサイズで指定される領域が利用できなくなります。</p>
+<p>
+  <span class="ApiLink_nn__ro__UnloadModule">nn::ro::UnloadModule</span>() を呼び出し、対象となる動的モジュールを解放すると、再度メモリ領域を利用することが出来るようになります。</p>
+<p>
+  <br />
+</p>
+<h3 id="Anchor_161310949_h3_1">読み込むことが出来る動的モジュールの個数</h3>
+<p>一つのアプリケーションが同時に利用できる動的モジュールの最大数は 64 個です。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_5">4: シンボルの検索</h2>
+<p>動的モジュールのシンボルは、動的モジュールがロードされた後であれば、静的モジュールのシンボルのように直接呼び出すことができます。</p>
+<p>ただし、読み込まれているモジュールの中からシンボルを検索し、そのアドレスを取得する方法も二つ用意されています。</p>
+<p>検索対象となるシンボルは他のモジュールから参照可能な状態になっているシンボルです。</p>
+<h3 id="Anchor_161310949_h3_2">nn::ro::LookupSymbol()</h3>
+<p>読み込まれている全てのモジュールからシンボルを検索します。</p>
+<p>検索対象には静的モジュールも含みます。</p>
+<h3 id="Anchor_161310949_h3_3">nn::ro::LookupModuleSymbol()</h3>
+<p>検索したいモジュールを指定して、そのモジュール内のシンボルを検索します。</p>
+<p>複数のモジュールで同じシンボルを定義している場合、参照されない関数や変数の実体が存在することになります。</p>
+<p>この API を利用すると、そのような後から読み込んだために参照されていない実体にアクセスすることが出来ます。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_6">5: 動的モジュールの解放</h2>
+<p>
+  <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() を呼び出したときに得られた <span class="ApiLink_nn__ro__Module">nn::ro::Module</span> を <span class="ApiLink_nn__ro__UnloadModule">nn::ro::UnloadModule</span>() に渡すことで、動的モジュールを解放することが出来ます。</p>
+<p>
+  <span class="ApiLink_nn__ro__UnloadModule">nn::ro::UnloadModule</span>() の呼び出し中に、解放される動的モジュールが持つ静的オブジェクトのデストラクタが呼び出されます。</p>
+<p>
+  <span class="ApiLink_nn__ro__UnloadModule">nn::ro::UnloadModule</span>() の呼び出しが終了すると、 <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() で渡したメモリ領域が再び利用できるようになります。</p>
+<p>
+  <br />
+</p>
+<p>nro を読み込んでいた領域は、動的モジュールの利用中に書き換えられているため、そのまま <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() に渡すことはできません。</p>
+<p>再度同じ動的モジュールを読み込みたい場合には、もう一度ヒープ領域に nro ファイルを読み込んでください。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_7">6: 動的モジュールの情報を削除</h2>
+<p>
+  <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() を呼び出したときに得られた <span class="ApiLink_nn__ro__RegistrationInfo">nn::ro::RegistrationInfo</span> を <span class="ApiLink_nn__ro__UnregisterModuleInfo">nn::ro::UnregisterModuleInfo</span>() に渡すことで、動的モジュールの情報を削除することが出来ます。</p>
+<p>
+  <span class="ApiLink_nn__ro__UnregisterModuleInfo">nn::ro::UnregisterModuleInfo</span>() の呼び出しが終了すると、それ以降登録してあった nrr ファイルに格納されていた nro ファイルは <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() で読み込むことが出来なくなります。</p>
+<p>また、 <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() に渡していたメモリ領域が解放され、再度利用できるようになります。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_8">7: RO ライブラリの終了処理</h2>
+<p>
+  <span class="ApiLink_nn__ro__Finalize">nn::ro::Finalize</span>() を呼び出すと、 RO ライブラリが管理しているリソースを全て解放します。</p>
+<p>
+  <span class="ApiLink_nn__ro__Finalize">nn::ro::Finalize</span>() の呼び出し中に、登録されている動的モジュールの静的オブジェクトのデストラクタが呼び出されます。</p>
+<p>
+  <span class="ApiLink_nn__ro__Finalize">nn::ro::Finalize</span>() の呼び出し後は、 <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() や <span class="ApiLink_nn__ro__RegisterModuleInfo">nn::ro::RegisterModuleInfo</span>() に渡していたメモリ領域が解放され、再度利用できるようになります。</p>
+<p>
+  <br />
+</p>
+<h1 id="Anchor_161310949_h1_3">シンボル</h1>
+<p>各シンボルに対して公開範囲や参照の仕方を制御することが出来ます。</p>
+<p>この節では、シンボルの制御方法について説明します。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_9">シンボルのバインド</h2>
+<p>バインドはシンボルの公開範囲を制御します。</p>
+<ul>
+  <li>GLOBAL<ul><li>他のモジュールが参照することができます。</li></ul></li>
+  <li>LOCAL<ul><li>他のモジュールは参照することができません。</li></ul></li>
+  <li>WEAK<ul><li>GLOBAL のシンボルと同様にふるまいます。</li></ul></li>
+</ul>
+<h3 id="Anchor_161310949_h3_4">シンボルのバインドの制御方法</h3>
+<p>シンボルのバインドはリンカにバージョンスクリプトを指定することで制御することが出来ます。</p>
+<p>ただし、 WEAK は制御できません。</p>
+<p>
+  <br />
+</p>
+<p>まず以下のようなテキストファイルを作成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>{
+&nbsp;&nbsp;&nbsp;&nbsp;global:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extern &quot;C++&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Global*;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;&nbsp;&nbsp;&nbsp;local:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記の例では、Global という接頭語がつくシンボルを GLOBAL バインドとし、それ以外を LOCAL バインドとします。</p>
+<p>アスタリスクはワイルドカードとして利用することが出来ます。</p>
+<p>
+  <br />
+</p>
+<p>次に、動的モジュールを作成するときに、コンパイラに以下のオプションでバージョンスクリプトを指定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>-Wl,--version-script=sample.txt</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>バージョンスクリプトによるシンボルのバージョン管理はサポートされていません。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_10">シンボルの可視性</h2>
+<p>可視性はシンボルが他の動的モジュールから参照されるのを制御します。</p>
+<p>可視性には三つあります。</p>
+<ul>
+  <li>DEFAULT<ul><li>他のモジュールが参照することができます。</li><li>複数のモジュールで重複するシンボルがあった場合、参照先が同じになります。</li></ul></li>
+  <li>HIDDEN<ul><li>他のモジュールは参照することができません。</li><li>複数のモジュールで重複するシンボルがあっても、自分のモジュール内のシンボルを参照します。</li></ul></li>
+  <li>PROTECTED<ul><li>他のモジュールが参照することができます。</li><li>複数のモジュールで重複するシンボルがあっても、自分のモジュール内のシンボルを参照します。</li></ul></li>
+</ul>
+<h3 id="Anchor_161310949_h3_5">シンボルの可視性の制御方法</h3>
+<p>可視性を制御したいシンボルがある場合、ソースコード上でコンパイラの属性を付与することで、制御することができます。</p>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">g_HiddenVariable</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">visibility</span><span class="p">(</span><span class="s">&quot;hidden&quot;</span><span class="p">)))</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">ProtectedFunction</span><span class="p">()</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">visibility</span><span class="p">(</span><span class="s">&quot;protected&quot;</span><span class="p">)))</span><span class="p">;</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_161310949_h2_11">シンボル解決</h2>
+<p>あるモジュールが公開されているシンボルを参照する場合、そのシンボルがどのモジュールが持つシンボルなのかを参照する前に決めておく必要があります。</p>
+<p>シンボルの参照先を決めることをシンボル解決といいます。</p>
+<p>複数のモジュールで同じシンボル名の定義をしている場合、先に読み込まれているモジュールが持つシンボルが参照されることになります。</p>
+<p>
+  <br />
+</p>
+<h3 id="Anchor_161310949_h3_6">関数のシンボル解決</h3>
+<p>動的モジュールを <span class="ApiLink_nn__ro__LoadModule">nn::ro::LoadModule</span>() で読み込む時に、関数のシンボル解決の方法を選ぶことが出来ます。</p>
+<h4 id="Anchor_161310949_h4_1">即時解決</h4>
+<p>即時解決を利用すると、ロード時に、そのモジュールのシンボルを解決します。</p>
+<p>未解決のシンボルが存在していた場合、遅延解決と同様の扱いになります。</p>
+<h4 id="Anchor_161310949_h4_2">遅延解決</h4>
+<p>遅延解決を利用すると、シンボルが実際に利用されるときになって、シンボルの解決を行います。</p>
+<p>遅延解決を用いると、後からロードされる動的モジュールによって、シンボルを解決することが可能になります。</p>
+<p>遅延解決をする際にもし参照先のシンボルがないと、その時点でプログラムが終了します。</p>
+<p>
+  <br />
+</p>
+<h3 id="Anchor_161310949_h3_7">変数のシンボル解決</h3>
+<p>変数のシンボルは動的モジュールが読み込まれる時にシンボル解決されます。</p>
+<p>未解決のシンボルがあった場合、参照先が未定状態になります。</p>
+<p>この状態でそのシンボルを参照したときの振る舞いは未定です。</p>
+<p>新たに読み込んだモジュールが既に読み込まれているモジュールの未解決シンボルを解決できる場合には、そのモジュールを読み込んだ時点で解決します。</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_161310949_h2_12">動的モジュールを解放するときの注意事項</h2>
+<p>動的モジュールは任意のタイミングで読み込みと解放を行うことが出来ますが、解放する際に参照しているシンボルが変更され、振る舞いが突然変わることがあります。</p>
+<p>例えば、モジュール A とモジュール B があった時にモジュール B の中で モジュール A が持つシンボルを参照しているとします。</p>
+<p>このとき、モジュール A を先に解放すると、モジュール B の中にあるモジュール A を参照していたシンボルは以下のように処理されます。</p>
+<ul>
+  <li>関数のシンボル: 次にアクセスされるときに再度シンボル解決が行われます。</li>
+  <li>変数のシンボル: モジュール A が解放されるタイミングでシンボル解決が行われます。もしシンボル解決が出来なかったら、参照先が未定状態になります。未定状態のシンボルは、後から読み込まれるモジュールによって再度解決されます。</li>
+</ul>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__ro__Initialize', '../../../Api/HtmlNX/namespacenn_1_1ro.html#a0425902c59e6cfb7c1b3a2d648493315' )
+SetUrl( 'ApiLink_nn__ro__Finalize', '../../../Api/HtmlNX/namespacenn_1_1ro.html#ae97f20f6181a31bfa21d8d0a63748c6a' )
+SetUrl( 'ApiLink_nn__ro__RegisterModuleInfo', '../../../Api/HtmlNX/namespacenn_1_1ro.html#a2e643dca01008cc8ed285d9f59653482' )
+SetUrl( 'ApiLink_nn__ro__UnregisterModuleInfo', '../../../Api/HtmlNX/namespacenn_1_1ro.html#ace8d9f0ec61122ca185d10f621e438af' )
+SetUrl( 'ApiLink_nn__ro__LoadModule', '../../../Api/HtmlNX/namespacenn_1_1ro.html#aec4ecffa6d58c6f29427483d4754e5de' )
+SetUrl( 'ApiLink_nn__ro__UnloadModule', '../../../Api/HtmlNX/namespacenn_1_1ro.html#a0cb495a4165afe33f1c622746bcadd46' )
+SetUrl( 'ApiLink_nn__os__MemoryPageSize', '../../../Api/HtmlNX/namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236' )
+SetUrl( 'ApiLink_nn__ro__GetBufferSize', '../../../Api/HtmlNX/namespacenn_1_1ro.html#a3a1abb08d9b6e8dfed7fd9ff73a7e7b3' )
+SetUrl( 'ApiLink_nn__ro__BindFlag_Now', '../../../Api/HtmlNX/namespacenn_1_1ro.html#a4533185b3e7edc8fb1b8173c57666734a28fe4e9a9c0b11a6f312e66735aea311' )
+SetUrl( 'ApiLink_nn__ro__BindFlag_Lazy', '../../../Api/HtmlNX/namespacenn_1_1ro.html#a4533185b3e7edc8fb1b8173c57666734ac2b60b0da6505d87f0ec40d7474b8024' )
+SetUrl( 'ApiLink_nn__ro__Module', '../../../Api/HtmlNX/structnn_1_1ro_1_1_module.html' )
+SetUrl( 'ApiLink_nn__ro__RegistrationInfo', '../../../Api/HtmlNX/structnn_1_1ro_1_1_registration_info.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

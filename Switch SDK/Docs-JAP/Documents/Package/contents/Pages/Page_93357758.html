@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>環境移行時の注意事項</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 環境移行時の注意事項 -->
+<div class="pagetitle" id="PageId_93357758">環境移行時の注意事項</div>
+<div class="text_separate">
+<h1 id="Anchor_93357758_h1_1">プラットフォーム間の移行に伴う注意事項</h1>
+<p>ここでは、データ型モデルが異なるプラットフォーム間を移行するにあたっての注意事項をまとめています。特に 32 bit 環境と 64 bit 環境の違いにフォーカスして記載しています。</p>
+<p>特に 32 bit 環境に慣れ親しんだプログラマが 32 bit 環境から 64 bit 環境へ移行する場合や、両方の環境で正しくビルド可能なソースコードを記述する場合などに参考にして下さい。</p>
+<h2 id="Anchor_93357758_h2_1">long を使用しない</h2>
+<p>long 型はデータ型モデルによって 32 bit だったり 64 bit だったりするため、32 bit と 64 bit の両方の環境に対応する記述を行なう場合には long 型を使用しないことを推奨します。特に 64 bit 環境においては sizeof(long) == sizeof(int) を仮定すべきではありません。</p>
+<p>long の代わりとしては視覚的にもビット幅が分かり易い (u)int32_t や (u)int64_t が利用できます。また、ポインタを変換して代入する可能性のある整数型には uintptr_t が利用できます。</p>
+<h2 id="Anchor_93357758_h2_2">ポインタを int などの整数型へ代入しない</h2>
+<p>void* などのポインタは型サイズが異なる代表的な型のひとつです。32 bit 環境ではポインタを unsigned int や unsigned long に変換して加減算したり、アライメント調整などの論理演算を行なうケースがあるかと思いますが、このような整数型への代入を 64 bit 環境で行なうと上位ビットが失われる場合があります。</p>
+<p>整数型を使ったアドレスの加減算には uintptr_t の使用を推奨します。また、アライメント調整などの演算には以下のユーティリティ関数が利用できます。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__util__is_aligned">nn::util::is_aligned</span>()</li>
+  <li>
+    <span class="ApiLink_nn__util__align_up">nn::util::align_up</span>()</li>
+  <li>
+    <span class="ApiLink_nn__util__align_down">nn::util::align_down</span>()</li>
+</ul>
+<h2 id="Anchor_93357758_h2_3">定数の補数表現 や 符号拡張 に気を付ける</h2>
+<p>32 bit 環境で「-1」というマイナスの定数で 0xFFFFFFFF を表現していた箇所には注意が必要です。特にこれが unsigned な型だった場合、これを 64 bit のデータ型に代入すると上位 32 bit がゼロ拡張されてしまい「-1」ではなくなってしまいます。</p>
+<p>また 64 bit のデータと定数を論理演算するような場合にも注意が必要です。以下にバグを含んだサンプルコードを示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kr">inline</span> <span class="kt">uint64_t</span>  <span class="nf">SetBit</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">data</span><span class="p">,</span> <span class="kt">int</span> <span class="n">position</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT</span><span class="p">(</span> <span class="n">position</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">position</span> <span class="o">&lt;=</span> <span class="mi">63</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">data</span> <span class="o">|</span> <span class="p">(</span><span class="mh">0x1</span> <span class="o">&lt;&lt;</span> <span class="n">position</span><span class="p">);</span>
+<span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>position には 0～63 のビット位置を渡し data 変数の position のビットを 1 にセットした値を返す関数ですが、この関数は position が 31～63 の場合に期待通りの結果を返しません。</p>
+<p>例えば、SetBit(0, 31) は 0xFFFFFFFF80000000 を返し、SetBit(0, 32) から SetBit(0, 63) では常に 0 を返してしまいます。</p>
+<p>問題は定数 0x1 が 32 bit の符号付きになってしまっている点です。以下のように 0x1ull に修正することで期待通りに動くようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kr">inline</span>  <span class="kt">uint64_t</span>  <span class="nf">SetBit</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">data</span><span class="p">,</span> <span class="kt">int</span> <span class="n">position</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT</span><span class="p">(</span> <span class="n">position</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">position</span> <span class="o">&lt;=</span> <span class="mi">63</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">data</span> <span class="o">|</span> <span class="p">(</span><span class="mh">0x1ull</span> <span class="o">&lt;&lt;</span> <span class="n">position</span><span class="p">);</span>
+<span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_93357758_h2_4">構造体サイズに気を付ける</h2>
+<p>構造体メンバの中に long やポインタ型などが含まれる場合、32 bit 環境と 64 bit 環境とで構造体のサイズが変わります。また、個々のメンバ変数の間にもアライメントのためのパディングが入る場合があります。</p>
+<!--Remove-->
+<p>&nbsp;</p>
+<h2 id="Anchor_93357758_h2_5">アライメントに気を付ける</h2>
+<p>x86 および x86-64 環境では問題にはなりませんが、開発機環境の場合はプロセッサの仕様によっては、配置するデータのアライメントに制約がある場合があります。</p>
+<p>また、アセンブラを使用される場合はスタックポインタ（sp レジスタ）が指すアドレスにもアライメント制約があります。例えば、AArch32 では 8 byte アライメントを、AArch64 では 16 byte アライメントを常に満たしていなければなりません。詳細は各プロセッサのリファレンスマニュアルを参照して下さい。</p>
+<h2 id="Anchor_93357758_h2_6">NN_LOG() のフォーマットに注意する</h2>
+<p>以下のコードは 32 bit 環境なら正しく動作しますが、64 bit 環境では正しい結果が得られません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/nn_Common.h&gt;
+#include &lt;nn/nn_Log.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">print_info</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">address</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;address = 0x%08x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;size    = 0x%08x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>引数である address も size も、64 bit 環境では 64 bit の幅を持つ変数であるため、&quot;%x&quot; では正しい値を取得できません。また、&quot;%08x&quot; も明らかに 32 bit を前提とした記述になっています。</p>
+<p>これらは以下のように修正することが出来ます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;address = 0x%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;size    = 0x%zx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__util__is_aligned', '../../../Api/HtmlNX/namespacenn_1_1util.html#aa4bb961273418194ab364a658116159f' )
+SetUrl( 'ApiLink_nn__util__align_up', '../../../Api/HtmlNX/namespacenn_1_1util.html#a20f6772d3ae70168e07e0f39d416d72e' )
+SetUrl( 'ApiLink_nn__util__align_down', '../../../Api/HtmlNX/namespacenn_1_1util.html#a8a8aac07f25fdd659091e1065b8c89a5' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

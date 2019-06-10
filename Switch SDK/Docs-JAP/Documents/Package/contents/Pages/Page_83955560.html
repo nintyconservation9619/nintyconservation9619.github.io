@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>スキニング</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- スキニング -->
+<div class="pagetitle" id="PageId_83955560">スキニング</div>
+<div class="text_separate">
+<p>Maya プラグインでは、スムーススキニングによるアニメーションに対応しています。</p>
+<p>リジッドスキニングによるアニメーションには対応していません。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955560_h1_1">スキニングの設定</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955560_h1_2">スキニングの解除</a>
+    </li>
+  </ul>
+  <br />
+</p>
+<h1 id="Anchor_83955560_h1_1">スキニングの設定</h1>
+<p>スムーススキニングは「スキン &gt; スキンのバインド（Skin &gt; Bind Skin）」で設定します（Maya 2015 は「スキン &gt; スムースバインド（Skin &gt; Smooth Bind）」）。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>スキンのバインド後に次のような操作を行わないでください。</p>
+    <p>・頂点数を変更するような操作<br />・スキニングに影響しているノードの回転順序（Rotate Order）やセグメントスケール補正（Segment Scale Compensate）の変更&nbsp;</p>
+  </div>
+</div>
+<p>スキニングを設定した場合、fmd ファイルの移動、回転、スケール、ポリゴンの形状はバインドポーズの状態で出力されます。</p>
+<p>上記のような操作が必要な場合は一度&nbsp;<strong>「スキンのデタッチ（Detach Skin）」&nbsp;</strong>を実行してください。</p>
+<h2 id="Anchor_83955560_h2_1">頂点数を変更した場合</h2>
+<p>「編集 &gt; 種類ごとに削除 &gt; デフォーマ以外のヒストリ（Edit &gt; Delete by Type &gt; Non-Deformer History）」でも出力できる状態にできます。</p>
+<p>頂点の位置の変更はスキンのバインド後でも可能です。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ただし tweak ノードは skinCluster ノードより上流にある必要があります。<br />（通常 tweak ノードは skinCluster ノードより上流に作成されますが、ポップアップメニューの「入力 &gt; すべての入力...（Inputs &gt; All Inputs...）」 で開くウィンドウでデフォーマの順番を変えた場合などは、skinCluster ノードの下流に tweak ノードが存在します）</p>
+  </div>
+</div>
+<h2 id="Anchor_83955560_h2_2">スキニングを設定したオブジェクトの親ノードの移動、回転、スケールなどを変化させたい場合</h2>
+<p>スキニングを設定したオブジェクトの transform ノードの <strong>トランスフォームの継承（Inherits Transform）</strong> を OFF にしてください。</p>
+<p>スキンのバインド後に作成される「オリジナル mesh ノード」（～Orig）の名前を変えないでください。</p>
+<p>1 つの頂点に対するスキニングのウェイト値の合計は 1.0 になるようにしてください。<br /> すべての頂点がそれぞれ 1 つのノードにウェイト値 1.0 だと描画処理の負荷が減ります。<br /> ウェイト値は出力時に 0.01 の倍数にスナップされます。Maya 上のウェイト値が 0.005 未満なら 0 とみなされます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>0 でないウェイト値を設定するノードは 1 頂点あたり最大 8 ノードまでにしてください。9 ノード以上にウェイト値が分配されている場合、ウェイト値の大きい順に 8 ノードまでが中間ファイルに反映されます。 <br />エクスポートプラグインの<a href="../Pages/Page_83956186.html#Anchor_83956186_config_file">コンフィグファイル</a>で、ウェイト値を分配可能な最大ノード数を指定することもできます。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>複数のバインドポーズを使用しないでください。複数のオブジェクトを同じスケルトンにバインドする際は、共通のバインドポーズを使用してください。</p>
+  </div>
+</div>
+<p>インフルエンスオブジェクトは transform ノードとして出力されます（ポリゴンは出力されません）。</p>
+<p>「インフルエンスの追加（Add Influence）」を実行する際は、<strong>ジオメトリの使用（Use Geometry）</strong>オプションを <strong>OFF</strong> にしてください。</p>
+<p>スキンのバインド後に、UV の投影マッピング（平面マッピング、円柱マッピング、球面マッピング、自動マッピング）をする場合は、各投影マッピングの<strong>デフォーマの前に投影を挿入（Insert Before Deformers）</strong>オプションを <strong>ON</strong> にしてください。</p>
+<p>スキニングしたオブジェクトをヒストリが有効な状態で「結合（Combine）」した場合、スキニングのアニメーションが Maya 上では表示されますが中間ファイルには出力されなくなります。その場合はヒストリを消去して、スキニングを再設定してください。</p>
+<h1 id="Anchor_83955560_h1_2">スキニングの解除</h1>
+<p>「スキンのバインド解除（Unbind Skin）」（Maya 2015 以前は「スキンのデタッチ（Detach Skin）」）の<strong>ヒストリ（History）</strong>オプションは通常「<strong>ヒストリの削除（Delete History）</strong>」にしてください。</p>
+<p>ヒストリオプションを「ヒストリの維持（Keep History）」にするとウェイト値を保持できますが、この設定でデタッチしても skinCluster ノードが無効になるだけで完全なデタッチではありません。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>「ヒストリの維持」設定でデタッチした後に頂点数を変更するような操作をしないでください。</p>
+    <p>「ヒストリの維持」設定でデタッチした後に可能なのは、バインドポーズの変更などです。</p>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

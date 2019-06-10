@@ -1,0 +1,760 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>オーディオレンダラ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- オーディオレンダラ -->
+<div class="pagetitle" id="PageId_89991492">オーディオレンダラ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_89991492_h1_1">オーディオレンダラ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_89991492_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_89991492_h3_1">利用方法</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_89991492_h2_2">オーディオレンダラのコンポーネント</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_89991492_h3_2">コンポーネントの種類</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_3">AudioRendererParameter</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_4">AudioRendererHandle</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_5">AudioRendererConfig</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_6">Voice</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_7">FinalMix</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_8">SubMix</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_9">Effect</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_10">Splitter</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_11">Sink</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_89991492_h4_1">DeviceSinkType</a>
+          </li>
+          <li>
+            <a href="#Anchor_89991492_h4_2">CircularBufferSinkType</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_89991492_h3_12">MemroyPool</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_89991492_h2_3">詳細</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_89991492_h3_13">処理の流れ</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_14">ミックスバッファについて</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_89991492_h4_3">FinalMix および SubMix が管理するミックスバッファについて</a>
+          </li>
+          <li>
+            <a href="#Anchor_89991492_h4_4">Voice ・SubMix・FinalMix 間の接続とミックスバッファの関係</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_89991492_h3_15">エフェクトとの関係</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_16">グラフ構造中の閉路の禁止</a>
+        </li>
+        <li>
+          <a href="#Anchor_89991492_h3_17">AudioRenderer からの情報の取得について</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_89991492_h2_4">使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_89991492_h2_5">関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_89991492_h2_6">注意点</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_89991492_h3_18">PC 開発環境と開発機環境の相違点について</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_89991492_h1_1">オーディオレンダラ</h1>
+<h2 id="Anchor_89991492_h2_1">機能概要</h2>
+<p>オーディオレンダラは、メモリ上のオーディオ波形に対して、波形の整形処理、複数の波形のミックス処理、エフェクト処理などを行い、オーディオデバイスに出力するための機能を提供します。</p>
+<h3 id="Anchor_89991492_h3_1">利用方法</h3>
+<p>オーディオレンダラの利用のフローを解説します。ここで解説する内容は <a class="external-link" href="../../../Api/HtmlNX/_page_sample_audio_audio_renderer.html" rel="nofollow">オーディオレンダラのサンプル</a> で動作サンプルとして確認することができます。</p>
+<ol>
+  <li>
+    <strong>オーディオレンダラの取得</strong>
+    <br />
+    <ul>
+      <li>オーディオレンダラの動作パラメータを <span class="ApiLink_nn__audio__AudioRendererParameter">nn::audio::AudioRendererParameter</span> に設定します。<br />（設定可能なパラメータは <span class="ApiLink_nn__audio__AudioRendererParameter">nn::audio::AudioRendererParameter</span> の説明を参照してください。）<br />このパラメータによってオーディオレンダラで必要とするワークバッファのサイズが決定されます。<br />ワークバッファのサイズは <span class="ApiLink_nn__audio__GetAudioRendererConfigWorkBufferSize">nn::audio::GetAudioRendererConfigWorkBufferSize</span>() で取得できます。</li>
+      <li>
+        <span class="ApiLink_nn__audio__AudioRendererParameter">nn::audio::AudioRendererParameter</span> とワークバッファを指定してオーディオレンダラを取得します。<br />取得には <span class="ApiLink_nn__audio__OpenAudioRenderer">nn::audio::OpenAudioRenderer</span>() を利用します。取得に成功すると <span class="ApiLink_nn__audio__AudioRendererHandle">nn::audio::AudioRendererHandle</span> が返されます。</li>
+    </ul>
+  </li>
+  <li>
+    <strong>オーディオレンダラの設定</strong>
+    <br />
+    <ul>
+      <li>オーディオレンダラの設定は <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> を用いて行います。<br />オーディオレンダラは Voice 、 SubMix など複数のコンポーネントによって構成されています。（各コンポーネントの詳細は後述します。）<br />各コンポーネントの設定は <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> に集約され、 <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() の呼び出し時にオーディオレンダラへと伝達されます。<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_89991492/198953156.png" width="480" class="embedded-image" /></span></li>
+      <li>各コンポーネントの設定の前に <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> を確保し <span class="ApiLink_nn__audio__InitializeAudioRendererConfig">nn::audio::InitializeAudioRendererConfig</span>() で初期化します。<br />初期化時に指定するワークバッファに必要とされるサイズは <span class="ApiLink_nn__audio__GetAudioRendererConfigWorkBufferSize">nn::audio::GetAudioRendererConfigWorkBufferSize</span>() で取得できます。</li>
+      <li>初期化した <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> を用いて各コンポーネントの設定の設定を行います。</li>
+    </ul>
+  </li>
+  <li>
+    <strong>設定のオーディオレンダラへの反映</strong>
+    <br />
+    <ul>
+      <li>
+        <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> に集約した各種設定をオーディオレンダラに転送し、オーディオレンダラを更新します。<br />更新は <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() に <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> を指定して行います。</li>
+    </ul>
+  </li>
+  <li>
+    <strong>オーディオレンダラの開始</strong>
+    <br />
+    <ul>
+      <li>最後に <span class="ApiLink_nn__audio__StartAudioRenderer">nn::audio::StartAudioRenderer</span>() で発音処理を開始します。<br />以後オーディオレンダラは FinalMix に接続した各 Sink に対して、出力を開始します。</li>
+    </ul>
+  </li>
+  <li>
+    <strong>オーディオレンダラの更新</strong>
+    <ul>
+      <li>オーディオレンダラの動作中に様々なパラメータの更新をすることができます。</li>
+      <li>この場合も各種設定を <span class="ApiLink_nn__audio__AudioRendererConfig">nn::audio::AudioRendererConfig</span> に集約し、 <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() でオーディオレンダラへと転送します。</li>
+    </ul>
+  </li>
+  <li>
+    <strong>オーディオレンダラの停止・終了</strong>
+    <br />
+    <ul>
+      <li class="external-link">オーディオレンダラの利用を終了は <span class="ApiLink_nn__audio__StopAudioRenderer">nn::audio::StopAudioRenderer</span>() および <span class="ApiLink_nn__audio__CloseAudioRenderer">nn::audio::CloseAudioRenderer</span>() により行います。</li>
+    </ul>
+  </li>
+</ol>
+<h2 id="Anchor_89991492_h2_2">オーディオレンダラのコンポーネント</h2>
+<h3 id="Anchor_89991492_h3_2">コンポーネントの種類</h3>
+<p>オーディオレンダラは、以下のコンポーネントの組み合わせにより表現されます。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>AUdioRendererParameter</th>
+      <td>取得するオーディオレンダラインタンスで利用する構成を定義するパラメータです</td>
+    </tr>
+    <tr>
+      <th>AudioRendererHandle</th>
+      <td>
+        <p>オーディオレンダラインスタンスを管理します</p>
+      </td>
+    </tr>
+    <tr>
+      <th>AudioRendererConfig</th>
+      <td>オーディオレンダラの設定などを管理します</td>
+    </tr>
+    <tr>
+      <th>Voice</th>
+      <td>オーディオレンダラへの入力波形データおよびパラメータを管理します</td>
+    </tr>
+    <tr>
+      <th>SubMix / FinalMix</th>
+      <td>Voice の処理結果をミックスするためのバッファを管理します</td>
+    </tr>
+    <tr>
+      <th>Effect</th>
+      <td>
+        <p>SubMix または FinalMix が管理するバッファに対して適用する各種 Effect です。詳しくは<a href="../Pages/Page_93362777.html">オーディオエフェクト</a>で解説します</p>
+      </td>
+    </tr>
+    <tr>
+      <th>Splitter</th>
+      <td>Voice または SubMix の処理結果を、複数の SubMix および FinalMix に出力する機能を提供します</td>
+    </tr>
+    <tr>
+      <th>Sink</th>
+      <td>FinalMix の結果を出力する先を指定するために利用します</td>
+    </tr>
+    <tr>
+      <th>MemoryPool</th>
+      <td>オーディオレンダラが利用するデータが配置されるメモリのアクセスコントロールを管理します</td>
+    </tr>
+  </tbody>
+</table>
+<p>特に Voice 、 SubMix 、 FinalMix および Sink は波形のレンダリング処理において、ミックス処理の順序・バランスを決定します。これらのコンポーネントを利用することで、以下に示すようなグラフ構造を持ったミックス処理を記述することが可能となります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/198953157.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>以下では各コンポーネントが果たす役割について説明します。</p>
+<h3 id="Anchor_89991492_h3_3">AudioRendererParameter</h3>
+<p>オーディオレンダラの構成を指定するパラメータです。このパラメータはオーディオレンダラを取得する際に <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ae9541c61a6710260800fe7800759fcb2">OpenAudioRenderer()</a> に指定します。</p>
+<p>指定したパラメータによって、取得したオーディオレンダラの動作状態や利用可能な各種コンポーネントの個数等が決定されます。各パラメータの意味は下表のとおりです。<a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> の説明も併せて参照してください。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>パラメータ</th>
+      <th>意味</th>
+    </tr>
+    <tr>
+      <td>sampleRate</td>
+      <td>
+        <div class="content-wrapper">
+          <p>オーディオレンダラが出力するサンプルデータのサンプルレートです。</p>
+          <p>FinalMix から出力されるオーディオレンダラの出力、つまり各 Sink への入力は、ここで指定するサンプルレートとなります。</p>
+          <div class="info_new">
+            <div class="info_new_left">参考：</div>
+            <div class="info_new_right">
+              <p>現在のリリースでは 32000 もしくは 48000 のみサポートされています。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>sampleCount</td>
+      <td>
+        <div class="content-wrapper">
+          <p>1 つのミックスバッファが保持するサンプル数です。</p>
+          <p>（ミックスバッファの詳細は下記する「ミックスバッファについて」を参照してください。）</p>
+          <p>このパラメータと sampleRate によって、オーディオレンダラの１回のレンダリング処理で生成される波形の時間が決定されます。</p>
+          <p>この時間を「オーディオフレーム」と呼びます。詳細は下記する「処理の流れ」および 「<a href="../Pages/Page_104489972.html#Anchor_104489972_%E6%A9%9F%E8%83%BD%E6%A6%82%E8%A6%81">パフォーマンス情報の&quot;機能概要&quot;</a>」を参照してください。</p>
+          <div class="info_new">
+            <div class="info_new_left">参考：</div>
+            <div class="info_new_right">
+              <p>現在のリリースでは、オーディオフレームが 5msec となるパラメータのみサポートされています。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>mixBufferCount</td>
+      <td>
+        <p>オーディオレンダラ内で利用可能なミックスバッファの最大数を指定します。<br />SubMix / FinalMix が保持するミックスバッファの総数は、ここで指定する数が最大となります。</p>
+        <p>（ミックスバッファの詳細は下記する「ミックスバッファについて」を参照してください。）</p>
+      </td>
+    </tr>
+    <tr>
+      <td>subMixCount</td>
+      <td>
+        <p>オーディオレンダラで利用する SubMix の最大数です。</p>
+        <p>詳しくは下記する SubMix の説明を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>voiceCount</td>
+      <td>
+        <p>オーディオレンダラで利用する Voice の最大数です。</p>
+        <p>詳しくは下記する Voice の説明を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>sinkCount</td>
+      <td>
+        <p>オーディオレンダラで利用する Sink の最大数</p>
+        <p>詳しくは下記する Sink の説明を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>effectCount</td>
+      <td>
+        <p>オーディオレンダラで利用する Effect の最大数</p>
+        <p>詳しくは下記する Effect の説明を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>performanceFrameCount</td>
+      <td>
+        <p>蓄積するパフォーマンス情報の最大オーディオフレーム数を指定します。</p>
+        <p>このパラメータは、オーディオレンダラのパフォーマンス情報を取得する際に適切に設定する必要があります。<a href="../Pages/Page_104489972.html">詳しくは「パフォーマンス情報」を参照してください。</a></p>
+      </td>
+    </tr>
+    <tr>
+      <td>isVoiceDropEnabled</td>
+      <td>
+        <p>ボイスドロップ機能を有効にするかどうかを指定します。</p>
+        <p>ボイスドロップ機能についての詳細は <span class="ApiLink_nn__audio__IsVoiceDroppedFlagOn">nn::audio::IsVoiceDroppedFlagOn</span>() および <span class="ApiLink_nn__audio__ResetVoiceDroppedFlag">nn::audio::ResetVoiceDroppedFlag</span>() の説明を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>splitterCount</td>
+      <td>
+        <p>オーディオレンダラで利用する SplitterType の最大数</p>
+        <p>詳しくは下記する Splitter の説明を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>splitterSendChannelCount</td>
+      <td>SplitterType から出力するチャンネルの総数</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>各パラメータには、プラットフォーム毎のサポート状況に応じて、有効な数値の組み合わせが存在します。利用可能な組み合わせかどうかは <span class="ApiLink_nn__audio__IsValidAudioRendererParameter">nn::audio::IsValidAudioRendererParameter</span>() で確認することができます。</p>
+  </div>
+</div>
+<h3 id="Anchor_89991492_h3_4">AudioRendererHandle</h3>
+<p>オーディオレンダラのインスタンスを管理するもので、<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ae9541c61a6710260800fe7800759fcb2">OpenAudioRenderer()</a> により取得します。事前に <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> 構造体とワークバッファの準備が必要です。</p>
+<p>オーディオレンダラによるレンダリングは <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a44661dca198e6c56cbfbaed66a44a37c">StartAudioRenderer()</a> により開始します。停止、終了はそれぞれ <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a2dbcd4137f93a2db47d42f8e85055aef">StopAudioRenderer()</a>, <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a53a495cb3c91182f9400c8ee6640ea95">CloseAudioRenderer()</a> により行います。</p>
+<h3 id="Anchor_89991492_h3_5">AudioRendererConfig</h3>
+<p>オーディオレンダラの設定などを管理するもので、<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ad760c8918bd571a6fb2b4e93890610c3">InitializeAudioRendererConfig()</a> により初期化します。</p>
+<p>AudioRendererHandle と同様、事前に <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> 構造体とワークバッファの準備が必要です。<a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> 構造体は&nbsp;<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ae9541c61a6710260800fe7800759fcb2">OpenAudioRenderer()</a> に与えるものと同じものを指定する必要があります。</p>
+<p>
+  <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_config.html">AudioRendererConfig</a> 構造体は、後述する Voice やエフェクトなどを管理します。これらの情報を <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#acf560fde488cb8a60016e2463031f51c">RequestUpdateAudioRenderer()</a> によりオーディオレンダラに反映させることができます。</p>
+<h3 id="Anchor_89991492_h3_6">Voice</h3>
+<p>オーディオレンダラへの入力波形データおよびパラメータを管理します。<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af52c2bf46a627349b6ce55ac649e5430">AcquireVoiceSlot()</a> により取得する <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_voice_type.html">VoiceType</a> 構造体により扱うことが可能です。</p>
+<p>Voice は初期化後に必ず&nbsp;<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#aecbe2e0ac1f1f62be8aaf07e377319f8">SetVoiceDestination()</a> により出力先を指定する必要があります。</p>
+<p>入力波形は&nbsp;<a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_wave_buffer.html">WaveBuffer</a> 構造体により管理されます。データバッファやサイズ、データフォーマットその他を指定することができます。<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">AppendWaveBuffer()</a> により Voice に追加することができます。</p>
+<p>パラメータとして、以下のものが指定可能です。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>初期化時のみ指定可能なもの</th>
+      <th>初期化後に変更可能なもの</th>
+    </tr>
+    <tr>
+      <td>
+        <p>サンプルレート</p>
+        <p>チャンネル数</p>
+        <p>サンプルフォーマット</p>
+        <p>
+          <br />
+        </p>
+      </td>
+      <td>
+        <p>ボリューム</p>
+        <p>ピッチ</p>
+        <p>ミックスボリューム</p>
+        <p>フィルタ</p>
+        <p>優先度 (初期化時にも設定可能)</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>現在のリリースでは、サンプルフォーマットは 16 bit 符号付き整数 PCM フォーマットおよび ADPCM フォーマットがサポートされています。<br />ここでサポートしている ADPCM フォーマットでは <a href="../Pages/Page_99805004.html">CODEC ライブラリが提供している adpcm デコーダ</a>によるデコード処理と同等の機能を提供しています。</p>
+<h3 id="Anchor_89991492_h3_7">FinalMix</h3>
+<p>FinalMix はオーディオレンダラの最終出力となるデータのバッファを管理します。</p>
+<p>
+  <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#aafc73c4c06a7d79c981fc903dec56402">AcquireFinalMix()</a> により取得する&nbsp;<a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_final_mix_type.html">FinalMixType</a>&nbsp;構造体で扱うことが可能で、１つのオーディオレンダラインスタンスに対して 1つの FinalMix が取得できます。</p>
+<p>この出力波形を保持するバッファをミックスバッファと呼びます。（ミックスバッファの詳細は下記する「ミックスバッファについて」を参照してください。）<br />Voice および SubMix の処理結果は FinalMix のミックスバッファへ出力すること最終出力へと伝達されます。</p>
+<p>
+  <span class="el">
+    <br />
+  </span>FinalMix は以下の機能を提供します。</p>
+<ul>
+  <li class="el">Voice および SubMix の処理結果の出力先となり、出力波形を保持します。<br /><ul><li class="el">&nbsp;nn::audio::<span class="el">SetVoiceDestination()</span> や nn::audio::SetSubMixDestination() で出力先として指定することができます。</li></ul></li>
+  <li>自身が管理するミックスバッファに対してエフェクトを適用することができます。<ul><li>各種エフェクトの Add 関数（<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a818d0677cc1324c72bc3f80df9bb7e48">AddBufferMixer()</a> などを参照してください）を呼ぶことで、適用するエフェクトを追加することが可能です</li></ul></li>
+  <li>すべてのエフェクト処理が終わった後に、結果を Sink に出力することができます。<ul><li>Sink との紐付けには <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a64602167917fc155134fad9ccf0e4947">AddDeviceSink()</a> などを利用します</li></ul></li>
+</ul>
+<h3 id="Anchor_89991492_h3_8">SubMix</h3>
+<p class="diff-block-target diff-block-context">SubMixは、FinalMix と同じく出力波形を保持するミックスバッファを管理するものです。</p>
+<p class="diff-block-target diff-block-context">
+  <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#af5e0429c58a58dc475a1462c9df61c9c">nn::audio::AcquireSubMix()</a> により取得する <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_sub_mix_type.html">nn::audio::SubMixType</a> 構造体で扱うことが可能です。</p>
+<p class="diff-block-target diff-block-context">FinalMix と同様の機能を提供しますが、FinalMix と異なり Sink を出力先に指定することはできません。</p>
+<p class="diff-block-target diff-block-context">結果、以下の機能を提供します。</p>
+<ul>
+  <li class="el">Voice および SubMix の処理結果の出力先となり、出力波形を保持します。<br /><ul><li class="el">&nbsp;nn::audio::<span class="el">SetVoiceDestination()</span> や nn::audio::SetSubMixDestination() で出力先として指定することができます。</li></ul></li>
+  <li>自身が管理するミックスバッファに対してエフェクトを適用することができます。<ul class="diff-block-target diff-block-context"><li>各種エフェクトの Add 関数（<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a818d0677cc1324c72bc3f80df9bb7e48">AddBufferMixer()</a> などを参照してください）を呼ぶことで、適用するエフェクトを追加することが可能です</li></ul></li>
+  <li>すべてのエフェクト処理が終わった後に、結果を別の SubMix もしくは FinalMix へと出力することができます。<br /><ul><li>接続には <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ae3ee4cb2fabe99240801b4df8200d0c1">nn::audio::SetSubMixDestination()</a> を利用します。ただしグラフ構造の中に閉路となる接続を行うことはできません。<br />詳しくは下記する「グラフ構造中の閉路の禁止」を参照してください。</li></ul></li>
+</ul>
+<h3 id="Anchor_89991492_h3_9">Effect</h3>
+<p>Effect は SubMix /&nbsp;FinalMix の管理するミックスバッファに対してエフェクト処理を施します。</p>
+<p>Effect は、それが追加されている SubMix / FinalMix が保持するミックスバッファを入出力として処理を行います。<br />よって単一の Effect で複数の SubMix /&nbsp;FinalMix をまたいだエフェクト処理を行うことはできません。</p>
+<p>Effect は SubMix /&nbsp;FinalMix へ追加した順に処理が行われます。</p>
+<p>Effect に関する API は、各 Effect により異なります。詳細は<a href="../Pages/Page_93362777.html">オーディオエフェクト</a>や <a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1audio.html" rel="nofollow">API リファレンス</a> を参照してください。</p>
+<h3 id="Anchor_89991492_h3_10">Splitter</h3>
+<p>単一の Voice または SubMix から入力を受け取り、入力の内容を SubMix または FinalMix およびそれらを組み合わせた出力先へと出力します。この機能は NintendoSDK 1.0.0 以降のバージョンでご利用いただけます。</p>
+<p>Voice / SubMix の出力先として、<a class="el" href="../../../Api/HtmlNX/namespacenn_1_1audio.html#aecbe2e0ac1f1f62be8aaf07e377319f8">nn::audio::SetVoiceDestination()</a><a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ae3ee4cb2fabe99240801b4df8200d0c1"> </a>/ <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#ae3ee4cb2fabe99240801b4df8200d0c1">nn::audio::SetSubMixDestination()&nbsp; </a>を用いて出力先に Splitter に指定することで、Splitter の入力に指定できます。</p>
+<p>Splitter は <span class="ApiLink_nn__audio__AcquireSplitter">nn::audio::AcquireSplitter</span>() で取得する際に destinationCount 引数に指定した個数の出力先を上限として、入力の内容を SubMix / FinalMix へと転送します。</p>
+<p>例：Voice を入力として、2つの SubMix に出力するケース</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/198953158.png" width="400" alt="Splitter の入力に Voice を指定" title="Voice を入力とした例" class="embedded-image" />
+  </span>
+</p>
+<p>例：SubMix を入力として、別の SubMix および FinalMix に出力するケース</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/198953159.png" width="600" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_89991492_h3_11">Sink</h3>
+<p>各 Sink は、オーディオレンダラの最終処理結果を受け取る、オーディオレンダラの出力先としての機能を提供します。</p>
+<p>出力先として現在のバージョンでは <span class="el"><span class="ApiLink_nn__audio__DeviceSinkType">nn::audio::DeviceSinkType</span></span> および <span class="el"><span class="ApiLink_nn__audio__">nn::audio::</span></span>CircularBufferSinkType が利用可能です。これらの Sink は同時利用が可能です。<br />同時利用する場合は <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> の <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html#a4f9259d7a2e411fab727bdc69c169584">sinkCount</a> パラメータに同時に利用する Sink の個数を指定したうえで、オーディオレンダラを取得してください。</p>
+<p>以下ではそれぞれの Sink の役割と、機能について記載します。</p>
+<h4 id="Anchor_89991492_h4_1">DeviceSinkType</h4>
+<p>
+  <span class="el">
+    <span class="ApiLink_nn__audio__DeviceSinkType">nn::audio::DeviceSinkType</span>
+  </span> は、オーディオレンダラの処理結果を音声出力デバイスに出力する際に指定します。</p>
+<p>出力先デバイスは &quot;MainAudioOut&quot; が提供されています。Windows 環境では、この &quot;MainAudioOut&quot; は「既定のデバイス」に出力されますが、 <span class="ApiLink_nn__audio__SetAudioDeviceMapping">nn::audio::SetAudioDeviceMapping</span>() で出力先デバイスを指定することが可能です。詳細は <a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1audio.html" rel="nofollow">API リファレンス</a> を参照してください。出力先デバイスの各出力チャンネルには <span class="ApiLink_nn__audio__AddDeviceSink">nn::audio::AddDeviceSink</span>() で追加する際に指定する <span class="ApiLink_nn__audio__FinalMixType">nn::audio::FinalMixType</span> のミックスバッファが出力されます。出力チャンネルとミックスバッファの関係については <span class="ApiLink_nn__audio__AddDeviceSink">nn::audio::AddDeviceSink</span>() の説明を参照してください。</p>
+<div class="platform_nx">
+  <p>NX 開発機において、&quot;MainAudioOut&quot; は 6 チャンネル出力となります。</p>
+  <p>各チャンネルと&nbsp; <span class="ApiLink_nn__audio__FinalMixType">nn::audio::FinalMixType</span> のミックスバッファとの関係は <span class="el"><span class="ApiLink_nn__audio__ChannelMapping">nn::audio::ChannelMapping</span> で定義されます。<br />つまりミックスバッファの</span>インデックス ChannelMapping_FrontLeft の内容が 左前チャンネルへ、インデックス ChannelMapping_FrontRight の内容が右前チャンネルへという風に、それぞれ対応します。</p>
+  <p>またアプリケーションの動作する状態に応じて、システムは出力をダウンミックスして音声出力デバイスに渡します。<br />ダウンミックスに関する詳細な挙動および設定方法は<a href="../Pages/Page_166500119.html">「その他」のダウンミックス処理についての説明</a>を参照してください。</p>
+</div>
+<h4 id="Anchor_89991492_h4_2">CircularBufferSinkType</h4>
+<p>
+  <span class="el">
+    <span class="ApiLink_nn__audio__">nn::audio::</span>
+  </span>CircularBufferSinkType は、オーディオレンダラの処理結果をメモリ上に書き出す際に指定します。デバッグ時や Windows ツールでの利用を想定しています。</p>
+<p>CircularBuffreSink は、その <span class="ApiLink_nn__audio__AddCircularBufferSink">nn::audio::AddCircularBufferSink</span>() で追加する際に buffer で指定したアドレスへ、 <em>sampleFormat</em> で指定したサンプルフォーマットに整形したサンプルデータを出力します。CircularBufferSink への入力は <span class="ApiLink_nn__audio__AddCircularBufferSink">nn::audio::AddCircularBufferSink</span>() で追加する際に input で指定した <span class="ApiLink_nn__audio__FinalMixType">nn::audio::FinalMixType</span> のミックスバッファの内容となります。</p>
+<p>上記 buffer に書き込まれたデータの読み込みは <span class="ApiLink_nn__audio__ReadCircularBufferSink">nn::audio::ReadCircularBufferSink</span>() で行います。 <span class="ApiLink_nn__audio__ReadCircularBufferSink">nn::audio::ReadCircularBufferSink</span>() で <em>pOutBuffer</em> に読み込まれるデータはブロックインタリーブされていることに注意してください。詳しくは <span class="ApiLink_nn__audio__ReadCircularBufferSink">nn::audio::ReadCircularBufferSink</span>() の説明を参照してください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span class="ApiLink_nn__audio__CircularBufferSinkType">nn::audio::CircularBufferSinkType</span> へのオーディオレンダラからのデータの書き出し状況は <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() 呼び出し時に <span class="ApiLink_nn__audio__CircularBufferSinkType">nn::audio::CircularBufferSinkType</span> へと反映されます。ユーザーは最後に <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() を呼び出した時点で、オーディオレンダラによって <span class="ApiLink_nn__audio__CircularBufferSinkType">nn::audio::CircularBufferSinkType</span> に書き出されたサンプルデータを <span class="ApiLink_nn__audio__ReadCircularBufferSink">nn::audio::ReadCircularBufferSink</span>() で読み込むことができます。</p>
+    <p>ユーザーからの読み込みが遅延し、 ユーザーに読み込まれていないサンプルデータサイズが <span class="ApiLink_nn__audio__CircularBufferSinkType">nn::audio::CircularBufferSinkType</span> に指定されたバッファサイズを上回った場合、 古いサンプルデータを破棄し、新しいサンプルデータでバッファを更新します。もし読み込まれるサンプルデータに音途切れがある場合は <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() の呼び出し頻度を上げるか <span class="ApiLink_nn__audio__CircularBufferSinkType">nn::audio::CircularBufferSinkType</span> に指定するバッファのサイズを増やすことを検討してください。</p>
+  </div>
+</div>
+<div class="platform_nx">
+  <div class="note_new">
+    <div class="note_new_left">注意：</div>
+    <div class="note_new_right">
+      <p>CircularBufferSinkType で取得できる処理結果は <code class="cpp plain">nn::audio::SetAudioDeviceOutputVolume() による出力ボリュームの調整による影響は受けません。</code>出力波形の音量レベル等の確認用途に利用する際は <code class="cpp plain">nn::audio::SetAudioDeviceOutputVolume() の設定値に</code>ご注意ください。</p>
+      <p>また<code class="cpp plain">ダウンミックス処理</code>の 有無にも影響を受けず、初期化時に input で指定した <span class="ApiLink_nn__audio__FinalMixType">nn::audio::FinalMixType</span> のミックスバッファの内容が出力されます。ダウンミックスに関する詳細な挙動および設定方法は<a href="../Pages/Page_166500119.html">「その他」のダウンミックス処理についての説明</a>を参照してください。</p>
+    </div>
+  </div>
+</div>
+<h3 id="Anchor_89991492_h3_12">MemroyPool</h3>
+<p>オーディオレンダラが利用する各種データが配置されるメモリのアクセスコントロールを管理します。</p>
+<p>メモリ上にはオーディオやグラフィックスなど様々な目的のデータが混在しておかれており、それぞれのデータはその目的に応じたアクセスコントロールが施されます。<br />目的に応じたアクセスコントロールを安全に行うことを保証するためにメモリプールを利用する必要があります。<br />オーディオレンダラが利用する、つまり参照・操作するメモリ領域は、メモリプールで指定されているメモリ領域に含まれている必要があります。</p>
+<p>
+  <a href="../Pages/Page_124010227.html">詳しくはメモリプールの解説ページをご確認ください。</a>
+</p>
+<h2 id="Anchor_89991492_h2_3">詳細</h2>
+<h3 id="Anchor_89991492_h3_13">処理の流れ</h3>
+<p>
+  <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() で転送された各種設定を用いて、オーディオレンダラは波形のレンダリング処理を行います。</p>
+<p>波形のレンダリングは、一定の時間間隔で定期的に実行されます。この時間間隔をオーディオフレームと呼びます。<br />オーディオフレームはオーディオレンダラの初期化時に指定する <span class="ApiLink_nn__audio__AudioRendererParameter">nn::audio::AudioRendererParameter</span> の sampleCount および sampleRate の値によって決定されます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>現在のリリースでは、オーディオフレームが 5msec となるパラメータのみサポートされています。</p>
+  </div>
+</div>
+<p>レンダリング処理では、以下の処理がオーディオフレーム間隔で定期的に実行されています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/198953160.png" width="620" class="embedded-image" />
+  </span>
+</p>
+<ol>
+  <li>すべての Voice を処理し、接続されているすべての SubMix または FinalMix へミックス</li>
+  <li>（SubMix がある場合は）すべての SubMix を、接続順的に FinalMix から遠いものから順に（エフェクトも含めて）処理し、すべての接続先へミックス</li>
+  <li>FinalMix を（エフェクトを含めて）処理</li>
+  <li>すべての Sink へ出力</li>
+</ol>
+<p>またすべてのミックスバッファは、毎オーディオフレームのレンダリング処理開始時に 0 で初期化されます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span class="ApiLink_nn__audio__OpenAudioRenderer">nn::audio::OpenAudioRenderer</span>() で取得される同期用 SystemEvent は、このレンダリング処理が開始される毎に、つまりオーディオフレーム間隔で定期的にシグナルされます。</p>
+  </div>
+</div>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>
+      <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() の呼び出し頻度は任意で、オーディオフレーム間隔よりも長くても短くても問題ありません。ただし、過度に頻繁な呼び出しは、システムの負荷の増加につながり、オーディオ以外の機能（ネットワークサービスや HOME ボタン遷移など）のパフォーマンスに影響するため、避けるべきです。</p>
+  </div>
+</div>
+<h3 id="Anchor_89991492_h3_14">
+  <span style="color: rgb(117,117,117);">ミックスバッファについて</span>
+</h3>
+<h4 id="Anchor_89991492_h4_3">FinalMix および SubMix が管理するミックスバッファについて</h4>
+<p>FinalMix および SubMix は、それぞれが独自の「ミックスバッファ」を管理しています。</p>
+<p>「ミックスバッファ」とは、波形データを保持するメモリ領域のことであり、オーディオレンダラはミックスバッファ間で波形データを入出力させながら、波形の整形処理、複数の波形のミックス処理、エフェクト処理などを行います。</p>
+<p>FinalMix および SubMix は「1 チャンネル 1 オーディオフレーム分の波形データが収まるバッファ」を「指定された個数」保持しています。<br />ここで「1 チャンネル１オーディオフレーム分の波形データ」のサイズは <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> 構造体で sampleRate および sampleCount として指定された数から決定されます。「指定された個数」は FinalMix および SubMix の初期化時に指定する数であり、それぞれ以下の関数の bufferCount 引数に指定する数で指定されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// FinalMixType
+bool nn::audio::AcquireFinalMix(AudioRendererConfig* pConfig, FinalMixType* pOutFinalMix, int bufferCount) 
+
+// SubMixType
+bool nn::audio::AcquireSubMix(AudioRendererConfig* pConfig, SubMixType* pOutSubMix, int sampleRate, int bufferCount)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各 FinalMix および SubMix が保持できるミックスバッファの上限数は <span class="ApiLink_nn__audio__MixBufferCountMax">nn::audio::MixBufferCountMax</span> です。またオーディオレンダラ全体として利用可能なミックスバッファの個数は <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a> 構造体で mixBufferCount として指定した数を上限とします。</p>
+<p>例えば <a class="el" href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html">AudioRendererParameter</a>.mixBufferCount = 12 を指定してオーディオレンダラを取得した場合を考えます。下図は <span class="ApiLink_nn__audio__AcquireFinalMix">nn::audio::AcquireFinalMix</span>() で bufferCount = 6 として FinalMix を初期化し、かつ <span class="ApiLink_nn__audio__AcquireSubMix">nn::audio::AcquireSubMix</span>() で bufferCount = 4 を指定して SubMix を初期化した例です。すでに 6 + 4 = 10 個のミックスバッファを利用していますので、オーディオレンダラ全体で利用可能なミックスバッファは残り 12 - 10 = 2 個となります。また SubMix は sampleRate を引数にとりますが、 sampleRate 値によらず、bufferCount に指定した数のミックスバッファを全体で利用可能な数から消費します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// オーディオレンダラが管理するミックスバッファの総数を 12 に指定し、オーディオレンダラを取得します。
+AudioRendererParameter parameter;
+parameter.mixBufferCount = 12;
+parameter.sampleRate = 48000;
+
+// ...
+// 上記 parameter を利用してオーディオレンダラを取得します。
+// ...
+
+// ミックスバッファ数を 6 として FinalMixType を初期化します。
+// FinalMixType のサンプルレートは、 parameter.sampleRate に指定した値が利用されます。
+nn::audio::FinalMixType finalMix;
+bool result = nn::audio::AcquireFinalMix(pConfig, &amp;finalMix, 6);
+if (result != true)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// Error handle
+}
+
+// ミックスバッファ数を 4 として SubMixType を初期化します。
+nn::audio::SubMixType subMix;
+// 引数の sampleRate には subMix を動作させたいサンプルレートを指定します。
+// ここでは finalMix と同じサンプルレートとなるように parameter.sampleRate を指定します。
+result = nn::audio::AcquireSubMix(pConfig, &amp;subMix, parameter.sampleRate, 4);
+if (result != true)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// Error handle
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/159285692.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_89991492_h4_4">Voice ・SubMix・FinalMix 間の接続とミックスバッファの関係</h4>
+<p>FinalMix および SubMix が保持するミックスバッファにはそれぞれインデックスが与えられます。このインデックスを「ミックスバッファインデックス」と呼びます。ミックスバッファ インデックスは、各 FinalMix および SubMix で個別の値を持ち、それぞれ 0 から順に番号が付与されます。上図の例では、 FinalMix には 0 から 5 までのミックスバッファインデックス が、 SubMix には 0 から 3 のミックスバッファインデックスを持つミックスバッファが、それぞれ付与されます。</p>
+<p>SubMix を FinalMix / SubMix へ接続するには <span class="ApiLink_nn__audio__SetSubMixDestination">nn::audio::SetSubMixDestination</span>() を利用します。接続された SubMix / FInalMix 間では出力元となる SubMix のミックスバッファの内容を、出力先となる SubMix / FinalMix のミックスバッファにミックスすることができます。この際「出力元のどのミックスバッファを、出力先のどのミックスバッファに、どの程度のボリュームで ミックスするか」を設定することができます。この設定は <span class="ApiLink_nn__audio__SetSubMixMixVolume">nn::audio::SetSubMixMixVolume</span>() で行います。この関数で sourceIndex 引数に指定するのは出力元のミックスバッファインデックスであり、destinationIndex に指定するのは出力先のミックスバッファインデックスです。</p>
+<p>Voice についても SubMix と同様の手順で「接続」および「ミックスのボリューム設定」を施すことができます。Voice を FinalMix / SubMix へ接続するには <span class="ApiLink_nn__audio__SetVoiceDestination">nn::audio::SetVoiceDestination</span>() を利用します。出力先のミックスバッファへのボリューム設定は <span class="ApiLink_nn__audio__SetVoiceMixVolume">nn::audio::SetVoiceMixVolume</span>() で行います。SubMix と FinalMix / SubMix 間の接続と異なる点として、Voice は自身のミックスバッファを持ちません。そのため <span class="ApiLink_nn__audio__SetVoiceMixVolume">nn::audio::SetVoiceMixVolume</span>() で sourceIndex として指定する入力元となるインデックスは、Voice のチャンネル番号を指定します。</p>
+<p>
+  <br />
+</p>
+<p>例えば上記のコード例の後に、1 チャンネルのボイスを準備し Voice 、 SubMix 、 FinalMix を以下のように接続したとします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// subMix を finalMix に接続します。
+nn::audio::SetSubMixDestination(pConfig, &amp;subMix, &amp;finalMix);
+// subMix が管理するミックスバッファのミックスバッファインデックス 1 の内容を、
+// finalMix が管理するミックスバッファのミックスバッファインデックス 2 にボリューム 0.8f でミックスする指定をします。
+nn::audi::SetSubMixMixVolume(&amp;subMix, &amp;finalMix, 0.8f, 1, 2);
+
+
+// 1 チャンネル、16 bit 符号付き整数 PCM フォーマットの VoiceType を取得します。
+nn::audio::VoiceType voice;
+int channelCount = 1;
+SampleFormat sampleFormat = nn::audio::SampleFormat_PcmInt16;
+result = nn::audio::AcquireVoiceSlot(pConfig, &amp;voice, sampleRate, channelCount, sampleFormat, nn::audio::VoiceType::PriorityHighest, nullptr, 0);
+if (result != true)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// Error handle
+}
+
+// voice と subMix を接続します。
+nn::audio::SetVoiceDestination(pConfig, &amp;voice, &amp;subMix);
+// voice の 1 チャンネル目 ( sourceIndex は 0) の内容を
+// subMix が管理するミックスバッファのミックスバッファインデックス 1 にボリューム 0.7f でミックスします。
+nn::audio::SetVoiceMixVolume(&amp;voice, &amp;subMix, 0.7f, 0, 1)</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この場合の接続関係は、下図のようになります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/159285689.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_89991492_h3_15">エフェクトとの関係</h3>
+<p>
+  <span class="ApiLink_nn__audio__SetVoiceMixVolume">nn::audio::SetVoiceMixVolume</span>() や <span class="ApiLink_nn__audio__SetSubMixMixVolume">nn::audio::SetSubMixMixVolume</span>() では SubMix・FinalMix それぞれが管理するミックスバッファへのミックス処理に対して設定を施しました。これに対し、各種エフェクトは&nbsp; SubMix・FinalMix に個別に紐づいて初期化され、それぞれの SubMix ・ FinalMix が管理するミックスバッファ自身を入出力としてエフェクト処理を行います。入出力に指定するミックスバッファインデックスの指定先が <span class="ApiLink_nn__audio__SetVoiceMixVolume">nn::audio::SetVoiceMixVolume</span>() や <span class="ApiLink_nn__audio__SetSubMixMixVolume">nn::audio::SetSubMixMixVolume</span>() と異なる点にご注意ください。</p>
+<p>具体的には<a href="../Pages/Page_93362777.html">オーディオエフェクト</a>を参照してください。</p>
+<h3 id="Anchor_89991492_h3_16">グラフ構造中の閉路の禁止</h3>
+<p>オーディオレンダラでは閉路の存在するグラフ構造は禁止されています。</p>
+<p>オーディオレンダラの動作中に閉路が形成された場合、 <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() はエラー <span class="ApiLink_nn__audio__ResultCycleDetected">nn::audio::ResultCycleDetected</span> を返し、レンダリング処理を停止します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_89991492/198953161.png" width="600" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_89991492_h3_17">AudioRenderer からの情報の取得について</h3>
+<p>
+  <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() は、AudioRenderer へのパラメータの反映と同時に、AudioRenderer の再生状況の取得も行います。以下の API が返す結果は&nbsp;<span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() が呼ばれない場合最新の値とはならないことにご注意ください。</p>
+<ul>
+  <li>MemoryPool<ul><li><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__IsMemoryPoolAttached">nn::audio::IsMemoryPoolAttached</span>()</span></li><li><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__">nn::audio::</span><span style="color: rgb(51,51,51);">GetMemoryPoolState()</span></span></li><li><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__GetReleasedMemoryPoolCount">nn::audio::GetReleasedMemoryPoolCount</span>()</span></span></span></li></ul></li>
+  <li>Voice<ul><li><span class="ApiLink_nn__audio__GetReleasedWaveBuffer">nn::audio::GetReleasedWaveBuffer</span>()</li><li><span class="ApiLink_nn__audio__GetVoicePlayedSampleCount">nn::audio::GetVoicePlayedSampleCount</span>()</li></ul></li>
+  <li>Effects<ul><li><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__IsBufferMixerRemovable">nn::audio::IsBufferMixerRemovable</span>()</span></li><li><span class="ApiLink_nn__audio__IsAuxRemovable">nn::audio::IsAuxRemovable</span>()<span style="color: rgb(51,51,51);"><br /></span></li><li><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__IsDelayRemovable">nn::audio::IsDelayRemovable</span>()</span></li><li><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__IsReverbRemovable">nn::audio::IsReverbRemovable</span>()</span></li><li><span class="ApiLink_nn__audio__IsI3dl2ReverbRemovable">nn::audio::IsI3dl2ReverbRemovable</span>()</li></ul></li>
+  <li>Sink<ul><li><span class="ApiLink_nn__audio__ReadCircularBufferSink">nn::audio::ReadCircularBufferSink</span>()</li></ul></li>
+  <li>PerformanceMetrics<ul><li><span style="color: rgb(51,51,51);"><span class="ApiLink_nn__audio__SetPerformanceFrameBuffer">nn::audio::SetPerformanceFrameBuffer</span>()</span></li></ul></li>
+</ul>
+<h2 id="Anchor_89991492_h2_4">使用例</h2>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/_page_sample_audio_audio_renderer.html" rel="nofollow">オーディオレンダラのサンプル</a> および <a class="external-link" href="../../../Api/HtmlNX/_page_sample_audio_audio_effect.html" rel="nofollow">オーディオエフェクトのサンプル</a> を参照してください。</p>
+<h2 id="Anchor_89991492_h2_5">関数リファレンス</h2>
+<p>
+  <a class="external-link" href="../../../Api/HtmlNX/namespacenn_1_1audio.html" rel="nofollow">nn::audio 名前空間</a> の「関数」内の「オーディオレンダラ」カテゴリを参照してください。</p>
+<h2 id="Anchor_89991492_h2_6">注意点</h2>
+<h3 id="Anchor_89991492_h3_18">PC 開発環境と開発機環境の相違点について</h3>
+<p>PC 開発環境におけるオーディオの出力は Windows OS のサウンドドライバを利用しており、特にハードウェア割り込みのタイミングは環境に大きく依存します（<span style="color: rgb(51,51,51);">一般的には割り込みの間隔の揺らぎは開発機よりも大きくなります</span>）。このタイミングの違いにより、短いサンプル数の WaveBuffer を利用する場合に、環境によっては音途切れが発生する可能性があります。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__audio__AudioRendererParameter', '../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html' )
+SetUrl( 'ApiLink_nn__audio__GetAudioRendererConfigWorkBufferSize', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a95cbf601a713ee8fa8a4a2154adc4577' )
+SetUrl( 'ApiLink_nn__audio__OpenAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ae9541c61a6710260800fe7800759fcb2' )
+SetUrl( 'ApiLink_nn__audio__AudioRendererHandle', '../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_handle.html' )
+SetUrl( 'ApiLink_nn__audio__AudioRendererConfig', '../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_config.html' )
+SetUrl( 'ApiLink_nn__audio__RequestUpdateAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#acf560fde488cb8a60016e2463031f51c' )
+SetUrl( 'ApiLink_nn__audio__InitializeAudioRendererConfig', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ad760c8918bd571a6fb2b4e93890610c3' )
+SetUrl( 'ApiLink_nn__audio__StartAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a44661dca198e6c56cbfbaed66a44a37c' )
+SetUrl( 'ApiLink_nn__audio__StopAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a2dbcd4137f93a2db47d42f8e85055aef' )
+SetUrl( 'ApiLink_nn__audio__CloseAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a53a495cb3c91182f9400c8ee6640ea95' )
+SetUrl( 'ApiLink_nn__audio__IsVoiceDroppedFlagOn', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a36edba1324142dbf5e8bb35b5e9c407e' )
+SetUrl( 'ApiLink_nn__audio__ResetVoiceDroppedFlag', '../../../Api/HtmlNX/namespacenn_1_1audio.html#afb4e48558222547c01aa28cd17cfccfe' )
+SetUrl( 'ApiLink_nn__audio__IsValidAudioRendererParameter', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a47cd70bf97b71c04d03843b62acba7aa' )
+SetUrl( 'ApiLink_nn__audio__AcquireSplitter', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a69a44e719f9edf5722f8b41fcdbee1c9' )
+SetUrl( 'ApiLink_nn__audio__DeviceSinkType', '../../../Api/HtmlNX/structnn_1_1audio_1_1_device_sink_type.html' )
+SetUrl( 'ApiLink_nn__audio__', '../../../Api/HtmlNX/namespacenn_1_1audio.html' )
+SetUrl( 'ApiLink_nn__audio__SetAudioDeviceMapping', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a775f5a79eed49818219a8f4f54c370da' )
+SetUrl( 'ApiLink_nn__audio__AddDeviceSink', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a3488400bca0314937bc5976edd547b65' )
+SetUrl( 'ApiLink_nn__audio__FinalMixType', '../../../Api/HtmlNX/structnn_1_1audio_1_1_final_mix_type.html' )
+SetUrl( 'ApiLink_nn__audio__ChannelMapping', '../../../Api/HtmlNX/namespacenn_1_1audio.html#ae5febdb32531c0ab471ab02f6a0c2892' )
+SetUrl( 'ApiLink_nn__audio__AddCircularBufferSink', '../../../Api/HtmlNX/namespacenn_1_1audio.html#adf57360214b557133cfded7d2e35ad50' )
+SetUrl( 'ApiLink_nn__audio__ReadCircularBufferSink', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a3b5cb0cd36d72dce3c5cc039e9c48f85' )
+SetUrl( 'ApiLink_nn__audio__CircularBufferSinkType', '../../../Api/HtmlNX/structnn_1_1audio_1_1_circular_buffer_sink_type.html' )
+SetUrl( 'ApiLink_nn__audio__MixBufferCountMax', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a1a4290f884342fd7b34aee5ad7ab856f' )
+SetUrl( 'ApiLink_nn__audio__AcquireFinalMix', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a873526a8a5b24dd901aaa35d93497b6e' )
+SetUrl( 'ApiLink_nn__audio__AcquireSubMix', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a6426c6dc92a7269ee764a54c3e2640f1' )
+SetUrl( 'ApiLink_nn__audio__SetSubMixDestination', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a2a766e7c0da8dfff24930b1f4eb83a36' )
+SetUrl( 'ApiLink_nn__audio__SetSubMixMixVolume', '../../../Api/HtmlNX/namespacenn_1_1audio.html#abc7f204e66f9b215f7ba0356fc254c21' )
+SetUrl( 'ApiLink_nn__audio__SetVoiceDestination', '../../../Api/HtmlNX/namespacenn_1_1audio.html#aa7cef89d65251a9c1030c7739aba1fd5' )
+SetUrl( 'ApiLink_nn__audio__SetVoiceMixVolume', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a794ab20f84e73d9dd8d2b3447266db68' )
+SetUrl( 'ApiLink_nn__audio__ResultCycleDetected', '../../../Api/HtmlNX/classnn_1_1audio_1_1_result_cycle_detected.html' )
+SetUrl( 'ApiLink_nn__audio__IsMemoryPoolAttached', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a6f03c6def216f2fda58b69eecd489c68' )
+SetUrl( 'ApiLink_nn__audio__GetReleasedMemoryPoolCount', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a62f43ee33263e5b25a6a53017f9e5ea2' )
+SetUrl( 'ApiLink_nn__audio__GetReleasedWaveBuffer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#af6814512460e40507065e145acc7af73' )
+SetUrl( 'ApiLink_nn__audio__GetVoicePlayedSampleCount', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a63a84958194a1f6fabd372d6cda0a415' )
+SetUrl( 'ApiLink_nn__audio__IsBufferMixerRemovable', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a71055d98fbd04707cceb8feab65590da' )
+SetUrl( 'ApiLink_nn__audio__IsAuxRemovable', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a25d74693e6388a90800fa8495a815bea' )
+SetUrl( 'ApiLink_nn__audio__IsDelayRemovable', '../../../Api/HtmlNX/namespacenn_1_1audio.html#af87f1cd3d3fc96ec462ff53b2d2cf743' )
+SetUrl( 'ApiLink_nn__audio__IsReverbRemovable', '../../../Api/HtmlNX/namespacenn_1_1audio.html#aed310deb0402da092e749daeae55a16f' )
+SetUrl( 'ApiLink_nn__audio__IsI3dl2ReverbRemovable', '../../../Api/HtmlNX/namespacenn_1_1audio.html#aec2cfa90b8b271b760d249c974e550e5' )
+SetUrl( 'ApiLink_nn__audio__SetPerformanceFrameBuffer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#a79fbc2e83596b8616e5b384718703c6b' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

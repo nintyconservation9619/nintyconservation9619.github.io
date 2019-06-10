@@ -1,0 +1,702 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>バイナリコンバータ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- バイナリコンバータ -->
+<div class="pagetitle" id="PageId_83955581">バイナリコンバータ</div>
+<div class="text_separate">
+<h1 id="Anchor_83955581_h1_1">バイナリコンバータ</h1>
+<p>エフェクトバイナリコンバータについて説明します。バイナリコンバートには、エフェクトメーカーを利用します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955581_h1_1">バイナリコンバータ</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955581_h1_2">エフェクトバイナリを生成する</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955581_h1_3">コマンドラインオプション</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955581_h1_4">エラー出力</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955581_h1_5">終了コード</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955581_h1_6">知っておきたい機能</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83955581_h1_2">エフェクトバイナリを生成する</h1>
+<p>エミッタセット中間ファイルをエフェクトバイナリファイルにコンバートする方法について説明します。<br />エフェクトバイナリの生成には EffectMaker.exe を利用します。EffectMaker.exe に、エミッタセット中間ファイルを列挙した <strong>コンバートリストファイル</strong> を入力しエフェクトバイナリを生成します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>例)　windows向けのエフェクトバイナリを生成する
+EffectMaker.exe --convert-list ConvertList.xml --output EffectBinary.ptcl --api-type Gl --code-type Source --tile-mode linear</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955581_h2_1">コンバートリストファイル</h2>
+<p>バイナリコンバート対象となるエミッタセット中間ファイルを記述するファイルです。エミッタセット中間ファイルの指定方法は２通りです。</p>
+<ul>
+  <li>指定エミッタセットファイルをコンバート</li>
+  <li>指定フォルダ以下エミッタセットファイルをコンバート</li>
+</ul>
+<h3 id="Anchor_83955581_h3_1">指定エミッタセットファイルをコンバート</h3>
+<p>&lt;EmitterSetList&gt;～&lt;file&gt;タグ内にファイルパスを記述します。絶対パス指定の他、上記のようにコンバート用XMLファイルからの相対パス指定と、環境変数が利用可能です。環境変数の指定は、$(ENV_NAME)と%ENV_NAME%の両方の表記が使えます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8</td>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;EffectMakerCommandLineConverterArg&gt;
+&lt;name&gt;GameDemo&lt;/name&gt;
+&lt;EmitterSetList&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;file&gt;./GameData/Effect/EmitterSet01.eset&lt;/file&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;file&gt;./GameData/Effect/EmitterSet02.eset&lt;/file&gt;
+&lt;/EmitterSetList&gt;
+&lt;/EffectMakerCommandLineConverterArg&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955581_h3_2">指定フォルダ以下エミッタセットファイルをコンバート</h3>
+<p>&lt;EmitterSetList&gt;～&lt;dir&gt;タグ内にフォルダパスを記述します。絶対パス指定の他、上記のようにコンバート用XMLファイルからの相対パス指定と、環境変数が利用可能です。環境変数の指定は、$(ENV_NAME)と%ENV_NAME%の両方の表記が使えます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7</td>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;EffectMakerCommandLineConverterArg&gt;
+&lt;name&gt;GameDemo&lt;/name&gt;
+&lt;EmitterSetList&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;dir&gt;./GameData/Effect&lt;/dir&gt;
+&lt;/EmitterSetList&gt;
+&lt;/EffectMakerCommandLineConverterArg&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83955581_h4_1">コンバート用XMLファイルで使用するタグ</h4>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>タグ</th>
+      <th colspan="2">説明&nbsp;</th>
+    </tr>
+    <tr>
+      <td>EffectMakerCommandLineConverterArg</td>
+      <td colspan="2">コンバート用XML。下記タグを用いてコンバートするための情報を指定します。</td>
+    </tr>
+    <tr>
+      <td>BinaryName</td>
+      <td colspan="2">バイナリ名を指定します。指定された名前はバイナリ化されランタイム上から参照可能です。</td>
+    </tr>
+    <tr>
+      <td>EmitterSetList</td>
+      <td colspan="2">コンバートするエミッタセットのリスト。dir, fileタグを用いて指定します。複数指定が可能です。</td>
+    </tr>
+    <tr>
+      <td rowspan="2">
+        <br />
+        <br />
+      </td>
+      <td>&nbsp;dir</td>
+      <td>&nbsp;指定されたディレクトリ内にあるエミッタセットをコンバートします。</td>
+    </tr>
+    <tr>
+      <td>&nbsp;file</td>
+      <td>&nbsp;指定されたエミッタセットファイルをコンバートします。</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td colspan="2">ヘッダファイルで使用する namespace&nbsp;を指定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_83955581_h1_3">コマンドラインオプション</h1>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>オプション</th>
+      <th colspan="2">説明&nbsp;</th>
+    </tr>
+    <tr>
+      <td>-?</td>
+      <td colspan="2">コマンドラインのヘルプ表示します。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>--silent</p>
+        <p>-s</p>
+      </td>
+      <td colspan="2">ログの出力を抑制します。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>--output-c-header [header file path]</p>
+        <p>-h&nbsp;[header file path]</p>
+      </td>
+      <td colspan="2">エミッタセットIDを列挙するヘッダの出力パスを指定します。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>--convert-list&nbsp;[convert xml&nbsp;file path]</p>
+        <p>--convlist&nbsp;[convert xml&nbsp;file path]</p>
+      </td>
+      <td colspan="2">コンバートリストファイルを指定します。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>--prjconfig [project config&nbsp;file path]</p>
+        <p>--team-setting-file [project config&nbsp;file path]</p>
+      </td>
+      <td colspan="2">プロジェクト設定ファイルを指定します。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>--output [binary file path]</p>
+        <p>--o [binary file path]</p>
+      </td>
+      <td colspan="2">出力バイナリを指定します。</td>
+    </tr>
+    <tr>
+      <td>--output-texture-binary [texture binary file&nbsp;path]</td>
+      <td colspan="2">
+        <p>テクスチャバイナリの出力パスを指定します。<br />テクスチャバイナリを分割して出力したい場合に利用します。</p>
+        <p>出力されるテクスチャバイナリは、bntx 形式になります。<br />分割して出力されたテクスチャファイルの運用については、<a href="../Pages/Page_166051158.html">エフェクトバイナリについて</a> を参照ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--output-g3d-primitive-binary [primitive binary file&nbsp;path]</td>
+      <td colspan="2">
+        <p>G3D プリミティブバイナリの出力パスを指定します。<br />G3D プリミティブバイナリを分割して出力したい場合に利用します。</p>
+        <p>出力される G3D プリミティブバイナリは、bfres 形式になります。<br />分割して出力されたプリミティブファイルの運用については、<a href="../Pages/Page_166051158.html">エフェクトバイナリについて</a> を参照ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--output-shader-binary [shader binary file&nbsp;path]</td>
+      <td colspan="2">
+        <p>シェーダバイナリの出力パスを指定します。</p>
+        <p>バーテックスとピクセルシェーダバイナリは、エフェクトバイナリとは別ファイルで出力されます。<br />出力されるテクスチャバイナリは、bnsh 形式になります。</p>
+        <p>分割して出力されたシェーダファイルの運用については、<a href="../Pages/Page_164722471.html">メモリプールについて</a> を参照ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--output-compute-shader-binary [compute shader binary file&nbsp;path]</td>
+      <td colspan="2">
+        <p>コンピュートシェーダバイナリの出力パスを指定します。</p>
+        <p>コンピュートシェーダバイナリは、エフェクトバイナリとは別ファイルで出力されます。</p>
+        <p>出力されるテクスチャバイナリは、bnsh 形式になります。</p>
+        <p>分割して出力されたシェーダファイルの運用については、<a href="../Pages/Page_164722471.html">メモリプールについて</a> を参照ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-d</td>
+      <td colspan="2">コンバートの詳細情報を表示します。<br />省略時はシェーダ、テクスチャ、プリミティブ個数とサイズ、進捗状況を表示します。</td>
+    </tr>
+    <tr>
+      <td>--update&nbsp;[convert xml&nbsp;file path]</td>
+      <td colspan="2">エミッタセット中間ファイルを最新版へ上書きアップデートします。<br />カスタムシェーダ / カスタムアクション を利用している場合はプロジェクト設定ファイルを指定してください。<br />バイナリコンバートと同様に、コンバートリストファイルに対象ファイルを記述して、リストファイルのパスを指定します。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>--update-nw4c-to-nsdk [convert xml&nbsp;file path]</p>
+      </td>
+      <td colspan="2">
+        <p>NintendoWare for CTR のエミッタセット中間ファイルを最新版へ上書きアップデートします。</p>
+        <p>バイナリコンバートと同様に、コンバートリストファイルに対象ファイルを記述して、リストファイルのパスを指定します。</p>
+        <p>詳細は <a href="../Pages/Page_193058060.html">NW4C Effect からの NintendoSDK 移行ガイド</a>&nbsp;を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>-j [job Number]</td>
+      <td colspan="2">並列シェーダコンパイルを行うジョブ数を指定します。<br />指定されたジョブ数が内部ＣＰＵコア数より多い場合は、( 内部ＣＰＵコア数-１ )で動作します。<br />-j オプションを指定しない場合は、( 内部ＣＰＵコア数 )で動作します。</td>
+    </tr>
+    <tr>
+      <td>--api-type</td>
+      <td colspan="2">
+        <p>ShaderConverter に指定する コンバータオプション に準拠します。</p>
+        <p>Windows / OpenGL 向けバイナリを出力する際は、<strong>Gl</strong>　を指定します。</p>
+        <p>Windows / OpenGL 向け以外のバイナリを出力する際は、<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a> を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--code-type</td>
+      <td colspan="2">
+        <p>ShaderConverter に指定する コンバータオプション に準拠します。</p>
+        <p>Windows / OpenGL 向けバイナリを出力する際は、<strong>Binary_Source</strong> または <strong>Source</strong> を指定します。</p>
+        <p>Windows / OpenGL 向け以外のバイナリを出力する際は、<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a> を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--shader-cache-directory</td>
+      <td colspan="2">
+        <p>ShaderConverter に指定する コンバータオプション に準拠します。</p>
+        <p>利用可能なプラットフォームに制限があります。--api-type&nbsp;<strong>Gl</strong> は未サポートです。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--tile-mode</td>
+      <td colspan="2">
+        <p>3dTextureConverter に指定する コンバータオプション に準拠します。</p>
+        <p>Windows / OpenGL 向けバイナリを出力する際は、<strong>linear</strong> を指定します。</p>
+        <p>Windows / OpenGL 向け以外のバイナリを出力する際は、<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a> を参照してください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--tile-optimize</td>
+      <td colspan="2">
+        <p>3dTextureConverter に指定する コンバータオプション に準拠します。<br />利用可能なプラットフォームに制限があります。Windows / OpenGL 向けバイナリの出力は未サポートです。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>--tile-size-threshold</td>
+      <td colspan="2">
+        <p>3dTextureConverter に指定する コンバータオプション に準拠します。<br />利用可能なプラットフォームに制限があります。Windows / OpenGL 向けバイナリの出力は未サポートです。</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="3">
+        <p>--platform [platform]</p>
+        <strong>&nbsp;&nbsp;</strong>
+      </td>
+      <td colspan="2">
+        <p>
+          <u>
+            <strong>本オプションは、将来的に廃止が予定されています。</strong>
+          </u>
+        </p>
+        <p>出力バイナリを利用するプラットフォームを指定します。</p>
+        <p>
+          <strong>この指定がない場合、バイナリコンバートは実行されませんので注意してください。</strong>
+        </p>
+        <p>[platform]に指定できるのは、現在利用しているパッケージでサポートしているプラットフォーム名です。</p>
+        <p>プラットフォーム名は大文字小文字を区別しません。</p>
+        <p>上記以外のプラットフォーム向けバイナリを出力する場合は、<a href="../Pages/Page_95696747.html">プラットフォーム固有の情報</a> 参照ください。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Win&nbsp;</strong>or<strong> Windows</strong>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td>
+        <p>Windows 64bit 版 バイナリを出力します。</p>
+        <p>シェーダコンバータは以下のオプションで呼び出されます。</p>
+        <p>ShaderConverter.exe --api-type&nbsp;<strong>Gl</strong> --code-type <strong>Source</strong> --tile-mode <strong>linear</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Win32 </strong>or<strong> Windows32　</strong></td>
+      <td>
+        <p>Windows 32bit 版 バイナリを出力します。</p>
+        <p>シェーダコンバータは以下のオプションで呼び出されます。</p>
+        <p>ShaderConverter32.exe --api-type&nbsp;<strong>Gl</strong> --code-type <strong>Source</strong> --tile-mode <strong>linear</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <td>--include-emitter-set-file-path-array</td>
+      <td colspan="2">
+        <div class="content-wrapper">
+          <p>出力バイナリに、エッタセットのファイルパステーブルを追加します。<br />これを追加することで、ランタイムでファイルパスによるエミッタセット ID の検索や、<br />エミッタセット ID によるファイルパス取得などを行うことができます。</p>
+          <p>エミッタセットのファイルパスは、プロジェクト設定ファイルからの相対パスになります。</p>
+          <p>そのため、--team-setting-fileオプションでプロジェクト設定ファイルを指定する必要があります。<br /><a href="../Pages/Page_166051158.html">エフェクトバイナリについて</a>&nbsp;も御覧ください。</p>
+          <p>
+            <br />
+          </p>
+          <p>
+            <span class="status_macro_base status_macro_Blue">関連リンク</span>
+          </p>
+          <ul>
+            <li>
+              <a href="../Pages/Page_193037046.html">プログラマ向け変更点( NxAddon 1.0.0 )</a>
+            </li>
+          </ul>
+          <p>
+            <br />
+          </p>
+          <div class="note_new">
+            <div class="note_new_left">注意：</div>
+            <div class="note_new_right">
+              <p>エミッタセットファイルパスをバイナリに含めるのは、基本的に開発中のバイナリについて行うようにし、製品に含めるバイナリをコンバートする際には、本機能を使用しないでください。<br />エフェクトバイナリを解析された場合、開発環境のディレクトリ構成やエミッタセット名などの情報が漏えいするおそれがあります。</p>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>オプション記法の統一化に伴い、2文字以上のオプションにはハイフンを2つ(&ndash;)付けるようになっています。<br />現在は旧記法でも受け付けるようになっていますが、いずれ廃止しますので、なるべく新記法に沿った形で運用してください。</p>
+  </div>
+</div>
+<h1 id="Anchor_83955581_h1_4">エラー出力</h1>
+<p>以下に示すエラーが表示されることがあります。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>エラー</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">-hオプションを使用する場合は、-oオプションでバイナリ出力も指定してください。</span>
+      </td>
+      <td>-hオプションを指定する場合は、-oオプションも指定する必要があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">指定されたエミッタリストXMLファイルは見つかりませんでした。</span>
+        <br />
+        <span style="color: rgb(255,0,0);">　パス：&nbsp;[convert xml&nbsp;file path]</span>
+      </td>
+      <td>--convlistで指定されたコンバート用XMLファイルが見つからなかった場合。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">指定されたエミッタセットフォルダは見つかりませんでした。</span>
+        <br />
+        <span style="color: rgb(255,0,0);">　パス： &quot;コンバート用XMLファイルで指定したエミッタセットフォルダのパス&quot;</span>
+      </td>
+      <td>コンバート用XMLファイル内のdirタグで指定した、エミッタセットのフォルダが見つからなかった場合。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">指定されたエミッタセットファイルは見つかりませんでした。<br /></span>
+        <span style="color: rgb(255,0,0);">　パス： &quot;コンバート用XMLファイルで指定したエミッタセットファイルのパス&quot;</span>
+      </td>
+      <td>コンバート用XMLファイル内のfileタグで指定した、エミッタセットのファイルが見つからなかった場合。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">プロジェクト設定XMLの読み込みに失敗しました。</span>
+        <br />
+        <span style="color: rgb(255,0,0);">　パス： [project config&nbsp;file path]</span>
+      </td>
+      <td>--prjconfigで指定したプロジェクト設定XMLファイルの読み込みに失敗した場合。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">エミッタリストXMLの読み込みに失敗しました。<br /></span>
+        <span style="color: rgb(255,0,0);">　パス： [convert xml&nbsp;file path]</span>
+      </td>
+      <td>コンバート用XMLファイル内の、EmitterSetListタグの記述が間違っていた場合。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">指定された出力フォルダは見つかりませんでした。</span>
+        <br />
+        <span style="color: rgb(255,0,0);">　パス： [header file path] or&nbsp;[binary file path]&nbsp;</span>
+      </td>
+      <td>-oと-hで指定したファイルのフォルダは予め作成しておく必要があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">有効なシェーダオプションではありません: &quot;-shaderOptで指定したオプション&quot;</span>
+      </td>
+      <td>--shaderOptで指定するオプションはfast, small, cacheのいずれかである必要があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">有効なコマンドラインスイッチではありません: &quot;不正なコマンドライン引数&quot;</span>
+      </td>
+      <td>指定するオプションは-?, -h, --convlist, --projconfig, -o, --update, --shaderOpt, --platformのいずれかである必要があります。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">指定されたプロジェクト設定XMLファイルは見つかりませんでした。</span>
+        <br />
+        <span style="color: rgb(255,0,0);">　パス： [project config&nbsp;file path]</span>
+      </td>
+      <td>--prjconfigで指定したプロジェク設定XMLファイルが見つからなかった場合。</td>
+    </tr>
+    <tr>
+      <td>
+        <span style="color: rgb(255,0,0);">-oオプションを使用する場合は、--platformオプションも指定してください。</span>
+      </td>
+      <td>複数のプラットフォームに対応するようになったため、コンバート時のプラットフォーム指定は必須です。</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_83955581_h1_5">終了コード</h1>
+<p>バイナリコンバートの実行結果によって、以下の終了コードを返します。</p>
+<table class="wrapped" style="margin-left: 2.0px;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th style="text-align: center;">終了コード</th>
+      <th style="text-align: center;">意味</th>
+      <th style="text-align: center;">バイナリ生成</th>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>正常終了</td>
+      <td>成功</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>
+        <p>警告があったが処理は完了している</p>
+        <p>(シェーダコンパイル時の警告が対象になります)</p>
+      </td>
+      <td>成功</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>コマンドライン引数に間違いがあった</td>
+      <td>失敗</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>処理の準備中にエラーが起きた</td>
+      <td>失敗</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>処理の実行中にエラーが起きた</td>
+      <td>失敗</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>3や4ではハンドルできない例外が起きた</td>
+      <td>失敗</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_83955581_h1_6">知っておきたい機能</h1>
+<ul>
+  <li>
+    <p>中間ファイルをアップデートする</p>
+  </li>
+  <li>
+    <p>エフェクトバイナリ生成時にエミッタセットIDを列挙したヘッダを出力する</p>
+  </li>
+  <li>
+    <p>出力するバイナリ内の内訳について</p>
+  </li>
+</ul>
+<h2 id="Anchor_83955581_h2_2">中間ファイルをアップデートする</h2>
+<p>エミッタセット中間ファイルは、機能追加や不具合修正のタイミングで 中間ファイルバージョンが更新されることがあります。<br />EffectMaker は、古い中間ファイルバージョンのエミッタセットファイルをロードした際に、内部で新しい中間ファイルへの更新が行われる為、特にユーザー側で作業なく古い中間ファイルを読み込むことが可能ですが、コマンドラインコンバート時も古い中間ファイルの更新処理が走ってしまう為、中間ファイルバージョン更新のタイミングで全てのエミッタセット中間ファイルバージョンを更新することで、コマンドラインコンバート時間の短縮が期待できます。</p>
+<p>中間フィアルの更新は バイナリコンバート時に<strong> --update </strong>コマンドラインオプションを付けてを実行することで更新できます。</p>
+<h2 id="Anchor_83955581_h2_3">エフェクトバイナリ生成時にエミッタセットIDを列挙したヘッダを出力する</h2>
+<p>
+  <strong>--output-c-header</strong>&nbsp;オプションを利用することで、エミッタセットIDを列挙したランタイム向けのヘッダファイルの出力ができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>EffectMaker.exe --output-c-header test.h --convert-list ConvertList.xml --output EffectBinary.ptcl --api-type Gl --code-type Source --tile-mode linear</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21</td>
+      <td class="code">
+        <div class="codeblock"><pre>/*****************************************************************************
+       &nbsp;Converterが自動生成しました。
+*****************************************************************************/
+#ifndef _Converter_GameDemo_Included_
+#define _Converter_GameDemo_Included_
+namespace GameDemo
+{
+   &nbsp;//
+   &nbsp;//    EmitterSet
+   &nbsp;//
+   &nbsp;const int Check_Alpha                              = 0;
+
+   &nbsp;//
+   &nbsp;//    Emitter
+   &nbsp;//
+   &nbsp;const int Check_Alpha_TexXVtx                      = 0;
+   &nbsp;const int Check_Alpha_TexXVtx2                     = 1;
+   &nbsp;const int Check_Alpha_TexRXVtx                     = 2;
+   &nbsp;const int Check_Alpha_TexRXVtx2                    = 3;
+} // namespace GameDemo
+#endif</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955581_h2_4">出力するバイナリ内の内訳について</h2>
+<p>コマンドラインコンバートに成功した場合、以下のようにコンバートにかかった時間の詳細やバイナリ内内訳の詳細がログが出力されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="o">[</span>VfxConv<span class="o">]</span>  --------------------------------------------------------------
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>  vfx binary conversion has been successfully finished.
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>          ---- basic information ----
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>  start date                    :         2017/03/16
+<span class="o">[</span>VfxConv<span class="o">]</span>  start <span class="nb">time</span>                    :           10:02:13
+<span class="o">[</span>VfxConv<span class="o">]</span>  finish <span class="nb">time</span>                   :           10:02:31
+<span class="o">[</span>VfxConv<span class="o">]</span>  binary version                :           00000016
+<span class="o">[</span>VfxConv<span class="o">]</span>  converter version             :              2.6.0
+<span class="o">[</span>VfxConv<span class="o">]</span>  converter build date          :         2000/01/01
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>          ---- resources ----
+<span class="o">[</span>VfxConv<span class="o">]</span>                                 number  binary size
+<span class="o">[</span>VfxConv<span class="o">]</span>                                             <span class="o">(</span>bytes<span class="o">)</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>  total                         :            8681200
+<span class="o">[</span>VfxConv<span class="o">]</span>    eset                        :    43
+<span class="o">[</span>VfxConv<span class="o">]</span>    texture                     :    <span class="m">95</span>      4599424
+<span class="o">[</span>VfxConv<span class="o">]</span>    primitive                   :     <span class="m">1</span>         8968
+<span class="o">[</span>VfxConv<span class="o">]</span>    g3d primitive               :    <span class="m">23</span>       267208
+<span class="o">[</span>VfxConv<span class="o">]</span>    shader                      :   <span class="m">178</span>      3010112
+<span class="o">[</span>VfxConv<span class="o">]</span>    compute shader              :    <span class="m">21</span>       263920
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>          ---- <span class="nb">time</span> <span class="o">(</span>seconds<span class="o">)</span> ----
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>  total                         :              17.50
+<span class="o">[</span>VfxConv<span class="o">]</span>    eset reading                :               9.11
+<span class="o">[</span>VfxConv<span class="o">]</span>    texture conversion          :               0.10
+<span class="o">[</span>VfxConv<span class="o">]</span>    primitive conversion        :               0.02
+<span class="o">[</span>VfxConv<span class="o">]</span>    g3d Primitive conversion    :               0.70
+<span class="o">[</span>VfxConv<span class="o">]</span>    shader conversion           :               7.23
+<span class="o">[</span>VfxConv<span class="o">]</span>    compute Shader conversion   :               0.41
+<span class="o">[</span>VfxConv<span class="o">]</span>
+<span class="o">[</span>VfxConv<span class="o">]</span>  --------------------------------------------------------------</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プログラマ向け変更点</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プログラマ向け変更点 -->
+<div class="pagetitle" id="PageId_193047512">プログラマ向け変更点</div>
+<div class="text_separate">
+<h1 id="Anchor_193047512_h1_1">プログラマ向け変更点</h1>
+<p>NintendoSDK 1.0.0 で行われた NintendoWare オーディオ (<span class="ApiLink_nn__atk">nn::atk</span>) の変更点について説明します。</p>
+<h1 id="Anchor_193047512_h1_2">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_193047512_h2_1">デフォルトの設定の変更</a>
+    </li>
+    <li>
+      <a href="#Anchor_193047512_h2_2">バイナリバージョンの更新</a>
+    </li>
+    <li>
+      <a href="#Anchor_193047512_h2_3">録音波形のチャンネルが nn::atk::ChannelIndex で定義される並びと異なる不具合の修正</a>
+    </li>
+    <li>
+      <a href="#Anchor_193047512_h2_4">波形のサンプルレートに応じてローパスフィルタのカットオフ周波数が変化する不具合の修正(NintendoSDK 0.16.5 の変更)に関する注意点</a>
+    </li>
+    <li>
+      <a href="#Anchor_193047512_h2_5">ドキュメントの改訂</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_193047512_h2_1">デフォルトの設定の変更</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__atk__SoundSystem__SetOutputMode">nn::atk::SoundSystem::SetOutputMode</span>() で指定することができるサウンドの出力モードはこれまで <span class="ApiLink_nn__atk__OutputMode_Stereo">nn::atk::OutputMode_Stereo</span> がデフォルト値でしたが、今回から <span class="ApiLink_nn__atk__OutputMode_Surround">nn::atk::OutputMode_Surround</span> がデフォルト値になりました。<br />これにより若干聞こえ方に変化がある可能性がある点にご注意ください。以前と同じ挙動に戻したい場合は <span class="ApiLink_nn__atk__SoundSystem__SetOutputMode">nn::atk::SoundSystem::SetOutputMode</span>() で&nbsp;<span class="ApiLink_nn__atk__OutputMode_Stereo">nn::atk::OutputMode_Stereo</span> を指定してください。</li>
+  <li>オーディオレンダラの処理が間に合わずノイズになる恐れがある場合に、優先度が低いボイスを自動的に停止させる機能（ボイスドロップ機能）がデフォルトで有効となるように変更しました。<br />以前と同じ挙動に戻したい場合には、<span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam__enableVoiceDrop">nn::atk::SoundSystem::SoundSystemParam::enableVoiceDrop</span> を false に設定したものを、<span class="ApiLink_nn__atk__SoundSystem__Initialize">nn::atk::SoundSystem::Initialize</span>() を呼ぶときに渡してください。</li>
+</ul>
+<h2 id="Anchor_193047512_h2_2">バイナリバージョンの更新</h2>
+<ul>
+  <li>バイナリサウンドアーカイブファイル ( bfsar ) のバージョンを 0.2.4.0 に更新しました。<span style="color: rgb(51,51,51);">今回の更新においては互換性が維持されているため、バイナリを再コンバートする必要はありません。&nbsp;</span></li>
+  <li>評価中の機能のためのバイナリ ( bfstp ) のバージョンを 0.3.0.0 に更新しました。<span style="color: rgb(51,51,51);">今回の更新においては互換性が維持されているため、バイナリを再コンバートする必要はありません。 </span></li>
+</ul>
+<h2 id="Anchor_193047512_h2_3">録音波形のチャンネルが nn::atk::ChannelIndex で定義される並びと異なる不具合の修正</h2>
+<p>
+  <span class="ApiLink_nn__atk__SoundSystem__ReadCircularBufferSink">nn::atk::SoundSystem::ReadCircularBufferSink</span>() で読み取ったサンプルデータのチャンネル順が、<span class="ApiLink_nn__atk__ChannelIndex">nn::atk::ChannelIndex</span> で定義される並びと異なる不具合を修正しました。</p>
+<p>これにより、修正前と比べて録音したサンプルデータの「<span class="ApiLink_nn__atk__ChannelIndex_RearLeft">nn::atk::ChannelIndex_RearLeft</span> と <span class="ApiLink_nn__atk__ChannelIndex_FrontCenter">nn::atk::ChannelIndex_FrontCenter</span>」,「<span class="ApiLink_nn__atk__ChannelIndex_RearRight">nn::atk::ChannelIndex_RearRight</span> と <span class="ApiLink_nn__atk__ChannelIndex_Lfe">nn::atk::ChannelIndex_Lfe</span>」のチャンネルがそれぞれ入れ替わる点にご注意ください。</p>
+<h2 id="Anchor_193047512_h2_4">波形のサンプルレートに応じてローパスフィルタのカットオフ周波数が変化する不具合の修正(NintendoSDK 0.16.5 の変更)に関する注意点</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__atk__SoundHandle__SetLowPassFilterFrequency">nn::atk::SoundHandle::SetLowPassFilterFrequency</span> などのローパスフィルタ処理において、SoundMaker 等で設定する波形のサンプルレートに応じてローパスフィルタのカットオフ周波数が変化する不具合が NintendoSDK 0.16.5 において修正されています。<br />これに伴って、 <span class="ApiLink_nn__atk__SoundHandle__SetLowPassFilterFrequency">nn::atk::SoundHandle::SetLowPassFilterFrequency</span> や SoundMaker でローパスフィルタの値を設定している場合、 NintendoSDK 0.16.5 以前と比べて出力波形が変化する可能性があります。&nbsp;<br /> <span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam__enableCompatibleLowPassFilter">nn::atk::SoundSystem::SoundSystemParam::enableCompatibleLowPassFilter</span> に true を設定することで NintendoSDK 0.16.5 以前のローパスフィルタを適用することができますが、<br />これは一時的な対応であり将来的に削除予定である点にご注意ください。</li>
+</ul>
+<h2 id="Anchor_193047512_h2_5">ドキュメントの改訂</h2>
+<p>以下の項目を修正しました。</p>
+<ul>
+  <li>
+    <a href="../Pages/Page_83956106.html">サウンドシステムマニュアル</a>の<a href="../Pages/Page_83955833.html">プライオリティの動作</a>の「発音プライオリティの設定」のシーケンスサウンドとウェーブサウンドのプライオリティの説明に誤りがあったため修正しました。</li>
+  <li>ポーズ時の挙動の説明に誤りがあったため、以下の API リファレンスを修正しました。<ul><li><span class="ApiLink_nn__atk__SoundHandle__Pause">nn::atk::SoundHandle::Pause</span>()</li><li><span class="ApiLink_nn__atk__SequenceSoundHandle__Pause">nn::atk::SequenceSoundHandle::Pause</span>()</li><li><span class="ApiLink_nn__atk__StreamSoundHandle__Pause">nn::atk::StreamSoundHandle::Pause</span>()</li><li><span class="ApiLink_nn__atk__WaveSoundHandle__Pause">nn::atk::WaveSoundHandle::Pause</span>()</li></ul></li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk', '../../../Api/HtmlNX/namespacenn_1_1atk.html' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SetOutputMode', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a5ceed4da0556ace46c5be4bd55dd5c8c' )
+SetUrl( 'ApiLink_nn__atk__OutputMode_Stereo', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afcf3a82ee9e18f7e36fa830ad90025d0ae8c332ff47781e0db771e2e3e7ed0a58' )
+SetUrl( 'ApiLink_nn__atk__OutputMode_Surround', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afcf3a82ee9e18f7e36fa830ad90025d0af7c6be40748056810d1b03616afbc373' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam__enableVoiceDrop', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html#a62d94b233257e53213ee2e4d81632672' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#a90af35a47a6cba54503302105cebd49a' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__ReadCircularBufferSink', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html#af2699af79bd3461ec029afa019773fda' )
+SetUrl( 'ApiLink_nn__atk__ChannelIndex', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afd60556cffb47e39b6ce396b0feec50e' )
+SetUrl( 'ApiLink_nn__atk__ChannelIndex_RearLeft', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afd60556cffb47e39b6ce396b0feec50ea0be4d47f7688aa8bd86058d52914cf98' )
+SetUrl( 'ApiLink_nn__atk__ChannelIndex_FrontCenter', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afd60556cffb47e39b6ce396b0feec50ea7c9520ee283bcf09f5b2e1739e34b0e8' )
+SetUrl( 'ApiLink_nn__atk__ChannelIndex_RearRight', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afd60556cffb47e39b6ce396b0feec50ea9722c58ea6089f1b16498f817fe05da7' )
+SetUrl( 'ApiLink_nn__atk__ChannelIndex_Lfe', '../../../Api/HtmlNX/namespacenn_1_1atk.html#afd60556cffb47e39b6ce396b0feec50eaf312f223ed25d13dcfafb2fd9bc4c753' )
+SetUrl( 'ApiLink_nn__atk__SoundHandle__SetLowPassFilterFrequency', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html#ad363eef9145a282eab59231f5b009b57' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam__enableCompatibleLowPassFilter', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html#a0e1b2f9ce0fa89d2f34b5f0cbf431c9d' )
+SetUrl( 'ApiLink_nn__atk__SoundHandle__Pause', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_handle.html#a6e462d41d5f1abddebf2d9162c37bd00' )
+SetUrl( 'ApiLink_nn__atk__SequenceSoundHandle__Pause', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sequence_sound_handle.html#aa475841013bdc7f1c455345103eed5b6' )
+SetUrl( 'ApiLink_nn__atk__StreamSoundHandle__Pause', '../../../Api/HtmlNX/classnn_1_1atk_1_1_stream_sound_handle.html#a3ecb1a8880a2be6502f09b2605915e90' )
+SetUrl( 'ApiLink_nn__atk__WaveSoundHandle__Pause', '../../../Api/HtmlNX/classnn_1_1atk_1_1_wave_sound_handle.html#ac03d181bd47fac3aa741bb94c7bb59b9' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>PRMT</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    PRMT : Permute Register Pair<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Permute Register Pair" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Movement Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "PRMT", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>PRMT</b>{.mode}</code>   <code>Rd,Ra,Sb,Sc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "PRMT" } -->
+
+.mode:      { <b>.IDX*, .F4E, .B4E, .RC8, .ECL, .ECR, .RC16, INVALID</b> } 
+            Permutation mode (see Description section for details)
+
+
+
+<b>PRMT</b> allows the following sources Sb,Sc:
+    Sb(register),                         Sc(register)
+    Sb(constant with immediate address),  Sc(register)
+    Sb(#Imm20),                           Sc(register)
+    Sb(register),                         Sc(constant with immediate address)
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+Video and Compute frequently need to do alignment and extraction of byte and
+short data. To accelerate this, <b>PRMT</b> can pick four arbitrary bytes from two
+32b registers, and reassemble them into a 32b destination register.</p>
+
+<ul><li>Source Ra is the first input register  (bytes 3,2,1,0).</li>
+    <li>Source Sb is the permute control (lower 16b).</li>
+    <li>Source Sc is the second input register (bytes 7,6,5,4).</li>
+</ul>
+
+<p>
+The generic form (.IDX mode) of the permute control consists of four 4-bit 
+selection values. The bytes in the two source registers are numbered from 
+0 to 7: {Sc, Ra} = {{B7, B6, B5, B4}, {B3, B2, B1, B0}}. For each byte in 
+the target register, a 4-bit selection value is defined. </p>
+<p>
+The 3 lsbs of the selection value specify which of the 8 source bytes should 
+be moved into the target position. The msb defines if the byte value should 
+be copied, or if the sign (msb of the byte) should be replicated over all 8 
+bits of the target position (sign extend of the byte value); msb=0 means copy
+the literal value; msb=1 means replicate the sign.  Note that the sign extension
+is only performed as part of generic form (.IDX mode).  </p>
+<p>
+Thus, the four 4-bit values fully specify an arbitrary byte permute, as a 16b 
+permute code.</p>
+
+<pre>
+--------------------------------------------------------------------------------------
+Control                dest byte 3  dest byte 2  dest byte 1  dest byte 0
+                       src select   src select   src select   src select
+--------------------------------------------------------------------------------------
+<b>Index</b>                    Sb[15:12]     Sb[11:8]      Sb[7:4]      Sb[3:0]
+--------------------------------------------------------------------------------------
+</pre>
+
+<p>
+The more specialized form of the permute control uses the two lsb's of Sb (which is
+typically an address pointer) to control the byte extraction.</p>
+
+<pre>
+--------------------------------------------------------------------------------------
+Control             selector   dest byte 3  dest byte 2  dest byte 1  dest byte 0
+                     Sb[1:0]      src          src          src          src 
+--------------------------------------------------------------------------------------
+<b>Forward4 extract</b>        0          3            2            1            0
+                        1          4            3            2            1
+                        2          5            4            3            2
+                        3          6            5            4            3
+
+<b>Backward4 extract</b>       0          5            6            7            0
+                        1          6            7            0            1
+                        2          7            0            1            2
+                        3          0            1            2            3
+
+<b>Replicate.8</b>             0          0            0            0            0         
+                        1          1            1            1            1
+                        2          2            2            2            2
+                        3          3            3            3            3
+
+<b>EdgeClampL</b>              0          3            2            1            0
+                        1          3            2            1            1
+                        2          3            2            2            2
+                        3          3            3            3            3
+
+<b>EdgeClampR</b>              0          0            0            0            0
+                        1          1            1            1            0
+                        2          2            2            1            0
+                        3          3            2            1            0
+
+<b>Replicate.16</b>            0          1            0            1            0
+                        1          3            2            3            2
+                        2          1            0            1            0
+                        3          3            2            3            2
+--------------------------------------------------------------------------------------
+</pre>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+	
+<pre>
+<b>PRMT</b>.ECR  R0,R1,R2,R3;            
+<b>PRMT</b>.IDX  R0,R1,0x6420,R3;            
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

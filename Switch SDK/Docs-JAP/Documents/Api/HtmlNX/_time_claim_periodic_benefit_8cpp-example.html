@@ -1,0 +1,290 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: TimeClaimPeriodicBenefit.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">TimeClaimPeriodicBenefit.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_time_claim_periodic_benefit_with_user_system_clock.html">ClaimPeriodicBenefitWithUserSystemClock</a> および <a class="el" href="_time_claim_periodic_benefit_8cpp.html" title="ユーザー時計( nn::time::StandardUserSystemClock )の時刻を使って、 定期的な利益を得られるかどうかを判�...">TimeClaimPeriodicBenefit.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="time_8h.html">nn/time.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="os___thread_api_8h.html">nn/os/os_ThreadApi.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 1分に1度(ユーザー時計の時刻の分が変わるたびに)利益を受け取るための日時確認コールバッククラス</span></div>
+<div class="line"><span class="keyword">class </span>PerMinuteBenefitCheckCallback : <span class="keyword">public</span> <a name="_a0"></a><a class="code" href="classnn_1_1time_1_1_check_calendar_time_callback.html">nn::time::CheckCalendarTimeCallback</a></div>
+<div class="line">{</div>
+<div class="line"><span class="keyword">public</span>:</div>
+<div class="line">    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a name="a1"></a><a class="code" href="classnn_1_1time_1_1_check_calendar_time_callback.html#a5da78723e0f8e2f9af19616d689f8aaf">IsSameTiming</a>(</div>
+<div class="line">        <span class="keyword">const</span> <a name="_a2"></a><a class="code" href="structnn_1_1time_1_1_calendar_time.html">nn::time::CalendarTime</a>&amp; lhs,</div>
+<div class="line">        <span class="keyword">const</span> <a class="code" href="structnn_1_1time_1_1_calendar_time.html">nn::time::CalendarTime</a>&amp; rhs) <span class="keyword">const</span> <a name="a3"></a><a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a> <a name="a4"></a><a class="code" href="nn___macro_8h.html#a5b950a1a9c5f9b57d49185d8fb4cd4ab">NN_OVERRIDE</a></div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// この関数では2つの日時が、同じ利益の受け取りタイミングかどうかを判定します</span></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">        // 例えば、日付が変わることで1度だけ利益を得られるのであれば、以下のように日付(年月日)が同じであれば true を返します。</span></div>
+<div class="line"><span class="comment">        return</span></div>
+<div class="line"><span class="comment">            lhs.year == rhs.year &amp;&amp;</span></div>
+<div class="line"><span class="comment">            lhs.month == rhs.month &amp;&amp;</span></div>
+<div class="line"><span class="comment">            lhs.day == rhs.day;</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">        // 例えば、毎日深夜4時を過ぎることで、新しく利益の受け取りが可能になるのであれば、以下のように実装します。</span></div>
+<div class="line"><span class="comment">        nn::time::CalendarTime lhsCalendar = lhs - nn::TimeSpan::FromHours(4);</span></div>
+<div class="line"><span class="comment">        nn::time::CalendarTime rhsCalendar = rhs - nn::TimeSpan::FromHours(4);</span></div>
+<div class="line"><span class="comment">        // 4時間さかのぼった日時の、年月日が同じであれば同じ利益の受け取りタイミング</span></div>
+<div class="line"><span class="comment">        return</span></div>
+<div class="line"><span class="comment">            lhsCalendar.year == rhsCalendar.year &amp;&amp;</span></div>
+<div class="line"><span class="comment">            lhsCalendar.month == rhsCalendar.month &amp;&amp;</span></div>
+<div class="line"><span class="comment">            lhsCalendar.day == rhsCalendar.day;</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 本サンプルでは、年月日時分が同じであれば同じ受け取りタイミングなので true を返します。</span></div>
+<div class="line">        <span class="keywordflow">return</span></div>
+<div class="line">            lhs.<a name="a5"></a><a class="code" href="structnn_1_1time_1_1_calendar_time.html#aae0e0d30c9924216ce57c6491af2a214">year</a> == rhs.<a class="code" href="structnn_1_1time_1_1_calendar_time.html#aae0e0d30c9924216ce57c6491af2a214">year</a> &amp;&amp;</div>
+<div class="line">            lhs.<a name="a6"></a><a class="code" href="structnn_1_1time_1_1_calendar_time.html#aa8e374745265df68174bdbe02ddfc341">month</a> == rhs.<a class="code" href="structnn_1_1time_1_1_calendar_time.html#aa8e374745265df68174bdbe02ddfc341">month</a> &amp;&amp;</div>
+<div class="line">            lhs.<a name="a7"></a><a class="code" href="structnn_1_1time_1_1_calendar_time.html#a6fbd1402f2b736ce6bb3400b9eaabbab">day</a> == rhs.<a class="code" href="structnn_1_1time_1_1_calendar_time.html#a6fbd1402f2b736ce6bb3400b9eaabbab">day</a> &amp;&amp;</div>
+<div class="line">            lhs.<a name="a8"></a><a class="code" href="structnn_1_1time_1_1_calendar_time.html#a7f6c4678c86027e32a71612eea0392e8">hour</a> == rhs.<a class="code" href="structnn_1_1time_1_1_calendar_time.html#a7f6c4678c86027e32a71612eea0392e8">hour</a> &amp;&amp;</div>
+<div class="line">            lhs.<a name="a9"></a><a class="code" href="structnn_1_1time_1_1_calendar_time.html#a5960b89e784cc2aedb48d3ce63df6ae8">minute</a> == rhs.<a class="code" href="structnn_1_1time_1_1_calendar_time.html#a5960b89e784cc2aedb48d3ce63df6ae8">minute</a>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a name="a10"></a><a class="code" href="classnn_1_1time_1_1_check_calendar_time_callback.html#adcd6eeb5f2b7acb924edf766bec8fd44">IsMatched</a>(</div>
+<div class="line">        <span class="keyword">const</span> <a class="code" href="structnn_1_1time_1_1_calendar_time.html">nn::time::CalendarTime</a>&amp; calendarTime) <span class="keyword">const</span> <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a> <a class="code" href="nn___macro_8h.html#a5b950a1a9c5f9b57d49185d8fb4cd4ab">NN_OVERRIDE</a></div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// この関数では与えられた CalendarTime が、利益を受け取ることができる日時として適切かを判定します。</span></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">        // 例えば、水曜日にだけ利益を得られるのであれば、以下のように calendarTime が水曜日のときにだけ true を返します。</span></div>
+<div class="line"><span class="comment">        nn::time::DayOfWeek dayOfWeek = nn::time::GetDayOfWeek(calendarTime.year, calendarTime.month, calendarTime.day);</span></div>
+<div class="line"><span class="comment">        return dayOfWeek == nn::time::DayOfWeek_Wednesday;</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 本サンプルの利益受け取りは、日時に関係なくいつでも受け取ることができる可能性があるので、何もせず true を返します。</span></div>
+<div class="line">        <a name="a11"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(calendarTime);</div>
+<div class="line">        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line">    }</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a12"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// 時刻ライブラリの初期化</span></div>
+<div class="line">    <a name="a13"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a14"></a><a class="code" href="namespacenn_1_1time.html#af3d5226ce5093e581b3892fbb2fbc34c">nn::time::Initialize</a>());</div>
+<div class="line">    <a name="a15"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;nn::time::Initialize\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;---- Sample of claim periodic benefit with nn::time::StandardUserSystemClock.\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// nn::time::ClaimPeriodicBenefitWithUserSystemClock() 用の PeriodicBenefitClaimContext</span></div>
+<div class="line">    <span class="comment">// (この PeriodicBenefitClaimContext は、扱いたい定期イベントの種類の数だけインスタンスが必要です。</span></div>
+<div class="line">    <span class="comment">// 初回の判定時には、コンストラクタで初期化されたままのオブジェクトを ClaimPeriodicBenefitWithUserSystemClock() へ渡してください。)</span></div>
+<div class="line">    <a name="_a16"></a><a class="code" href="structnn_1_1time_1_1_periodic_benefit_claim_context.html">nn::time::PeriodicBenefitClaimContext</a> handoverContext;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ペナルティの最大期間</span></div>
+<div class="line">    <span class="comment">// (時計操作時に課す利益を得られないペナルティ期間の最大値です。</span></div>
+<div class="line">    <span class="comment">// このサンプルでは、1分に1度(時刻の分が変わるたびに)利益を受け取れることを考慮し、ペナルティ最大期間を1分としています。</span></div>
+<div class="line">    <span class="comment">// 詳細は API リファレンスを参照してください。)</span></div>
+<div class="line">    <span class="keyword">const</span> <a name="_a17"></a><a class="code" href="classnn_1_1_time_span.html">nn::TimeSpan</a> MaxPenaltyTimeSpan = <a name="a18"></a><a class="code" href="classnn_1_1_time_span.html#a7b05d450fc4976bd57af3b5863ba1dfe">nn::TimeSpan::FromMinutes</a>(1);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 時計を進めた場合に無視できる時計の操作量</span></div>
+<div class="line">    <span class="comment">// (時計を進めたとしても、この値以下の操作量である場合は時計操作がなかったとして扱われます。</span></div>
+<div class="line">    <span class="comment">// このサンプルでは、挙動の簡潔さを重視して 0 としています。</span></div>
+<div class="line">    <span class="comment">// 詳細は API リファレンスを参照してください。)</span></div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="classnn_1_1_time_span.html">nn::TimeSpan</a> AcceptableOperationTimeSpan(0);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 日時確認用のクラス</span></div>
+<div class="line">    <span class="comment">// (nn::time::CheckCalendarTimeCallback クラスを継承し、内部実装する必要があります。</span></div>
+<div class="line">    <span class="comment">// APIリファレンスや、このサンプルでの実装を参照してください。)</span></div>
+<div class="line">    PerMinuteBenefitCheckCallback perMinuteBenefitCheckCallback;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> TryCount = 3;</div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i = 1 ; i &lt;= TryCount ; i++)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// 利益受け取りを判定する現在の ClockSnapshot を作成</span></div>
+<div class="line">        <a name="_a19"></a><a class="code" href="classnn_1_1time_1_1_clock_snapshot.html">nn::time::ClockSnapshot</a> currentSnapshot;</div>
+<div class="line">        <a name="a20"></a><a class="code" href="classnn_1_1time_1_1_clock_snapshot.html#ab46c9996752e49c22634b140a99deee6">nn::time::ClockSnapshot::CreateWithStandardSystemClock</a>(&amp;currentSnapshot);</div>
+<div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span> c = currentSnapshot.<a name="a21"></a><a class="code" href="classnn_1_1time_1_1_clock_snapshot.html#a7f42d9ee4a86b79cd6c7905920483150">GetStandardUserSystemClockCalendarTime</a>();</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[Claim Benefit (%d/%d) at %04d/%02d/%02d %02d:%02d:%02d]\n&quot;</span>,</div>
+<div class="line">                i, TryCount,</div>
+<div class="line">                c.year, c.month, c.day, c.hour, c.minute, c.second);</div>
+<div class="line"></div>
+<div class="line">        <span class="keyword">auto</span> backup = handoverContext; <span class="comment">// ClaimPeriodicBenefitWithUserSystemClock()実行後の handoverContext 更新検知用</span></div>
+<div class="line"></div>
+<div class="line">        <span class="keyword">auto</span> result = <a name="a22"></a><a class="code" href="namespacenn_1_1time.html#aa5e24f241a0806d6ac316075b655b3f7">nn::time::ClaimPeriodicBenefitWithUserSystemClock</a>(</div>
+<div class="line">            &amp;handoverContext,</div>
+<div class="line">            currentSnapshot,</div>
+<div class="line">            MaxPenaltyTimeSpan,</div>
+<div class="line">            AcceptableOperationTimeSpan,</div>
+<div class="line">            &amp;perMinuteBenefitCheckCallback);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span>(result == <a name="a23"></a><a class="code" href="namespacenn_1_1time.html#abc313af281fff1f227bad03284e1c2ada8a0603d107ba2cda011ae792b7cc3a39">nn::time::PeriodicBenefitClaimResult_Success</a>)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// 定期的な利益を得ることができます。</span></div>
+<div class="line">            <span class="comment">// アプリケーションの企画にそったアイテムやポイントの付与や、</span></div>
+<div class="line">            <span class="comment">// 何らかの定期イベント発生をトリガーさせることを想定しています。</span></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;    I can receive benefit!\n&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(result == <a name="a24"></a><a class="code" href="namespacenn_1_1time.html#abc313af281fff1f227bad03284e1c2ada38e1826e9ae5442c64a8dec9d2604af8">nn::time::PeriodicBenefitClaimResult_NotReceivableTiming</a>)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// 前回利益を得たタイミングから、新しく利益を得られるタイミングになっていないため、利益を得られません。</span></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;    nn::time::ClaimPeriodicBenefitWithUserSystemClock() failed.(nn::time::PeriodicBenefitClaimResult_NotReceivableTiming)\n&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(result == <a name="a25"></a><a class="code" href="namespacenn_1_1time.html#abc313af281fff1f227bad03284e1c2ada7d525d793c5f7200173a1f49355861cc">nn::time::PeriodicBenefitClaimResult_Penalty</a>)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// 時計操作によって利益を得られないペナルティ期間が発生しています。</span></div>
+<div class="line">            <span class="comment">// ペナルティ期間の開始は、時計を操作した瞬間です。</span></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;    nn::time::ClaimPeriodicBenefitWithUserSystemClock() failed.(nn::time::PeriodicBenefitClaimResult_Penalty)\n&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span></div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// 上記以外の Result は発生しません</span></div>
+<div class="line">            <a name="a26"></a><a class="code" href="nn___abort_8h.html#a205eaac89c47d49cb982bf136e113de2">NN_ABORT</a>(<span class="stringliteral">&quot;Unexpected result(%d)&quot;</span>, result);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 上記の handoverContext をセーブデータ等に保存して永続化し、次回の判定へ引き継ぐことで、</span></div>
+<div class="line">        <span class="comment">// アプリケーションのシャットダウンや本体の電源断を跨いで、定期的な利益の受け取りを管理することができます。</span></div>
+<div class="line">        <span class="comment">// このとき、nn::time::ClaimPeriodicBenefitWithUserSystemClock() の結果の成否(resultの成否)に依らず、</span></div>
+<div class="line">        <span class="comment">// handoverContext を次回の判定へ引き継ぐ必要がある点に注意してください。</span></div>
+<div class="line">        <span class="comment">//</span></div>
+<div class="line">        <span class="comment">// また、アプリケーション側の利益の付与結果の永続化を行う場合には、</span></div>
+<div class="line">        <span class="comment">// データの不整合を防ぐために、判定用の PeriodicBenefitClaimContext (handoverContext) と、</span></div>
+<div class="line">        <span class="comment">// アプリケーション側の利益の付与結果とを、不可分に永続化することを強く推奨します。</span></div>
+<div class="line">        <span class="comment">//</span></div>
+<div class="line">        <span class="comment">// PeriodicBenefitClaimContext は C++ 標準の TriviallyCopyable の要件を満たしており、 std::memcpy() が可能なクラスなので、</span></div>
+<div class="line">        <span class="comment">// そのままセーブデータ等に永続化が可能です。</span></div>
+<div class="line">        <span class="comment">//</span></div>
+<div class="line">        <span class="comment">// 推奨される実装の疑似コードは以下のようになります</span></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">        bool isCommitRequired = false;</span></div>
+<div class="line"><span class="comment">        if(backup != handoverContext) // resultの成否に依らず、更新があれば永続化が必要です</span></div>
+<div class="line"><span class="comment">        {</span></div>
+<div class="line"><span class="comment">            WriteContext(handoverContext); // handoverContext を永続化</span></div>
+<div class="line"><span class="comment">            isCommitRequired = true;</span></div>
+<div class="line"><span class="comment">        }</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">        // ここでアプリケーションのシャットダウンや電源断が発生しても、不整合は発生しません</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">        if(result.IsSuccess())</span></div>
+<div class="line"><span class="comment">        {</span></div>
+<div class="line"><span class="comment">            WriteBenefit(...); // アプリケーション側の利益付与を永続化</span></div>
+<div class="line"><span class="comment">            isCommitRequired = true;</span></div>
+<div class="line"><span class="comment">        }</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">        // ここでアプリケーションのシャットダウンや電源断が発生しても、不整合は発生しません</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">        if(isCommitRequired)</span></div>
+<div class="line"><span class="comment">        {</span></div>
+<div class="line"><span class="comment">            CommitSaveData(); // 上記を同時に実セーブデータへ反映</span></div>
+<div class="line"><span class="comment">        }</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(backup);</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;    Waiting 3 seconds.\n&quot;</span>);</div>
+<div class="line">        <a name="a27"></a><a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a name="a28"></a><a class="code" href="classnn_1_1_time_span.html#adc879772bbd4cd05381326fe0dd58b97">nn::TimeSpan::FromSeconds</a>(3));</div>
+<div class="line">        <span class="comment">// このスリープの間に、HOMEボタンを押して DevMenu もしくは HOME メニューを表示し、</span></div>
+<div class="line">        <span class="comment">// そこで時刻やタイムゾーンの設定を変更することで、以降の判定を時計操作検知側へ分岐させることができます。</span></div>
+<div class="line">        <span class="comment">//</span></div>
+<div class="line">        <span class="comment">// 時計操作後、サンプルアプリケーションに1分以内に戻ることで、ペナルティが発生して利益を得られないことを確認できます。</span></div>
+<div class="line">        <span class="comment">// 時計操作後、サンプルアプリケーションに戻らず1分以上を(DevMenu 上もしくは HOME メニュー上で)経過させることで</span></div>
+<div class="line">        <span class="comment">// (すなわち時計操作後に MaxPenaltyTimeSpan 以上の時間が過ぎ去ることで)、再び利益を得られることを確認できます。</span></div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 時刻ライブラリの終了</span></div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>( <a name="a29"></a><a class="code" href="namespacenn_1_1time.html#a316a48243971bfac1dfcc1ea07466563">nn::time::Finalize</a>() );</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;nn::time::Finalize\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

@@ -1,0 +1,558 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ストリームサウンド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ストリームサウンド -->
+<div class="pagetitle" id="PageId_200573824">ストリームサウンド</div>
+<div class="text_separate">
+<h1 id="Anchor_200573824_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_200573824_h2_1">ストリームサウンド</a>
+    </li>
+    <li>
+      <a href="#Anchor_200573824_h2_2">ストリームサウンドの動作</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_200573824_h3_1">ストリームバッファ</a>
+      </li>
+      <li>
+        <a href="#Anchor_200573824_h3_2">タスクスレッド</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_200573824_h2_3">ストリームサウンドの追加機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_200573824_h3_3">ファイルリードキャッシュの設定</a>
+      </li>
+      <li>
+        <a href="#Anchor_200573824_h3_4">プリフェッチ機能</a>
+      </li>
+      <li>
+        <a href="#Anchor_200573824_h3_6">ストリームジャンプ機能</a>
+      </li>
+      <li>
+        <a href="#Anchor_200573824_h3_7">Opus 再生</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h2 id="Anchor_200573824_h2_1">ストリームサウンド</h2>
+<p>ストリームサウンドはサウンドデータをメモリに読み込みながら再生を行う機能です。<br />予めサウンドデータを全てメモリに読み込んでおく方法に比べて、少量のメモリで再生できる、再生開始までにかかる読み込み時間を短くできる、といったメリットがあります。</p>
+<p>一方、ファイルの読み込みが音声データの再生に間に合わない場合に、再生遅延や音途切れ・ノイズが発生するなどのデメリットもあります。<br />ここでは、ストリームサウンドの挙動についての説明と、便利に使うための機能について説明します。</p>
+<h2 id="Anchor_200573824_h2_2">ストリームサウンドの動作</h2>
+<p>ストリームサウンドの基本的な挙動についての説明です。</p>
+<h3 id="Anchor_200573824_h3_1">ストリームバッファ</h3>
+<p>ストリームサウンドでは、ストリームサウンドバイナリの内必要な部分だけをストリームバッファと呼ばれるバッファに逐次読み込みながら再生します。<br />読み込んだバイナリデータは再生し終わると破棄され、続きのデータの読み込みのために再利用されます。<br />ここでは、このストリームバッファについて説明します。</p>
+<h4 id="Anchor_200573824_h4_1">ストリームバッファの内訳</h4>
+<p>
+  <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span> に渡したストリームバッファは以下の図のように、ストリームバッファプールという形で管理されます。<br />ストリームバッファプールはストリームチャンネルの数で分割され、さらに１チャンネル用のストリームバッファではそれが複数のブロックに分割されます。<br />ストリームサウンドの再生時には、このブロックの単位でストリームサウンドバイナリから波形データのロードと再生が行われます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_200573824/213601695.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>ストリームチャンネルの数は、SoundMaker でユーザーが設定した値が使用され、チャンネルごとのブロック数はストリームサウンドに設定されている圧縮方式によって計算されます。<br />(SoundMaker での設定方法については <a href="../Pages/Page_83956179.html">オプション設定</a> の「プロジェクト設定ダイアログ &gt; プロジェクト設定ダイアログの操作 &gt; サウンドアーカイブ」を参照ください)</p>
+<p>
+  <span class="ApiLink_nn__atk__SoundArchivePlayer__GetRequiredStreamBufferSize">nn::atk::SoundArchivePlayer::GetRequiredStreamBufferSize</span>() では、渡されたサウンドアーカイブからストリームチャンネルの数の情報を取得し、<br />PCM16 や ADPCM の場合にバッファが&nbsp;5 ブロック分確保できるようなサイズを計算した結果を返します。</p>
+<h4 id="Anchor_200573824_h4_2">ストリームサウンド再生の流れ</h4>
+<p>ストリームサウンドの再生要求を行うと、まずストリームバッファプールから、そのストリームサウンドのすべてのトラックに設定されている波形のチャンネル数の合計と同じ数のストリームバッファを取得します。<br />以下の図は、トラックが 1 つでステレオ波形が設定されているストリームサウンドの例です。<br /><br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_200573824/213601705.png" height="250" class="embedded-image" /></span><br /><br />ストリームバッファを確保した後は、そのバッファに対して、ストリームサウンドバイナリの先頭から順番にブロック単位でロードしていきます。<br />ストリームバッファ内のすべてのブロックのロードが完了した段階でストリームサウンドの再生が開始され、その後は再生が終わったブロックに次のブロックの内容を読み込みつつ再生していくということを繰り返します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_200573824/213601706.png" height="250" class="embedded-image" />
+  </span>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_200573824/213601707.png" height="250" class="embedded-image" />
+  </span>
+</p>
+<p>また、何らかの理由でロードが遅延してしまった場合は、すべてのブロックを再生が終わった段階で再生を一時停止し、ロードが完了するのを待ちます。</p>
+<h3 id="Anchor_200573824_h3_2">タスクスレッド</h3>
+<p>前述のストリームバッファへの読み込み処理は、タスクスレッドと呼ばれる atk ライブラリが生成・管理するスレッド上で行われます。</p>
+<p>タスクスレッドの詳細についてはプログラミングガイドの <a href="../Pages/Page_162560000.html">スレッド</a> を参照ください。</p>
+<h2 id="Anchor_200573824_h2_3">ストリームサウンドの追加機能</h2>
+<p>ストリームサウンドを便利に使うための追加機能についての説明です。</p>
+<h3 id="Anchor_200573824_h3_3">ファイルリードキャッシュの設定</h3>
+<p>ファイル読み込み用に別途大きめのバッファを用意し、一度に読み込む量を増やすことでファイルアクセスの効率を向上させる機能です。<br />バッファ上にデータがある間は再生し続けることができるため、読み込み遅延による音途切れのリスクの減少にもなります。</p>
+<h4 id="Anchor_200573824_h4_3">ファイルリードキャッシュの特徴</h4>
+<p>ストリームサウンドではストリームバッファにサウンドデータを配置し、一定量の再生が終わるとサウンドデータを読み込み配置するという処理を繰り返します。</p>
+<p>そのため、ある程度の頻度で読み込み処理が発生しますが<br />環境によっては、読み込みを細かく繰り返すより一度に大きく読み込む方が効率がよくなる場合があります。</p>
+<p>ファイルリードキャッシュは別途用意した大きめのバッファにサウンドデータを一度に大きく読み込み、<br />一定量の再生が終わるとそこからストリームバッファに配置する処理を行うことで、ファイルアクセスの効率の向上をねらう機能です。</p>
+<p>ただし初回の読み込みや、バッファのデータを使い終わって再び読み込むタイミングでは、ある程度の量の読み込みが必要となるため時間がかかる場合があります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_200573824/224958549.png" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_200573824_h4_4">ファイルリードキャッシュの使用方法</h4>
+<p>
+  <span class="ApiLink_nn__atk__SoundArchivePlayer__Initialize">nn::atk::SoundArchivePlayer::Initialize</span> の呼び出し時に、ファイルリードキャッシュに用いるバッファを設定します。<br />バッファが設定されていれば、ストリームサウンドの再生時に自動的にファイルリードキャッシュが使用されるようになります。&nbsp;</p>
+<h5 id="Anchor_200573824_h5_1">バッファサイズの取得</h5>
+<p>まずストリームサウンド１つあたりのバッファのサイズを決めてください。<br />バッファのサイズは自由に設定が可能です。サイズの目安は以下で、サイズが大きいほど一度に読み込む量も大きくなります。</p>
+<ul>
+  <li>モノラルのストリームサウンドしか使用しない場合は 8KB の倍数</li>
+  <li>ステレオもしくはマルチトラックのストリームサウンドを使用する場合は 16 KB の倍数</li>
+</ul>
+<p>ストリームサウンド１つあたりのバッファのサイズが決まりましたら、<br />それを <span class="ApiLink_nn__atk__SoundArchivePlayer__GetRequiredStreamCacheSize">nn::atk::SoundArchivePlayer::GetRequiredStreamCacheSize</span> の cacheSizePerSound に渡すことで<br />SoundMaker で設定したストリームサウンドのインスタンス数を加味した、必要になるバッファサイズの合計値を取得することができます。</p>
+<h5 id="Anchor_200573824_h5_2">バッファの設定</h5>
+<p>上記で取得したバッファサイズと、確保したバッファを<br />それぞれ <span class="ApiLink_nn__atk__SoundArchivePlayer__InitializeParam__streamCacheSize">nn::atk::SoundArchivePlayer::InitializeParam::streamCacheSize</span> と <span class="ApiLink_nn__atk__SoundArchivePlayer__InitializeParam__pStreamCacheBuffer">nn::atk::SoundArchivePlayer::InitializeParam::pStreamCacheBuffer</span> に設定して <span class="ApiLink_nn__atk__SoundArchivePlayer__Initialize">nn::atk::SoundArchivePlayer::Initialize</span> を呼び出してください。<br />(バッファは <span class="ApiLink_nn__atk__FsSoundArchive__BufferAlignSize">nn::atk::FsSoundArchive::BufferAlignSize</span> でアラインされている必要があります)</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::SoundArchivePlayer::</span><span class="n">InitializeParam</span> <span class="n">initializeParam</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="c1">// ファイルリードキャッシュに用いるバッファの設定
+</span><span class="k">const</span> <span class="kt">int</span> <span class="n">CacheBufferSize</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="nn">std::</span><span class="kt">size_t</span> <span class="n">memSizeForStreamCacheBuffer</span> <span class="o">=</span> <span class="n">soundArchivePlayer</span><span class="p">.</span><span class="n">GetRequiredStreamCacheSize</span><span class="p">(</span> <span class="n">m_pSoundArchive</span><span class="p">,</span> <span class="n">CacheBufferSize</span> <span class="p">);</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">pMemoryForStreamCacheBuffer</span> <span class="o">=</span> <span class="n">Allocate</span><span class="p">(</span> <span class="n">memSizeForStreamCacheBuffer</span><span class="p">,</span> <span class="nn">nn::atk::FsSoundArchive::</span><span class="n">BufferAlignSize</span> <span class="p">);</span>
+<span class="n">initializeParam</span><span class="p">.</span><span class="n">pStreamCacheBuffer</span> <span class="o">=</span> <span class="n">pMemoryForStreamCacheBuffer</span><span class="p">;</span>
+<span class="n">initializeParam</span><span class="p">.</span><span class="n">streamCacheSize</span> <span class="o">=</span> <span class="n">memSizeForStreamCacheBuffer</span><span class="p">;</span>
+<span class="p">...</span>
+<span class="n">soundArchivePlayer</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span> <span class="n">initializeParam</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!--Remove-->
+<h3 id="Anchor_200573824_h3_4">プリフェッチ機能</h3>
+<p>ストリームサウンドの先頭のデータだけを前もってメモリ上にロードしておくことで、再生開始時の読み込み待ちをなくす機能です。</p>
+<h4 id="Anchor_200573824_h4_6">プリフェッチデータの準備</h4>
+<p>プリフェッチ機能を使用するには、まず SoundMaker でストリームサウンドのプリフェッチを有効に設定し、プリフェッチデータ(.bfstp)がサウンドアーカイブに含まれるようにします。<br />詳しい設定方法は SoundMaker マニュアルの&nbsp;<a href="../Pages/Page_83956090.html">ストリームサウンド</a>&nbsp;を参照ください。</p>
+<h4 id="Anchor_200573824_h4_7">プリフェッチデータのロード</h4>
+<p>プリフェッチ機能を使用するには、再生開始前にプリフェッチデータをメモリ上にロードする必要があります。<br />プリフェッチデータをロードする方法は以下によって異なります。</p>
+<ul>
+  <li>サウンドアーカイブの種類</li>
+  <li>ストリームサウンドが含まれるグループの種類</li>
+</ul>
+<h5 id="Anchor_200573824_h5_5">サウンドアーカイブを MemorySoundArchive として利用する場合</h5>
+<p>サウンドアーカイブを <span class="ApiLink_nn__atk__MemorySoundArchive">nn::atk::MemorySoundArchive</span> として利用する場合、サウンドアーカイブ自体がメモリ上にロードされているため、プリフェッチデータのロードを明示的に行う必要はありません。<br />対象のストリームサウンドを再生すると自動的にプリフェッチ機能が適用されます。</p>
+<h5 id="Anchor_200573824_h5_6">サウンドアーカイブを FsSoundArchive として利用する場合</h5>
+<p>サウンドアーカイブを <span class="ApiLink_nn__atk__FsSoundArchive">nn::atk::FsSoundArchive</span> として利用する場合、サウンドアーカイブに含まれるプリフェッチデータのロードを行う必要があります。<br />ロード後に対象のストリームサウンドを再生するとプリフェッチ機能が適用されます。&nbsp;</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>プリフェッチデータのロードを行わずにストリームサウンドを再生すると、プリフェッチ機能を使用せずに再生が行われます。<br />プリフェッチが有効なサウンドデータをプリフェッチ機能を使用せず再生を行った場合、Debug, Develop 版ビルドでは以下のような警告が表示されます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>[atk] atk_StreamSoundRuntime.cpp:649 Warning: [atk] [ID:XXXXXXXX] Prefetch data is not loaded,
+so play without prefetch data.[atk] (nn::atk::detail::StreamSoundRuntime::PrepareImpl</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<p>プリフェッチデータのロードを行う方法は、ストリームサウンドがどのグループに含まれるかによって異なります。<br />ストリームサウンドが含まれるグループにプリフェッチデータが含まれるためです。</p>
+<h6 id="Anchor_200573824_h6_1">ストリームサウンドがリンクグループ、埋め込みグループに含まれる場合</h6>
+<p>ストリームサウンドが含まれるリンクグループ、埋め込みグループを <span class="ApiLink_nn__atk__SoundDataManager__LoadData">nn::atk::SoundDataManager::LoadData</span> でロードしてください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_SoundDataManager</span><span class="p">.</span><span class="n">LoadData</span><span class="p">(</span> <span class="n">GROUP_ALL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_SoundHeap</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h6 id="Anchor_200573824_h6_2">ストリームサウンドがユーザー管理グループに含まれる場合</h6>
+<p>ストリームサウンドが含まれるユーザー管理グループのグループファイル(.bfgrp)のロードを直接行った上で、<span class="ApiLink_nn__atk__SoundDataManager__SetFileAddressInGroupFile">nn::atk::SoundDataManager::SetFileAddressInGroupFile</span> に .bfgrp をロードしたアドレスを設定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_SoundDataManager</span><span class="p">.</span><span class="n">SetFileAddressInGroupFile</span><span class="p">(</span> <span class="n">g_pMemoryForGroupFile</span><span class="p">,</span> <span class="n">g_GroupFileSize</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h6 id="Anchor_200573824_h6_3">ストリームサウンドがグループに含まれない場合</h6>
+<p>グループに含まれないウェーブサウンド、シーケンスサウンドのロードと同様に、ストリームサウンドを <span class="ApiLink_nn__atk__SoundDataManager__LoadData">nn::atk::SoundDataManager::LoadData</span> でロードしてください。<br />AtkSimple サンプルではこの方法でロードを行っていますので、サンプル解説書の&nbsp;<a href="../../../Api/HtmlNX/_page_sample_atk_simple.html">AtkSimple サンプル</a>&nbsp;も参照ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_SoundDataManager</span><span class="p">.</span><span class="n">LoadData</span><span class="p">(</span> <span class="n">STRM_MARIOKART_PREFETCH</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_SoundHeap</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>StartInfo にストリームサウンドのパスを指定して再生する場合は、これらと異なる方法でプリフェッチデータのロードを行う必要があります。</p>
+    <p>
+      <span class="ApiLink_nn__atk__SoundStartable__StartInfo__StreamSoundInfo__externalPath">nn::atk::SoundStartable::StartInfo::StreamSoundInfo::externalPath</span> を使用したストリームサウンド再生では、<br />プログラム上で .bfstp ファイルのロードを直接行った上で、<span class="ApiLink_nn__atk__SoundStartable__StartInfo__StreamSoundInfo__prefetchData">nn::atk::SoundStartable::StartInfo::StreamSoundInfo::prefetchData</span> に .bfstp をロードしたアドレスを設定してください。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::atk::SoundStartable::</span><span class="n">StartInfo</span> <span class="n">info</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">enableFlag</span> <span class="o">|=</span> <span class="nn">nn::atk::SoundStartable::StartInfo::</span><span class="n">EnableFlagBit_StreamSoundInfo</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">streamSoundInfo</span><span class="p">.</span><span class="n">externalPath</span> <span class="o">=</span> <span class="s">&quot;content:/stream/kart_title.48.dspadpcm.bfstm&quot;</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">streamSoundInfo</span><span class="p">.</span><span class="n">prefetchData</span> <span class="o">=</span> <span class="n">m_pMemoryForExternalBfstpFile</span><span class="p">;</span>
+<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">g_SoundArchivePlayer</span><span class="p">.</span><span class="n">StartSound</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SoundHandle</span><span class="p">,</span> <span class="n">STRM_MARIOKART</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">info</span> <span class="p">).</span><span class="n">IsSuccess</span><span class="p">();</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--Remove-->
+<p>
+  <br />
+</p>
+<h3 id="Anchor_200573824_h3_6">ストリームジャンプ機能</h3>
+<p>あらかじめ波形に設定していたリージョン間を行き来することができる機能です。<br />ここでは、ストリームジャンプ機能を使うにあたってどのように組み込むのかについて説明します。</p>
+<p>
+  <span style="color: rgb(255,0,0);">この機能は NintendoSDK NX Addon 3.0.0 以降で使用できるようになります。&nbsp;</span>
+</p>
+<h4 id="Anchor_200573824_h4_8">ストリームジャンプ機能を使う手順</h4>
+<p>ストリームジャンプを使う手順は以下となります。</p>
+<ul>
+  <li>リージョン情報の準備</li>
+  <li>リージョンコールバックの定義</li>
+  <li>再生方法の変更</li>
+</ul>
+<h5 id="Anchor_200573824_h5_7">リージョン情報の準備</h5>
+<p>ストリームジャンプ機能を利用するためには、まず波形自体にリージョン情報を埋め込み、その波形を SoundMaker でストリームサウンドとして追加する必要があります。<br />詳しくはガイドの<a href="../Pages/Page_198952031.html">ストリームサウンド</a>のストリームジャンプの項を参照してください。</p>
+<h5 id="Anchor_200573824_h5_8">リージョンコールバックの定義</h5>
+<p>リージョンコールバックでは、<span class="ApiLink_nn__atk__StreamRegionCallbackParam__regionNo">nn::atk::StreamRegionCallbackParam::regionNo</span> にリージョンインデックスを設定することで、次のリージョンを決定することができます。<br />また、リージョンコールバックの返り値（<span class="ApiLink_nn__atk__StreamRegionCallbackResult">nn::atk::StreamRegionCallbackResult</span>）で、今回のリージョンで再生を終えるのかどうかを決定することができます。<br />以下はリージョンコールバックの実装例です。<br />この例は、RegionIntro を 1 回再生した後、RegionA を 2 回再生し、その後 RegionB を 1 回再生して停止するという処理になっています。&nbsp;</p>
+<p>
+  <br />
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">enum</span> <span class="n">Region</span> <span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionIntro</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionA</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionB</span>
+<span class="p">};</span>
+
+<span class="kt">uint32_t</span> <span class="n">g_RegionList</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionIntro</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionA</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionA</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">RegionB</span>
+<span class="p">};</span>
+ 
+<span class="kt">uint32_t</span> <span class="n">g_RegionListIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+ 
+<span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackResult</span> <span class="n">StreamRegionCallback</span><span class="p">(</span> <span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackParam</span><span class="o">*</span> <span class="n">param</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="cm">/*arg*/</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span> <span class="n">g_RegionListIndex</span> <span class="o">&gt;=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_RegionList</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_RegionList</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackResult_Finish</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">param</span><span class="o">-&gt;</span><span class="n">regionNo</span> <span class="o">=</span> <span class="n">g_RegionList</span><span class="p">[</span><span class="n">g_RegionListIndex</span><span class="p">];</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT_LESS</span><span class="p">(</span><span class="n">param</span><span class="o">-&gt;</span><span class="n">regionNo</span><span class="p">,</span> <span class="n">param</span><span class="o">-&gt;</span><span class="n">regionCount</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_RegionListIndex</span><span class="o">++</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackResult_Continue</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5 id="Anchor_200573824_h5_9">再生方法の変更</h5>
+<p>
+  <span class="ApiLink_nn__atk__SoundStartable__StartSound">nn::atk::SoundStartable::StartSound</span>() でサウンドを再生する際に、以下のように <span class="ApiLink_nn__atk__SoundStartable__StartInfo">nn::atk::SoundStartable::StartInfo</span> を使い、定義しておいたリージョンコールバックを設定することでストリームジャンプ機能を使うことができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::SoundStartable::</span><span class="n">StartInfo</span> <span class="n">info</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">enableFlag</span> <span class="o">|=</span> <span class="nn">nn::atk::SoundStartable::StartInfo::</span><span class="n">EnableFlagBit_StreamSoundInfo</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">streamSoundInfo</span><span class="p">.</span><span class="n">regionCallback</span> <span class="o">=</span> <span class="n">StreamRegionCallback</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">streamSoundInfo</span><span class="p">.</span><span class="n">regionCallbackArg</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+<span class="n">g_SoundArchivePlayer</span><span class="p">.</span><span class="n">StartSound</span><span class="p">(</span> <span class="n">g_SoundHandle</span><span class="p">,</span> <span class="n">STRM_REGION_JUMP</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">info</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_200573824_h4_9">リージョンコールバックが呼ばれるタイミング</h4>
+<p>リージョンコールバックは以下の２つのタイミングで呼び出されます。このコールバックにおいて次のリージョンを決定するプログラムを書くことで、リージョン間を行き来することができます。</p>
+<ul>
+  <li>ストリームサウンドのヘッダロード完了時（再生開始時に１度だけ呼ばれます）</li>
+  <li>ストリームサウンドのデータブロックのロード完了時にそのデータブロックにリージョンの終端が含まれている場合</li>
+</ul>
+<p>コールバックが呼び出される後者のタイミングを図で表すと以下のようになります。<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_200573824/213614450.png" height="400" class="embedded-image" /></span>&nbsp;</p>
+<p>この図の例では、Region1 から読み込んだ 1 のブロックのバッファを再生中に、2 のブロックへのロードが完了したタイミングについて書かれています。<br />ロードが完了した 2 のブロックにリージョンの終端が含まれていた場合、そのタイミングでコールバックがタスクスレッドから呼び出されます。<br />この例ではさらに、コールバック内部で Region4 にジャンプすることを決定しています。<br />Region4 にジャンプすることを決定した場合、3 のブロックには Region4 の先頭から読み込みが続けられます。その後は再度リージョンの終端がくるまで、通常のストリームサウンド同様の処理が繰り返されます。&nbsp;<br /><br />このように、再生完了時ではなくロード完了時のタイミングでコールバックが呼び出されるため、実際にリージョンの移動部分を再生するときには既にデータのロードが完了していることになります。<br />そのため、途切れることなく別のリージョンに移動することができます。&nbsp;&nbsp;</p>
+<h4 id="Anchor_200573824_h4_10">リージョン名によるリージョン指定</h4>
+<p>上記の例では、次のリージョンの指定をリージョンインデックスで指定していましたが、この方法の場合波形データ内のリージョンの構成が変わった場合に、インデックスがずれてしまう可能性があります。<br />そのため、リージョンの構成が変わるたびにプログラムを変更する必要が生じてしまいます。</p>
+<p>この問題を解決する方法は 2 つあります。<br />１つ目は、リージョンインデックスを明示的に指定し、自動で割り当てられないようにする方法です。<br />例えば、[NW]RegionA#1 と書いておき、RegionA のインデックスが 1 番に固定されるようにすることで、後からリージョンが追加されても常に同じ値となります。</p>
+<p>２つ目は、リージョンを名前で指定する方法です。以下のような方法で、リージョン名を使ってリージョンを指定することができます。&nbsp;&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackResult</span> <span class="n">StreamNamedRegionCallback</span><span class="p">(</span> <span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackParam</span><span class="o">*</span> <span class="n">param</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="cm">/*arg*/</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">param</span><span class="o">-&gt;</span><span class="n">isRegionNameEnabled</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">std::</span><span class="n">strncpy</span><span class="p">(</span><span class="n">param</span><span class="o">-&gt;</span><span class="n">regionName</span><span class="p">,</span> <span class="s">&quot;RegionA&quot;</span><span class="p">,</span> <span class="nn">nn::atk::</span><span class="n">RegionNameLengthMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="nn">nn::atk::</span><span class="n">StreamRegionCallbackResult_Continue</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>リージョン名を使用する方法はインデックスを意識する必要がないため、管理が簡単になりますが、内部でインデックスの検索を行うため、リージョンインデックスを使用する場合と比べるとその分だけ処理負荷が高くなります。&nbsp;</p>
+<h4 id="Anchor_200573824_h4_11">StartOffset 併用時の注意点</h4>
+<p>StartOffset を使用した途中再生をストリームジャンプと併用する場合、オフセット量によりコールバックの呼ばれ方が変わる可能性があり注意が必要です。</p>
+<p>オフセットの量が少なく、オフセット処理中にリージョンを跨がない場合は特に注意することはありませんが、<br />オフセットの量が多くオフセット処理中にリージョンを跨ぐ場合、そこでもコールバックが呼ばれるため、意図したオフセット位置からの再生にならない可能性があります。</p>
+<div class="expand-container" id="expander-200573824-1">
+  <div class="expand-control" id="expander-control-200573824-1">
+    <span class="expand-control-icon collapsed-icon"> </span>
+    <span class="expand-control-text">オフセットの量によるジャンプ処理の違い</span>
+  </div>
+  <div class="expand-content expand-hidden" id="expander-content-200573824-1">
+    <h5 id="Anchor_200573824_h5_10">オフセットの量がリージョンを跨がない場合</h5>
+    <p>この場合、コールバックはヘッダロード時に１回だけ呼ばれます。</p>
+    <h6 id="Anchor_200573824_h6_4">ヘッダロード時にジャンプしない場合</h6>
+    <p>先頭からオフセット分進んだ位置から再生が開始されます。</p>
+    <p>
+      <img src="../Attachments/Attach_200573824/259771693.png"></img>
+    </p>
+    <h6 id="Anchor_200573824_h6_5">ヘッダロード時にジャンプした場合</h6>
+    <p>ジャンプ後の位置からオフセット分進んだ位置から再生が開始されます。</p>
+    <p>
+      <img src="../Attachments/Attach_200573824/259771711.png"></img>
+    </p>
+    <h5 id="Anchor_200573824_h5_11">オフセットの量がリージョンを跨ぐ場合</h5>
+    <p>この場合、コールバックはヘッダロード時に１回と、オフセット処理中にリージョン終端に達した回数だけ呼ばれます。</p>
+    <h6 id="Anchor_200573824_h6_6">ヘッダロード時やリージョン終端時にジャンプしない場合</h6>
+    <p>先頭からオフセット分進んだ位置から再生が開始されます。</p>
+    <p>
+      <img src="../Attachments/Attach_200573824/259771683.png"></img>
+    </p>
+    <h6 id="Anchor_200573824_h6_7">ヘッダロード時やリージョン終端時にジャンプした場合</h6>
+    <p>ジャンプ時にオフセットがまだ残っている場合、ジャンプ後の位置から残りのオフセットを進んだ位置から再生が開始されます。<br />残りのオフセットを処理している間に再度ジャンプが発生した場合、同様にジャンプとジャンプ後のオフセット処理が行われます。</p>
+    <p>
+      <img src="../Attachments/Attach_200573824/259771672.png"></img>
+    </p>
+    <div class="warn_new">
+      <div class="warn_new_left">警告：</div>
+      <div class="warn_new_right">
+        <p>ジャンプとオフセットの両方を考慮にいれる必要があり複雑なため、オフセットの量がリージョンを跨がないようにヘッダロード時のジャンプ先を調整する事をおすすめします。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<h5 id="Anchor_200573824_h5_12">
+  <br />制限事項</h5>
+<ul>
+  <li>ループ設定との併用はできません。ループ情報が設定されている波形で、ストリームジャンプを使った再生をするとアサートで停止します。</li>
+  <li>圧縮方式が PCM16 もしくは ADPCM のサウンドのみ対応しています。Opus などの圧縮オーディオとの併用はできません。</li>
+</ul>
+<h3 id="Anchor_200573824_h3_7">Opus 再生</h3>
+<p>atk では、圧縮オーディオの一種である Opus のストリーム再生に対応しています。</p>
+<p>SoundMaker による Opus の データ作成については、別途 <a href="../Pages/Page_83956177.html">圧縮オーディオ</a>&nbsp;のページを参照してください。</p>
+<h4 id="Anchor_200573824_h4_12">ハードウェアアクセラレータを利用した Opus の再生</h4>
+<p>通常、 Opus 再生では CPU によるデコードが行われますが、<br />再生時にパラメーターを指定することにより、ハードウェアアクセラレータによるデコード処理を行い、 Opus を再生することができます。</p>
+<p>この際、ハードウェアアクセラレータとして&nbsp;<span class="ApiLink_nn__codec__HardwareOpusDecoder">nn::codec::HardwareOpusDecoder</span> が使用されます。</p>
+<p>
+  <span style="color: rgb(255,0,0);">この機能は NintendoSDK NX Addon 3.0.0 以降で使用できるようになります。&nbsp;</span>
+</p>
+<p>再生の方法は、以下のようになります。</p>
+<ul>
+  <li>HardwareOpusDecoder の初期化</li>
+  <li>再生時のデコード方式変更 (SoundMaker 上で)</li>
+</ul>
+<p>NintendoSDK NX Addon 4.0.0 以降、 SoundMaker 上でハードウェアアクセラレータを利用した Opus&nbsp;再生を行うことを設定することができます。<br />詳細は <a href="../Pages/Page_83956177.html">圧縮オーディオ</a>&nbsp;のハードウェアアクセラレータの利用の項を参照してください。<br />この設定を行うと、再生時のデコード方式変更が不要となります。</p>
+<h5 id="Anchor_200573824_h5_13">HardwareOpusDecoder の初期化</h5>
+<p>初めに、 HardwareOpusDecoder の初期化を行います。</p>
+<p>1 ストリームサウンドの再生（プリペア含む）につき 1 つの HardwareOpusDecoder が利用されるため、<br />同時に再生する最大の Opus ストリームサウンド数と同じ数のデコーダーを用意するように、 HardwareOpusDecoder の設定を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">decoderCount</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="nn">std::</span><span class="kt">size_t</span> <span class="n">memSizeForHardwareOpusDecoder</span> <span class="o">=</span> <span class="nn">nn::atk::</span><span class="n">GetRequiredHardwareOpusDecoderBufferSize</span><span class="p">(</span><span class="n">decoderCount</span><span class="p">);</span>
+<span class="n">g_pMemoryForHardwareOpusDecoder</span> <span class="o">=</span> <span class="nn">nns::atk::</span><span class="n">Allocate</span><span class="p">(</span><span class="n">memSizeForHardwareOpusDecoder</span><span class="p">);</span>
+<span class="nn">nn::atk::</span><span class="n">InitializeHardwareOpusDecoder</span><span class="p">(</span><span class="n">g_pMemoryForHardwareOpusDecoder</span><span class="p">,</span> <span class="n">memSizeForHardwareOpusDecoder</span><span class="p">,</span> <span class="n">decoderCount</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5 id="Anchor_200573824_h5_14">再生時のデコード方式変更</h5>
+<p>
+  <span class="ApiLink_nn__atk__SoundStartable__StartSound">nn::atk::SoundStartable::StartSound</span>() で Opus ストリームサウンドを再生する際に、<br /><span class="ApiLink_nn__atk__SoundStartable__StartInfo">nn::atk::SoundStartable::StartInfo</span> を設定してデコードの設定を書き換えることで、<br />ハードウェアアクセラレータを利用した Opus の再生を行うことができます。</p>
+<p>SoundMaker 上でハードウェアアクセラレータを利用する設定を行った場合は、この処理は不要となります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::SoundStartable::</span><span class="n">StartInfo</span> <span class="n">info</span><span class="p">;</span>
+<span class="n">info</span><span class="p">.</span><span class="n">enableFlag</span> <span class="o">|=</span> <span class="nn">nn::atk::SoundStartable::StartInfo::</span><span class="n">EnableFlagBit_StreamSoundMetaInfo</span><span class="p">;</span>
+<span class="k">const</span> <span class="nn">nn::atk::</span><span class="n">SoundArchive</span><span class="o">&amp;</span> <span class="n">archive</span> <span class="o">=</span> <span class="n">g_SoundArchivePlayer</span><span class="p">.</span><span class="n">GetSoundArchive</span><span class="p">();</span>
+ 
+<span class="c1">// ハードウェアアクセラレータを利用した Opus 再生をしたいラベルのメタ情報をコピーします
+</span><span class="n">archive</span><span class="p">.</span><span class="n">ReadStreamSoundInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">info</span><span class="p">.</span><span class="n">streamSoundMetaInfo</span><span class="p">,</span> <span class="n">STRM_MARIOKART_OPUS</span><span class="p">);</span>
+<span class="c1">// デコード形式を Opus (ハードウェアアクセラレータによる再生) に変更します
+</span><span class="n">info</span><span class="p">.</span><span class="n">streamSoundMetaInfo</span><span class="p">.</span><span class="n">decodeMode</span> <span class="o">=</span> <span class="nn">nn::atk::SoundArchive::</span><span class="n">DecodeMode_Accelerator</span><span class="p">;</span>
+ 
+<span class="n">g_SoundArchivePlayer</span><span class="p">.</span><span class="n">StartSound</span><span class="p">(</span> <span class="n">g_SoundHandle</span><span class="p">,</span> <span class="n">STRM_MARIOKART_OPUS</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">info</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__GetRequiredStreamBufferSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html#a778f7f63b34d09e5241e7f18aef3f227' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__Initialize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html#aa2de65567087f698294d36e91fd9b9f9' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__GetRequiredStreamCacheSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html#af70074367d02753c1eae455bff0fb570' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__InitializeParam__streamCacheSize', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_archive_player_1_1_initialize_param.html#a188c0f1a6575af182787bee6766b9393' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer__InitializeParam__pStreamCacheBuffer', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_archive_player_1_1_initialize_param.html#a7bbfaa74a6ae6fc146bfd7249fa24e88' )
+SetUrl( 'ApiLink_nn__atk__FsSoundArchive__BufferAlignSize', '../../../Api/HtmlNX/classnn_1_1atk_1_1_fs_sound_archive.html#a8aed39dcd230826f39f1bfba791126c6' )
+SetUrl( 'ApiLink_nn__atk__MemorySoundArchive', '../../../Api/HtmlNX/classnn_1_1atk_1_1_memory_sound_archive.html' )
+SetUrl( 'ApiLink_nn__atk__FsSoundArchive', '../../../Api/HtmlNX/classnn_1_1atk_1_1_fs_sound_archive.html' )
+SetUrl( 'ApiLink_nn__atk__SoundDataManager__LoadData', '../../../Api/HtmlNX/classnn_1_1atk_1_1detail_1_1_sound_archive_loader.html#a3c8676a9807a4940a79a5c39546ab4f0' )
+SetUrl( 'ApiLink_nn__atk__SoundDataManager__SetFileAddressInGroupFile', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_data_manager.html#ae0d5197b5f263c5b17fa4455bfaa0674' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartInfo__StreamSoundInfo__externalPath', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_startable_1_1_start_info_1_1_stream_sound_info.html#af555cd6b9f0c6cd9fd1efa5b590584ff' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartInfo__StreamSoundInfo__prefetchData', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_startable_1_1_start_info_1_1_stream_sound_info.html#a4da451c63ee5ac2c83dd9f3ba9ceca7a' )
+SetUrl( 'ApiLink_nn__atk__StreamRegionCallbackParam__regionNo', '../../../Api/HtmlNX/structnn_1_1atk_1_1_stream_region_callback_param.html#a13f38585e656a7af6ee6c0312ddabd88' )
+SetUrl( 'ApiLink_nn__atk__StreamRegionCallbackResult', '../../../Api/HtmlNX/namespacenn_1_1atk.html#a0eb683cd6e49bf351eaa7429287eb2e4' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartSound', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_startable.html#ae6b4818e3c22546b1884dee8a0d51a49' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartInfo', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_startable_1_1_start_info.html' )
+SetUrl( 'ApiLink_nn__codec__HardwareOpusDecoder', '../../../Api/HtmlNX/classnn_1_1codec_1_1_hardware_opus_decoder.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

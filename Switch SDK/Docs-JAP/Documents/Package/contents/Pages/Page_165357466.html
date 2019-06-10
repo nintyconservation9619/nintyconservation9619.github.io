@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プロファイルの取得</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プロファイルの取得 -->
+<div class="pagetitle" id="PageId_165357466">プロファイルの取得</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_165357466_h1_1">設定</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165357466_h2_1">1. プロファイラライブラリへのリンク</a>
+      </li>
+      <li>
+        <a href="#Anchor_165357466_h2_2">2. メモリバッファを使用したプロファイラの初期化</a>
+      </li>
+      <li>
+        <a href="#Anchor_165357466_h2_3">3. ログへのフレームレートの記録</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_165357466_h1_2">プロファイル</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165357466_h2_4">プロファイルの取得</a>
+      </li>
+      <li>
+        <a href="#Anchor_165357466_h2_5">プロファイルの確認</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_165357466_h1_1">設定</h1>
+<p>ゲームで使用できるようにプロファイラを設定するには以下の手順に従います。</p>
+<h2 id="Anchor_165357466_h2_1">1. プロファイラライブラリへのリンク</h2>
+<p>デバッグとリリースの両方で以下の手順を実行します。</p>
+<ol>
+  <li>
+    <p>プロジェクトを右クリックして「プロパティ」をクリックします。</p>
+  </li>
+  <li>
+    <p>「構成プロパティ」で、「リンカー」、「入力」の順に移動します。</p>
+  </li>
+  <li>
+    <p>「追加の依存ファイル」フィールドの行の最初で、ライブラリのリストに「libnn_profiler.a;」を追加します。</p>
+  </li>
+</ol>
+<h2 id="Anchor_165357466_h2_2">2. メモリバッファを使用したプロファイラの初期化</h2>
+<ol>
+  <li>
+    <p>アプリケーションの初期化を見つけます。プロファイラライブラリをインクルードします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>#include &lt;nn/profiler.h&gt;</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>プロファイラで使用するメモリバッファを割り当てます。このバッファの容量には、<span class="ApiLink_nn__profiler__MinimumBufferSize">nn::profiler::MinimumBufferSize</span> の値以上のバイト数が必要です。そのためには、次の行を記述します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>void* profBuffer = (void*) new char[nn::profiler::MinimumBufferSize];</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <span class="ApiLink_nn__profiler__Initialize">nn::profiler::Initialize</span>() でプロファイラを初期化します。最初の引数はバッファを指定します。2 番目の引数はバッファサイズを指定します。そのためには、次の行を記述します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>nn::profiler::Initialize(profBuffer, nn::profiler::MinimumBufferSize);</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <strong>重要：</strong>HTCS を初期化する場合は、プロファイラを初期化する前に行うようにしてください。</p>
+  </li>
+</ol>
+<h2 id="Anchor_165357466_h2_3">3. ログへのフレームレートの記録</h2>
+<ol>
+  <li>
+    <p>メインのレンダリングループを見つけます。プロファイラライブラリをインクルードします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>#include &lt;nn/profiler.h&gt;</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>メインのレンダリングループ内で、ループの先頭に次の行を挿入します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>nn::profiler::RecordHeartbeat(nn::profiler::Heartbeats_Main);</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h1 id="Anchor_165357466_h1_2">プロファイル</h1>
+<p>プロファイルを取得してそのプロファイルを確認する方法を以下に示します。</p>
+<h2 id="Anchor_165357466_h2_4">プロファイルの取得</h2>
+<ol>
+  <li>
+    <p>前の「設定」セクションの説明に従って、プロファイラのランタイムライブラリと統合されているアプリケーションを実行します。</p>
+  </li>
+  <li>
+    <p>Nintendo NX CPU プロファイラ GUI を起動します。'Tools\NintendoNxCpuProfiler' フォルダにある 'Nintendo CPU Profiler.exe' を実行します。</p>
+  </li>
+  <li>
+    <p>
+      <strong>「接続」</strong>ボタンをクリックします。このボタンは、プロファイル可能なアプリケーションが NX ハードウェア上で実行されている場合にのみクリックできます。</p>
+  </li>
+  <li>
+    <p>「ELF ファイルを開く」ダイアログボックスが表示されている場合は、実行されているアプリケーションに対応する NSS ファイルを見つけます。正しいデバッグファイルまたはリリースファイルを選択するように注意してください。</p>
+  </li>
+  <li>
+    <p>
+      <strong>「サンプルプロファイル」</strong>タブで、プロファイル中に使用する設定を選択します。簡単なテストには、デフォルトの設定を選択するのが最適です。</p>
+  </li>
+  <li>
+    <p>
+      <strong>「開始」</strong>ボタンをクリックしてプロファイルを開始します。</p>
+  </li>
+  <li>
+    <p>プロファイルを終了するには<strong>「停止」</strong>ボタンをクリックします。ランタイムバッファがいっぱいになると、自動的にプロファイルが停止します。</p>
+  </li>
+  <li>
+    <p>データが PC に送信されて解析されるまで待ちます。この処理には数分かかることがあります。</p>
+  </li>
+</ol>
+<h2 id="Anchor_165357466_h2_5">プロファイルの確認</h2>
+<ol>
+  <li>
+    <p>左側のウィンドウで、占有率が上位を占める関数を確認します。詳しく確認する関数をクリックして選択できます。選択した関数が<strong>「コールツリー」</strong>タブでハイライトされ、<strong>「サンプルグラフ」</strong>タブで描画されます。</p>
+  </li>
+  <li>
+    <p>右側のウィンドウの<strong>「コールツリー」</strong>タブを確認します。このタブは、プロファイルにコールスタック情報が記述されている場合にのみ表示されます。</p>
+  </li>
+  <li>
+    <p>右側のウィンドウの<strong>「サンプルグラフ」</strong>タブを確認します。左側のウィンドウで選択した関数がここに描画されます。<strong>「サンプルグラフ」</strong>ツールバーを使用して、<strong>アイシクルグラフ</strong>、<strong>負荷グラフ</strong>、<strong>システム負荷</strong>などの各種グラフの表示と非表示を切り替えます。</p>
+  </li>
+</ol>
+<p> </p>
+<p> </p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__profiler__MinimumBufferSize', '../../../Api/HtmlNX/namespacenn_1_1profiler.html#a9bc180dcf49e08d2b3c8f0bb7d8358b6' )
+SetUrl( 'ApiLink_nn__profiler__Initialize', '../../../Api/HtmlNX/namespacenn_1_1profiler.html#a1fd4585e5e75647e1cb20bb264f58f6e' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ユニットヒープ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ユニットヒープ -->
+<div class="pagetitle" id="PageId_89102305">ユニットヒープ</div>
+<div class="text_separate">
+<h1 id="Anchor_89102305_h1_1">ユニットヒープ(UnitHeap)機能</h1>
+<h2 id="Anchor_89102305_h2_1">機能概要</h2>
+<p>ユニットヒープは決められたサイズのメモリブロックの確保、解放のみを行えるメモリアロケータです。</p>
+<p>拡張ヒープと比べ汎用性に欠けますが、その分高速に動作します。</p>
+<p>フレームヒープと同様にメモリブロックに管理領域がないため、高いメモリ効率が得られます。</p>
+<h3 id="Anchor_89102305_h3_1">ユニットについて</h3>
+<p>ユニットヒープで扱う固定サイズのメモリブロックを「ユニット」と呼びます。</p>
+<p>ユニットヒープでは、初期化の際に与えられたユニットのサイズを元に、ヒープ用のメモリ領域を区切って管理します。</p>
+<p>メモリブロックの確保では、この区切られたユニットを割り当てることになります。</p>
+<h2 id="Anchor_89102305_h2_2">ユニットヒープの使用方法</h2>
+<p>まず、管理したいメモリ領域を与えて&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a7d3359350e669a5fcc493ce5df5d010c">nn::lmem::CreateUnitHeap()</a>&nbsp;を利用してユニットヒープを作成します。</p>
+<p>ユニットヒープに与えるメモリ領域はあらかじめ静的、または動的に確保しておく必要があります。&nbsp;</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;cstdlib&gt;
+#include &lt;nn/lmem/lmem_UnitHeap.h&gt;
+</span>&nbsp;&nbsp;
+<span class="k">const</span> <span class="kt">size_t</span> <span class="n">MemoryHeapSize</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>     <span class="c1">// 例として、 32MiB の領域をユニットヒープに与える
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">heap</span> <span class="o">=</span> <span class="nn">std::</span><span class="n">malloc</span><span class="p">(</span><span class="n">MemoryHeapSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;
+<span class="c1">// ユニットヒープの初期化
+// 例として、 32MiB のヒープを、128 Bytes のユニットに分割してユニットヒープとして利用することを考える
+</span><span class="nn">nn::lmem::</span><span class="n">HeapHandle</span> <span class="n">heapHandle</span><span class="p">;</span>
+<span class="kt">size_t</span> <span class="n">unitSize</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+<span class="n">heapHandle</span> <span class="o">=</span> <span class="nn">nn::lmem::</span><span class="n">CreateUnitHeap</span><span class="p">(</span><span class="n">heap</span><span class="p">,</span> <span class="n">MemoryHeapSize</span><span class="p">,</span> <span class="n">unitSize</span><span class="p">,</span> <span class="nn">nn::lmem::</span><span class="n">CreationOption_NoOption</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="n">heapHandle</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ユニットヒープの初期化に失敗
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>初期化時にはメモリブロックのアライメントを指定することができます。</p>
+<p>拡張ヒープやフレームヒープと違い、メモリ確保時にはアライメントの指定はできません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ユニットヒープの初期化
+</span><span class="nn">nn::lmem::</span><span class="n">HeapHandle</span> <span class="n">heapHandle</span><span class="p">;</span>
+<span class="nn">nn::lmem::</span><span class="n">HeapCommonHead</span> <span class="n">heapHead</span><span class="p">;</span>  <span class="c1">// ヒープの管理領域
+</span><span class="kt">size_t</span> <span class="n">unitSize</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">alignment</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>            <span class="c1">// 4KiB アライメントのユニットヒープを作成する
+</span><span class="n">heapHandle</span> <span class="o">=</span> <span class="nn">nn::lmem::</span><span class="n">CreateUnitHeap</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">heap</span><span class="p">),</span> <span class="n">MemoryHeapSize</span><span class="p">,</span> <span class="n">unitSize</span><span class="p">,</span> <span class="nn">nn::lmem::</span><span class="n">CreationOption_NoOption</span><span class="p">,</span> <span class="n">alignment</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>また、ユニットヒープでは、ヒープ内部に管理領域を作成する場合、管理領域の位置をヒープの先頭か、末尾か選択することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ユニットヒープの初期化
+</span><span class="nn">nn::lmem::</span><span class="n">HeapHandle</span> <span class="n">heapHandle</span><span class="p">;</span>
+<span class="nn">nn::lmem::</span><span class="n">HeapCommonHead</span> <span class="n">heapHead</span><span class="p">;</span>  <span class="c1">// ヒープの管理領域
+</span><span class="kt">size_t</span> <span class="n">unitSize</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">alignment</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="c1">// ヒープの管理領域をメモリ領域の末尾に配置する場合
+</span><span class="n">heapHandle</span> <span class="o">=</span> <span class="nn">nn::lmem::</span><span class="n">CreateUnitHeap</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">heap</span><span class="p">),</span> <span class="n">MemoryHeapSize</span><span class="p">,</span> <span class="n">unitSize</span><span class="p">,</span> <span class="nn">nn::lmem::</span><span class="n">CreationOption_NoOption</span><span class="p">,</span> <span class="n">alignment</span><span class="p">,</span> <span class="n">InfoPlacement_Tail</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>それ以外にも、初期化時にヒープの管理領域を引数として渡すこともできます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ユニットヒープの初期化
+</span><span class="nn">nn::lmem::</span><span class="n">HeapHandle</span> <span class="n">heapHandle</span><span class="p">;</span>
+<span class="nn">nn::lmem::</span><span class="n">HeapCommonHead</span> <span class="n">heapHead</span><span class="p">;</span>  <span class="c1">// ヒープの管理領域
+</span><span class="kt">size_t</span> <span class="n">unitSize</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">alignment</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="n">heapHandle</span> <span class="o">=</span> <span class="nn">nn::lmem::</span><span class="n">CreateUnitHeap</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">heap</span><span class="p">),</span> <span class="n">MemoryHeapSize</span><span class="p">,</span> <span class="n">unitSize</span><span class="p">,</span> <span class="nn">nn::lmem::</span><span class="n">CreationOption_NoOption</span><span class="p">,</span> <span class="n">alignment</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">heapHead</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>初期化後は、&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a1d1eec8ea87ca5a847eae04fb21c7a36">nn::lmem::AllocateFromUnitHeap()</a> を利用してメモリブロックの確保が行えます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span><span class="o">*</span> <span class="n">address</span> <span class="o">=</span> <span class="nn">nn::lmem::</span><span class="n">AllocateFromUnitHeap</span><span class="p">(</span><span class="n">heapHandle</span><span class="p">);</span>        <span class="c1">// ヒープ作成時に指定したサイズのメモリブロックを確保
+</span><span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// メモリの確保に失敗
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>確保した領域は&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#ab190d0a00216c4d8cd2e3134680d3a45">nn::lmem::FreeToUnitHeap()</a> で解放できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::lmem::</span><span class="n">FreeToUnitHeap</span><span class="p">(</span><span class="n">heapHandle</span><span class="p">,</span> <span class="n">address</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>ヒープの利用を終了するときは、&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a03e9905bd641416421fb108f487b5d4f">nn::lmem::DestroyUnitHeap()</a> でヒープを破棄してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::lmem::</span><span class="n">DestroyUnitHeap</span><span class="p">(</span><span class="n">heapHandle</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>その他の機能については関数リファレンスを参照してください。</p>
+<h2 id="Anchor_89102305_h2_3">ユニットヒープの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a7d3359350e669a5fcc493ce5df5d010c">nn::lmem::CreateUnitHeap（アライメントなし、管理領域の指定なし）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a37e408afe1b891b1827d340897319386">nn::lmem::CreateUnitHeap（アライメントあり、ヒープ内での管理領域の位置を指定）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a48a0b4af7e50ed9ce91b68df40225bdf">nn::lmem::CreateUnitHeap（アライメントあり、ヒープ外からヒープ管理領域を与える場合）</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a03e9905bd641416421fb108f487b5d4f">nn::lmem::DestroyUnitHeap</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a4ca8ffeb524244ca4f9968d116817257">nn::lmem::InvalidateUnitHeap</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a1d1eec8ea87ca5a847eae04fb21c7a36">nn::lmem::AllocateFromUnitHeap</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#ab190d0a00216c4d8cd2e3134680d3a45">nn::lmem::FreeToUnitHeap</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a4f73af475a54358322fe7b3c8bf78ef6">nn::lmem::GetUnitHeapUnitSize</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#abe2b6be8b9c2077fec92fb19c5e8aeb1">nn::lmem::GetUnitHeapAllocatableCount</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#aaa1ae99b4baab79444c503a383345154">nn::lmem::GetUnitHeapAllocatedCount</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a8a08003a1b715eded61e040c3cd087a9">nn::lmem::GetUnitHeapAlignment</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a8ac10912318a3d5f45687fa1885c89be">nn::lmem::GetRequiredUnitHeapSize</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1lmem.html#a1deefa949a2c36e348db0fe808cad2de">nn::lmem::DumpUnitHeap</a>
+  </li>
+</ul>
+<h2 id="Anchor_89102305_h2_4">ユニットヒープ使用上の注意事項</h2>
+<h3 id="Anchor_89102305_h3_2">ヒープの管理領域</h3>
+<p>ヒープの管理領域として 32bit 環境で 100Bytes、 64bit 環境で 176Bytes を必要とします。</p>
+<p>そのため、ヒープの管理領域をヒープ内部に作成する場合、このサイズ以下のメモリ領域ではユニットヒープを作成することはできません。</p>
+<h3 id="Anchor_89102305_h3_3">確保できるメモリブロックの最小単位</h3>
+<p>確保するメモリブロックは、最低でも 4Bytes 境界にアライメントされます。</p>
+<p>そのため、 1Byte のメモリブロックを確保する場合でも、 4Bytes が消費されます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

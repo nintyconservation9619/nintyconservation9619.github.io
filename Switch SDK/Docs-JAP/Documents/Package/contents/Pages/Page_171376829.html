@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>TextureCompressor</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- TextureCompressor -->
+<div class="pagetitle" id="PageId_171376829">TextureCompressor</div>
+<div class="text_separate">
+<h1 id="Anchor_171376829_h1_1">はじめに</h1>
+<p>TextureCompressor は、実行時にテクスチャーの圧縮を手軽に行うことを目的としたライブラリーです。&nbsp;</p>
+<h1 id="Anchor_171376829_h1_2">TextureCompressor</h1>
+<h2 id="Anchor_171376829_h2_1">ヘッダーファイル</h2>
+<p>nn/gfx/util/gfx_TextureCompressor.h をインクルードしてください。</p>
+<h2 id="Anchor_171376829_h2_2">対応テクスチャフォーマット</h2>
+<p>TextureCompressor&nbsp;が対応するフォーマットは以下の通りです。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc1_Unorm">nn::gfx::ImageFormat_Bc1_Unorm</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc1_UnormSrgb">nn::gfx::ImageFormat_Bc1_UnormSrgb</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc2_Unorm">nn::gfx::ImageFormat_Bc2_Unorm</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc2_UnormSrgb">nn::gfx::ImageFormat_Bc2_UnormSrgb</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc3_Unorm">nn::gfx::ImageFormat_Bc3_Unorm</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc3_UnormSrgb">nn::gfx::ImageFormat_Bc3_UnormSrgb</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc4_Unorm">nn::gfx::ImageFormat_Bc4_Unorm</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc4_Snorm">nn::gfx::ImageFormat_Bc4_Snorm</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc5_Unorm">nn::gfx::ImageFormat_Bc5_Unorm</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__gfx__ImageFormat_Bc5_Snorm">nn::gfx::ImageFormat_Bc5_Snorm</span>
+  </li>
+</ul>
+<h2 id="Anchor_171376829_h2_3">あらかじめ用意しておく必要がある GFX オブジェクト</h2>
+<p>TextureCompressor を使用するだけではテクスチャーの圧縮が可能になるわけではありません。</p>
+<p>TextureCompressor とは別に、以下の GFX オブジェクトを生成しておく必要があります。</p>
+<ul>
+  <li>デバイス</li>
+  <li>メモリープール</li>
+  <li>キュー</li>
+  <li>コマンドバッファ</li>
+  <li>テクスチャー</li>
+  <li>シェーダー</li>
+  <li>テクスチャーデスクリプタプール</li>
+  <li>サンプラーデスクリプタプール</li>
+</ul>
+<h2 id="Anchor_171376829_h2_4">使用方法&nbsp;</h2>
+<p>1. Initialize 関数を呼びだし TextureCompressor を初期化します。&nbsp;GFX デバイスはあらかじめ初期化しておく必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/gfx/util/gfx_TextureCompressor.h&gt;
+</span> 
+<span class="nn">nn::gfx::util::</span><span class="n">TextureCompressor</span> <span class="n">textureCompressor</span><span class="p">;</span>
+<span class="n">textureCompressor</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_Device</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>2. RegisterCompressionShader 関数を呼び出し、圧縮に利用するシェーダーを登録します。</p>
+<p>シェーダーはあらかじめ初期化しておく必要があります。</p>
+<p>IsSupportedFormat 関数を呼び出すことで、指定するフォーマットがサポートされているかを取得することが出来ます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::</span><span class="n">ImageFormat</span> <span class="n">targetFormat</span> <span class="o">=</span> <span class="nn">nn::gfx::</span><span class="n">ImageFormat_Bc1_Unorm</span><span class="p">;</span>
+ 
+<span class="n">textureCompressor</span><span class="p">.</span><span class="n">RegisterCompressionShader</span><span class="p">(</span><span class="n">targetFormat</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">g_Shader</span><span class="p">);</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>TextureCompressor で利用可能なシェーダーを Sources/Resources/GfxUtilTextureCompression に付属しています。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>3. TextureCompressorTargetInfo を初期化します。圧縮先のテクスチャーを初期化する際に利用した情報と、圧縮先のテクスチャー、圧縮先のテクスチャーが格納されているメモリープールの情報を設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::util::</span><span class="n">TextureCompressorTargetInfo</span> <span class="n">textureCompressorInfo</span><span class="p">;</span>
+<span class="n">textureCompressorInfo</span><span class="p">.</span><span class="n">SetTexture</span><span class="p">(</span><span class="n">g_CompressionTextureInfo</span><span class="p">,</span><span class="o">&amp;</span><span class="n">g_CompressionTexture</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>4. 描画コマンドを生成して、コマンドを実行します。</p>
+<p>MakeCommand 関数を呼び出すことで、引数のコマンドバッファに描画コマンドが生成されます。引数 srcTextureDescriptorSlot には圧縮元のテクスチャーが登録されているディスクリプタースロットを設定し、引数 &nbsp;samplerDescriptorSlot には圧縮元のテクスチャーを読み込む際に利用するサンプラーが登録されているディスクリプタースロットを設定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// コマンド生成
+</span><span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">Begin</span><span class="p">();</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureCompressor</span><span class="p">.</span><span class="n">MakeCommand</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">srcTextureDescriptorSlot</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">samplerDescriptorSlot</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">textureCompressorInfo</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">);</span>
+<span class="p">}</span>
+<span class="n">g_CommandBuffer</span><span class="p">.</span><span class="n">End</span><span class="p">();</span>
+ 
+<span class="c1">// コマンドの実行
+</span><span class="n">g_Queue</span><span class="p">.</span><span class="n">ExcuteCommand</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_CommandBuffer</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>5. 終了処理を行います。</p>
+<p>Finalize 関数を呼び、 TextureCompressor の終了処理を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>textureCompressor.Finalize();</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_171376829_h2_5">&nbsp;API リファレンス</h2>
+<p>
+  <span class="ApiLink_nn__gfx__util">nn::gfx::util</span> 名前空間の TextureCompressor クラスを参照してください。&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc1_Unorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605a57c6bfbdf138d039c08d9bc97346dde7' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc1_UnormSrgb', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ac09eca490ada0c52f12b337973cd9079' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc2_Unorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ad544c0458cc5250267248394f9090a1f' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc2_UnormSrgb', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605a8a2b020474ad87b23014e8858cc7d9fe' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc3_Unorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605a18bec8adcde5b8f867ff7b928797c5f2' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc3_UnormSrgb', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605a6d9fdb601285e5a26a33d55307259efc' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc4_Unorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ab34a6a7f1bf493e630a64a21bb9bdb35' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc4_Snorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ad588e21ea0d200dd077f5285c472e685' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc5_Unorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605ab2817e137309a02e055431b4787889fd' )
+SetUrl( 'ApiLink_nn__gfx__ImageFormat_Bc5_Snorm', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ae794c2b6a518a4ae9ada4d3339b87605acf05daee9fe52cc9abbf9f37e1c8ce32' )
+SetUrl( 'ApiLink_nn__gfx__util', '../../../Api/HtmlNX/namespacenn_1_1gfx_1_1util.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

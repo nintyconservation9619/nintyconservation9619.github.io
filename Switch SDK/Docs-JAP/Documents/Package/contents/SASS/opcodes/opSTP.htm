@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>STP</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    STP : Set Texture Phase<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Set Texture Phase" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "STP", subsection => 5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code></code>   <code><b>STP</b>{.WAIT}{.phase}</code>   <code>#Imm08</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "STP" } -->
+
+  .WAIT:   In earlier architectures this modifier made <b>STP</b> wait for the current texture hash.  This behavior is always implied 
+           in SM3.0, with or without the modifier.
+
+  .phase:  Allows control on the current warps texture hash, used for scheduling.  If either option is used, 
+           the Imm08 is ignored.
+               .T - postfix increment of the 3 bit texture componenet of the hash.  
+               .P - postfix increment of the 5 bit phase componenent, and zero out the 3 bit texture component of the hash. 
+
+  .phase:      { <b>.T, .P</b> }
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+To encourage coherence in texture (and other cached memory) requests, there is a texture phase.
+A shader program may be divided up into phases allowing the the hw to execute multiple non-dependent
+memory requests in one phase across multiple warps before moving on to the next dependent phase.</p>
+<p>
+Phasing is explained in the programming guide under Texture Phasing</p>
+<p>STP waits for the current texture hash, just like other texture operations.  Once the SM's texture hash matches the current warp's, the current STP will be issuable.</p>
+<p>
+If no phase is specified, the current phase.tex portion of the texture hash will be set to the Imm08 value.</p>
+<p>
+Note that all texture instructions support the .T and .P postfix increments of texture and phase.  STP allows setting 
+of the hash explicitly, and makes it possible to use the texture phasing implementation to cohere with 
+non-texture instructions.</p>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+# [beginning of pixel shader] 
+<b>STP</b> 0x4 # start phase 4 
+&lt;.. math ops ..&gt;
+<b>TEX</b>
+<b>TEX</b>
+<b>TEX</b>
+<b>STP</b> 0x5 # end phase 4, start phase 5 
+&lt;.. math ops ..&gt;
+<b>TEX</b>
+<b>TEX</b>
+<b>STP</b> 0x0 # end phase 5, start phase 0 
+&lt;.. math ops ..&gt;
+<b>EXIT</b>
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

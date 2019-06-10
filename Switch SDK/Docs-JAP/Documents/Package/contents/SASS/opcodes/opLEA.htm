@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>LEA</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    LEA : Compute Effective Address<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Compute Effective Address" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "LEA", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>LEA</b>{.LO*}{.X}</code>   <code>Plg, Rd,      {-}Ra, Sb{, #ScaleU05}</code>        <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LEA" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LEA</b>{.LO*}{.X}</code>   <code>     Rd{.CC}, {-}Ra, Sb{, #ScaleU05}</code>        <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LEA" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LEA</b>.HI{.X}</code>      <code>Plg, Rd,      {-}Ra, Sb, Rc {, #ScaleU05}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LEA" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>LEA</b>.HI{.X}</code>      <code>     Rd{.CC}, {-}Ra, Sb, Rc {, #ScaleU05}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "LEA" } -->
+
+    .hilo   : {LO*,HI} calculate lower or upper 32 bits of 64 bit address register.
+    .X      : Upper bit extended precision add, typically used with LEA.HI
+    .CC     : Writes CC when specified.
+
+    Rc cannot be specified with LEA.LO.
+    #ScaleU05 defaults to zero if not specified.
+    LEA can write at most one of CC and Plg; it cannot write both in a single instruction.
+
+LEA.LO allows the following sources for Ra and Sb:
+<table>
+<tr>
+<th><pre>Ra (OFFSET_LO)</pre></th>
+<th><pre>Sb (BASE_LO)</pre></th>
+</tr>
+<tr>
+<td><pre>{-}Ra (register)</pre></td>
+<td><pre>Sb (constant with immediate address)</pre></td>
+</tr>
+<tr>
+<td><pre>{-}Ra (register)</pre></td>
+<td><pre>Sb (#Imm20)</pre></td>
+</tr>
+<tr>
+<td><pre>{-}Ra (register)</pre></td>
+<td><pre>Rb (register)</pre></td>
+</tr>
+</table>
+
+LEA.HI allows the following sources for Ra, Sb and Rc:
+<table>
+<tr>
+<th><pre>Ra (OFFSET_LO)</pre></th>
+<th><pre>Sb (BASE_HI)</pre></th>
+<th><pre>Rc (OFFSET_HI)</pre></th>
+<th><pre>Notes</pre></th>
+</tr>
+<tr>
+<td><pre>{-}Ra (register)</pre></td>
+<td><pre>Sb (constant with immediate address)</pre></td>
+<td><pre>{-}Rc (register)</pre></td>
+<td><pre>{Rc,Ra} is negated, or not,
+controlled by the nA bit</pre></td>
+</tr>
+<tr>
+<td><pre>{-}Ra (register)</pre></td>
+<td><pre>Rb (register)</pre></td>
+<td><pre>{-}Rc (register)</pre></td>
+<td><pre>{Rc,Ra} is negated, or not,
+controlled by the nA bit</pre></td>
+</tr>
+</table>
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # --> 
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+<code><b>LEA</b></code> performs scaled offset addition, typically used in address pointer arithmeric for generic and global memory loads and stores.
+It adds a base value (BASE, typically in Sb) to a scaled offset (OFFSET) producing an EFFECTIVE_ADR.
+OFFSET can be optionally negated.
+BASE, OFFSET, and EFFECTIVE_ADDR can be either 32-bits each (in which case, only <code><b>LEA.LO</b></code> is needed)
+or 64-bits each (in which case, <code><b>LEA.LO</b></code> and <code><b>LEA.HI</b></code> are both needed).
+</p>
+<p>
+The final 32- or 64-bit result (EFFECTIVE_ADDR) is checked against the shared memory window aperture for the warp,
+to determine if the address falls in that window.  The predicate register <tt>Plg</tt> is set accordingly.
+This predicate can then be used by generic memory load/store instructions (e.g. <b>LD</b> and <b>ST</b>) to steer the memory transactions.
+</p>
+<p>
+Typically, LEA.LO is used with LEA.HI.X in order to get a 64-bit result.
+Additional LEA.HI.X's can be chained after an initial LEA.LO to perform an arbitrary precision base + scaled offset computation.
+</p>
+<p>
+Note that <code><b>LEA</b></code> does not produce "traditional" values in CC.
+In particular, CC.OF is !(shared-memory-window-detect) instead of an overflow bit.
+CC.CF and CC.ZF and CC.SF have "normal" meanings, i.e. similar to those used by (for example) <b>IADD</b> or <b>ISCADD</b>.
+Largely, the redefinition of CC.OF means means that <b>LEA</b>-produced <tt>CC</tt>'s cannot be usefully combined with certain CC tests which use <tt>CC.OF</t>;,
+Notably, tests for zero/non-zero are still possible with <tt>CC</tt>s produced by LEA.
+</p>
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><code>
+<b>// Examples for Extended (64 bit) address computation.</b>
+
+// To compute address for double element in A[i+10] where i is 64 bits as well:
+// BASE           = &lt;R5,R4&gt;             = &A[0]
+// SCALED_OFFSET  = &lt;R3,R2&gt;             = i
+// #scaleU5 = 3
+// EFFECTIVE_ADDR = &lt;R1,R0&gt;             = &A[i]
+// LD_OFFSET      = 10 x sizeof(double) = 80
+// Plg is left in P0, for use with generic ops (LD/ST).
+//
+LEA.LO        R0.CC, R2, R4, 3            ?WAIT6  ; // R0 = ( R2 &lt;&lt; 3 )     + R4
+LEA.HI.X  P0, R1,    R2, R5, R3, 3        ?WAIT13 ; // R1 = ({R3,R2} &gt;&gt; 29) + R5 + CC.CF
+LD.64         Rd, [R0 + 80], P0     &wr0  ?WAIT1  ;
+
+// To compute address for double element in A[100 - i] where i is a signed 32-bit number:
+// BASE           = &lt;R5,R4&gt;              = &A[0]
+// SCALED_OFFSET  = &lt;R2&gt;                 = i
+// #scaleU5 = 3
+// EFFECTIVE_ADDR = &lt;R1,R0&gt;              = &A[100-i]
+// LD_OFFSET      = 100 x sizeof(double) = 800
+// Plg is left in P0, for use with generic ops (LD/ST).
+//
+// We need a 64-bit value for SCALED_OFFSET; if i was unsigned, we could use {RZ,R2}.
+// Given that i is signed, we have to first sign extend R2 into a temp register.
+//  
+BFE.S32       R3,     R2, 0x011f           ?WAIT1  ; // sign extend R2 into R3
+LEA.LO        R0.CC, -R2, R4, 3            ?WAIT6  ; // R0 = ( -R2 &lt;&lt; 3 )     + R4
+LEA.HI.X  P0, R1,    -R2, R5, R3, 3        ?WAIT13 ; // R1 = (-{R3,R2} &gt;&gt; 29) + R5 + CC.CF
+LD.64         Rd, [R0 + 800], P0     &wr0  ?WAIT1  ;
+
+// Assume 64-bit base address of Array B of 128 byte structures is passed to kernel via constants {Const[0][4],Const[0][0]}
+// Assume a desired 32-bit field ".field" inside the 128 byte structures is at offset 20.
+// To calculate &lt;R1,R0&gt; = &B[i].field where i is unsigned 32 bits:
+// BASE           = &lt;c[0][4],c[0][0]&gt; = &B[0]
+// SCALED_OFFSET  = &lt;R2&gt;              = i
+// EFFECTIVE_ADDR = &lt;R1,R0&gt;           = &B[i].field
+// #scaleU5 = 7
+// LD_OFFSET      = 20                = (void*)&B[0].field - (void*)&B[0]
+// Plg is left in P0, for use with generic ops (LD/ST).
+//
+LEA.LO        R0.CC, R2, c[0][0], 7            ?WAIT6  ; // R0 = ( R2 &lt;&lt; 7 )     + c[0][0]
+LEA.HI.X  P0, R1,    R2, c[0][4], 7            ?WAIT13 ; // R1 = ({RZ,R2} &gt;&gt; 25) + c[0][4] + CC.CF
+LD.32         Rd, [R0 + 20], P0          &wr0  ?WAIT1  ;
+
+
+<b>// 32bit (non .E) examples:</b>
+
+// To compute 32-bit address for an unsigned byte element B[i-2] where i is in R12, and &B[0] is in R2:
+// BASE           = &lt;R2&gt;  = &B[0]
+// SCALED_OFFSET  = &lt;R12&gt; = i
+// #scaleU5 = 0
+// EFFECTIVE_ADDR = &lt;R10&gt; = &B[i+2]
+// LD_OFFSET      = -2
+// Plg is left in P1, for use with generic ops (LD/ST).
+//
+LEA.LO  P1, R10, R12, R2             ?WAIT13 ;  // R10 = ( R12 &lt;&lt; 0 ) + R2 - 2
+LD.U8       Rd, [R10 - 2], P1  &wr0  ?WAIT1  ;
+
+
+<b>// Extended precision scaled add examples:</b>
+
+// U128 = U128 + U128&lt;&lt;17
+// BASE          = &lt;R3,R2,R1,R0&gt;
+// SCALED_OFFSET = &lt;R11,R10,R9,R8&gt;
+// #scaleU5      = 17
+// RESULT        = &lt;R15,R14,R13,R12&gt;
+//
+LEA.LO    R12.CC, R8, R0,      17 ?WAIT6 ;
+LEA.HI.X  R13.CC, R8, R1, R9,  17 ?WAIT6 ;
+LEA.HI.X  R14.CC, R9, R2, R10, 17 ?WAIT6 ;
+LEA.HI.X  R15,   R10, R3, R11, 17        ;
+
+</code></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: BcatSimple.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">BcatSimple.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_bcat_simple.html">データ配信機能の紹介</a> および <a class="el" href="_bcat_simple_8cpp.html" title="データ配信のサンプルプログラム ">BcatSimple.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/bcat.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nifm.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// ダウンロードが完了するまで待機します。</span></div>
+<div class="line"><span class="keywordtype">void</span> WaitForDone(<a name="_a0"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_progress.html">nn::bcat::DeliveryCacheProgress</a>&amp; progress) <a name="a1"></a><a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a name="a2"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Start!\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 完了するまで待機します。</span></div>
+<div class="line">    <span class="keywordflow">while</span> (progress.GetStatus() != <a name="a3"></a><a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3adf927635f3d739ccf888d115d2234aec">nn::bcat::DeliveryCacheProgressStatus_Done</a>)</div>
+<div class="line">    {</div>
+<div class="line">        progress.Update();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">switch</span> (progress.GetStatus())</div>
+<div class="line">        {</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a4"></a><a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3add8834db42aef030b7eac5e8fdde6ae9">nn::bcat::DeliveryCacheProgressStatus_Queued</a>:</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Progress: status = queued\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a5"></a><a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3af41a5fc6323b82e7494aa307fb314d53">nn::bcat::DeliveryCacheProgressStatus_Connect</a>:</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Progress: status = connect\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a6"></a><a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3a8cf09dfad81ac583dc29ab62accf63f0">nn::bcat::DeliveryCacheProgressStatus_ProcessList</a>:</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Progress: status = process list\n&quot;</span>);</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a7"></a><a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3a70263441c043cdd9a8b885909aa58218">nn::bcat::DeliveryCacheProgressStatus_Download</a>:</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Progress: status = download, current = (%s/%s, %lld/%lld), whole = (%lld/%lld)\n&quot;</span>,</div>
+<div class="line">                progress.GetCurrentDirectoryName().value, progress.GetCurrentFileName().value,</div>
+<div class="line">                progress.GetCurrentDownloaded(), progress.GetCurrentTotal(),</div>
+<div class="line">                progress.GetWholeDownloaded(), progress.GetWholeTotal());</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a name="a8"></a><a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3a825df53e30ceb3062fec9130afc5f639">nn::bcat::DeliveryCacheProgressStatus_Commit</a>:</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Progress: status = commit, current = (%s), whole = (%lld/%lld)\n&quot;</span>,</div>
+<div class="line">                progress.GetCurrentDirectoryName().value,</div>
+<div class="line">                progress.GetWholeDownloaded(), progress.GetWholeTotal());</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">case</span> <a class="code" href="namespacenn_1_1bcat.html#a08a54941b85cc65f6ce0a7a38f2c52b3adf927635f3d739ccf888d115d2234aec">nn::bcat::DeliveryCacheProgressStatus_Done</a>:</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Progress: status = done, whole = (%lld/%lld), e = %08x\n&quot;</span>,</div>
+<div class="line">                progress.GetWholeDownloaded(), progress.GetWholeTotal(),</div>
+<div class="line">                progress.GetResult().GetInnerValueForDebug());</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 過剰なログ出力を抑えるため、 500ms 待機します。</span></div>
+<div class="line">        <a name="a9"></a><a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a name="a10"></a><a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(500));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Done!\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// データ配信キャッシュストレージをマウントします。</span></div>
+<div class="line"><span class="keywordtype">bool</span> <a class="code" href="namespacenn_1_1bcat.html#a85d0404aec6ba31824bd7c40f8e856cf">MountDeliveryCacheStorage</a>() <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <a name="_a11"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a name="a12"></a><a class="code" href="namespacenn_1_1bcat.html#a85d0404aec6ba31824bd7c40f8e856cf">nn::bcat::MountDeliveryCacheStorage</a>();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// バックグラウンド同期中にアプリを起動した場合、バックグラウンド同期が完了するまでアプリがマウントすることはできません。</span></div>
+<div class="line">    <span class="keywordflow">while</span> (nn::bcat::ResultLocked::Includes(result))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#a96b335e87af44c60a0d6dca75f11c9d2">nn::os::SleepThread</a>(<a class="code" href="classnn_1_1_time_span.html#a1b8582b5180ce7992fc82a148c7f8c90">nn::TimeSpan::FromMilliSeconds</a>(500));</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 一定期間待機した後、再度マウントを試みます。</span></div>
+<div class="line">        result = <a class="code" href="namespacenn_1_1bcat.html#a85d0404aec6ba31824bd7c40f8e856cf">nn::bcat::MountDeliveryCacheStorage</a>();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (nn::bcat::ResultServiceUnavailable::Includes(result))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;[Warning] Please link Nintendo account or register Network service account.\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> result.<a name="a13"></a><a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// 受信したファイルをすべて列挙します。</span></div>
+<div class="line"><span class="keywordtype">void</span> EnumerateAll() <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">static</span> <a name="_a14"></a><a class="code" href="structnn_1_1bcat_1_1_directory_name.html">nn::bcat::DirectoryName</a> s_DirNames[<a name="a15"></a><a class="code" href="namespacenn_1_1bcat.html#ab3a76ecc9adfa364b1e5ca0083f8c56b">nn::bcat::DeliveryCacheDirectoryCountMax</a>] = {};</div>
+<div class="line">    <span class="keywordtype">int</span> dirCount = 0;</div>
+<div class="line"></div>
+<div class="line">    <a name="a16"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a17"></a><a class="code" href="namespacenn_1_1bcat.html#a7556f2d7cc3a22873bc979a09bb7a75d">nn::bcat::EnumerateDeliveryCacheDirectory</a>(&amp;dirCount, s_DirNames, <a name="a18"></a><a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(s_DirNames)));</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;----------------------------------------------------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;DirectoryCount = %d\n&quot;</span>, dirCount);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> d = 0; d &lt; dirCount; d++)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;----------------------------------------------------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Directory[%3d] = %s\n&quot;</span>, d, s_DirNames[d].value);</div>
+<div class="line"></div>
+<div class="line">        <a name="_a19"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_directory.html">nn::bcat::DeliveryCacheDirectory</a> directory;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(directory.<a name="a20"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_directory.html#aadabf047a3432778e2f46aa563bdc901">Open</a>(s_DirNames[d]));</div>
+<div class="line"></div>
+<div class="line">        <span class="keyword">static</span> <a name="_a21"></a><a class="code" href="structnn_1_1bcat_1_1_delivery_cache_directory_entry.html">nn::bcat::DeliveryCacheDirectoryEntry</a> s_Entries[<a name="a22"></a><a class="code" href="namespacenn_1_1bcat.html#a0e59a2a5b5448b2e336f6f2fb722d4c8">nn::bcat::DeliveryCacheFileCountMaxPerDirectory</a>] = {};</div>
+<div class="line">        <span class="keywordtype">int</span> entryCount = 0;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(directory.<a name="a23"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_directory.html#a76e521ebfd0e99a1d86f96558e741d2e">Read</a>(&amp;entryCount, s_Entries, <a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(s_Entries)));</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;    EntryCount = %d\n&quot;</span>, entryCount);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> e = 0; e &lt; entryCount; e++)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;    Entry[%3d] = %32s, %016llx%016llx, %lld\n&quot;</span>, e,</div>
+<div class="line">                s_Entries[e].name.value, s_Entries[e].digest.value[0], s_Entries[e].digest.value[1], s_Entries[e].size);</div>
+<div class="line"></div>
+<div class="line">            <a name="_a24"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_file.html">nn::bcat::DeliveryCacheFile</a> file;</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(file.<a name="a25"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_file.html#a88ff2eae89b6fe8b1378f27976f07665">Open</a>(s_DirNames[d], s_Entries[e].name));</div>
+<div class="line"></div>
+<div class="line">            nn::Bit8 data[8] = {};</div>
+<div class="line">            <span class="keywordtype">size_t</span> read;</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(file.<a name="a26"></a><a class="code" href="classnn_1_1bcat_1_1_delivery_cache_file.html#a550058e63559eac9ccbeb3fa8b55d7d8">Read</a>(&amp;read, 0, data, <a class="code" href="nn___macro_8h.html#acd3a418aa2fc4a6379eaa722181a46a6">NN_ARRAY_SIZE</a>(data)));</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;               = &quot;</span>);</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> r = 0; r &lt; static_cast&lt;int&gt;(read); r++)</div>
+<div class="line">            {</div>
+<div class="line">                <span class="keywordtype">char</span> c = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span><span class="keyword">&gt;</span>(data[r]);</div>
+<div class="line"></div>
+<div class="line">                <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%c(%02X) &quot;</span>, (c &gt;= 0x20 &amp;&amp; c &lt;= 0x7E) ? c : <span class="charliteral">&#39;?&#39;</span>, data[r]);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;----------------------------------------------------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a27"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a28"></a><a class="code" href="namespacenn_1_1bcat.html#a65f8528327b457c8927b691ba6bee806">nn::bcat::Initialize</a>();</div>
+<div class="line">    <a name="a29"></a><a class="code" href="namespacenn_1_1nifm.html#a0e3aaf3209696149ec22613e1d3d6705">nn::nifm::Initialize</a>();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 本サンプルプログラムは、起動直後にデータ配信キャッシュの即時同期を行います。</span></div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;SubmitNetworkRequestAndWait ...\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <a name="a30"></a><a class="code" href="namespacenn_1_1nifm.html#ac42c271bffbeb6324e5a41ae779d6575">nn::nifm::SubmitNetworkRequestAndWait</a>();</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;SubmitNetworkRequestAndWait done!\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (<a name="a31"></a><a class="code" href="namespacenn_1_1nifm.html#a933a28d229a56e800703d95d4830fc6a">nn::nifm::IsNetworkAvailable</a>())</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="classnn_1_1bcat_1_1_delivery_cache_progress.html">nn::bcat::DeliveryCacheProgress</a> progress;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// インターネットに接続できた場合のみ、即時同期を行います。</span></div>
+<div class="line">        <a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a name="a32"></a><a class="code" href="namespacenn_1_1bcat.html#adcf35d4d16cb9421c2e9877f9feeb06a">nn::bcat::RequestSyncDeliveryCache</a>(&amp;progress);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (result.<a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>())</div>
+<div class="line">        {</div>
+<div class="line">            WaitForDone(progress);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span></div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;RequestSyncDeliveryCache failed. e = %08x\n&quot;</span>, result.<a name="a33"></a><a class="code" href="classnn_1_1_result.html#ae430c78822325c328e21a2d0e9d8cdc3">GetInnerValueForDebug</a>());</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;The network is not available.\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (<a class="code" href="namespacenn_1_1bcat.html#a85d0404aec6ba31824bd7c40f8e856cf">MountDeliveryCacheStorage</a>())</div>
+<div class="line">    {</div>
+<div class="line">        EnumerateAll();</div>
+<div class="line"></div>
+<div class="line">        <a name="a34"></a><a class="code" href="namespacenn_1_1bcat.html#afa9c8c86f782c74a4d49cc4973c6f84d">nn::bcat::UnmountDeliveryCacheStorage</a>();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;End.\n&quot;</span>);</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

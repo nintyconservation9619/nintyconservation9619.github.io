@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アプリケーション実行中に、バックグラウンドでダウンロードした追加コンテンツを利用できるようにする方法</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アプリケーション実行中に、バックグラウンドでダウンロードした追加コンテンツを利用できるようにする方法 -->
+<div class="pagetitle" id="PageId_254474535">アプリケーション実行中に、バックグラウンドでダウンロードした追加コンテンツを利用できるようにする方法</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_254474535_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_254474535_h1_2">有効にする方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_254474535_h1_3">利用できる追加コンテンツが変化したことを検出する方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_254474535_h2_1">開発環境での動作確認方法</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_254474535_h1_4">制限</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_254474535_h1_1">概要</h1>
+<p>NX Addon 4.2 以降にて、アプリケーション実行中にバックグラウンドで購入・ダウンロードした追加コンテンツを、アプリケーションを終了することなく利用できるようになります。ただしこの機能はデフォルトでは無効です。無効の場合は NX Addon 4.1 以前までと同じく、アプリケーションを再起動することで利用できるようになります。</p>
+<p>この機能は、購入した追加コンテンツをすぐにユーザに利用させるために利用できます。例えばアプリケーション内で追加コンテンツの購入を促し、そこからショップにジャンプさせて購入させるような場合を考えます。購入してアプリケーションに戻った後、ダウンロードが終わったらすぐにそのコンテンツが利用できるようになることで、購入から利用までの導線をスムーズにすることができます。</p>
+<p>一方で、アプリケーション実行中の追加コンテンツの動的追加に対応しない場合は、本機能は無効のままとしてください。例えばゲームの作り上そういった動的追加には対応できない、検証コストが上がってしまうので対応しない、という場合です。</p>
+<p>
+  <br />
+</p>
+<p>本機能の利用方法は、サンプルアプリの AocRuntimeInstall でも説明しているので、そちらもあわせて確認してください。</p>
+<h1 id="Anchor_254474535_h1_2">有効にする方法</h1>
+<p>本機能を有効にするには、アプリケーションの nmeta に記述が必要です。</p>
+<p>下記の内容を nmeta に追記してください。これを記述することで本機能が有効になります。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>&lt;NintendoSdkMeta&gt;
+    ...
+  &lt;Application&gt;
+    ...
+    &lt;RuntimeAddOnContentInstall&gt;AllowAppend&lt;/RuntimeAddOnContentInstall&gt;
+  &lt;/Application&gt;
+    ...
+&lt;/NintendoSdkMeta&gt;</pre>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>記述方法は&nbsp;<a href="../Pages/Page_166503043.html">nmeta ファイルの書き方</a>&nbsp;も参考にしてください。</p>
+<p>なお、記述するのはアプリケーションの nmeta であり、追加コンテンツの nmeta ではない点に注意してください。</p>
+<h1 id="Anchor_254474535_h1_3">利用できる追加コンテンツが変化したことを検出する方法</h1>
+<p>新たな追加コンテンツが利用できるようになったことは、<span class="ApiLink_nn__aoc__GetAddOnContentListChangedEvent">nn::aoc::GetAddOnContentListChangedEvent</span>() で取得できるイベントで検出できます。</p>
+<p>このイベントがシグナルされたあとで追加コンテンツのリストアップを再度行うと、新しくダウンロードした追加コンテンツが列挙されます。あとは通常通り追加コンテンツのアクセスをしてください。</p>
+<h2 id="Anchor_254474535_h2_1">開発環境での動作確認方法</h2>
+<p>開発環境でイベントをシグナルするには、アプリケーション実行中に下記の方法で追加コンテンツをインストールしてください。</p>
+<div style="border-width: 1px;" class="preformatted panel">
+  <div class="preformattedContent panelContent">
+    <pre>$ Tools\CommandLineTools\RunOnTarget.exe --suppress-auto-kill TargetTools\NX-NXFP2-a64\DevMenuCommand\Release\DevMenuCommand.nsp -- addoncontent install d:/aoc.nsp --dynamic</pre>
+  </div>
+</div>
+<p>--suppress-auto-kill オプションを RunOnTarget 実行時に付けることで、実行中のアプリケーションを終了することなく DevMenuCommand を実行できます。</p>
+<p>また、addoncontent install コマンドに --dynamic オプションを付けることで、<span class="ApiLink_nn__aoc__GetAddOnContentListChangedEvent">nn::aoc::GetAddOnContentListChangedEvent</span>() で取得したイベントがシグナルされます。ただしこのオプションは、何らかのアプリケーションが実行中であり、かつそのアプリケーションの nmeta の RuntimeAddOnContentInstall が AllowAppend に設定されていないと失敗します。（ただしインストールそのものは成功します）</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>この確認方法は、開発機が TargetManager に接続できる必要があります。そのため、開発機を Prod モードとした場合には本機能の確認はできません。</p>
+    <p>また addoncontent install コマンドでは、当該追加コンテンツを開いていない限り更新版の追加コンテンツをインストールできてしまいます。しかし実環境では後述する制限の通り、利用できる追加コンテンツのバージョンを変化させることはできません。</p>
+  </div>
+</div>
+<p>
+  <br />追加コンテンツが複数存在している（ = 複数の追加コンテンツインデックスを利用している）場合で、一部の追加コンテンツのみを実行中に追加したい場合があります。しかし、現時点では nsp 内の一部のインデックスの追加コンテンツのみインストールする機能は存在しません。そのため、一部のみインストールしたい場合はそれのみ含んだ nsp を都度作成する必要があります。</p>
+<h1 id="Anchor_254474535_h1_4">制限</h1>
+<p>下記の場合には、本機能を有効にしたとしても、アプリケーション実行中に新たに追加コンテンツが利用可能になりません。この場合にはアプリケーションの再起動が必要となります。</p>
+<ul>
+  <li>追加コンテンツに設定されている必須アプリケーションリリースバージョンを、現在実行中のアプリケーションが満たしていない</li>
+  <li>ダウンロード済みの追加コンテンツに対する、更新版のダウンロードである<ul><li>ダウンロード済みの追加コンテンツのインデックスが 1, 2, 3 であり、アプリケーション実行中に 1, 2 の更新版をダウンロードしても利用できるようにはなりません</li><li>一方、ダウンロード済みの追加コンテンツのインデックスが 1, 2, 3 で、アプリケーション実行中に新しく 4, 5 をダウンロードした場合は、本機能を用いることで再起動せずに利用できるようになります</li></ul></li>
+  <li>複数の追加コンテンツをまとめてダウンロードした場合は、一部でも上記条件を満たさないコンテンツがあると利用できるようにはなりません<ul><li>技術的な理由ではなく、ユーザから見て利用できるようになる追加コンテンツと利用可能にならないコンテンツが混ざることを防ぐための制限です</li></ul></li>
+</ul>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__aoc__GetAddOnContentListChangedEvent', '../../../Api/HtmlNX/namespacenn_1_1aoc.html#a2155a2805524d4e943c24b8799ef64c7' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ミューテックス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ミューテックス -->
+<div class="pagetitle" id="PageId_83955800">ミューテックス</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955800_h1_1">ミューテックス機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955800_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955800_h3_1">再帰ロック機能について</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955800_h3_2">ロックレベル機能について</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955800_h2_2">ミューテックスの使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955800_h2_3">ミューテックスの具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955800_h2_4">ミューテックスの関数リファレンス</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955800_h1_1">ミューテックス機能</h1>
+<h2 id="Anchor_83955800_h2_1">機能概要</h2>
+<p>ミューテックスは、複数<a href="../Pages/Page_83955697.html">スレッド</a>間で使用する共有リソースを排他制御するための同期機能です。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> 関数でロックを取得し、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> 関数でロックを手放します。ロックしたミューテックスをアンロック出来るのは、そのミューテックスをロックしたスレッドに限定されます。そのため、ロック期間中は、同一のミューテックスを <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> しようとしている他のスレッドと排他制御を行なうことができます。</p>
+<p>さらに、ミューテックスには 再帰ロック機能 と ロックレベル機能 があります。これらの機能については後述します。</p>
+<p>なお、ミューテックスをロックしている状態で、そのスレッドが終了した場合のミューテックスの状態は未定義です。スレッドを終了させる前に、正しくアンロックを行なって下さい。<br /></p>
+<p>
+  <br />
+</p>
+<h3 id="Anchor_83955800_h3_1">再帰ロック機能について</h3>
+<p>再帰ロックとは、ロックを再帰的に取得することが出来る機能です。</p>
+<p>再帰ロックを許可した場合、一度自スレッドでロックしたミューテックスに対して、再度ロック行為を重ねることが出来ます。このミューテックスを完全にアンロックするためには、ロックした回数と同じ数だけアンロックを行なう必要があります。</p>
+<p>再帰ロックを許可するかどうかは、ミューテックスを初期化する時に指定します。</p>
+<p>&nbsp;</p>
+<h3 id="Anchor_83955800_h3_2">ロックレベル機能について</h3>
+<p>ロックレベル機能は、ミューテックスのロック／アンロックの順番を監視するためのデバッグ機能です。<br />Debug ビルド、Develop ビルドで利用することができます。<br />Release ビルドでは、処理速度向上のためロックレベル機能は無効になります。<br /></p>
+<p>この機能を使うことで、本来の想定とは異なる不正なロック順序の検出や、ロックした順番とは異なる逆順でアンロックするようなシーケンスを検出することが出来ます。<br /></p>
+<p>
+  <span style="color: rgb(51,51,51);">ロックレベルは以下のような機構によって検査を行ないます。</span>
+</p>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">各ミューテックスは、初期化の段階でロックレベル値を指定します。</span>
+    <ul>
+      <li>
+        <span style="color: rgb(51,51,51);">
+          <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aafb8cce9509759efcb7b1080b20ca960">nn::os::MutexLockLevelMin</a> ～ <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20b0e2596b8091c49374130b049168f6">nn::os::MutexLockLevelMax</a> の範囲内でロックレベル値を指定します。</span>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">ロックレベル値に 0 を指定すると、そのミューテックスに対するロックレベル機能は無効になります。</span>
+      </li>
+    </ul>
+  </li>
+</ul>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">各スレッドは カレントロックレベル と ロック履歴 を管理しています。</span>
+    <ul>
+      <li>
+        <span style="color: rgb(51,51,51);">カレントロックレベルは、スレッド生成時に 0 で初期化されます。</span>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">ロック履歴は、32bit のビットパターンで管理され、各ビットがロックレベル値に対応しています。</span>
+        <ul>
+          <li>
+            <span style="color: rgb(51,51,51);">ロックに成功した場合、ロック履歴の対応するビットが 1 にセットされます。</span>
+          </li>
+          <li>
+            <span style="color: rgb(51,51,51);">
+              <span style="color: rgb(51,51,51);">アンロックに成功した場合、ロック履歴の対応するビットが 0 にクリアされます。</span>
+            </span>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">カレントロックレベル と ロック履歴 は、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> や <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> の際に各 API によって</span>
+        <span style="color: rgb(51,51,51);">変更されます。<br /></span>
+      </li>
+    </ul>
+  </li>
+</ul>
+<ul>
+  <li>スレッドが <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> を発行すると、カレントロックレベルは以下のように制御されます。<ul><li><span style="color: rgb(51,51,51);">ミューテックスのロックレベル値が 0 の場合は、ロックレベル検査を行ないません。&nbsp;</span></li><li><span style="color: rgb(51,51,51);">ミューテックスのロックレベル値がカレントロックレベルより大きい場合は、ロックに成功しロック履歴を更新します。</span></li><li><span style="color: rgb(51,51,51);">ミューテックスの<span style="color: rgb(51,51,51);">ロックレベル値</span>がカレントロックレベル以下の場合は、アサートに失敗します。</span></li><li><span style="color: rgb(51,51,51);">ロックに成功すると、カレントロックレベルをロックレベル値に変更します。</span></li></ul></li>
+</ul>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">スレッドが <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">UnlockMutex()</a> を発行すると、カレントロックレベルは以下のように制御されます。</span>
+    <br />
+    <ul>
+      <li>
+        <span style="color: rgb(51,51,51);">ミューテックスのロックレベル値が 0 の場合は、ロックレベル検査を行ないません。&nbsp;</span>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">ミューテックスの<span style="color: rgb(51,51,51);">ロックレベル値</span>がカレントロックレベルに等しい場合は、アンロックに成功し<span style="color: rgb(51,51,51);">ロック履歴を更新します。</span></span>
+        <span style="color: rgb(51,51,51);">&nbsp;</span>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">ミューテックスの<span style="color: rgb(51,51,51);">ロックレベル値</span>がカレントロックレベルと異なる場合は、アサートに失敗します。</span>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">アンロックに成功すると、カレントロックレベルを、ロックする前のロックレベル値に戻します。</span>
+      </li>
+    </ul>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<p>上記の <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">LockMutex()</a> は、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af32963cc501eefcb10a0ebb993080b9f">TryLockMutex()</a> でも同様の振舞いとなります。</p>
+<p>なお、ロックレベル機能を活用するためには、そのアプリケーションで利用される個々のミューテックスに対して、どのようなロックレベル値を設定すべきかを予め決めておく必要があります。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955800_h2_2">ミューテックスの使用方法</h2>
+<p>ミューテックスを使用する場合は以下のような <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_mutex_type.html">nn::os::MutexType</a> 構造体オブジェクトを用意します。<br />オブジェクトを定義する場所に特に制限はありません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">MutexType</span>    <span class="n">g_Mutex</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>定義されたオブジェクトに対して、以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>ミューテックスを使用する前に、予め初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">InitializeMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>上記のように動的に初期化する以外に、以下のようにマクロを使って静的に初期化することも可能です。この場合、ロックレベルは必ず 0 になります。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>&nbsp;<span class="nn">nn::os::</span><span class="n">MutexType</span> <span class="n">g_Mutex</span> <span class="o">=</span> <span class="n">NN_OS_MUTEX_INITIALIZER</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、ミューテックスをロックします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">LockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて、ミューテックスをアンロックします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">UnlockMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>ミューテックスを使用し終わったら、破棄します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FinalizeMutex</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_Mutex</span> <span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_83955800_h2_3">ミューテックスの具体的な使用例</h2>
+<p>具体的な使用例は、&nbsp;<a href="../../../Api/HtmlNX/_page_sample_os_mutex.html">ミューテックス機能サンプルプログラム</a> を参照して下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955800_h2_4">ミューテックスの関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d0a550df15490a884932a062dc26533">nn::os::InitializeMutex</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8ce43d38754bf3049ab8d60b9d9e0046">nn::os::FinalizeMutex</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#af32963cc501eefcb10a0ebb993080b9f">nn::os::TryLockMutex</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/os___mutex_api_8h.html#a90be4df5dbd89de101035979076507a8">NN_OS_MUTEX_INITIALIZER</a> （マクロ）</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

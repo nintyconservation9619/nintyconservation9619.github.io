@@ -1,0 +1,436 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>バッチファイルによるエクスポート</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- バッチファイルによるエクスポート -->
+<div class="pagetitle" id="PageId_83955899">バッチファイルによるエクスポート</div>
+<div class="text_separate">
+<h1 id="Anchor_83955899_h1_1">バッチファイルによるエクスポート</h1>
+<p>3ds Max 上でシーンを 1 ずつ開いて中間ファイルを出力する方法以外に、 1 つもしくは複数のシーンに対して一括で中間ファイルを出力することができます。<br /> この処理を「バッチエクスポート」と呼びます。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955899_h2_1">バッチエクスポートの実行方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955899_h2_2">Max Script を使った独自のバッチエクスポート</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955899_h2_3">オプション文字列の使用方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955899_h2_4">関連リンク</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_83955899_h2_1">バッチエクスポートの実行方法</h2>
+<ul>
+  <li>[maxscript]の[スクリプトを起動]で「NintendoExportBatchExport.ms」を選択。</li>
+  <li>ファイルダイアログで max ファイルのフォルダ、書き出し先のフォルダを指定。</li>
+  <li>スクリプトで自動的に max ファイルのロードと fmd 等のエクスポートが行われます。</li>
+</ul>
+<p>ファイルのエクスポート先以外のオプションは、それぞれの max ファイルで設定された物が使用されます。</p>
+<p>バッチエクスポート中にエラーが起きた場合、そのファイルはスキップされてバッチエクスポートは継続します。<br /> 終了後にダイアログでエラーの数とファイル名が表示されます。</p>
+<h2 id="Anchor_83955899_h2_2">Max Script を使った独自のバッチエクスポート</h2>
+<p>Max Script を使用することで独自のバッチエクスポートを実行できます。</p>
+<p>サンプルスクリプト</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>--------------------------------------------------------
+maxファイルに保存された設定を読み込み、
+出力フォルダ、ファイル名を変更してからエクスポートする方法
+--------------------------------------------------------
+-- .maxファイルのロード
+loadMaxFile @&quot;C:\Sample1.max&quot; quiet:true useFileUnits:true
+
+-- シーンに保存されたエクスポータの設定を読み込む
+NintendoExport.LoadSetting()
+
+-- エクスポート先の変更
+NintendoExport.outFolder = @&quot;C:\Exportdir&quot;
+
+-- エクスポートファイル名の変更
+NintendoExport.filename = @&quot;Export&quot;
+
+-- エクスポートの実行 
+-- (NintendoExport.doExport の引数に false を渡すと、すべてのノードをエクスポート)
+NintendoExport.doExport false
+
+--------------------------------------------------------
+fdes ファイルに保存された設定を読み込み、
+指定したノード以下をエクスポートする方法
+--------------------------------------------------------
+-- .maxファイルのロード
+loadMaxFile @&quot;C:\Sample2.max&quot; quiet:true useFileUnits:true
+
+-- ユーティリティスクリプトのインスタンスを作成
+local utils = NintendoExportUtilities()
+
+-- .fdes に保存されたエクスポータの設定を読み込む
+utils.loadSettingFromFile @&quot;C:\Sample2.fdes&quot; 
+
+-- ノードを選択
+select $Box01
+
+-- エクスポートの実行
+-- (NintendoExport.doExport の引数に true を渡すと、選択したノード以下をエクスポート)
+NintendoExport.doExport true
+--------------------------------------------------------</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_83955899_command_options"></a>
+</p>
+<h2 id="Anchor_83955899_h2_3">オプション文字列の使用方法</h2>
+<p>NintendoExportUtilities の parseCommandOptions で次の書式を使用すると各オプションを指定することができます。</p>
+<p>
+  <strong>parseCommandOptions &quot;オプション名 値 オプション名 値&quot;</strong>
+</p>
+<p>指定されたオプションのみ上書きします。</p>
+<p>オプション名は「-（ハイフン）」の後に <a href="../Pages/Page_83955854.html#Anchor_83955854_keyword">fdes ファイルのキーワード</a>を記述します。値も fdes ファイルで使用する値と同じです。<br />-start_frame、-end_frame といったロングネームの替わりに -s、-e のようなショートネームも使用可能です。</p>
+<p>以下に指定可能なオブションを示します。</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ロングネーム（ショートネーム）</th>
+      <th>備考</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="nowrap">
+        <strong>-export_target (-et)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_file_name (-ofn)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_folder (-of)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-merge_fmd (-mmd)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-merge_fmd_path (-mmdp)</strong>
+      </td>
+      <td>このオプションが指定された場合、-merge_fmd true が指定されていなくても -merge_fmd true が指定された場合と同じ動作になります。</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-merge_ftx (-mtx)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-merge_anim (-man)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-merge_anim_folder (-manf)</strong>
+      </td>
+      <td>このオプションが指定された場合、-merge_anim true が指定されていなくても -merge_anim true が指定された場合と同じ動作になります。</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-merge_anim_name (-mann)</strong>
+      </td>
+      <td>このオプションが指定された場合、-merge_anim true が指定されていなくても -merge_anim true が指定された場合と同じ動作になります。</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-magnify (-mag)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-texsrt_mode (-tsm)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-frame_range (-fr)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-start_frame (-s)</strong>
+      </td>
+      <td>このオプションが指定された場合、-frame_range range が指定されていなくても -frame_range range が指定された場合と同じ動作になります。</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-end_frame (-e)</strong>
+      </td>
+      <td>このオプションが指定された場合、-frame_range range が指定されていなくても -frame_range range が指定された場合と同じ動作になります。</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-loop_anim (-l)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-bake_all_anim (-baa)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-frame_precision (-fp)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fmd (-fmd)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_ftx (-ftx)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fsk (-fsk)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fvb (-fvb)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fcl (-fcl)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fts (-fts)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_ftp (-ftp)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fsh (-fsh)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-output_fsn (-fsn)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-compress_bone (-cb)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-unite_child (-uc)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-compress_material (-cm)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-compress_shape (-cs)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_scale (-ts)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_rotate (-tr)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_translate (-tt)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_color (-tc)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_tex_scale (-tts)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_tex_rotate (-ttr)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-tolerance_tex_translate (-ttt)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-quantize_tolerance_scale (-qts)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-quantize_tolerance_rotate (-qtr)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-quantize_tolerance_translate (-qtt)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-quantize_tolerance_tex_scale (-qtts)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-quantize_tolerance_tex_rotate (-qttr)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="nowrap">
+        <strong>-quantize_tolerance_tex_translate (-qttt)</strong>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<p>サンプルスクリプト</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>--------------------------------------------------------
+maxファイルに保存された設定を読み込み、
+オプションで設定を変更してからエクスポートする方法
+--------------------------------------------------------
+-- .maxファイルのロード
+loadMaxFile @&quot;C:\Sample1.max&quot; quiet:true useFileUnits:true
+
+-- シーンに保存されたエクスポータの設定を読み込む
+NintendoExport.LoadSetting()
+
+-- ユーティリティスクリプトのインスタンスを作成
+local utils = NintendoExportUtilities()
+
+-- オプション文字列の指定で開始・終了フレームを変更
+util.parseCommandOptions &quot;-start_frame 10 -end_frame 30&quot;
+
+-- エクスポートの実行 
+-- (NintendoExport.doExport の引数に false を渡すと、すべてのノードをエクスポート)
+NintendoExport.doExport false</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955899_h2_4">関連リンク</h2>
+<p>
+  <a href="../Pages/Page_83955545.html">エクスポートプラグイン</a>
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

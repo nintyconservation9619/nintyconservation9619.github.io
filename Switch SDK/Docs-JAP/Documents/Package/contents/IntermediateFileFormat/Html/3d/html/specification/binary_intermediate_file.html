@@ -1,0 +1,235 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link href="../css/template.css" rel="stylesheet" type="text/css" />
+<title>バイナリー中間ファイル</title>
+</head>
+<body>
+<h1>バイナリー中間ファイル</h1>
+<h2>概要</h2>
+<p>
+バイナリー中間ファイルは、高速に読み書きするために一部データをバイナリー化した中間ファイルです。
+<strong>実機で扱うランタイム用のバイナリーファイルとは別のファイルです。</strong>
+バイナリー中間ファイルは拡張子の最後の文字が a（テキスト形式）でなく b（バイナリー形式）になっています。
+</p>
+<h2>バイナリー中間ファイルの構造</h2>
+<p>
+バイナリー中間ファイルは、テキスト形式で記述された前半部と、バイナリーデータが埋め込まれた後半部に分かれています。
+中間ファイル入出力において多くの時間を占める <a href="../reference/elements/stream_array.html">&lt;stream_array&gt;</a> を、バイナリー形式で読み書きすることによって高速なファイル入出力を実現しています。
+</p>
+<h2>テキスト形式の前半部</h2>
+<p>
+バイナリー中間ファイルの前半部は、<a href="../reference/elements/stream_array.html">&lt;stream_array&gt;</a> 以下の要素が削除されている点以外は通常の <a href="text_intermediate_file.html">テキスト中間ファイル</a> と同一です。
+</p>
+<p>
+前半部に関しては、テキストエディタで内容を確認することができます。<br />
+<strong>ただし、テキストエディタで内容を編集して保存すると、後半部のバイナリーデータが壊れます。</strong>
+</p>
+<p>
+前半部の終了 (&lt;/nw4f_3dif&gt;\r\n) から後半部の先頭までは、<strong>1～32byte</strong> のゼロパディングを挿入して、32byte アライメントをとります。
+最初に見つかった 0 値のアドレス + 1 を、32byte 境界に繰り上げると、後半部の先頭アドレスになります。
+</p>
+<p>
+ただし、<a href="../reference/elements/stream_array.html">&lt;stream_array&gt;</a> が存在しない場合は前半部のみとなり、<a href="text_intermediate_file.html">テキスト中間ファイル</a> と完全に同じ内容になります。
+</p>
+<h2>バイナリー形式の後半部</h2>
+<p>
+バイナリー形式の後半部はデータブロックであるチャンク単位で分割しています。
+チャンクの先頭はファイル先頭からの 32byte アライメントに配置し、チャンク自体のサイズも 32byte 単位です。
+</p>
+<p>
+エンディアンはリトルエンディアンです。
+</p>
+<p>
+<a href="../reference/elements/stream_array.html">&lt;stream_array&gt;</a> をバイナリー化したバイナリーデータであるため、対応したストリーム配列チャンクと複数のストリームチャンクを持ちます。
+</p>
+<h3>ストリーム配列チャンク</h3>
+<p>
+後半部の先頭にはストリーム配列チャンクがあります。
+</p>
+<table>
+    <thead>
+        <tr>
+            <th>オフセット</th>
+            <th>サイズ</th>
+            <th>内容</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="nowrap_center">0</td>
+            <td class="nowrap_center">8</td>
+            <td>チャンクヘッダ &quot;g3dstrma&quot; (0x616D727473643367) です。</td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">8</td>
+            <td class="nowrap_center">4</td>
+            <td>ストリームチャンク数です。<br />
+            以降はストリームチャンクの情報が、チャンク数分並びます。</td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">12 + 8 *<br />index</td>
+            <td class="nowrap_center">4</td>
+            <td>バイナリー形式の後半部先頭から、ストリームチャンク先頭までのオフセットです。<br />
+            index はストリームチャンクのインデックスです。 </td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">16 + 8 *<br />index</td>
+            <td class="nowrap_center">4</td>
+            <td>ストリームチャンクのサイズです。<br />
+            index はストリームチャンクのインデックスです。</td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">?</td>
+            <td class="nowrap_center">? % 32</td>
+            <td>アライメントをとるためのゼロパディングです。</td>
+        </tr>
+    </tbody>
+</table>
+<h3>ストリームチャンク</h3>
+<p>
+ストリーム配列チャンクで指定されたストリームチャンクが複数並びます。
+</p>
+<table>
+    <thead>
+        <tr>
+            <th>オフセット</th>
+            <th>サイズ</th>
+            <th>内容</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="nowrap_center">0</td>
+            <td class="nowrap_center">8</td>
+            <td>チャンクヘッダ &quot;stream□□&quot; (0x20206D6165727473) です。<br />
+            □は半角スペースです。</td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">8</td>
+            <td class="nowrap_center">4</td>
+            <td>ストリームのデータ型です。<br />
+            0: float、1: int、2: byte、3: string、4: wstring です。</td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">12</td>
+            <td class="nowrap_center">4</td>
+            <td>ストリームの持つデータ数です。<br />
+            データ型が string、wstring の場合は、常に 1 です。
+            </td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">16</td>
+            <td class="nowrap_center">4</td>
+            <td>テキスト中間ファイルで利用するカラムです。<br />
+            テキスト中間ファイルに変換する際に、<a href="../reference/elements/stream.html">
+            &lt;stream&gt;</a> column に指定します。<br />
+            データ型が string、wstring の場合は、常に 0 です。
+            </td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">20</td>
+            <td class="nowrap_center">4</td>
+            <td>データサイズ（データ列の byte 数）です。<br />
+            データ型が string、wstring の場合は、<strong>終端文字を含んだ</strong> byte 数です。
+            </td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">24</td>
+            <td class="nowrap_center">8</td>
+            <td>アライメントをとるためのゼロパディングです。</td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">32</td>
+            <td class="nowrap_center">データ<br />サイズ</td>
+            <td>データ型の値が、データ数の個数分並んでいるデータ列です。<br />
+            string は ASCII で、wstring は UTF-16 LE で格納します。<br />
+            string、wstring の改行コードは <strong>LF</strong> です。
+            </td>
+        </tr>
+        <tr>
+            <td class="nowrap_center">?</td>
+            <td class="nowrap_center">? % 32</td>
+            <td>アライメントをとるためのゼロパディングです。</td>
+        </tr>
+    </tbody>
+</table>
+<p>
+最後のストリームチャンク終端が、ファイルの終端です。
+</p>
+
+<h2>バイナリー中間ファイルの全体イメージ</h2>
+<div class="code_block"><pre class="code">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;nw4f_3dif&gt;
+　...
+　&lt;stream_array&gt; 削除
+　...
+&lt;/nw4f_3dif&gt;\r\n
+1～32byte のゼロパディング
+
+ストリーム配列チャンク
+{
+　&quot;g3dstrma&quot;
+　ストリームチャンク数
+
+　{
+　　ストリーム配列チャンク先頭から各ストリームチャンク先頭へのオフセット
+　　各ストリームチャンクのサイズ
+　} * ストリームチャンク数
+
+　0～31byte のゼロパディング
+}
+
+ストリームチャンク
+{
+　&quot;stream  &quot;
+　ストリームデータ型
+　データ数
+　カラム数
+　データサイズ
+　8byte のゼロパディング
+
+　データ列
+
+　0～31byte のゼロパディング
+} * ストリームチャンク数
+</pre></div>
+
+<h2>バイナリー中間ファイルの構造体イメージ</h2>
+<div class="code_block"><pre class="code">
+struct ChunkOffset
+{
+    u32 offset;
+    u32 size;
+};
+
+struct StreamChunk
+{
+    u64 header;
+    StreamType type;
+    s32 count;
+    s32 column;
+    s32 size;
+
+    u64 padding;
+
+    void* data;
+};
+
+struct StreamArray
+{
+    u64 header;
+    u32 chunkCount;
+    std::vector&lt;ChunkOffset&gt; chunkOffset;
+
+    // StreamChunk が 32byte アライメントになるように padding
+
+    std::vector&lt;StreamChunk&gt; streamChunk;
+};
+</pre></div>
+
+</body>
+</html>

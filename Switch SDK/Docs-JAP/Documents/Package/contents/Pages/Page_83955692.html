@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>スレッド固有領域</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- スレッド固有領域 -->
+<div class="pagetitle" id="PageId_83955692">スレッド固有領域</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955692_h1_1">スレッド固有領域機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955692_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83955692_h3_1">スレッド固有領域数の上限</a>
+        </li>
+        <li>
+          <a href="#Anchor_83955692_h3_2">スレッド終了時のデストラクタ処理</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83955692_h2_2">スレッド固有領域の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955692_h2_3">スレッド固有領域の具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955692_h2_4">スレッド固有領域の関数リファレンス</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83955692_h1_1">スレッド固有領域機能</h1>
+<h2 id="Anchor_83955692_h2_1">機能概要</h2>
+<p style="color: rgb(51,51,51);">スレッド固有領域（Thread Local Storage： 略して TLS）とは、<a href="../Pages/Page_83955697.html">スレッド</a>ごとに異なる内容を記憶できる小規模な記憶領域を提供する機能です。</p>
+<p style="color: rgb(51,51,51);">スレッド固有領域は、TLS スロットと呼ばれるスロット番号を介してアクセスし、同一のスロット番号に対して<a href="../Pages/Page_83955697.html">スレッド</a>ごとに異なる内容を記録／参照することが出来ます。</p>
+<p style="color: rgb(51,51,51);">TLS スロットはプログラムの初期の段階で必要な数を確保して使用します。一度確保した TLS スロットは明示的に返却するまで全ての <a href="../Pages/Page_83955697.html">スレッド</a> にて使用し続けることができます。</p>
+<p style="color: rgb(51,51,51);">１つの TLS スロットに格納できる TLS 値は、 uintptr_t 型の値 1 つだけです。<br />また、生成されたばかりの<a href="../Pages/Page_83955697.html">スレッド</a>の TLS 値は全て 0 で初期化されています。</p>
+<p style="color: rgb(51,51,51);">&nbsp;</p>
+<h3 style="color: rgb(51,51,51);" id="Anchor_83955692_h3_1">スレッド固有領域数の上限</h3>
+<p style="color: rgb(51,51,51);">作成できるスレッド固有領域の TLS スロット数には上限があります。</p>
+<p style="color: rgb(51,51,51);">上限値は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a59fab4470b957077f8605c71502c9f2f">nn::os::TlsSlotCountMax</a> で示されます。</p>
+<p style="color: rgb(51,51,51);">&nbsp;</p>
+<h3 style="color: rgb(51,51,51);" id="Anchor_83955692_h3_2">スレッド終了時のデストラクタ処理</h3>
+<p style="color: rgb(51,51,51);">スレッド固有領域機能では、<a href="../Pages/Page_83955697.html">スレッド</a>終了時にコールバックされるデストラクタ関数を登録する機能があります。</p>
+<p style="color: rgb(51,51,51);">具体的には、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2a67ebeb78e5d624b45ec27d66bdf0b2">AllocateTlsSlot()</a> で TLS スロットを確保するときに TLS デストラクタ関数 を登録しておくと、各<a href="../Pages/Page_83955697.html">スレッド</a>の終了時にその TLS デストラクタ関数がコールバックされるというものです。この登録した TLS デストラクタ関数は、終了したスレッド自身のコンテキスト上で実行されます。TLS デストラクタ関数の引数には、当該 TLS スロットの TLS 値が直接渡されます。</p>
+<p style="color: rgb(51,51,51);">TLS 値は uintptr_t 型の大きさのため、これより大きなデータを<a href="../Pages/Page_83955697.html">スレッド</a>毎に記録しておきたい場合には、動的にメモリ確保した領域の先頭アドレスを TLS 値として記録しておくという使い方が想定されます。そのような場合、予め TLS デストラクタ関数を登録しておくことで、当該<a href="../Pages/Page_83955697.html">スレッド</a>が終了した時に各 TLS スロット毎に登録されている TLS デストラクタ関数が順番に呼ばれるため、そこでメモリの解放を行なうことができます。</p>
+<p style="color: rgb(51,51,51);">なお、複数の TLS スロットに TLS デストラクタ関数が登録されている場合、それらの TLS デストラクタ関数が呼び出される順番は不定です。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955692_h2_2">スレッド固有領域の使用方法</h2>
+<p>まず最初に、スレッド固有領域で使用する TLS デストラクタ関数を定義しておきます。引数にて TLS 値を直接受け取ります。<br /> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2a67ebeb78e5d624b45ec27d66bdf0b2">AllocateTlsSlot()</a> で TLS デストラクタ関数を登録しない場合は、この手順は不要です。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;cstdlib&gt;
+</span>
+<span class="kt">void</span>   <span class="nf">TlsDestructorFunction</span><span class="p">(</span><span class="kt">uintptr_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">std::</span><span class="n">free</span><span class="p">(</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">address</span><span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>準備が出来たら、スレッド固有領域は以下のような手順で使用します。</p>
+<ol>
+  <li>
+    <p>まず最初に、メインスレッド等で TLS スロットを確保します。<br />ここで確保した TLS スロット番号は <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#afded66e76230ba96acc86ba3d48d76c4">FreeTlsSlot()</a> するまで有効です。<br /> TLS デストラクタ関数として TlsDestructorFunction を登録しておきます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">TlsSlot</span> <span class="n">g_tlsSlot</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span>      <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">AllocateTlsSlot</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g_tlsSlot</span><span class="p">,</span> <span class="n">TlsDestructorFunction</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// スレッド固有領域の確保に失敗
+</span><span class="p">}</span> 
+<span class="c1">// スレッド固有領域の確保に成功
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>生成されたスレッドで、前述の 1 で確保した TLS スロットに値を設定します。<br />ここでは、InfoStructure 構造体の大きさを持つメモリを動的に確保し、そのアドレスを TLS にセットしておきます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="kt">void</span><span class="o">*</span> <span class="n">address</span> <span class="o">=</span> <span class="nn">std::</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">InfoStructure</span><span class="p">));</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// メモリの獲得に失敗
+</span><span class="p">}</span>
+
+<span class="nn">nn::os::</span><span class="n">SetTlsValue</span><span class="p">(</span><span class="n">g_tlsSlot</span><span class="p">,</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">uintptr_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">address</span><span class="p">));</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>スレッドの内部処理では、以下のようにして TLS 値を取得して必要な処理を行ないます。<br />TLS にはスレッド毎に動的に確保したメモリのアドレスが入っているため、 それを必要に応じて構造体ポインタ等に変換して利用します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="n">InfoStructure</span><span class="o">*</span> <span class="n">info</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">InfoStructure</span><span class="o">*&gt;</span><span class="p">(</span><span class="nn">nn::os::</span><span class="n">GetTlsValue</span><span class="p">(</span><span class="n">g_tlsSlot</span><span class="p">));</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>スレッドが終了する時には、自動的に TLS デストラクタ関数（&nbsp;TlsDestructorFunction ）が呼ばれるため、そこで不要になったメモリ領域を解放します（前述の TlsDestructorFunction() 関数を参照）。<br />&nbsp;</li>
+  <li>
+    <p>最後に当該 TLS スロットが不要になったら、以下のように TLS スロットを返却します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FreeTlsSlot</span><span class="p">(</span><span class="n">g_tlsSlot</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955692_h2_3">スレッド固有領域の具体的な使用例</h2>
+<p>具体的な使用例は、  <a href="../../../Api/HtmlNX/_page_sample_os_thread_local_storage.html">スレッド固有領域機能サンプルプログラム</a>   を参照して下さい。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955692_h2_4">スレッド固有領域の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2a67ebeb78e5d624b45ec27d66bdf0b2">nn::os::AllocateTlsSlot</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#afded66e76230ba96acc86ba3d48d76c4">nn::os::FreeTlsSlot</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a452445507fba4dc49cb9cfb77b4c88c1">nn::os::GetTlsValue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8f54d6581f3380bc9b6b7d92c9855acd">nn::os::SetTlsValue</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aa0db5a1ab770f99f96e327aeb5c653ce">nn::os::GetUsedTlsSlotCount</a>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>DebugPad</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- DebugPad -->
+<div class="pagetitle" id="PageId_83955511">DebugPad</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955511_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955511_h1_2">Windows 環境における構成</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83955511_h2_1">XInput 互換コントローラ</a>
+      </li>
+      <li>
+        <a href="#Anchor_83955511_h2_2">その他の HID 準拠ゲームコントローラ</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_83955511_h1_3">使用方法</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83955511_h1_1">はじめに</h1>
+<p>デバッグコントローラとして開発ボードに接続されたクラシックコントローラを操作するために用意された API です。</p>
+<p>下記の入力状態を取得することができます。</p>
+<ul style="list-style-type: square;">
+  <li>14 個のデジタルボタン<ul style="list-style-type: square;"><li>十字ボタンの上下左右</li><li>A, B, X, Y,&nbsp;L, R, ZL, ZR, Start, Select</li></ul></li>
+  <li>左右 1 つずつのアナログスティック</li>
+</ul>
+<p>入力状態の更新は、10 ms 以上の間隔を開けて、その時点における最新のサンプリング値に基いて行われます。</p>
+<p>
+  <span style="color: rgb(51,51,51);">アナログスティックからの入力座標は (0, 0) をゼロ点とする半径&nbsp;</span>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aae5f082196ed0f5db69b1862e8b64b4d">AnalogStickMax</a>
+  <span style="color: rgb(51,51,51);">&nbsp;の円の内側（境界を含む）に位置します。&nbsp;軸方向は右と上が正となります。</span>
+</p>
+<p>アナログスティックからの入力の分解能はプラットフォームごとに定義されます。</p>
+<p>&nbsp;</p>
+<p>API を利用する際は、まず <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a52f910e37e347a944be54f6860a8ed11">InitializeDebugPad()</a> を呼び出して初期化を行う必要があります。</p>
+<p>入力状態を取得する API として <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a40b8f5da6ee8cf238711c395ce734bdd">GetDebugPadState()</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a8e6e19026ab6ea1a170c81cd981ad95e">GetDebugPadStates() </a>が用意されています。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a40b8f5da6ee8cf238711c395ce734bdd">GetDebugPadState()</a> は最新の入力状態を取得する際に使用します。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a8e6e19026ab6ea1a170c81cd981ad95e">GetDebugPadStates()</a> は、最新の入力状態から遡って、複数の入力状態を取得する際に使用します。 最大で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a49c2171f2558da63f6fa6851473d7ff5">DebugPadStateCountMax</a>&nbsp;個まで遡ることができます。</p>
+<p>入力状態の取得が内部状態を変えることはないため、同じ API を繰り返し呼び出した際に、入力状態の更新が挟まれなければ、取得される値は同じとなります。</p>
+<p>入力状態には、更新を行うたびに 1 ずつ増えていく番号が、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_debug_pad_state.html#a1ae1b69699a16a6abca85a1494e0dcc5">DebugPadState::samplingNumber</a> として割り当てられます。 取得した入力状態はこの番号から判別することが可能です。</p>
+<p>&nbsp;</p>
+<p>禁則処理として、下記の入力状態とならないことを保証します。</p>
+<ul>
+  <li>十字ボタン上下の同時押下</li>
+  <li>十字ボタン左右の同時押下</li>
+</ul>
+<p>&nbsp;</p>
+<p>デバッグコントローラの接続状況に依らず、API は常に利用することが可能です。</p>
+<p>デバッグコントローラが接続されていないこと等が原因でサンプリングに失敗した場合、何も入力が無かったものとして、全てのボタンが押されておらず、全てのアナログスティックの座標が (0, 0) にある状態をその時点の入力状態とします。</p>
+<p>デバッグコントローラが、<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a52f910e37e347a944be54f6860a8ed11">InitializeDebugPad()</a> の呼び出し後に切断や再接続されたとしても、再初期化を行うことなく継続して利用できます。</p>
+<p>デバッグコントローラの接続状況を判定する必要がある場合は、&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_debug_pad_state.html">DebugPadState</a> 構造体の&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_debug_pad_state.html#adbe9f407932148bfbbaf3873045c5e3f">attributes</a>&nbsp;メンバ変数の&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_debug_pad_attribute.html#a7dceb4eb84e06889572f9e31a11faf1f">IsConnected</a>&nbsp;フラグを参照してください。</p>
+<h1 id="Anchor_83955511_h1_2">Windows 環境における構成</h1>
+<p>汎用コントローラやキーボード入力の割り当ては <a href="../Pages/Page_89983199.html">HID エミュレーション設定</a>に従って行われます。</p>
+<p>キャリブレーションは Windows 側で行われていることを前提とします。</p>
+<p>汎用コントローラを使用する場合、デバイスの仕様に応じて下記のように入力状態が決定します。</p>
+<h2 id="Anchor_83955511_h2_1">XInput 互換コントローラ</h2>
+<p>入力状態の更新は&nbsp;XInputGetState() から得られた値に基づいて行われます。 この時、 Windows 7 との互換性を取るため&nbsp;xinput9_1_0.dll の実装を使用します。</p>
+<p>ボタンの対応は下記の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">DebugPad</th>
+      <th style="text-align: center;">XInput 互換コントローラ</th>
+    </tr>
+    <tr>
+      <td>a ボタン</td>
+      <td>A ボタン</td>
+    </tr>
+    <tr>
+      <td>b ボタン</td>
+      <td>B ボタン</td>
+    </tr>
+    <tr>
+      <td>X ボタン</td>
+      <td>Y ボタン</td>
+    </tr>
+    <tr>
+      <td>Y ボタン</td>
+      <td>X ボタン</td>
+    </tr>
+    <tr>
+      <td>L ボタン</td>
+      <td>LB ボタン</td>
+    </tr>
+    <tr>
+      <td>R ボタン</td>
+      <td>RB ボタン</td>
+    </tr>
+    <tr>
+      <td>ZL ボタン</td>
+      <td>左 トリガー</td>
+    </tr>
+    <tr>
+      <td>ZR ボタン</td>
+      <td>右 トリガー</td>
+    </tr>
+    <tr>
+      <td>Start ボタン</td>
+      <td>START ボタン</td>
+    </tr>
+    <tr>
+      <td>Select ボタン</td>
+      <td>BACK ボタン</td>
+    </tr>
+    <tr>
+      <td>十字ボタン 左</td>
+      <td>方向パッド 左</td>
+    </tr>
+    <tr>
+      <td>十字ボタン 上</td>
+      <td>方向パッド 上</td>
+    </tr>
+    <tr>
+      <td>十字ボタン 右</td>
+      <td>方向パッド 右</td>
+    </tr>
+    <tr>
+      <td>十字ボタン 下</td>
+      <td>方向パッド 下</td>
+    </tr>
+  </tbody>
+</table>
+<p>アナログスティックからの入力は、<span style="color: rgb(69,69,69);">XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE と XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE に基づき十字にデッドゾーン処理を行った上で、 (0, 0) をゼロ点とする半径&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aae5f082196ed0f5db69b1862e8b64b4d">AnalogStickMax</a>&nbsp;の円内に収められます。</span></p>
+<h2 id="Anchor_83955511_h2_2">その他の HID 準拠ゲームコントローラ</h2>
+<p>入力状態の更新は、joyGetPosEx() と&nbsp;joyGetDevCaps() から得られた値に基づいて行われます。</p>
+<p>ボタンと座標軸の割り当ては&nbsp;<a href="../Pages/Page_89983199.html">HID エミュレーション設定</a>に従います。</p>
+<p>アナログスティックからの入力は、ELECOM JC-W01UWH や ELECOM JC-W02UWH&nbsp;を想定した下記の<span style="color: rgb(69,69,69);">デッドゾーン処理を行った上で、</span>(0, 0) をゼロ点とする半径&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aae5f082196ed0f5db69b1862e8b64b4d">AnalogStickMax</a>&nbsp;の円内に収められます。</p>
+<ol>
+  <li>
+    <span style="color: rgb(51,51,51);">JOY_USEDEADZONE フラグでデッドゾーン処理を抑止した上で座標値を取得します。</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">左右のアナログスティックそれぞれについて、<span style="color: rgb(51,51,51);">座標値の最大値の&nbsp;<span style="color: rgb(51,51,51);">72 / 106 を半径とする<span style="color: rgb(51,51,51);">正八角形内に座標値を収めます。</span></span></span></span>
+    </span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">左右のアナログスティックの X 軸と Y 軸それぞれについて、<span style="color: rgb(51,51,51);">下記のようにデッドゾーンを除去します。</span></span>
+    </span>
+    <ol>
+      <li>
+        <span style="color: rgb(51,51,51);">
+          <span style="color: rgb(51,51,51);">座標値が最<span style="color: rgb(51,51,51);">小</span>値の&nbsp;<span style="color: rgb(51,51,51);">15 / 106 以下ならば、座標値からこの値を減算します。それ以外の場合は座標値を 0 とします。</span></span>
+        </span>
+      </li>
+      <li>
+        <span style="color: rgb(51,51,51);">座標値が最<span style="color: rgb(51,51,51);">大</span>値の&nbsp;15 / 106 以上ならば、座標値からこの値を減算します。それ以外の場合は座標値を 0 とします。</span>
+        <span style="color: rgb(51,51,51);">
+          <span style="color: rgb(51,51,51);">
+            <span style="color: rgb(51,51,51);">
+              <br />
+            </span>
+          </span>
+        </span>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">こうして得られた座標値の変域に内接する円内に更に<span style="color: rgb(51,51,51);">座標値を収めます。</span></span>
+  </li>
+</ol>
+<h1 id="Anchor_83955511_h1_3">使用方法</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid.h&gt;
+</span>
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="c1">// 1. DebugPad を初期化します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">InitializeDebugPad</span><span class="p">();</span>
+
+<span class="c1">// 2. 必要に応じて入力状態を取得します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">DebugPadState</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">GetDebugPadState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">buttons</span><span class="p">.</span><span class="n">Test</span><span class="o">&lt;</span><span class="nn">nn::hid::DebugPadButton::</span><span class="n">A</span><span class="o">&gt;</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// A ボタンが押されていた場合の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+ 
+<span class="c1">// 接続状態を判定したい場合は IsConnected フラグを参照します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">attributes</span><span class="p">.</span><span class="n">Test</span><span class="o">&lt;</span><span class="nn">nn::hid::DebugPadAttribute::</span><span class="n">IsConnected</span><span class="o">&gt;</span><span class="p">())</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 接続中の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 切断中の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+ 
+<span class="c1">// 入力状態を取得する際に、過去の入力状態も合わせて取得したい場合は、GetDebugPadStates() を使用します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">DebugPadState</span> <span class="n">states</span><span class="p">[</span><span class="nn">nn::hid::</span><span class="n">DebugPadStateCountMax</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 最低でも 1 つの入力状態を取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">stateCount</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">GetDebugPadStates</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 過去の入力状態（最大で 16 サンプル）における右アナログスティックの平均座標を算出
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">stateCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">x</span> <span class="o">+=</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">analogStickR</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">y</span> <span class="o">+=</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">analogStickR</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">x</span> <span class="o">/=</span> <span class="n">stateCount</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">y</span> <span class="o">/=</span> <span class="n">stateCount</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

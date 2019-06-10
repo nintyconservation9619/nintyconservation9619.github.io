@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>FsAccessLogChecker</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- FsAccessLogChecker -->
+<div class="pagetitle" id="PageId_171997878">FsAccessLogChecker</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_171997878_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_171997878_h1_2">使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_171997878_h2_1">引数一覧</a>
+      </li>
+      <li>
+        <a href="#Anchor_171997878_h2_2">オプション一覧</a>
+      </li>
+      <li>
+        <a href="#Anchor_171997878_h2_3">使用例</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_171997878_h1_1">概要</h1>
+<p>FsAccessLogChecker は、ファイルシステムのアクセスログを解析し、ガイドラインに違反したアクセスが発生していないかどうかチェックする PC ツールです。</p>
+<p>Tools/FsAccessLogChecker/ 以下に配置されており、以下の DLL に依存しています。</p>
+<ul>
+  <li>Tools/FsAccessLogChecker/FsAccessAnalysisLibrary.dll</li>
+  <li>Tools/FsAccessLogChecker/YamlDotNet.dll</li>
+</ul>
+<p>チェック対象のアクセスとアクセスログの取得方法は、<a href="../Pages/Page_174228221.html">FS ライブラリ &gt; デバッグ機能 &gt; アクセス頻度確認</a>&nbsp;を参照してください。</p>
+<p>FsAccessLogChecker は、1分毎に直近10分間の平均をチェックし、&quot;FS Access Log Details (the above 10 minutes)&quot; として結果を出力します。また、最後に全体の解析結果を &quot;FS Access Log Check Result&quot; として出力します。ガイドライン違反がなければ &quot;Result: [PASS]&quot;&nbsp;と出力されます。ガイドラインに違反したアクセスを検出した場合や、アクセスログが10分未満の場合は、&quot;Result:&nbsp;[FAIL]&quot; と出力されます。</p>
+<p>平均をとる時間間隔は&nbsp;--time_range オプションにより変更できますが、極端なチェックにならないよう、ガイドラインの判定では了承されていません。--time_range オプションを使った結果は、参考情報としてご利用ください。</p>
+<p>デフォルトではアクセスログを表示しますが、コマンドラインオプションでそれ以外のログを表示したり、アクセスログを非表示にすることもできます。</p>
+<p>小数点に&nbsp;&quot;.&quot; が使われるか &quot;,&quot;が使われるかは PC 環境に依存します。</p>
+<h1 id="Anchor_171997878_h1_2">使用方法</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ FsAccessLogChecker [-o|--output &lt;output-filepath&gt;] [-f|--force] [--time_range &lt;minutes&gt;] [--warning_ratio &lt;percent&gt;] [--also_check_host] [--verbose] [--quiet] [-h|--help] [--version] &lt;input-filepath&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_171997878_h2_1">引数一覧</h2>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>input-filepath</th>
+      <td>
+        <p>入力ファイルパスを指定します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_171997878_h2_2">オプション一覧</h2>
+<table class="wrapped relative-table" style="margin-left: 1.5em; width: 97.9844%;">
+  <colgroup> <col style="width: 8.94529%;" /> <col style="width: 91.0339%;" /> </colgroup>
+  <tbody>
+    <tr>
+      <th>-o, --output</th>
+      <td>出力ファイルパスを指定します。</td>
+    </tr>
+    <tr>
+      <th>-f, --force</th>
+      <td>出力ファイルを上書きする前に確認メッセージを表示しません。</td>
+    </tr>
+    <tr>
+      <th>--also_check_host</th>
+      <td>Host のアクセスもチェックします。（FsAccessLogChecker version 4.1 以上で利用できます）</td>
+    </tr>
+    <tr>
+      <th>--verbose</th>
+      <td>アクセスログ以外のログを表示します。</td>
+    </tr>
+    <tr>
+      <th>--time_range</th>
+      <td>指定した時間間隔の平均でチェックします。デフォルトは 10 分です。このオプションにより 10 分以外の時間間隔の平均におけるアクセス頻度を確認することができますが、10 分以外を指定した場合の結果は FAIL になります。（FsAccessLogChecker version 6.1 以上で利用できます）</td>
+    </tr>
+    <tr>
+      <th>--warning_ratio</th>
+      <td>ガイドラインチェックの閾値に対する警告の割合を 0% ～ 100% で指定できます。デフォルトは 100% で、結果に警告は表示されません。0% を指定すると全てのアクセスが警告になります。95% などを指定することにより、ガイドライン違反に近いアクセスがあるか確認できます。（FsAccessLogChecker version 12.3 以上で利用できます）</td>
+    </tr>
+    <tr>
+      <th>--quiet</th>
+      <td>アクセスログを非表示にします。</td>
+    </tr>
+    <tr>
+      <th>-h, --help</th>
+      <td>ヘルプを表示します。</td>
+    </tr>
+    <tr>
+      <th>--version</th>
+      <td>バージョンを表示します。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_171997878_h3_1">入力ファイルの文字コード</h3>
+<p>FsAccessLogChecker は、入力ファイルの文字コードとして以下のものに対応しています。</p>
+<ul>
+  <li>マルチバイト文字セット</li>
+  <li>BOM あり UTF-8</li>
+  <li>BOM あり UTF-16LE</li>
+  <li>BOM あり UTF-16BE</li>
+</ul>
+<p>これ以外の文字コードを使用した場合、チェック結果が正常に得られないことがあります。</p>
+<h2 id="Anchor_171997878_h2_3">使用例</h2>
+<h3 id="Anchor_171997878_h3_2">input.txt を解析し、アクセスログと解析結果をコンソールに出力する</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ FsAccessLogChecker input.txt</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_171997878_h3_3">input.txt を解析し、すべてのログと解析結果を GameCode_ReleaseVersion-SubmissionVersion.txt&nbsp;に出力する</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>$ FsAccessLogChecker --output GameCode_ReleaseVersion-SubmissionVersion.txt --verbose input.txt</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

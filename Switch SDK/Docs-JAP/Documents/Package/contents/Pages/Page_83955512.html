@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>カスタムシェーダ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- カスタムシェーダ -->
+<div class="pagetitle" id="PageId_83955512">カスタムシェーダ</div>
+<div class="text_separate">
+<h1 id="Anchor_83955512_h1_1">カスタムシェーダ</h1>
+<p>エフェクト標準シェーダをカスタマイズすることでアプリ固有のシェーダ表現を実装でき、標準シェーダではサポートされない表現を可能にします。<br />ライティング や フォグ、影表現 などを実装することで、より3Dモデル描画と違和感のない絵づくりを行うことができます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>カスタムシェーダのサンプルプログラム(&nbsp;VfxCustomShader ) が存在します。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955512_h2_1">カスタムシェーダ概要</h2>
+<p>カスタムシェーダは、ユーザーが記述した 頂点 / フラグメント シェーダコードを、標準シェーダ内からコールバック関数を呼び出すことで実現します。</p>
+<p>ユーザーはコールバック関数に バーテックスシェーダであれば頂点の位置やカラー、ピクセルシェーダであれば出力カラーを調整するコード追記したり、頂点シェーダからピクセルシェーダに渡す変数を追加したりすることで、目的のエフェクト表現を実装することができます。 以下にバーテックスシェーダのカスタム例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span> <span class="n">std140</span><span class="p">,</span> <span class="n">binding</span> <span class="o">=</span> <span class="n">SYS_CUSTOM_SHADER_UNIFORM_BLOCK_ID_0</span> <span class="p">)</span> <span class="n">uniform</span> <span class="n">sysCustomShaderUniformBlock0</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span>    <span class="n">applicationAlpha</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// 頂点シェーダの最後尾でコールバックを呼び出すための宣言
+</span><span class="cp">#define USE_USR_FINAL_ADJUSTMENT_VERTEX_PROCSS
+</span><span class="kt">void</span> <span class="nf">FinalAdjustmentVertexProcess</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">sysMasterAlpha</span> <span class="o">*=</span> <span class="n">applicationAlpha</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>    <span class="c1">// アプリの状況に合わせてフェード処理を行う
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>コールバック関数を利用するには、「#define USE_USR_FINAL_ADJUSTMENT_VERTEX_PROCSS」のようにコールバック関数を利用する定義をコールバック関数上部に記述する必要があります。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955512_h2_2">エフェクトメーカーでカスタムシェーダ用パラメータを 編集・保存 する</h2>
+<p>エフェクトメーカーでカスタムシェーダ用パラメータを編集・保存、バイナライズ するには、以下の準備を行う必要があります。</p>
+<ul>
+  <li>ユーザーデータ 定義ファイルの作成</li>
+  <li>カスタムシェーダ 設定ファイルの作成</li>
+  <li>プロジェクト設定ファイルへの記述</li>
+</ul>
+<h3 id="Anchor_83955512_h3_1">ユーザーデータ定義ファイル の作成</h3>
+<p>作成したいパラメータ定義 と カスタムUI をエフェクトメーカー上で認識・表示させるために、<a href="../Pages/Page_107778324.html">ユーザーデータ定義</a> ページを参照し、ユーザーデータ定義ファイルを作成します。<br />作成したカスタムシェーダ用パラメータ構造体 の先頭に以下のブロックを記述し、 UserDataDefinition 要素の Kind 属性を CustomShader とし、カスタムシェーダ用のユーザーデータ定義であることを宣言します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19</td>
+      <td class="code">
+        <div class="codeblock"><pre>/// <span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+/// <span class="nt">&lt;UserDataDefinition</span> <span class="na">Kind=</span><span class="s">&quot;CustomShader&quot;</span>
+<span class="err">/</span>//                     Name=&quot;Custom Shader Sample&quot;
+///                     Version=&quot;0&quot;&gt;
+///   <span class="nt">&lt;ParameterDefinition</span> <span class="na">Name=</span><span class="s">&quot;シェーダフラグ&quot;</span>
+<span class="err">/</span>//                        Type=&quot;CheckButtons&quot;
+///                        BuiltInMember=&quot;ShaderFlags&quot;&gt;
+///     <span class="nt">&lt;OptionGroup&gt;</span>
+///       <span class="nt">&lt;Option</span> <span class="na">BitIndex=</span><span class="s">&quot;0&quot;</span> <span class="na">Value=</span><span class="s">&quot;Change Color&quot;</span> <span class="nt">/&gt;</span>
+///       <span class="nt">&lt;Option</span> <span class="na">BitIndex=</span><span class="s">&quot;1&quot;</span> <span class="na">Value=</span><span class="s">&quot;Change Position&quot;</span> <span class="nt">/&gt;</span>
+///       <span class="nt">&lt;Option</span> <span class="na">BitIndex=</span><span class="s">&quot;2&quot;</span> <span class="na">Value=</span><span class="s">&quot;Sample Light&quot;</span> <span class="nt">/&gt;</span>
+///       <span class="nt">&lt;Option</span> <span class="na">BitIndex=</span><span class="s">&quot;3&quot;</span> <span class="na">Value=</span><span class="s">&quot;Check Normal&quot;</span> <span class="nt">/&gt;</span>
+///     <span class="nt">&lt;/OptionGroup&gt;</span>
+///   <span class="nt">&lt;/ParameterDefinition&gt;</span>
+struct ResCustomShader
+{
+　　　：ResCustomShader 以下の記述は、カスタムアクション・エミッタ拡張パラメータと同様です。
+　　　：
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>カスタムシェーダ用のユーザーデータ定義では、シェーダの実装を分岐するためのビルドインパラメータを利用することができます。上記の例では、ParameterDefinition 要素の BuiltInMember 属性に &quot;ShaderFlags&quot; という値を設定することで、4つのチェックボックスのON/OFFの状態に合わせて、シェーダ内の定義を操作できるようにしています。この場合、CUSTOM_SHADER_FLAG_0 ~ 3 の定義がON/OFFできるようになるので、次のような宣言をコードの冒頭に記述すれば、任意の定義名による分岐処理が書けます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#ifdef CUSTOM_SHADER_FLAG_0
+#define CHANGE_COLOR
+#endif
+#ifdef CUSTOM_SHADER_FLAG_1
+#define CHANGE_POSITION
+#endif
+#ifdef CUSTOM_SHADER_FLAG_2
+#define SAMPLE_LIGHT
+#endif
+#ifdef CUSTOM_SHADER_FLAG_3
+#define CHECK_NORMAL
+#endif
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>利用できるビルドインパラメータとコントロールの組み合わせは次の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>Type</th>
+      <th>BuiltInMember</th>
+      <th>シェーダに定義されるシンボル</th>
+    </tr>
+    <tr>
+      <td>CheckButtons</td>
+      <td>ShaderFlags</td>
+      <td>
+        <p>CUSTOM_SHADER_FLAG_0 ~ 63(複数選択可)</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="8">RadioButtons</td>
+      <td>ShaderSwitch0</td>
+      <td>
+        <p>CUSTOM_SHADER_SWITCH_FLAG_0 ~ 7(択一)</p>
+      </td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch1</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_8 ~ 15(択一)</td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch2</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_16 ~ 23(択一)</td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch3</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_24 ~ 31(択一)</td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch4</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_32 ~ 39(択一)</td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch5</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_40 ~ 47(択一)</td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch6</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_48 ~ 55(択一)</td>
+    </tr>
+    <tr>
+      <td>ShaderSwitch7</td>
+      <td>CUSTOM_SHADER_SWITCH_FLAG_56 ~ 63(択一)</td>
+    </tr>
+  </tbody>
+</table>
+<p>ビルドインパラメータは構造体のメンバには含まれないので、struct の手前で定義します。メンバの定義を ParameterDefinition タグで挟む必要はありません。OptionGroup による選択肢の設定のみが要素に含まれていればOKです。</p>
+<p>BulitInMemberに指定する値は、Shaderを省略して Flags, Switch0&hellip;&hellip;としても動作しますが、eset に保存される際は Shader が付加された名前で書き出されます。<br />また、構造体のメンバにこれらと同じ名前を使うことはできませんので、ご注意ください。&nbsp;</p>
+<h3 id="Anchor_83955512_h3_2">カスタムシェーダ&nbsp;設定ファイルの作成</h3>
+<p>作成した ユーザーデータ定義ファイル をエフェクトメーカーに読み込ませるために、カスタムシェーダ設定ファイルを作成します。<br />エフェクトメーカーには、最大８つのカスタムシェーダが登録可能で、１つづつのカスタムシェーダに対して、カスタムシェーダファイルを記述し、記述したカスタムシェーダファイルを設定ファイルに記述する必要があります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955512/108659477.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_83955512_h4_1">カスタムシェーダファイル</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;CustomShaderUIDefinition</span> <span class="na">Label=</span><span class="s">&quot;カスタムシェーダ1&quot;</span> <span class="na">Label_EN=</span><span class="s">&quot;CustomShader1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;VertexShaderPaths&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 頂点シェーダファイル --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_SampleDef.glsl<span class="nt">&lt;/ShaderPath&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_Sample.vsh<span class="nt">&lt;/ShaderPath&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/VertexShaderPaths&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;FragmentShaderPaths&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- ピクセルシェーダファイル --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_SampleDef.glsl<span class="nt">&lt;/ShaderPath&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_Sample.fsh<span class="nt">&lt;/ShaderPath&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/FragmentShaderPaths&gt;</span>
+&nbsp;&nbsp;<span class="cm">&lt;!-- ユーザーデータ定義ファイル --&gt;</span>
+　<span class="nt">&lt;DataModelSetting</span> <span class="na">DefinitionFile=</span><span class="s">&quot;CustomShader1.h&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/CustomShaderUIDefinition&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h4 id="Anchor_83955512_h4_2">カスタムシェーダ設定ファイル</h4>
+<p>&lt;GeneralCustomShaders&gt;は、登録するすべてのカスタムシェーダで利用するようなシェーダコードを記述します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;CustomShaderUIDefList&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;GeneralCustomShaders&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;VertexShaderPaths&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 共通頂点シェーダ --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_General.vsh<span class="nt">&lt;/ShaderPath&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/VertexShaderPaths&gt;</span>
+　 &nbsp;<span class="nt">&lt;ComputeShaderPaths&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 共通コンピュートシェーダ --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- カスタムフィールドの ComputeShader 版を実装するのに使用します --&gt;</span>
+&nbsp;  &nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_General.csh<span class="nt">&lt;/ShaderPath&gt;</span>
+   &nbsp;<span class="nt">&lt;/ComputeShaderPaths&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;FragmentShaderPaths&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 共通ピクセルシェーダ --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ShaderPath&gt;</span>Shader\CustomShader_General.fsh<span class="nt">&lt;/ShaderPath&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/FragmentShaderPaths&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;/GeneralCustomShaders&gt;</span>
+&nbsp;&nbsp;<span class="cm">&lt;!-- カスタムシェーダファイル --&gt;</span>
+&nbsp;&nbsp;<span class="nt">&lt;DefLinkData</span> <span class="na">SettingId=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>CustomShader1.xml<span class="nt">&lt;/DefLinkData&gt;</span>
+<span class="nt">&lt;/CustomShaderUIDefList&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h3 id="Anchor_83955512_h3_3">プロジェクト設定ファイルへの登録</h3>
+<p>エフェクトメーカーでカスタムシェーダパラメータを利用するために、プロジェクト設定ファイルに、作成したカスタムシェーダ設定ファイルコンフィグファイルのパスを記述します。詳しくは、<a href="../Pages/Page_83955992.html">プロジェクト設定ファイル</a> を参照ください。<br />エミッタ 拡張パラメータ設定ファイルをエフェクトメーカーオプションで設定することでプロジェクト設定ファイルを利用せずに動作を確認することもできます。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955512_h2_3">記述したシェーダ内でユーザー独自のコンスタントバッファを参照する</h2>
+<p>記述した 頂点・ピクセルシェーダ 内で独自のコンスタントバッファを利用してより高度なシェーダ表現を実現することができます。また、コンスタントバッファには、ユーザーデータ定義ファイルを利用することで、エフェクトメーカーで設定されるパラメータと連動させることも可能です。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955731.html">カスタムシェーダの例</a>
+      </th>
+      <td>RenderStateコールバック関数を利用して、<br />独自のコンスタントバッファを利用するチュートリアルが記載されています。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955512_h2_4">エフェクトランタイム管理外のテクスチャを利用する</h2>
+<p>アプリ内でオンラインで生成されるライトマップなどを記述した　ピクセルシェーダ内で参照し、エフェクトにライトマップを適用することも可能です。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955731.html">カスタムシェーダの例</a>
+      </th>
+      <td>
+        <p>RenderStateコールバック関数を利用して、テクスチャを設定するチュートリアルが記載されています。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955512_h2_5">カスタムシェーダで利用可能な変数・マクロ</h2>
+<p>カスタムシェーダ内では、システムがあらかじめ用意した変数やマクロが利用可能です。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_218170681.html">カスタムシェーダで利用可能な変数・マクロ</a>
+      </th>
+      <td>
+        <p>カスタムシェーダでユーザーが利用可能な変数・マクロについての解説です。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955512_h2_6">カスタムシェーダでカスタム可能な関数</h2>
+<p>カスタムシェーダ内では、一部のエフェクト標準の関数や、各種フック関数を独自に定義することができます。</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_218170764.html">カスタムシェーダでカスタム可能な関数</a>
+      </th>
+      <td>
+        <p>カスタムシェーダで、ユーザーが独自にカスタム可能なエフェクト標準の関数についての解説です。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

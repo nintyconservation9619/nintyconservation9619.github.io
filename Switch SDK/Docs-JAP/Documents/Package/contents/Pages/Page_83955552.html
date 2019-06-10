@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>フェンス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- フェンス -->
+<div class="pagetitle" id="PageId_83955552">フェンス</div>
+<div class="text_separate">
+<h1 id="Anchor_83955552_h1_1">フェンス</h1>
+<h2 id="Anchor_83955552_h2_1">概要</h2>
+<p>フェンスは、CPU と GPU の間をコマンドバッファーの単位で同期させるための機能を提供します。</p>
+<p>コマンドバッファーをキューに実行させる際にフェンスをセットすることができ、そのフェンスはそのコマンドバッファーにおけるすべてのコマンドが実行されたあとにシグナル状態に遷移することを意味します。<br />フェンスの提出は必須ではなく、フェンスなしにコマンドバッファーを実行することも可能です。その場合はコマンドバッファーの単位で同期することはできませんが、実行を依頼したすべてのコマンドについて同期をとることはまだ可能です。詳細は<a href="../Pages/Page_83956110.html">キュー</a>を参照してください。</p>
+<h2 id="Anchor_83955552_h2_2">&nbsp;情報</h2>
+<p>フェンスの情報は <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_fence_info.html">nn::gfx::FenceInfo</a>&nbsp;として定義されています。</p>
+<h2 id="Anchor_83955552_h2_3">オブジェクト</h2>
+<p>フェンスのオブジェクトは <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a3f5549319294e6d37b7ddffbf84cee98">nn::gfx::Fence</a>&nbsp;として定義されています。</p>
+<h3 id="Anchor_83955552_h3_1">初期化と破棄</h3>
+<p>フェンスの初期化と破棄は通常の<a href="../Pages/Page_83955654.html">オブジェクト</a>の方法に従います。</p>
+<h2 id="Anchor_83955552_h2_4">フェンスによる同期</h2>
+<p>フェンスによる同期を行うには、まず <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#afceb1f20a49ed58f99e33f2324312e1b">nn::gfx::Queue</a>&nbsp;クラスの <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#a3513accbae08380417a92fb51043f1e8">ExecuteCommand</a>&nbsp;の第二引数に対象のフェンスを指定することによって、キューにフェンスをセットします。</p>
+<p>フェンスは最初、非シグナル状態で始まります。非シグナル状態のときは、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_fence.html#a0bdb44deba3c74763ed2d26c311abb11">IsSignaled</a>&nbsp;は false を返します。<br />フェンスをセットしたときの <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#a3513accbae08380417a92fb51043f1e8">ExecuteCommand</a>&nbsp;の第一引数に指定したコマンドバッファーにおいてセットされているコマンドがすべて GPU によって実行されると、 フェンスはシグナル状態に遷移します。シグナル状態のときは、<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_fence.html#a0bdb44deba3c74763ed2d26c311abb11">IsSignaled</a>&nbsp;は true を返します。</p>
+<p>フェンスがシグナル状態になるまで CPU を待機させることもでき、それは <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_fence.html#a22215900fc0f3db450949913a5071a40">Sync</a>&nbsp;の呼び出しによって行われます。これはフェンスがシグナル状態になるまで呼び出し元の CPU スレッドをストールさせます。キューをフラッシュせずにこれを呼び出した場合、決してフェンスがシグナル状態になることがない間、CPU が待機してしまうかもしれないことに注意してください。<br />待機する際には、フェンスがシグナル状態になるまで最大どれくらいの時間を待機するかを表すタイムアウト時間を指定します。この時間は、最下位ビットの精度まで保証するものではなく、目安です。 タイムアウト時間を過ぎてもフェンスがシグナル状態にならなかった場合は、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a72827b32d720001860ddbdb33a377b5aa087a5221f34829fa668094afaeaefe11">SyncResult_TimeoutExpired</a> を返して、処理を呼び出し元に戻します。その前にフェンスがシグナル状態になった場合は、その時点で <a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a72827b32d720001860ddbdb33a377b5aa21ff87cf8dce322eac4519c2e231f736">SyncResult_Success</a>&nbsp;を返して、処理を呼び出し元に戻します。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,425 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NX 開発カード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NX 開発カード -->
+<div class="pagetitle" id="PageId_177655843">NX 開発カード</div>
+<div class="text_separate">
+<h1 id="Anchor_177655843_h1_1">概要</h1>
+<p>NX 開発カードは、開発時に利用する NX アプリケーション及びシステムアップデート用データを格納することのできるストレージデバイスです。<br />以下では、NX 開発カードの仕様や各種設定方法について説明します。</p>
+<p>NX 開発カードにアプリケーションを書き込み起動する手順については<a href="../Pages/Page_166051528.html">こちら</a>を参照してください。</p>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>NXAddon 3.0 から nmeta ファイルのルートディレクティブのデフォルトが Meta から NintendoSdkMeta に変わりました。</p>
+    <p>Meta も引き続きご利用になれますが、 サンプルやドキュメントなどの nmeta ファイルは NintendoSdkMeta に置き換わっているのでご注意ください。</p>
+  </div>
+</div>
+<h1 id="Anchor_177655843_h1_2">
+  <span style="color: rgb(117,117,117);">設定</span>
+</h1>
+<h2 id="Anchor_177655843_h2_1">設定項目</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>項目</th>
+      <th>
+        <p>説明</p>
+      </th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td>容量</td>
+      <td>2, 4, 8, 16, 32 GB</td>
+      <td>
+        <p>値が大きいほど、利用できる容量が増加します。</p>
+        <p>アプリケーションの格納領域として利用できる実容量とは異なります。詳細は後述します。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>動作周波数</td>
+      <td>25, 50 MHz</td>
+      <td>
+        <p>値が大きいほど、データの読出し速度が向上します。</p>
+        <p>50 MHz の動作周波数は容量を 8 GB 以上に設定した場合のみ利用可能です。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_177655843_h2_2">設定方法</h2>
+<p>nsp ファイルを作成する際に与える nmeta ファイルに以下の項目を記載することで設定が可能です。nsp ファイルについては<a href="../Pages/Page_107320222.html">こちら</a>を、nmeta ファイルについては<a href="../Pages/Page_166503043.html">こちら</a>を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;NintendoSdkMeta&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;CardSpec&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Size&gt;</span>32<span class="nt">&lt;/Size&gt;</span> <span class="cm">&lt;!-- 2, 4, 8, 16, 32 が指定可能 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;ClockRate&gt;</span>50<span class="nt">&lt;/ClockRate&gt;</span> <span class="cm">&lt;!-- 25, 50 が指定可能 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/CardSpec&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;...
+<span class="nt">&lt;/NintendoSdkMetaMeta&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また、nmeta ファイルに設定を記述しなかった場合は、nsp ファイル作成時にアプリケーションイメージのサイズを元に次のように自動設定を行います。</p>
+<ul>
+  <li>容量：作成したアプリケーションイメージがアプリケーション格納領域に収まる最小の容量</li>
+  <li>動作周波数：容量が 8 GB 未満の場合 25 MHz、それ以外の場合 50 Mhz</li>
+</ul>
+<div class="tip">
+  <div class="tip_left">参考：</div>
+  <div class="tip_right">
+    <p>
+      <a href="../Pages/Page_107320233.html">AuthoringTool</a> の -v, --verbose オプションを指定して creatensp コマンドを実行すると、nsp ファイル作成時に設定された容量とアプリケーション格納領域の占有量を表示することができます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="o">[</span>Info<span class="o">]</span> <span class="s2">&quot;CardSpec&quot;</span> is not specified by .nmeta file. Size and ClockRate will be calculated automatically.
+<span class="o">[</span>Info<span class="o">]</span> CardSize: <span class="m">2</span> <span class="o">(</span>GB<span class="o">)</span>, Application Area Used: 376826880/1610612736 <span class="o">(</span>bytes<span class="o">)</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ac:macro ac:name="note" ac:schema-version="1" ac:macro-id="eb8d9f1b-6e2a-4c3c-99ab-845d757992b4" xmlns:ac="ac">
+      <ac:rich-text-body>
+        <p>
+          <a href="../Pages/Page_107320233.html">AuthoringTool</a> で --legal-informationで「ソフトリーガル情報」の指定がない場合には、「ソフトリーガル情報」として512KBの容量を占有した想定でROMの容量が計算されます。</p>
+      </ac:rich-text-body>
+    </ac:macro>
+  </div>
+</div>
+<div class="tip">
+  <div class="tip_left">参考：</div>
+  <div class="tip_right">
+    <p>開発中のアプリケーションデータのサイズによっては最終的な製品環境と異なる動作周波数が自動設定され、アプリケーションの挙動に影響を与える可能性があります。<br />例えば以下のようなケースが考えられます。</p>
+    <ul>
+      <li>製品カードの容量は 4 GB（デフォルトで 25 MHz 動作）を予定しているが、開発中はリソースデータのサイズ最適化を行っておらず容量が超過していたため動作周波数が 50 MHz に自動設定された</li>
+      <li>製品カードの容量は 8 GB（デフォルトで 50 MHz 動作）を予定しているが、開発中はリソースデータを省略しており 4 GB の容量に収まっていたため動作周波数が 25 MHz に自動設定された</li>
+    </ul>
+    <p>このような場合は、明示的に動作周波数を設定して開発及びデバッグを行うことを推奨します。（nmeta ファイルの設定で、容量、動作周波数の一方のみを指定し、もう一方を自動設定することもできます。）</p>
+  </div>
+</div>
+<p>作成した nsp ファイルの設定内容は、nsp ファイルの中の cardspec.xml によって参照できます。cardspec.xml は次のコマンドで出力できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre> $ AuthoringTool extract --target cardspec.xml &lt;nspFilePath&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>cardspec.xml のフォーマットは nmeta ファイルの &quot;CardSpec&quot; 要素を抜き出したものになります。<br />ただし、アプリケーションイメージのサイズが 32 GB 容量におけるアプリケーション格納領域の実容量を上回った場合は、容量及び動作周波数に無効値（-1）が入力されています。</p>
+<p>なお、設定の内容によっては以下のように警告やエラーが表示されることがあります。</p>
+<h3 id="Anchor_177655843_h3_1">警告表示されるケース</h3>
+<ul>
+  <li>AuthoringTool での自動設定時に、アプリケーションイメージのサイズが 32 GB 容量におけるアプリケーション格納領域の実容量を上回った<br /><ul><li>nsp ファイルの作成自体は成功します。ただし、作成した nsp ファイルは容量・動作周波数が未設定の状態になり、NX 開発カードに書き込むことができません。</li></ul></li>
+</ul>
+<h3 id="Anchor_177655843_h3_2">エラーになるケース</h3>
+<ul>
+  <li>nsp ファイル作成時に無効な設定値を入力した</li>
+  <li>nsp ファイル作成時に容量を 8 GB 未満、動作周波数を 50 MHz に設定しようとした</li>
+  <li>nsp ファイル作成時に、アプリケーションイメージのサイズが指定した容量におけるアプリケーション格納領域の実容量を上回った</li>
+  <li>容量または動作周波数に無効値が設定された nsp ファイルを <a href="../Pages/Page_107328760.html">DevMenuCommand</a> で NX 開発カードに書き込もうとした</li>
+</ul>
+<h1 id="Anchor_177655843_h1_3">アプリケーション格納領域の実容量</h1>
+<p>NX 開発カードには、アプリケーションデータ以外にシステムアップデート用データやヘッダ情報なども書き込まれる他、容量に応じてリザーブ領域が存在するため、アプリケーション格納領域の実容量は設定した容量の値よりも小さくなります。</p>
+<p>アプリケーション格納領域の実容量は下記の和になります。</p>
+<ul>
+  <li>
+    <span style="color: rgb(51,51,51);">アプリケーションで使えることが保証される容量</span>
+  </li>
+  <li>
+    <span style="color: rgb(51,51,51);">
+      <span style="color: rgb(51,51,51);">許容可能なオーバーサイズ</span>
+    </span>
+  </li>
+</ul>
+<p>前者は保証されており変動することのない値です。この保証サイズを超える場合、加えて後者のサイズを使うことができます。<br />現在の「許容可能なオーバーサイズ」は利用する NXAddon のバージョンによって変動します。また、<span style="color: rgb(51,51,51);">減少する場合は 6ヶ月以上前もって告知されます。&nbsp;</span></p>
+<p>
+  <span style="color: rgb(51,51,51);">以下に、各 NXAddon バージョンにおける具体値を示します。</span>
+</p>
+<h2 id="Anchor_177655843_h2_3">
+  <span style="color: rgb(128,128,128);">1.7.0 以降の 1.X.X もしくは 3.4.0 以降のバージョン</span>
+</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>&nbsp;設定された容量</th>
+      <th>
+        <div class="tablesorter-header-inner">
+          <p>アプリケーションで使えることが<br />保証される容量 （不変）</p>
+        </div>
+      </th>
+      <th>
+        <div class="tablesorter-header-inner">許容可能な<br />オーバーサイズ（変動）&nbsp;</div>
+      </th>
+      <th>
+        <div class="tablesorter-header-inner">
+          <p>アプリケーションが使える<br />容量（変動）</p>
+        </div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>
+        <p>&nbsp;2GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">1,392 MiB</p>
+      </td>
+      <td style="text-align: right;">144 MiB</td>
+      <td>
+        <p style="text-align: right;">1,536 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>&nbsp;4GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">3,296 MiB</p>
+      </td>
+      <td style="text-align: right;">144 MiB</td>
+      <td>
+        <p style="text-align: right;">3,440 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>&nbsp;8GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">7,104 MiB</p>
+      </td>
+      <td style="text-align: right;">144 MiB</td>
+      <td>
+        <p style="text-align: right;">7,248 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>16GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">14,720 MiB</p>
+      </td>
+      <td style="text-align: right;">144 MiB</td>
+      <td>
+        <p style="text-align: right;">14,864 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>32GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">29,952 MiB</p>
+      </td>
+      <td style="text-align: right;">144 MiB</td>
+      <td>
+        <p style="text-align: right;">30,096 MiB</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_177655843_h2_4">上記以外のバージョン</h2>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>&nbsp;設定された容量</th>
+      <th>
+        <div class="tablesorter-header-inner">
+          <p>アプリケーションで使えることが<br />保証される容量 （不変）</p>
+        </div>
+      </th>
+      <th>
+        <div class="tablesorter-header-inner">許容可能な<br />オーバーサイズ（変動）&nbsp;</div>
+      </th>
+      <th>
+        <div class="tablesorter-header-inner">
+          <p>アプリケーションが使える<br />容量（変動）</p>
+        </div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>
+        <p>&nbsp;2GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">1,392 MiB</p>
+      </td>
+      <td style="text-align: right;">128 MiB</td>
+      <td>
+        <p style="text-align: right;">1,520 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>&nbsp;4GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">3,296 MiB</p>
+      </td>
+      <td style="text-align: right;">128 MiB</td>
+      <td>
+        <p style="text-align: right;">3,424 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>&nbsp;8GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">7,104 MiB</p>
+      </td>
+      <td style="text-align: right;">128 MiB</td>
+      <td>
+        <p style="text-align: right;">7,232 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>16GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">14,720 MiB</p>
+      </td>
+      <td style="text-align: right;">128 MiB</td>
+      <td>
+        <p style="text-align: right;">14,848 MiB</p>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <p>32GB</p>
+      </th>
+      <td>
+        <p style="text-align: right;">29,952 MiB</p>
+      </td>
+      <td style="text-align: right;">128 MiB</td>
+      <td>
+        <p style="text-align: right;">30,080 MiB</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="tip">
+  <div class="tip_left">参考：</div>
+  <div class="tip_right">
+    <p>
+      <a href="../Pages/Page_107320233.html">AuthoringTool</a> で creatensp コマンドを実行時、作成される nsp ファイルのアプリケーション格納領域の占有量が保証サイズを超える場合、次のような情報が表示されます。</p>
+    <ul>
+      <li>NXAddon 3.2 以前</li>
+    </ul>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="o">[</span>Warning<span class="o">]</span> Application area exceeds usable size guaranteed <span class="k">for</span> future SDK update by XXX bytes.</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      <br />
+    </p>
+    <ul>
+      <li>NXAddon 3.2 以降</li>
+    </ul>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="o">[</span>Info<span class="o">]</span> このアプリケーションは現在設定されているカード容量に収まっていますが、システムアップデートの内容にかかわらず将来にわたってアプリケーションで使えることが保証される容量を XXX バイト超えた占有量になっています。今後のシステムアップデートでより多くの更新データが必要になり、それ以降の時点でオンカードパッチ付き NX カードを生産する場合に、現在設定しているカード容量では容量が不足する可能性があります。</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--Remove-->
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>今後の更新で NX カードにアプリケーションパッチのデータを含めることができるようになる予定です。その場合は、アプリケーションデータとアプリケーションパッチデータの合計サイズを上記の実容量以下に収める必要があります。<br />詳しくは、このドキュメントとは別に公開される「パッチガイド」を参照してください。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,371 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>モーメントモード</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- モーメントモード -->
+<div class="pagetitle" id="PageId_112902376">モーメントモード</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_112902376_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_112902376_h1_2">モーメントモード</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902376_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902376_h2_2">設定項目</a>
+      </li>
+      <li>
+        <a href="#Anchor_112902376_h2_3">出力フォーマット</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_112902376_h1_3">モーメントモードの使用方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_112902376_h2_4">モーメントモードのサンプル</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_112902376_h1_1">はじめに</h1>
+<p>モーメントモードは、モーションIRカメラで取得した画像を複数のブロックに分割し、ブロックごとの輝度の平均値や、重心座標を計算するモードです。</p>
+<h1 id="Anchor_112902376_h1_2">モーメントモード</h1>
+<h2 id="Anchor_112902376_h2_1">概要</h2>
+<p>モーメントモードでは、画像処理の分野において使用されるモーメント計算を行った結果を出力します。<br />複雑な物体の認識を行わずとも、区切られたブロックの平均輝度や重心の変化から、モーションIRカメラに映った物体がどのような動きをしているか、近くにあるか離れているのか、大まかにどんな形状をしているのかなどを推定することができます。</p>
+<p>取得した画像に対して水平方向に 8 分割, 垂直方向の 6 分割した、全48個のブロックの結果を出力しますが、コントローラの通信帯域の制限上、分割数は固定値となっており、変更することはできません。<br />以下は各ブロックの重心座標を赤い点で、平均輝度で各ブロックを塗りつぶして可視化した図になります。<br /><br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_112902376/125191130.png" class="embedded-image" /></span></p>
+<p>なお、出力されるデータの座標系については、「<a href="../Pages/Page_112902609.html#Anchor_112902609_IR センサーのデータ座標系">モーションIRカメラのデータ座標系</a>」を参照してください。</p>
+<h2 id="Anchor_112902376_h2_2">設定項目</h2>
+<p>モーメントモードの設定値には、以下の項目があります。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+      <th>定義域</th>
+    </tr>
+    <tr>
+      <td>windowOfInterest</td>
+      <td>画像のどの部分を使用するかを設定します。 サイズを変更しても、分割数は固定です。<br />指定した画像サイズの水平方向、垂直方向が指定の分割数で割り切れない場合は、<br />余った領域が切り捨てられ、計算されませんので、<br />それぞれ分割数で割り切れるサイズに指定することを推奨します。<br />画像の端にノイズがのる場合など、領域を除きたいとき、<br />また特定の領域の情報が詳しく知りたい場合に設定します。</td>
+      <td>(0,0)~(319, 239)<br />のQVGA画像全領域</td>
+      <td>320 x 240 の画像全体を指定可能です。<br />左上座標 (0, 0) から右下座標 (319, 239) までの領域</td>
+    </tr>
+    <tr>
+      <td>preprocess</td>
+      <td>モーメント計算をする前に画像に対して行う前処理を設定します。<br />閾値以下の輝度のピクセル値を 0 にする、カットオフ処理と、<br />閾値以下の輝度のピクセル値を 0 に、それ以外のピクセル値を 255　にする、<br />二値化処理を選択することができます。</td>
+      <td>カットオフ</td>
+      <td>カットオフ、二値化の2種類</td>
+    </tr>
+    <tr>
+      <td>preprocessIntensityThreshold</td>
+      <td>前処理に使用する輝度閾値です。 <br />前処理を行わない設定とする場合は、上記前処理設定をカットオフに設定したうえで、<br />本閾値を 0 に設定してください。</td>
+      <td>80</td>
+      <td>0 以上 255 以下</td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの設定値は <span class="ApiLink_nn__irsensor__MomentProcessorConfig">nn::irsensor::MomentProcessorConfig</span> 構造体のメンバとして持っています。 IRカメラの設定については、 <a href="../Pages/Page_112902609.html">共通機能</a> の項目をご覧ください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">MomentProcessorConfig</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraConfig</span> <span class="n">irCameraConfig</span><span class="p">;</span>        <span class="c1">//!&lt; IRカメラの設定です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">Rect</span> <span class="n">windowOfInterest</span><span class="p">;</span>                <span class="c1">//!&lt; 撮影画像で処理対象となる矩形領域です（左上隅のピクセルを (0, 0) とする、幅 IrCameraImageWidth、高さ IrCameraImageHeight の領域内）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MomentProcessorPreprocess</span> <span class="n">preprocess</span><span class="p">;</span> <span class="c1">//!&lt; 前処理の種類です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">preprocessIntensityThreshold</span><span class="p">;</span>     <span class="c1">//!&lt; 前処理に利用する閾値です（0 以上 255 以下）。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これらの設定を、 <span class="ApiLink_nn__irsensor__">nn::irsensor::</span>RunMomentProcessor &nbsp;関数に渡すことで、指定した設定でモーメントモードを起動することができます。</p>
+<h2 id="Anchor_112902376_h2_3">出力フォーマット</h2>
+<p>モーメントモードの出力は以下の様なフォーマットです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>samplingNumber</td>
+      <td>処理結果を受け取る度に増加する値です。</td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>timeStamp</td>
+      <td>
+        <p>処理開始から処理結果を取得した時点までの時間情報です。</p>
+        <p>前に取得したデータの timeStamp との差分情報を見て、パケットロスを検知することができます。</p>
+      </td>
+      <td>0 以上</td>
+    </tr>
+    <tr>
+      <td>ambientNoiseLevel</td>
+      <td>
+        <p>環境ノイズの状態です。</p>
+        <p>環境ノイズ(外部光)が多い場合はこの変数を見て、</p>
+        <p>例えばユーザへプレイ環境を変えるように案内する、</p>
+        <p>といったような通知をすることができます。</p>
+        <p>詳細については、<a href="../Pages/Page_112902609.html#Anchor_112902609_IR%E3%82%BB%E3%83%B3%E3%82%B5%E3%83%BC%E3%81%AE%E5%A4%96%E9%83%A8%E5%85%89%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E6%A9%9F%E8%83%BD">共通機能</a> の</p>
+        <p>「モーションIRカメラの外部光フィルタ機能」の項目を参照してください。</p>
+      </td>
+      <td>
+        <p>IrCameraAmbientNoiseLevel_Low/</p>
+        <p>IrCameraAmbientNoiseLevel_Middle/</p>
+        <p>IrCameraAmbientNoiseLevel_High</p>
+      </td>
+    </tr>
+    <tr>
+      <td>blocks</td>
+      <td>分割ブロックごとの統計量です。</td>
+      <td>下記参照</td>
+    </tr>
+  </tbody>
+</table>
+<p>blocksの持つ要素は以下になります。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>メンバ名</th>
+      <th>説明</th>
+      <th>値域</th>
+    </tr>
+    <tr>
+      <td>averageIntensity</td>
+      <td>ブロックの輝度平均値です。</td>
+      <td>0.0 以上 255.0 以下</td>
+    </tr>
+    <tr>
+      <td>centroid</td>
+      <td>重心座標です。</td>
+      <td>windowOfInterest で指定した範囲内</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>これらの出力値は、 <span class="ApiLink_nn__irsensor__MomentProcessorState">nn::irsensor::MomentProcessorState</span> 構造体のメンバとして持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">MomentProcessorState</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int64_t</span> <span class="n">samplingNumber</span><span class="p">;</span>                            <span class="c1">//!&lt; モーメントプロセッサから処理結果を得る度に増加する値です（0 以上）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::</span><span class="n">TimeSpanType</span> <span class="n">timeStamp</span><span class="p">;</span>                      <span class="c1">//!&lt; 処理開始から処理結果を取得した時点までの時間情報です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">IrCameraAmbientNoiseLevel</span> <span class="n">ambientNoiseLevel</span><span class="p">;</span>       <span class="c1">//!&lt; 検出した環境ノイズの状態です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_PADDING4</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">MomentStatistic</span> <span class="n">blocks</span><span class="p">[</span><span class="n">MomentProcessorBlockCount</span><span class="p">];</span> <span class="c1">//!&lt; ブロックごとの統計量です。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>また、 各ブロックごとの情報については、 <span class="ApiLink_nn__irsensor__MomentStatistic">nn::irsensor::MomentStatistic</span> 構造体のメンバとして持っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">struct</span> <span class="n">MomentStatistic</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">float</span> <span class="n">averageIntensity</span><span class="p">;</span>      <span class="c1">//!&lt; ブロックの平均輝度値です（0 以上 IrCameraIntensityMax 以下）。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">::</span><span class="nn">nn::util::</span><span class="n">Float2</span> <span class="n">centroid</span><span class="p">;</span> <span class="c1">//!&lt; ブロックの重心座標です（MomentProcessorConfig::windowOfInterest で指定した領域内）。
+</span><span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>こちらを、 <span class="ApiLink_nn__irsensor__GetMomentProcessorState">nn::irsensor::GetMomentProcessorState</span> , もしくは <span class="ApiLink_nn__irsensor__GetMomentProcessorStates">nn::irsensor::GetMomentProcessorStates</span> 関数に出力フォーマットのバッファを渡して、呼び出すことで取得することができます。</p>
+<p>また、各ブロックのデータを元に複数ブロックでの重心などの情報が知りたいといった場合は、取得した <span class="ApiLink_nn__irsensor__MomentProcessorState">nn::irsensor::MomentProcessorState</span> のデータを対象ブロックの情報とともに <span class="ApiLink_nn__irsensor__CalculateMomentRegionStatistic">nn::irsensor::CalculateMomentRegionStatistic</span> 関数に渡すことで、<br />指定した対象ブロック群の <span class="ApiLink_nn__irsensor__MomentStatistic">nn::irsensor::MomentStatistic</span> を取得することができます。</p>
+<h1 id="Anchor_112902376_h1_3">モーメントモードの使用方法</h1>
+<p>モーメントモードは以下のような流れで使用します。</p>
+<ol>
+  <li>
+    <p>
+      <span class="ApiLink_nn__hid__NpadIdType">nn::hid::NpadIdType</span> を元に、<span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を取得し、モーションIRカメラを初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/irsensor.h&gt;
+</span>
+<span class="nn">nn::irsensor::</span><span class="n">IrCameraHandle</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">GetIrCameraHandle</span><span class="p">(</span><span class="n">npadIdType</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>モーメントモードの初期設定を生成します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">MomentProcessorConfig</span> <span class="n">config</span><span class="p">;</span>
+<span class="c1">// デフォルト設定値を取得 (個別に設定したい場合はユーザが直接設定しても構いません。)
+</span><span class="nn">nn::irsensor::</span><span class="n">GetMomentProcessorDefaultConfig</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>取得した <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、&nbsp; <span class="ApiLink_nn__irsensor__RunMomentProcessor">nn::irsensor::RunMomentProcessor</span> 関数を呼び、キャプチャを開始します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre> <span class="nn">nn::irsensor::</span><span class="n">RunMomentProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">config</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>出力用の <span class="ApiLink_nn__irsensor__MomentProcessorState">nn::irsensor::MomentProcessorState</span> のバッファを準備して、 <span class="ApiLink_nn__irsensor__GetMomentProcessorStates">nn::irsensor::GetMomentProcessorStates</span> 関数もしくは <span class="ApiLink_nn__irsensor__GetMomentProcessorState">nn::irsensor::GetMomentProcessorState</span> 関数を呼びます。&nbsp; <br /><span class="ApiLink_nn__irsensor__GetMomentProcessorStates">nn::irsensor::GetMomentProcessorStates</span> 関数では一度に最大&nbsp;<span class="ApiLink_nn__irsensor__MomentProcessorStateCountMax">nn::irsensor::MomentProcessorStateCountMax</span> 個の処理結果を取得できます。<br />呼び出した時点の最新の処理結果を取得しますが、コントローラの BT 転送の都合上最速でも15ms 間隔での更新になるため、<br />例えば、ゲームフレームなどと同期する形で、ポーリング方式で使用することを推奨します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">MomentProcessorState</span> <span class="n">states</span><span class="p">[</span><span class="nn">nn::irsensor::</span><span class="n">MomentProcessorStateCountMax</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+<span class="nn">nn::irsensor::</span><span class="n">GetMomentProcessorStates</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">,</span> <span class="nn">nn::irsensor::</span><span class="n">MomentProcessorStateCountMax</span><span class="p">,</span> <span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>取得した処理結果を元に、注目したいブロックの情報を計算する場合は、 <span class="ApiLink_nn__irsensor__CalculateMomentRegionStatistic">nn::irsensor::CalculateMomentRegionStatistic</span> 関数を使います。 <br />こちらは、取得した <span class="ApiLink_nn__irsensor__MomentProcessorState">nn::irsensor::MomentProcessorState</span> の情報と、対象となる矩形ブロックを指定すると、その指定したブロック全体の <span class="ApiLink_nn__irsensor__MomentStatistic">nn::irsensor::MomentStatistic</span> 情報を返すユーティリティ関数です。<br />画面全体の重心座標、平均輝度を計算する場合は、次のようにします。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">MomentStatistic</span> <span class="n">wholeImage</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">startRow</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">startColumn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">rowCount</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">columnCount</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+<span class="n">wholeImage</span> <span class="o">=</span> <span class="nn">nn::irsensor::</span><span class="n">CalculateMomentRegionStatistic</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="n">startRow</span><span class="p">,</span> <span class="n">startColumn</span><span class="p">,</span> <span class="n">rowCount</span><span class="p">,</span> <span class="n">columnCount</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>停止したい <span class="ApiLink_nn__irsensor__IrCameraHandle">nn::irsensor::IrCameraHandle</span> を引数に指定して、 <span class="ApiLink_nn__irsensor__StopImageProcessor">nn::irsensor::StopImageProcessor</span> 関数を呼び、モーメントモードを停止します。<br />その後、 <span class="ApiLink_nn__irsensor__Finalize">nn::irsensor::Finalize</span> 関数を呼び、 モーションIRカメラを終了します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::irsensor::</span><span class="n">StopImageProcessor</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="nn">nn::irsensor::</span><span class="n">Finalize</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_112902376_h2_4">モーメントモードのサンプル</h2>
+<p>Samples\Sources\Applications\IrSensorMomentBasic に配置されているサンプルを参照してください。<br />簡単にモーメントモードの挙動を確認したい場合は、 Samples\Sources\Applications\IrSensorViewer に配置されているサンプルを参照してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__irsensor__MomentProcessorConfig', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_moment_processor_config.html' )
+SetUrl( 'ApiLink_nn__irsensor__', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html' )
+SetUrl( 'ApiLink_nn__irsensor__MomentProcessorState', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_moment_processor_state.html' )
+SetUrl( 'ApiLink_nn__irsensor__MomentStatistic', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_moment_statistic.html' )
+SetUrl( 'ApiLink_nn__irsensor__GetMomentProcessorState', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a505a4e54e2b1931bd78c4a85f5b67276' )
+SetUrl( 'ApiLink_nn__irsensor__GetMomentProcessorStates', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a54d616f420145c9b7ac415d3c3d93523' )
+SetUrl( 'ApiLink_nn__irsensor__CalculateMomentRegionStatistic', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a59c192d7cb6147dc50ac8d4b1751d746' )
+SetUrl( 'ApiLink_nn__hid__NpadIdType', '../../../Api/HtmlNX/namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6' )
+SetUrl( 'ApiLink_nn__irsensor__IrCameraHandle', '../../../Api/HtmlNX/structnn_1_1irsensor_1_1_ir_camera_handle.html' )
+SetUrl( 'ApiLink_nn__irsensor__RunMomentProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a0658b45f92e49e1612735574042920e9' )
+SetUrl( 'ApiLink_nn__irsensor__MomentProcessorStateCountMax', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3c24a28886e911ee63712d5e7dbec526' )
+SetUrl( 'ApiLink_nn__irsensor__StopImageProcessor', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a3052171f2c63aafc0e4a164366ae22d7' )
+SetUrl( 'ApiLink_nn__irsensor__Finalize', '../../../Api/HtmlNX/namespacenn_1_1irsensor.html#a6265f5c6e6d6fc0e67fc6882a8945284' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

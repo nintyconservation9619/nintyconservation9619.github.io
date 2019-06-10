@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>SUST</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SUST : Surface Store <br>
+    <!-- SUMMARY_TABLE_INFO { description => "Surface Store " } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SUST", subsection => 9.1 } -->
+
+<!-- ############################### -->
+<!-- # Format           # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>SUST</b>.D{.BA}.dim{.cop}{.sz}{.clamp}</code>   <code>[Ra], Rb, #tsPtrIdxU13</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SUST" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>SUST</b>.D{.BA}.dim{.cop}{.sz}{.clamp}</code>   <code>[Ra], Rb, Rc</code>             <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SUST" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>SUST</b>.P.dim{.cop}{.rgba}{.clamp}</code>      <code>[Ra], Rb, #tsPtrIdxU13</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SUST" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>SUST</b>.P.dim{.cop}{.rgba}{.clamp}</code>      <code>[Ra], Rb, Rc</code>             <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SUST" } -->
+
+
+        .dim    {<b>.1D, .1D_BUFFER, .1D_ARRAY, .2D, .2D_ARRAY, .3D</b>}
+
+        .mode   {<b>.D, .P</b>}
+            .D      This mode specifies that surface data is treated as raw data of size .sz, without any format conversion.
+                    In this mode, if .BA (ByteAddress) is specified, 
+                         the x-coordinate is assumed to be in bytes, aligned on a .sz boundary.
+                         Otherwise, x-coordinate is treated as sample coordinate and scaled by .sz in hardware.
+            .P      This mode specifies a formatted pixel load from surface. 
+                    The x value is a sample coordinate in the target surface.
+                    In this mode .rgba specifies the number of components written by the load. 
+
+        .cop    {<b>.WB*, .CG, .CS, .WT</b>}
+        .sz     {<b>.U8, .S8, .U16, .S16, .32*, .64, .128</b>}  // used in .D mode, specifes load size of raw data.
+        .rgba   {<b>.R, .RG, .RGBA*</b>}                      // used in .P mode, specifies a scalar, vec2 or vec4 destination register.
+        .BA     x-coordinate is specified as byte-address. (in .D mode)
+        .clamp  {<b>.IGN, .NEAR*, .TRAP</b>}
+
+
+    Operands
+    ------------------------------------
+    Ra             Coordinates 
+    Rb             Store data 
+    #tsPtrIdxU13   This immediate index (word address) is used to fetch the packed header+sampler pointer entry from constant cache.  The bank from which
+                   it is fetched  is determined by bundle state. The constant bank entry is 32 bit structure of the form
+                   "samplerPtr[31:20] | headerPtr[19:0]". (Surface instructions ignore sample pointers).
+                   Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex  will be regarded as an "invalid" texture.
+    Rc             In bindless mode, Rc register is used to pass the "samplerPtr[31:20] | headerPtr[19:0]". 
+                   Note: Ra/Rc cannot be RZ register.
+
+
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description         # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>SUST</b> stores data to pitch or blocklinear surfaces.
+</p>
+<p>
+Register <B>Ra</B> specifies surface coordinates. The number of coordinates depends upon surface dimension. 
+<B>Ra</B> must follow register alignment rules for given number of coordinates.
+</p>
+<TABLE border="1" cellpadding="10%">
+<CAPTION><EM>Surface Coordinate packing in Ra</EM></CAPTION>
+<TR>
+    <th> .dim </th>
+    <th> Ra </th>
+    <th> Ra+1 </th>
+    <th> Ra+2 </th>
+</TR>
+<TR>
+    <TD> 1D </TD>
+    <TD> S32 </TD>
+    <TD>  </TD>
+    <TD>  </TD>
+</TR>
+<TR>
+    <TD> 1D_BUFFER </TD>
+    <TD> S32/U32 </TD>
+    <TD>  </TD>
+    <TD>  </TD>
+</TR>
+<TR>
+    <TD> 1D_ARRAY </TD>
+    <TD> S32 </TD>
+    <TD> U16 </TD>
+    <TD>  </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> S32 </TD>
+    <TD> S32 </TD>
+    <TD>  </TD>
+</TR>
+<TR>
+    <TD> 2D_ARRAY </TD>
+    <TD> S32 </TD>
+    <TD> S32 </TD>
+    <TD> U16 </TD>
+</TR>
+<TR>
+    <TD> 3D </TD>
+    <TD> S32 </TD>
+    <TD> S32 </TD>
+    <TD> S32 </TD>
+</TR>
+</TABLE>           
+<p>
+For 1D_BUFFER, the coordinate is S32 if .clamp is .NEAR. Otherwise, the coordinate is interpreted as U32.  
+The 1D_ARRAY and 2D_ARRAY array indices are treated as U16, meaning only the 16 LSBs of the register value are used.
+</p>
+
+<p>
+The .clamp field specifies how to clamp out of bounds addresses (too high or low).
+<ul>
+  <li>.IGN ignores SUST operations to out-of-bounds addresses.</li>
+  <li>.NEAR indicates that an out-of-bounds address will clamp to the nearest surface boundary.</li>
+  <li>.TRAP indicates that an out-of-bounds address causes an execution trap. If coordinates exceed bounds, the memory access is treated like an .IGN</li>
+</ul>
+</p>
+
+<p>
+<B>Sc</B> contains a pointer to texture header. The possible options for Sc are:
+<ul>
+   <li> Rc: stored in 32-bit register. (Rc cannot be RZ)</li>
+ <li> Constant with Immediate address, #tsPtrIdxU13: { const[15:2], 2'b00 } </li>
+</ul>
+</p>
+<p>
+Size specifier for byte (.D.BA) and coordinate (.D) addressing.
+<ul>
+  .sz is one of: .U8, .S8, .U16, .S16, .32, .64, .128.
+  .U8 and .S8 are equivalent for SUST
+  .U16 and .S16 are equivalent for SUST
+  .sz Indicates the amount of memory to store from register(s) Rb, Rb+1, Rb+2, Rb+3 (as needed).
+</ul>
+</p>
+<p>
+Size specifier for pixel (.P) addressing.
+<ul>
+  <li> .rgba specifies the format and size of the pixel. </li>
+  <li> .rgba indicates number of color components to store from register(s) Rb, Rb+1, Rb+2, Rb+3 (as needed). </li>
+  <li> Following table shows the format of the source data:
+  <p>
+  <TABLE border="1" cellpadding="20%">
+  <CAPTION><EM>Format of Source Data</EM></CAPTION>
+  <TR><TH>Target Surface Format<TH>Source Format</TR>
+  <TR><TD>UNORM, SNORM, FLOAT<TD>F32</TR>
+  <TR><TD>UINT<TD>U32</TR>
+  <TR><TD>SINT<TD>S32</TR>
+  </TABLE>
+  </p> </li>
+ <li>
+  The input data register is assumed to contain R in the lowest register (i.e., in Rb), 
+  followed by G, then B, and then A using successive registers as necessary. 
+  If a component is missing in the source format, then missing data will be filled with zeros.
+  Extra components in the source data will be ignored.
+  All data format conversions are performed as specified in the Microsoft DX specs.
+ </li>
+</uol>
+</p>
+
+<p>
+All surface stores are uncached at L1 level, regardless of .cop. 
+Within the L1 cache, surface operations to the same coordinates as cached Texture operations will not invalidate cached data lines.
+</p>
+
+<p>
+If the surface being accessed is disabled, the write will be silently dropped.
+</p>
+
+<p>
+When used in a pixel shader by helper pixels or killed pixels, SUST automatically turned into NOP for that thread.
+This is to prevent unwanted writes to global memory by pixels with zero raster coverage or by pixels that have been 
+using the KIL operation. These the threads will not participate in any SUST operations.
+</p>
+
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples          # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>SUST.D.1D</b> [R2], R3, R4;
+<b>SUST.P.3D.RG</b> [R4], R6, 0x100; // surface header pointer is in c[state_controlled_bank][0x400]
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail            # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

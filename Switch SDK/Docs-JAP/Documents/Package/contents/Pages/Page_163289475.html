@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>一過性アロケータ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 一過性アロケータ -->
+<div class="pagetitle" id="PageId_163289475">一過性アロケータ</div>
+<div class="text_separate">
+<h1 id="Anchor_163289475_h1_1">&nbsp;一過性アロケーター</h1>
+<p>一過性アロケーターは主に 1 フレーム内でのみ使用するグラフィクスリソースの管理を目的としたアロケーターです。</p>
+<p>管理するリソースごとに以下のクラスが用意されています。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>名称</th>
+      <th>ヘッダーファイル</th>
+      <th>用途</th>
+    </tr>
+    <tr>
+      <td>TransientMemoryPoolAllocator</td>
+      <td>nn/gfx/util/gfx_TransientMemoryPoolAllocator.h</td>
+      <td>メモリープール上のメモリーの管理</td>
+    </tr>
+    <tr>
+      <td>TransientBufferAllocator&nbsp;</td>
+      <td>nn/gfx/util/gfx_TransientBufferAllocator.h&nbsp;</td>
+      <td>バッファー中のメモリーの管理&nbsp;</td>
+    </tr>
+    <tr>
+      <td>TransientDescriptorPoolAllocator&nbsp;</td>
+      <td>nn/gfx/util/gfx_TransientDescriptorPoolAllocator.h&nbsp;</td>
+      <td>デスクリプタープールのスロットの管理&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_163289475_h1_2">概要</h1>
+<p>&nbsp;一過性アロケーターの基本的な使用方法は以下のようになります。</p>
+<ol>
+  <li>コマンドバッファーの作成開始</li>
+  <li>Begin() の呼び出し</li>
+  <li>任意の回数の Allocate() の呼び出し</li>
+  <li>End() の呼び出し</li>
+  <li>コマンドバッファーの作成終了</li>
+  <li>コマンドバッファーの実行待ち</li>
+  <li>Free() の呼び出し</li>
+</ol>
+<p>Free() の呼び出しによって Begin() から End()&nbsp;までに Allocate() によって確保されたすべてのリソースが解放されます。また、 Free() を呼び出さずに Begin() と End() を繰り返し呼んだ場合、各区間で確保されたリソースが履歴に記録されていきます。 Free() の呼び出しによって履歴中の一番古いリソースが解放されます。これによってダブルバッファリングやトリプルバッファリングを行う際に各フレームで一時的に使用するリソースを効率的に管理することができます。</p>
+<h1 id="Anchor_163289475_h1_3">使用方法</h1>
+<p>TransientMemoryPoolAllocator を例にして初期化から破棄の方法までを説明します。</p>
+<h2 id="Anchor_163289475_h2_1">初期化</h2>
+<p>初期化の際には一過性アロケーターの管理対象とするメモリープール上のメモリー領域を指定します。一過性アロケーターから確保するメモリーに対してアラインメント指定が必要な場合、初期化時に必要なアラインメントの最大値を与える必要があります。また、管理対象のメモリー領域の先頭は最大のアラインメントに従っている必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::</span><span class="n">MemoryPool</span><span class="o">*</span> <span class="n">pMemoryPool</span><span class="p">;</span> <span class="c1">// 管理対象とするメモリープール
+</span><span class="kt">ptrdiff_t</span> <span class="n">baseOffser</span><span class="p">;</span>             <span class="c1">// 管理対象とする範囲の先頭オフセット
+</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">;</span>                      <span class="c1">// 管理対象とする範囲の長さ（バイト）
+</span><span class="kt">size_t</span> <span class="n">alignmentMax</span><span class="p">;</span>              <span class="c1">// 一過性アロケーターから確保する際の最大アラインメント
+</span><span class="kt">int</span> <span class="n">historyMax</span><span class="p">;</span>                   <span class="c1">// 最大で記録する履歴の数
+</span> 
+<span class="nn">nn::gfx::</span><span class="n">TransientMemoryPoolAllocator</span> <span class="n">transientAllocator</span><span class="p">;</span>
+<span class="c1">// 作業用メモリーを設定
+</span><span class="kt">size_t</span> <span class="n">memorySize</span> <span class="o">=</span> <span class="nn">nn::gfx::TransientMemoryPoolAllocator::</span><span class="n">GetRequiredMemorySize</span><span class="p">(</span><span class="n">historyMax</span><span class="p">);</span>
+<span class="kt">size_t</span> <span class="n">memoryAlignment</span> <span class="o">=</span> <span class="nn">nn::gfx::TransientMemoryPoolAllocator::</span><span class="n">GetRequiredMemoryAlignment</span><span class="p">();</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">pMemory</span> <span class="o">=</span> <span class="n">aligned_alloc</span><span class="p">(</span><span class="n">memoryAlignment</span><span class="p">,</span> <span class="n">memorySize</span><span class="p">);</span>
+<span class="n">transientAllocator</span><span class="p">.</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">pMemory</span><span class="p">,</span> <span class="n">memorySize</span><span class="p">);</span>
+<span class="c1">// 初期化
+</span><span class="n">transientAllocator</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">pMemoryPool</span><span class="p">,</span> <span class="n">baseOffset</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">alignmentMax</span><span class="p">,</span> <span class="n">historyMax</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_163289475_h2_2">描画ルーチン中での使用</h2>
+<p>
+  <br />
+</p>
+<p>履歴の最大長さとしてスワップチェーンの長さと同じ数を指定した場合、 1 フレーム中で Begin() と End() を 1 回ずつ呼び出すことで一過性アロケーターの履歴とフレームを対応させて使うことができます。</p>
+<p>以下のコードでは各フレームの開始時に描画の完了したフレームで使用したリソースを解放しています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::gfx::</span><span class="n">Queue</span><span class="o">*</span> <span class="n">pQueue</span><span class="p">;</span>         <span class="c1">// コマンドバッファーを提出するキュー
+</span><span class="nn">nn::gfx::</span><span class="n">SwapChain</span><span class="o">*</span> <span class="n">pSwapChain</span><span class="p">;</span> <span class="c1">// 描画するディスプレイのスワップチェーン
+</span> 
+<span class="n">transientAllocator</span><span class="p">.</span><span class="n">FillHistory</span><span class="p">();</span> <span class="c1">// 履歴をすべて確保数 0 の履歴で埋める
+</span><span class="k">for</span><span class="p">(;;)</span> <span class="c1">// 描画ループ
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">transientAllocator</span><span class="p">.</span><span class="n">Free</span><span class="p">();</span> <span class="c1">// 描画済のフレームのリソースを解放する。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">transientAllocator</span><span class="p">.</span><span class="n">Begin</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">transientAllocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">alignment</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">transientAllocator</span><span class="p">.</span><span class="n">End</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pQueue</span><span class="p">.</span><span class="n">ExecuteCommand</span><span class="p">(...);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">pQueue</span><span class="p">.</span><span class="n">Present</span><span class="p">(</span><span class="n">pSwapChain</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>最初に履歴を埋めておくことで、Free() によって描画済のスキャンバッファーに対応するリソースが解放されるようになります。Begin() と End() の間には何回 Allocate() を呼んでも構いませんし、 1 回も呼ばなくても構いません、いずれの場合も確保したリソースの数に関係なく Begin() と End() の組に対して 1 つの履歴が記録されます。</p>
+<h2 id="Anchor_163289475_h2_3">破棄</h2>
+<p>初期化済のアロケーターに対して任意のタイミングで Finalize() を呼び出すことでアロケーターを破棄することができます。この際、確保済のリソースに対する処理は一切行われません。</p>
+<h1 id="Anchor_163289475_h1_4">スレッド安全性</h1>
+<p>全ての一過性アロケーターは以下の関数の同時呼び出しに対してロックフリーに動作します。</p>
+<ul style="list-style-type: square;">
+  <li>任意の数のスレッドからの Allocate() 系関数の呼び出し</li>
+  <li>1 つのスレッドからの Free() の呼び出し</li>
+</ul>
+<p>&nbsp;これ以外の関数、たとえば Begin() や End() はスレッド安全ではありません。また Free() を 2 つ以上のスレッドから同時に呼び出す場合の動作は未定義です。</p>
+<h1 id="Anchor_163289475_h1_5">Holder クラス</h1>
+<p>各一過性アロケーターに対応した Holder クラスを使用することで初期化時の SetMemory() の呼び出しを省略することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">HistoryMax</span><span class="p">;</span>      <span class="c1">// 最大で記録する履歴の数（定数）
+</span><span class="nn">nn::gfx::</span><span class="n">MemoryPool</span><span class="o">*</span> <span class="n">pMemoryPool</span><span class="p">;</span> <span class="c1">// 管理対象とするメモリープール
+</span><span class="kt">ptrdiff_t</span> <span class="n">baseOffser</span><span class="p">;</span>             <span class="c1">// 管理対象とする範囲の先頭オフセット
+</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">;</span>                      <span class="c1">// 管理対象とする範囲の長さ（バイト）
+</span><span class="kt">size_t</span> <span class="n">alignmentMax</span><span class="p">;</span>              <span class="c1">// 一過性アロケーターから確保する際の最大アラインメント
+</span> 
+<span class="nn">nn::gfx::</span><span class="n">TransientMemoryPoolAllocatorHolder</span><span class="o">&lt;</span><span class="n">HistoryMax</span><span class="o">&gt;</span> <span class="n">transientAllocatorHolder</span><span class="p">;</span>
+<span class="n">transientAllocatorHolder</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">pMemoryPool</span><span class="p">,</span> <span class="n">baseOffset</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">alignmentMax</span><span class="p">);</span>
+ 
+<span class="nn">nn::gfx::</span><span class="n">TransientMemoryPoolAllocator</span><span class="o">*</span> <span class="n">pTransientAllocator</span> <span class="o">=</span> <span class="n">transientAllocatorHolder</span><span class="p">.</span><span class="n">Get</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Holder のフィールド内のメモリー領域を使ってアロケーターが初期化されます。オブジェクトを破棄する際には Holder の Finalize() を呼びます。</p>
+<h1 id="Anchor_163289475_h1_6">API リファレンス</h1>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1gfx_1_1util.html">nn::gfx::util 名前空間</a> のそれぞれのクラスを参照してください。</p>
+<ul style="list-style-type: square;">
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_transient_memory_pool_allocator.html">TransientMemoryPoolAllocator クラス</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_transient_descriptor_allocator.html">TransientDescriptorAllocator クラス</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_transient_buffer_allocator.html">TransientBufferAllocator クラス</a>
+  </li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

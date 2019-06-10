@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>グループによる再生管理</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- グループによる再生管理 -->
+<div class="pagetitle" id="PageId_83956074">グループによる再生管理</div>
+<div class="text_separate">
+<h1 id="Anchor_83956074_h1_1">グループとは</h1>
+<p>ユーザーが生成するエフェクトインスタンスはグループと呼ばれる単位でVFXランタイム内部で管理されます。<br />グループ機能を利用することで、エミッタセットが所属するグループ単位で 計算・描画 処理 を制御することができます。<br /><br /></p>
+<h2 id="Anchor_83956074_h2_1">グループ単位での処理を行う</h2>
+<p>生成されたエフェクトインスタンスの計算処理や描画処理はグループを指定して行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">groupId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="c1">//-------------------------------------
+// 計算処理
+// フレーム単位での初期化
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">BeginFrame</span><span class="p">();</span>
+
+<span class="c1">// グループID 0 に所属するエフェクトインスタンスの計算処理を行う。
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="n">groupId</span><span class="p">,</span><span class="err">･･･</span> <span class="p">);</span>
+
+<span class="c1">//-------------------------------------
+// 描画処理
+</span><span class="nn">nn::vfx::</span><span class="n">ViewParam</span> <span class="n">viewParam</span><span class="p">;</span>
+<span class="n">viewParam</span><span class="p">.</span><span class="n">Set</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">viewMtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">projMtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cameraPos</span><span class="p">,</span> <span class="n">nearZ</span><span class="p">,</span> <span class="n">farZ</span> <span class="p">);</span>
+
+<span class="c1">// テンポラリバッファのスワップ / Draw系メソッドより前で呼び出しを行う
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SwapBuffer</span><span class="p">();</span>
+
+<span class="c1">// 描画前処理(ビュー情報の初期化)
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SetViewParam</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">viewParam</span> <span class="p">);</span>
+
+<span class="c1">// グループID 0 に所属するエフェクトインスタンスの描画処理を行う
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">groupId</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955678.html">エフェクト描画順を制御する</a>
+        </span>
+      </th>
+      <td>より細やかな描画順制御を行いたい場合に参照してください。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83956074_h2_2">グループの指定</h2>
+<p>グループはユーザーがエミッタセットを作成する際に <span class="ApiLink_nn__vfx__System__CreateEmitterSetID">nn::vfx::System::CreateEmitterSetID</span> の引数で指定します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エミッタセットを 0 番グループに生成する。
+</span><span class="kt">int</span> <span class="n">groupId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">CreateEmitterSetID</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span> <span class="n">createPos</span><span class="p">,</span> <span class="n">emitterSetId</span><span class="p">,</span> <span class="n">resourceId</span><span class="p">,</span> <span class="n">groupId</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>利用可能なグループ最大数は、<span class="ApiLink_nn__vfx__SystemParameters_MaxGroupCount">nn::vfx::SystemParameters_MaxGroupCount</span> ( 64 ) で指定され、利用用途に制限があります。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">グループ番号</th>
+      <th style="text-align: center;">用途</th>
+    </tr>
+    <tr>
+      <td>&nbsp;0 ～ 62</td>
+      <td>ユーザーが自由に利用できます。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__vfx__SystemParameters_ViewerGroupId">nn::vfx::SystemParameters_ViewerGroupId</span> ( 63 )</td>
+      <td>エフェクトビューアランタイムが利用するグループです。ユーザーも利用できます。</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83956074_h2_3">グループ機能の効果的な利用方法</h2>
+<p>特徴的なグループの利用方法を紹介します。</p>
+<ul>
+  <li>
+    <p>特定のグループのみ再生を停止する</p>
+  </li>
+</ul>
+<h3 id="Anchor_83956074_h3_1">特定のグループのみ再生を停止する</h3>
+<p>特定グループの <span class="ApiLink_nn__vfx__System__Calculate">nn::vfx::System::Calculate</span> メソッドの呼び出しをスキップすることで、そのグループに所属するエフェクトの再生を停止させることができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">groupId_app_effect</span>   <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">groupId_pause_effect</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">//-------------------------------------
+// 計算処理
+</span><span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">BeginFrame</span><span class="p">();</span>
+
+<span class="c1">// ゲーム内エフェクトはポーズ中以外は計算処理を行う
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">pause</span> <span class="p">)</span> <span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="n">groupId_app_effect</span><span class="p">,</span><span class="err">･･･</span> <span class="p">);</span>
+
+<span class="c1">// ポーズ中エフェクトはポーズ中に計算処理を行う
+</span><span class="k">if</span> <span class="p">(</span> <span class="n">pause</span> <span class="p">)</span> <span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Calculate</span><span class="p">(</span> <span class="n">groupId_pause_effect</span><span class="p">,</span><span class="err">･･･</span> <span class="p">);</span>
+
+<span class="c1">//-------------------------------------
+// 描画処理
+</span><span class="nn">nn::vfx::</span><span class="n">ViewParam</span> <span class="n">viewParam</span><span class="p">;</span>
+<span class="n">viewParam</span><span class="p">.</span><span class="n">Set</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">viewMtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">projMtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cameraPos</span><span class="p">,</span> <span class="n">nearZ</span><span class="p">,</span> <span class="n">farZ</span> <span class="p">);</span>
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SwapBuffer</span><span class="p">();</span>
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SetViewParam</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">viewParam</span> <span class="p">);</span>
+
+<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">groupId_app_effect</span> <span class="p">);</span>
+
+<span class="c1">// ポーズ中は、ポーズ中エフェクトの描画処理を行う
+</span><span class="k">if</span> <span class="p">(</span> <span class="n">pause</span> <span class="p">)</span> <span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">groupId_pause_effect</span> <span class="p">);</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__vfx__System__CreateEmitterSetID
+SetUrl( 'ApiLink_nn__vfx__SystemParameters_MaxGroupCount', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#a066f6ff695f03644411e5d69515b4d94a8b8c7d984c36fa890def55e28f7e0f46' )
+SetUrl( 'ApiLink_nn__vfx__SystemParameters_ViewerGroupId', '../../../Api/HtmlNX/namespacenn_1_1vfx.html#a066f6ff695f03644411e5d69515b4d94a4be68e89b8ba844d9de0ed91484a9b6d' )
+SetUrl( 'ApiLink_nn__vfx__System__Calculate', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#adb42c694f9bd27d36f90d4c6c2dc3061' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

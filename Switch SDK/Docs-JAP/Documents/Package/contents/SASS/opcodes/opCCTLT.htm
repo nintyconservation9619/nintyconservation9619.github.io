@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>CCTLT</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    CCTLT : Texture Cache Control<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Cache Control" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Compute Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "CCTLT", subsection => 9.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTLT</b>.IVTH</code>    <code>Sb</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTLT" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CCTLT</b>.IVALL</code>   <code></code>     <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CCTLT" } -->
+
+
+        .IVTH   Invalidate specific surface/texture header (descriptor metadata) associated with pointer in Sb from TEX level 1 cache (TSL1).
+
+                Also invalidates all data lines associated with that header. 
+        .IVALL  Invalidate any surface/texture header (descriptor metadata ) from TSL1 and any data lines associated with these headers.
+                This operation does not invalidate other types of data in texture caches e.g global/local data.
+
+    Sb      Texture header pointer
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>CCTLT</b> controls the state of a cache line(s) in texture cache. 
+Currently only invalidation of  lines associated with surface/texture is supported. 
+With .IVTH, invalidation is carried out for specific texture/surface header and associated data.
+With .IVALL invalidation of any surface/tex data/headers is carried out.
+Note that the header data is invalidated from TSL1 only and not downstream caches. 
+Explicit class method(bundle) needs to be used for invalidating headers from downstream caches.
+</p>
+<B>Sb</B> contains a pointer to texture header. The possible options for Sb are:
+<ul>
+   <li> Rb: texture header/sampler pointer is specified in 32-bit register.</li>
+ <li> tsPtrIdxU13 : Gets the textureheader/sampler pointer from constant[state.designatedTexBank].{#tsPtrIdxU13, 2'b00};
+</ul>
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>CCTLT.IVTH</b>  0xc;
+<b>CCTLT.IVTH</b>  R0;
+<b>CCTLT.IVALL</b> ;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

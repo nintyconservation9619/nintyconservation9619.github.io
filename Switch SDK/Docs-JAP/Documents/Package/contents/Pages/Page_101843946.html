@@ -1,0 +1,560 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>3D テクスチャープリセットコンバーター</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 3D テクスチャープリセットコンバーター -->
+<div class="pagetitle" id="PageId_101843946">3D テクスチャープリセットコンバーター</div>
+<div class="text_separate">
+<p>3D テクスチャープリセットコンバーター(%NINTENDO_SDK_ROOT%\Tools\Graphics\3dTools\3dTexturePresetConverter.bat)の使用方法や注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_101843946_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_101843946_h1_2">コマンドラインオプション</a>
+    </li>
+    <li>
+      <a href="#Anchor_101843946_h1_3">利用例</a>
+    </li>
+    <li>
+      <a href="#Anchor_101843946_h1_4">プリセットファイル仕様</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_101843946_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_101843946_h2_2">構成要素</a>
+      </li>
+      <li>
+        <a href="#Anchor_101843946_h2_3">プリセットファイルで利用できる環境変数</a>
+      </li>
+      <li>
+        <a href="#Anchor_101843946_h2_4">例</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_101843946_h3_1">各要素の使用例</a>
+        </li>
+        <li>
+          <a href="#Anchor_101843946_h3_2">1 つの入力ファイルから複数のテクスチャー中間ファイルに変換する例</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_101843946_h1_1">概要</h1>
+<p>3D テクスチャープリセットコンバーターは XML 形式のプリセットファイル（.ntcp）を利用して、画像ファイル（.tga、.png、.dds、.exr）をテクスチャー中間ファイル（.ftxb）に変換するコマンドラインツールです。<br />3D テクスチャーコンバーターのユーティリティー的なツールであり、内部で3D テクスチャーコンバーターを呼び出します。&nbsp;</p>
+<p>プリセットファイルには「出力フォルダー」「グローバルオプション」「プリセット定義」「プリセット上書き」「プリセットアサイン」を記述します。<br />プリセットファイルに他のプリセットファイルをインポートして、他のプリセットファイル内の定義を利用することも可能です。<br />変換の前後にユーザーが指定したコマンドを実行することも可能です。&nbsp;</p>
+<h1 id="Anchor_101843946_h1_2">コマンドラインオプション</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTexturePresetConverter.bat [画像ファイル|入力フォルダー]... [--args-file &quot;&quot;] [--version] [-h] [-s]
+[--preset-file &quot;&quot;]...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>画像ファイル|入力フォルダー</strong>
+</p>
+<p>画像ファイル（.tga、.png、.dds、.exr）または画像ファイルを含むフォルダーのパスを指定します。<br />フォルダーを指定した場合、指定したフォルダーおよびサブフォルダー以下のすべての画像ファイルを変換します。<br />画像ファイルおよびフォルダーはスペースで区切って複数指定できます。</p>
+<p>特別な使い方として、&nbsp;画像ファイルの代わりにテクスチャー中間ファイルを指定して再変換することもできます。<br />ただし、テクスチャー中間ファイルを含むフォルダーを入力フォルダーに指定した場合は再変換されません。<br />これは、画像ファイルのフォルダーとテクスチャー中間ファイルのフォルダーを含む上位フォルダーを指定した場合に余計な変換が実行されないようにするためです。<br />次のようなバッチファイルを使用すれば、指定フォルダーとサブフォルダー以下のテクスチャー中間ファイルをすべて再変換できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>type nul &gt; args.txt
+for /r &quot;%~1&quot; %%I in (*.ftxb) do echo %%I &gt;&gt; args.txt
+call 3dTexturePresetConverter.bat --args-file args.txt --preset-file preset1.ntcp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>--args-file &quot;&quot;</strong>
+</p>
+<p>引数ファイルに記述した内容を、引数として指定できます。<br />引数ファイルは複数行に渡って各オプションを記述できます。<br />行頭に # がある行はコメントとして扱います。<br />オプション値指定の &quot;&quot; によるエスケープに改行を含めることはできません。</p>
+<p>
+  <strong>--version</strong>
+</p>
+<p>バージョン情報を表示します。</p>
+<p>
+  <strong>-h --help</strong>
+</p>
+<p>ヘルプを表示します。</p>
+<p>
+  <strong>-s --silent</strong>
+</p>
+<p>処理中のメッセージ表示を抑制します。<br />変換の前後に実行するコマンドの標準出力も抑制します。</p>
+<p>
+  <strong>--preset-file &quot;&quot;</strong>
+</p>
+<p>プリセット適用のためのプリセットファイル（.ntcp）を指定します。このオプションは複数指定できます。<br />このオプションを複数指定すると、各プリセットファイルの内容を合成した定義が反映されます。<br />同名の定義が存在する場合、後で指定したプリセットファイルが優先です。&nbsp;</p>
+<h1 id="Anchor_101843946_h1_3">利用例</h1>
+<p>1 つの画像ファイルを変換します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTexturePresetConverter.bat inputAlb.tga --preset-file preset1.ntcp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>指定したフォルダーおよびサブフォルダー以下のすべての画像ファイルを変換します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTexturePresetConverter.bat D:\data\sourceimages --preset-file preset1.ntcp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_101843946_h1_4">プリセットファイル仕様</h1>
+<h2 id="Anchor_101843946_h2_1">概要</h2>
+<p>画像ファイルに対する3D テクスチャーコンバーターのオプションの組み合わせを定義するための XML フォーマットファイルです。<br />拡張子は ntcp (Nintendo Texture Converter Preset) です。</p>
+<h2 id="Anchor_101843946_h2_2">構成要素</h2>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>要素名</th>
+      <th>出現回数</th>
+      <th>説明</th>
+      <th>属性</th>
+    </tr>
+    <tr>
+      <td>texuture_convert_preset</td>
+      <td>[1]</td>
+      <td>ルート要素です。</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>import</td>
+      <td>[0～]（複数指定可能）</td>
+      <td>
+        <p>外部のプリセットファイルを参照します。</p>
+        <p>&lt;import&gt; 要素の後に、&lt;output_folder&gt;、同じ name の &lt;preset&gt;、同じ file_name の &lt;preset_assign&gt; 要素が存在する場合、後で記述したものが優先です。</p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>path</td>
+              <td>
+                <p>参照するプリセットファイルを絶対パス、もしくはインポートする側のプリセットファイルのフォルダーからの相対パスで指定します。</p>
+                <p>% で囲われた環境変数を含めることができます。</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>output_folder</td>
+      <td>[0～1]</td>
+      <td>
+        <p>出力フォルダーパスを指定します。</p>
+        <p>この要素を指定しなければ、入力ファイルと同じフォルダーに出力します。</p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>path</td>
+              <td>
+                <p>出力フォルダーパスを絶対パス、もしくは入力ファイルのフォルダーからの相対パスを指定します。</p>
+                <p>% で囲われた環境変数を含めることができます。</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>presets</td>
+      <td>[0～1]</td>
+      <td>&lt;preset&gt; の親要素です。</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>preset</td>
+      <td>[0～]</td>
+      <td>
+        <p>3D テクスチャーコンバーター設定のプリセットを定義します。</p>
+        <p>プリセット定義は、3D テクスチャーコンバーターに渡すオプション群（フォーマット、ヒント情報など）です。</p>
+        <p>&lt;presets&gt; 要素以下に &lt;preset&gt; 要素として記述します。</p>
+        <p>同じ名前のプリセット定義が複数存在する場合、後で記述したものが優先です。<br /><br /></p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>name</td>
+              <td>プリセット定義の名前を指定します。</td>
+            </tr>
+            <tr>
+              <td>3D テクスチャーコンバーターのオプション</td>
+              <td>
+                <p>3D テクスチャーコンバーターのロングネームオプションの先頭の &quot;--&quot; を削除し、ハイフン &quot;-&quot; をアンダースコアに置換した形式で各オプションを指定します。<br />たとえば、3D テクスチャーコンバーターのオプション --comp-sel=&quot;rgba&quot; は、&lt;preset&gt; 要素では comp_sel=&quot;rgba&quot; と記述します。</p>
+                <p>引数のないオプションは disable_file_info=&quot;&quot; のように、属性値を空文字にします。</p>
+                <p>指定しなかったオプションについては、3D テクスチャーコンバーターのデフォルトの値が適用されます。</p>
+                <p>output で指定したパスが絶対パスでなければ、&lt;output_folder&gt; 要素で指定したフォルダーからの相対パスとみなします。</p>
+                <p>merge や replace_a などで指定したパスが絶対パスでなければ、入力ファイルのフォルダーからの相対パスとみなします。</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>preset_overrides</td>
+      <td>[0～1]</td>
+      <td>&lt;preset_override&gt; の親要素です。</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>preset_override</td>
+      <td>[0～]</td>
+      <td>
+        <p>プリセット上書きを定義します。<br />&lt;preset&gt; 要素のオプションを部分的に上書きする場合に記述します。<br />&lt;preset&gt; 要素で指定されていないオプションを追加で指定することもできます。</p>
+        <p>&lt;preset_overrides&gt; 要素以下に &lt;preset_override&gt; 要素として記述します。<br />&lt;preset_override&gt; で指定した名前の &lt;preset&gt; が存在しなければエラーとなります。</p>
+        <p>&lt;preset&gt; 要素で引数のないオプションを指定している場合、属性値に none を指定することで打ち消すことができます。<br />&lt;preset&gt; 要素で指定された resize_w、resize_h を打ち消すには、resize_w=&quot;100%&quot; resize_h=&quot;100%&quot; を指定します。<br />同じ名前の &lt;preset_override&gt; 要素が複数存在する場合、最後に記述したものだけが適用されます。</p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>name</td>
+              <td>上書きするプリセット定義の名前を指定します。</td>
+            </tr>
+            <tr>
+              <td>3D テクスチャーコンバーターのオプション</td>
+              <td>&lt;preset&gt; 要素の 3D テクスチャーコンバーターのオプションと同様の書式で記述します。</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>preset_assigns</td>
+      <td>[0～1]</td>
+      <td>&lt;preset_assign&gt; の親要素です。</td>
+      <td>
+        <br />
+      </td>
+    </tr>
+    <tr>
+      <td>preset_assign</td>
+      <td>[0～]</td>
+      <td>
+        <div class="content-wrapper">
+          <p>プリセットアサインを定義します。</p>
+          <p>プリセットアサインは、画像ファイル名に対して、どのプリセットを適用するかのルールです。</p>
+          <p>&lt;preset_assigns&gt; 要素以下に &lt;preset_assign&gt; 要素として記述します。<br /></p>
+          <p>たとえば、ファイル名の末尾の文字列が「Alb」のファイル（imageAlb.tga など）に「Albedo1」という名前のプリセット定義を適用するなら、次のように記述します。<br />file_name=&quot;.*Alb&quot; preset_name=&quot;Albedo1&quot;</p>
+          <p>
+            <br />
+          </p>
+          <p>入力ファイルが、どの &lt;preset_assign&gt; の file_name にもマッチしなければエラーとなります。<br />入力ファイルが、複数の &lt;preset_assign&gt; の file_name にマッチする場合、後に記述したものが優先です。</p>
+        </div>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>file_name</td>
+              <td>プリセットを振り分ける際のファイル名を指定します。正規表現を使用できます。</td>
+            </tr>
+            <tr>
+              <td>preset_name</td>
+              <td>
+                <p>適用するプリセット定義の名前を指定します。</p>
+                <p>preset_name 属性の値が空文字なら、その画像ファイルは変換しません。</p>
+                <p>
+                  <br />
+                </p>
+                <p>カンマ区切りで複数のプリセット定義名を指定すると、すべてのプリセットが適用されます（下記の「1 つの入力ファイルから複数のテクスチャー中間ファイルに変換する例」を参照）。<br />複数のプリセットを適用する場合、プリセット定義で output オプションを指定して、同じパスのファイルが複数回出力されないようにしてください。</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>pre_convert_command</p>
+        <p>post_convert_command</p>
+      </td>
+      <td>[0～1]</td>
+      <td>
+        <p>変換の前後に実行するコマンドの設定を含む要素です。</p>
+        <p>指定されたコマンドには、出力ファイルのパスが行ごとに記述されたテキストファイル（出力リストファイル）（UTF-8 BOM 無し）のパスが引数として渡されます。</p>
+        <p>複数のプリセットファイルで定義された場合、最後に定義されたコマンドだけが実行されます。</p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>path</td>
+              <td>
+                <p>変換の前後に実行するコマンドのファイルパスを指定します。</p>
+                <p>% で囲われた環境変数を含めることができます。</p>
+              </td>
+            </tr>
+            <tr>
+              <td>arguments_before</td>
+              <td>
+                <p>コマンドの引数で、出力リストファイルのパスの前に挿入する引数があれば指定します。<br />複数の引数を半角スペースで区切って指定できます。</p>
+                <p>挿入する引数がなければ、この属性を記述する必要はありません。</p>
+              </td>
+            </tr>
+            <tr>
+              <td>arguments_after</td>
+              <td>コマンドの引数で、出力リストファイルのパスの後に追加する引数があれば指定します。<p>複数の引数を半角スペースで区切って指定できます。</p>追加の引数がなければ、この属性を記述する必要はありません。</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>global_option</td>
+      <td>[0～1]</td>
+      <td>
+        <p>グローバルオプションを定義します。</p>
+        <p>グローバルオプションは、すべてのプリセットで3D テクスチャーコンバーターに渡すオプション群です。<br />すべてのプリセットに適用したいオプションがなければ、記述する必要はありません。</p>
+        <p>&lt;global_option&gt; 要素と &lt;preset&gt; 要素で同じオプションが記述されている場合、&lt;preset&gt; 要素が優先です。</p>
+        <p>&lt;global_option&gt; 要素で引数のないオプションを指定している場合、&lt;preset&gt; 要素で属性値に none を指定することで打ち消すことができます。<br />たとえば、disable_file_info=&quot;none&quot; とすると、そのプリセットでは --disable-file-info は指定されません。</p>
+        <p>複数のプリセットファイルに &lt;global_option&gt; 要素が存在する場合、各 &lt;global_option&gt; 要素を合成した結果を適用します。<br />同じオプションについては後で指定したプリセットファイルが優先です。</p>
+      </td>
+      <td>
+        <table class="wrapped">
+          <tbody>
+            <tr>
+              <th>名前</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>3D テクスチャーコンバーターのオプション</td>
+              <td>&lt;preset&gt; 要素の3D テクスチャーコンバーターのオプションと同様の書式で記述します。</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_101843946_h2_3">プリセットファイルで利用できる環境変数</h2>
+<p>&lt;output_folder&gt;、&lt;preset&gt;、&lt;preset_override&gt;、&lt;global_option&gt; 要素の各属性の値には、ユーザーが定義した環境変数の他に下記の環境変数を利用できます。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>環境変数</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>%INPUT_FILE_NAME%</td>
+      <td>拡張子を除く入力ファイル名です。</td>
+    </tr>
+    <tr>
+      <td>%INPUT_FILE_EXT%</td>
+      <td>入力ファイルの拡張子です。</td>
+    </tr>
+    <tr>
+      <td>%INPUT_FILE_FOLDER%</td>
+      <td>入力ファイルの格納されているフォルダーの絶対パスです。</td>
+    </tr>
+    <tr>
+      <td>%INPUT_FILE_FOLDER_NAME%</td>
+      <td>入力ファイルの格納されているフォルダー名です。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>%INPUT_FILE_DEPTH%</p>
+      </td>
+      <td>
+        <p>入力ファイル名末尾の数値が連番になっている場合のファイル数です。</p>
+        <p>たとえば、入力ファイルが image1.tga の場合、同じフォルダーにimage2.tga と image3.tga が存在すれば、%INPUT_FILE_DEPTH% は 3 となります。</p>
+        <p>&lt;preset&gt; 要素で、dimension=&quot;2d_array&quot; depth=&quot;%INPUT_FILE_DEPTH%&quot; とすると 2D 配列テクスチャーに変換できます。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>%OUTPUT_FILE_PATH%</td>
+      <td>出力ファイルの絶対パスです。</td>
+    </tr>
+    <tr>
+      <td>%OUTPUT_FILE_NAME%</td>
+      <td>拡張子を除く出力ファイル名です。</td>
+    </tr>
+    <tr>
+      <td>%OUTPUT_FILE_EXT%</td>
+      <td>出力ファイルの拡張子です。</td>
+    </tr>
+    <tr>
+      <td>%OUTPUT_FILE_FOLDER%</td>
+      <td>出力ファイルを格納するフォルダーの絶対パスです。</td>
+    </tr>
+    <tr>
+      <td>%OUTPUT_FILE_FOLDER_NAME%</td>
+      <td>出力ファイルを格納するフォルダー名です。</td>
+    </tr>
+    <tr>
+      <td>%MATCH_1%</td>
+      <td>
+        <p>&lt;preset_assign&gt; 要素の file_name 属性で () で囲んだ正規表現を使用している場合、1 番目の () で囲んだ正規表現にマッチした文字列です。</p>
+        <p>たとえば、<span style="color: rgb(51,51,51);">入力ファイル名のサフィックスを削除した名前で ftx ファイルを出力する場合、</span>&lt;preset_assign&gt; 要素で file_name=&quot;(.*)Alb&quot;、&lt;preset&gt; 要素で output=&quot;%MATCH_1%.ftxb&quot; のようにします。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>%MATCH_2%</td>
+      <td>
+        <p>&lt;preset_assign&gt; 要素の file_name 属性で () で囲んだ正規表現を使用している場合、2 番目の () で囲んだ正規表現にマッチした文字列です。</p>
+        <p>
+          <span style="color: rgb(51,51,51);">%MATCH_3% 以降も同様です。</span>
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>出力ファイル関連は &lt;preset&gt; 要素でのみ使用可能です。</p>
+<h2 id="Anchor_101843946_h2_4">例</h2>
+<h3 id="Anchor_101843946_h3_1">各要素の使用例</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nt">&lt;texture_convert_preset</span> <span class="na">version=</span><span class="s">&quot;1.0.0&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;import</span> <span class="na">path=</span><span class="s">&quot;%COMMON_PRESETS%/common.ntcp&quot;</span> <span class="nt">/&gt;</span> <span class="cm">&lt;!-- COMMON_PRESETS はユーザー定義環境変数 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;output_folder</span> <span class="na">path=</span><span class="s">&quot;../textures&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;pre_convert_command</span> <span class="na">path=</span><span class="s">&quot;%SCRIPTS%/PreConvert.bat&quot;</span> <span class="nt">/&gt;</span> <span class="cm">&lt;!-- SCRIPTS はユーザー定義環境変数 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;post_convert_command</span> <span class="na">path=</span><span class="s">&quot;%SCRIPTS%/PostConvert.bat&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;global_option</span> <span class="na">weighted_compress=</span><span class="s">&quot;false&quot;</span> <span class="na">mip_gen_filter=</span><span class="s">&quot;linear&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;presets&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Albedo1&quot;</span> <span class="na">format=</span><span class="s">&quot;srgb_bc1&quot;</span> <span class="na">comp_sel=</span><span class="s">&quot;rgba&quot;</span> <span class="na">hint=</span><span class="s">&quot;albedo&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Normal1&quot;</span> <span class="na">format=</span><span class="s">&quot;unorm_bc5&quot;</span> <span class="na">comp_sel=</span><span class="s">&quot;rg01&quot;</span> <span class="na">hint=</span><span class="s">&quot;normal&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Mixed1&quot;</span> <span class="na">format=</span><span class="s">&quot;srgb_bc3&quot;</span> <span class="na">comp_sel=</span><span class="s">&quot;rgba&quot;</span> <span class="na">hint=</span><span class="s">&quot;mixed&quot;</span> <span class="na">replace_a=</span><span class="s">&quot;%INPUT_FILE_NAME%.A.%INPUT_FILE_EXT%&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Test1&quot;</span> <span class="na">format=</span><span class="s">&quot;unorm_bc4&quot;</span> <span class="na">hint=</span><span class="s">&quot;test1&quot;</span> <span class="na">output=</span><span class="s">&quot;%MATCH_1%.ftxb&quot;</span> <span class="nt">/&gt;</span> <span class="cm">&lt;!-- サフィックスを削除した名前で出力 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/presets&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_overrides&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_override</span> <span class="na">name=</span><span class="s">&quot;Normal1&quot;</span> <span class="na">resize_w=</span><span class="s">&quot;50%&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/preset_overrides&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assigns&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assign</span> <span class="na">file_name=</span><span class="s">&quot;.*Alb&quot;</span> <span class="na">preset_name=</span><span class="s">&quot;Albedo1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assign</span> <span class="na">file_name=</span><span class="s">&quot;.*Nrm&quot;</span> <span class="na">preset_name=</span><span class="s">&quot;Normal1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assign</span> <span class="na">file_name=</span><span class="s">&quot;.*Mix&quot;</span> <span class="na">preset_name=</span><span class="s">&quot;Mixed1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assign</span> <span class="na">file_name=</span><span class="s">&quot;.*\.[RGBA]&quot;</span> <span class="na">preset_name=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span> <span class="cm">&lt;!-- チャンネル差し替え用のファイルの変換を抑制 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assign</span> <span class="na">file_name=</span><span class="s">&quot;(.*)Test1&quot;</span> <span class="na">preset_name=</span><span class="s">&quot;Test1&quot;</span> <span class="nt">/&gt;</span> <span class="cm">&lt;!-- () で囲んだ正規表現を使用 --&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/preset_assigns&gt;</span>
+
+<span class="nt">&lt;/texture_convert_preset&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_101843946_h3_2">1 つの入力ファイルから複数のテクスチャー中間ファイルに変換する例</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nt">&lt;texture_convert_preset</span> <span class="na">version=</span><span class="s">&quot;1.0.0&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;output_folder</span> <span class="na">path=</span><span class="s">&quot;../textures&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;presets&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Albedo_L&quot;</span> <span class="na">format=</span><span class="s">&quot;srgb_bc7&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Albedo_M&quot;</span> <span class="na">format=</span><span class="s">&quot;srgb_bc7&quot;</span> <span class="na">resize_w=</span><span class="s">&quot;50%&quot;</span> <span class="na">output=</span><span class="s">&quot;%INPUT_FILE_NAME%_M.ftxb&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset</span> <span class="na">name=</span><span class="s">&quot;Albedo_S&quot;</span> <span class="na">format=</span><span class="s">&quot;srgb_bc7&quot;</span> <span class="na">resize_w=</span><span class="s">&quot;25%&quot;</span> <span class="na">output=</span><span class="s">&quot;%INPUT_FILE_NAME%_S.ftxb&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/presets&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assigns&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">&lt;!-- 解像度を変えて複数のテクスチャー中間ファイルを出力します /--&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;preset_assign</span> <span class="na">file_name=</span><span class="s">&quot;.*Alb&quot;</span> <span class="na">preset_name=</span><span class="s">&quot;Albedo_L,Albedo_M,Albedo_S&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/preset_assigns&gt;</span>
+<span class="nt">&lt;/texture_convert_preset&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

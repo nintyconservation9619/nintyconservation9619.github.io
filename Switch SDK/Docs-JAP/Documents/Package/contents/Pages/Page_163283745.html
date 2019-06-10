@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>3. UV の歪みに対処する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 3. UV の歪みに対処する -->
+<div class="pagetitle" id="PageId_163283745">3. UV の歪みに対処する</div>
+<div class="text_separate">
+<p>UV の歪みの原因は、UV ハードエッジの保護が出来ていないか、UV 座標値を考慮したリダクションを行えていない事です。従って、<span style="color: rgb(255,0,0);">&nbsp;<strong>UV 座標を考慮する</strong>&nbsp;</span>事で問題を解決します。UV ハードエッジを保護する事で、UV シェルを壊さないように保護されます。</p>
+<p>
+  <strong>デフォルトパラメーター&nbsp;</strong>に対して--property-flag Position|UV&nbsp;へ変更して実行します。この変更で、UV を評価するフラグを追加する事が出来ます。このパラメーターを<strong>パラメーターB&nbsp;</strong>と呼びます。<a href="../Pages/Page_162186377.html#Anchor_162186377_property-flag">プロパティを考慮したリダクション</a>&nbsp;にパラメーターを考慮する場合の、パラメーター設定の方法について詳細説明があります。（注）UVアトラス（MayaではUVシェル）が複数存在する場合に、UVオプションなしで簡略化を行っても、必ずUVが考慮されるようになっています。UVアトラスを一つに統合したモデルなどの場合には、ここで説明した意図的なオプションの追加が必要です。</p>
+<p>
+  <br />
+</p>
+<p>パラメーターについては、&nbsp;<a href="../Pages/Page_83955705.html#Anchor_83955705_poly-red-property">中間ファイルオプティマイザ</a>&nbsp;にも記載があります。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelHeader" style=" border-bottom-width: 1px;">
+    <b>パラメーターB</b>
+  </div>
+  <div class="panelContent">
+    <span style="color: rgb(51,153,102);">&quot;--target-rate-lod-level1 0.5 --target-rate-lod-level2 0.25 --property-flag Position<span style="color: rgb(255,0,0);">|UV</span> --optimize-position-policy OptimalOnSpace&quot;&nbsp; </span>
+  </div>
+</div>
+<p>
+  <span class="nolink">以下のバッチファイルで実行する事が出来ます。</span>
+</p>
+<p>
+  <span class="nolink">%NINTENDO_SDK_ROOT%\Samples\Sources\Tools\3dTools\3dIntermediateFileOptimizer\PolygonReductionTutorial</span>\ExecuteParameterB.bat</p>
+<p>
+  <br />
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270188404.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>図4-1　パラメータBでの結果(LOD レベル 2) (34365 ポリゴン)</p>
+        <p>
+          <br />
+        </p>
+        <p>UVアトラスが複数あるので、デフォルトと全く同じ結果が得られます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>パラメータBでの実行結果は、Townモデルではデフォルトからの変化はみられません（デフォルトでもUVオプションが自動で追加されるため）。しかし、単にUVを追加しただけでは、図4-2にみられるように一部でUVの歪みがみられることにあるので、これをパラメータの追加で抑制します。</p>
+<h3 id="Anchor_163283745_h3_1">UV 考慮のパラメーターを調整する</h3>
+<p>UV の補間は自然に行われるため、多くの場合 UV の歪みを抑制する効果はありませんが、形状の変化と UV の変化の間のバランスをパラメーターによって調整する事が出来ます。UV ハードエッジの移動による歪みの抑制は、改めて&nbsp;<a href="../Pages/Page_163286320.html">別ページ</a>&nbsp;にて説明します。</p>
+<p>
+  <br />
+</p>
+<h4 id="Anchor_163283745_h4_1">UV 重みパラメーターの効果</h4>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189406.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189408.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189410.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189426.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189514.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189478.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>図5_0 Town の一部分 LOD レベル 0 (137472ポリゴン)</p>
+        <p>上段は Maya での UV シェル表示</p>
+      </td>
+      <td>
+        <p>図5_1 Town の一部分 LOD レベル 2　(34366 ポリゴン) --uv-weight 0.0</p>
+        <p>上段は Maya での UV シェル表示</p>
+      </td>
+      <td>
+        <p>図5_2 Town の一部分 LOD レベル 2　( 34366 ポリゴン )  --uv-weight 0.1</p>
+        <p> 上段は Maya での UV シェル表示 </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>図5_0 ～図5_2の図は、Town の一部とその UV シェルを Maya を用いて見たものです。--uv-weight を変化させた場合の効果の違いを見る事が出来ます。ここでは UV ハードエッジの保護を行っていないため、UV シェルが変形していますが、これは別途保護する事が出来ます。--uv-weight を変化させることで、UV 座標と形状を評価するバランスを調整することができます。 0.0 にした場合は、UV 座標の変化は考慮されず、形状が重視されることになる為、UV シェルの変化の様な大きな変化が起こりやすくなり、UV座標値の変化も大きくなります。一方で、0.1 にした場合は、0.01 を設定したときよりも UV 座標の変化をより重視するようになる為、大きなUV値の変化変化を抑えられる場合が多くなります。1.0 にした場合は、UV のみを考慮した簡略化を実行した結果を得ることが出来ますが、形状は評価されないので大きく壊れます。</p>
+<p> <br /> </p>
+<p>パラメーターについては、&nbsp;<a href="../Pages/Page_83955705.html#Anchor_83955705_poly-red-uv-hard-edge">中間ファイルオプティマイザ</a>&nbsp;にも記載があります。</p>
+<div class="panel" style="border-width: 1px;">
+  <div class="panelHeader" style=" border-bottom-width: 1px;">
+    <b>パラメーターC</b>
+  </div>
+  <div class="panelContent">
+    <span style="color: rgb(51,153,102);">&quot;<span style="color: rgb(51,153,102);">--target-rate-lod-level1 0.5  --target-rate-lod-level2 0.25 </span>--property-flag <span style="color: rgb(51,153,102);">Position|UV</span> --optimize-position-policy OptimalOnSpace <span style="color: rgb(255,0,0);">--uv-weight 0.1</span>&quot;</span>
+    <span style="color: rgb(51,153,102);">&nbsp;</span>
+  </div>
+</div>
+<p>
+  <span class="nolink">以下のバッチファイルで実行する事が出来ます。</span>
+</p>
+<p>
+  <span class="nolink">%NINTENDO_SDK_ROOT%\Samples\Sources\Tools\3dTools\3dIntermediateFileOptimizer\PolygonReductionTutorial</span>\ExecuteParameterC.bat</p>
+<p>
+  <br />
+</p>
+<p>まず、<strong>パラメーターB</strong>に対して--uv-weight 0.1　を追加することで、UV 座標値を考慮したリダクションを実行します。このパラメーターを<strong>パラメーターC</strong>と呼びます。</p>
+<p>
+  <strong> <br /> </strong>パラメーターの効果については、&nbsp;<a href="../Pages/Page_162186377.html#Anchor_162186377_uv-wait">パラメーター設定 : UV 重み</a>　に詳細の記述があります。図5に見られるように、<strong>パラメーターC</strong>で実行した場合には、UV の歪みが消えていることが分かります。&nbsp;<strong>UV 重みを大きくするほど、UV は保護されます。しかし、形状が壊れる可能性がある</strong>ので、通常は&nbsp;<strong>0.01、0.05、0.1&nbsp;</strong>で、比較してみる位で十分な効果があります。</p>
+<p>
+  <br />
+</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <p>
+            <span class="embedded-file-wrapper ">
+              <img src="../Attachments/Attach_163283745/270189850.png" height="250" class="embedded-image" />
+            </span>
+          </p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>図６ UV Weight を 0.5 に変更した場合 LOD レベル 2 (34366 ポリゴン)</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>--uv-weight 0.5 にした場合、形状変化を考慮しにくくなり図 6 に見られるような大きな形状変化が発生します。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

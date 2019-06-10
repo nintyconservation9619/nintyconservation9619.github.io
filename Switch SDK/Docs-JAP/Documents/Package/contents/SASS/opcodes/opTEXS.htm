@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>TEXS</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TEXS : Texture Fetch with scalar/non-vec4 source/destinations<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Fetch with scalar/non-vec4 source/destinations" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TEXS", subsection => 4.5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>TEXS</b>{.F16}{.lod}{.DC}{.NODEP}{.phase}</code>   <code>RZ, Rd0, Ra{, Rb}, #tsPtrIdxU13, #paramA,  wmsk2C</code>     <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TEXS" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>TEXS</b>{.F16}{.lod}{.DC}{.NODEP}{.phase}</code>   <code>Rd1,Rd0, Ra{, Rb}, #tsPtrIdxU13, #paramA{, wmsk34C}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TEXS" } -->
+
+.lod:    { <b>.LZ, .LL </b> } 
+        LOD adjust mode.
+            &lt; NONE &gt;
+            .LZ  - LOD level 0 (finest)       // no register required
+            .LL  - LOD absolute discrete      // 1 fp32 register required
+	         LOD Level is actually relative to textureHeader.resViewMinMapLevel.
+
+.NODEP: Indicates that there are no subsequent quad derivatives to be calculated.
+        Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.
+
+.DC:    Depth comparison filter mode using reference value.
+        RefVal                           // 1 fp32 register required
+        Depth Comparison filter is not supported by 3D textures.
+        For TEXS and TEXS.LZ, the .DC option will force a depth comparison filter mode regardless of the sampler state.
+        For TEXS.LL, if the sampler state does not enable depth comparison the .DC option 
+	will not force a depth comparison filter mode.
+
+.phase: { <b>.T, .P</b> }
+        Allows control on the current warps texture hash, used for scheduling.
+        Phasing is explained here Texture Phasing.
+            &lt; NONE &gt;
+            .T - postfix increment of the 3 bit texture component of the hash.
+	    .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. 
+
+#tsPtrIdxU13:
+    This immediate index (word address) is used to fetch the packed header+sampler pointer entry from constant cache.
+    The bank from which it is fetched is determined by bundle state. The constant bank entry is 32 bit structure of
+    the form "samplerPtr[31:20] | headerPtr[19:0]".
+    In SetSamplerBinding.ViaHeaderBinding (i.e. OGL) mode, the headerPtr would be used as the samplerPtr as well.
+    Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex will be regarded as an "invalid"
+    texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in Fermi).
+    Any sampler pointer greater than one specified in SetSamplerHeaderPoolC.MaximumIndex will be regarded as an
+    "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).
+
+wmsk2C : {R, G, B, A, RG, RA, GA, BA}  // destination write mask for up to 2 component writeback.
+wmsk34C: {RGB, RGA, GBA, RBA, RGBA*}   // destination write mask for 3 or 4 component writeback.
+
+.F16:  If specified, texture return data is in packed F16 format. 
+     Otherwise, the return data is in 32 bit format (fp32 or S/UINT32).
+     Partial register writes do no occur: any unused portion of the return 
+     register is written with the value 0.
+     <b>Note:</b> .F16 modifier is not supported for integer textures in SPA 5.2.
+     UNPREDICTABLE)
+
+</pre>
+
+<pre>
+#paramA: source coordinate description.
+</pre>
+<div style="margin-left: 2em; font-size:100%">
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Valid paramA specifiers for TEXS </EM></CAPTION>
+    <TR><TH>parameter<TH>Coordinate Registers implied</TR>
+     <TR><TD> 1D</TD><TD>s</TD></TR>
+     <TR><TD> 2D</TD><TD>s,t</TD></TR>
+     <TR><TD> 3D</TD><TD>s,t,r</TD></TR>
+     <TR><TD> CUBE</TD><TD>s,t,r</TD></TR>
+     <TR><TD> RESERVED</TD><TD>// for ARRAY_1D</TD></TR>
+     <TR><TD> ARRAY_2D</TD><TD>a,s,t</TD></TR>
+     <TR><TD> RESERVED</TD><TD>// for ARRAY_3D</TD></TR>
+     <TR><TD> RESERVED</TD><TD>// for ARRAY_CUBE</TD></TR>
+</TABLE>
+</div>
+<pre>
+           s,t,r are fp32, 
+           a is U16 integer
+</pre>
+
+<pre>
+Not all combinations of .lod, .DC, and #paramA are allowed.  See the encoding table in the Description, below.
+
+Rounding mode is controlled by a PRI: [SM]PRI_SM_TEXIO_CONTROL_FP16_ROUNDING_MODE.  It must be set to the same value
+as PRI_TEX_F_DBG_FP16_ROUNDING_MODE.
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Texture fetch using a texture coordinates/parameters stored in registers Ra,Rb. 
+The return data is written back to registers Rd0, Rd1 based on wmsk2C/wmsk34C specification.
+
+Legal instruction modifiers for TEXS and corresponding parameter packing in Ra and Rb is specified below.</p>
+
+<p>
+<ol>
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Legal modifier table for #paramA, .DC, .lod</EM></CAPTION>
+<TR>
+    <th> #paramA </th>
+    <th> .DC </th>
+    <th> .lod </th>
+    <th> encoding </th>
+    <th> Ra-packing </th>
+    <th> Ra-size </th>
+    <th> Rb </th>
+    <th> Rb-size </th>
+</TR>
+<TR>
+    <TD> 1D </TD>
+    <TD> - </TD>
+    <TD> .LZ </TD>
+    <TD>   0      </TD>
+    <TD> s </TD>
+    <TD> scalar  </TD>
+    <TD> must be RZ </TD>
+    <TD> none   </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> - </TD>
+    <TD> &lt;NONE&gt; </TD>
+    <TD>   1      </TD>
+    <TD> s </TD>
+    <TD> scalar  </TD>
+    <TD> t </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> - </TD>
+    <TD> .LZ </TD>
+    <TD>   2      </TD>
+    <TD> s </TD>
+    <TD> scalar  </TD>
+    <TD> t </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> - </TD>
+    <TD> .LL </TD>
+    <TD>   3      </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> lod </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> .DC </TD>
+    <TD> &lt;NONE&gt; </TD>
+    <TD>   4      </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> dc </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> .DC </TD>
+    <TD> .LL </TD>
+    <TD>   5      </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> lod,dc </TD>
+    <TD> vec2   </TD>
+</TR>
+<TR>
+    <TD> 2D </TD>
+    <TD> .DC </TD>
+    <TD> .LZ </TD>
+    <TD>   6      </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> dc </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> ARRAY_2D </TD>
+    <TD> - </TD>
+    <TD> &lt;NONE&gt; </TD>
+    <TD>   7      </TD>
+    <TD> array,s </TD>
+    <TD> vec2    </TD>
+    <TD> t </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> ARRAY_2D </TD>
+    <TD> - </TD>
+    <TD> .LZ </TD>
+    <TD>   8      </TD>
+    <TD> array,s </TD>
+    <TD> vec2    </TD>
+    <TD> t </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> ARRAY_2D </TD>
+    <TD> .DC </TD>
+    <TD> .LZ </TD>
+    <TD>   9      </TD>
+    <TD> array,s </TD>
+    <TD> vec2    </TD>
+    <TD> t,dc </TD>
+    <TD> vec2   </TD>
+</TR>
+<TR>
+    <TD> 3D </TD>
+    <TD> - </TD>
+    <TD> &lt;NONE&gt; </TD>
+    <TD>   10     </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> r </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> 3D </TD>
+    <TD> - </TD>
+    <TD> .LZ </TD>
+    <TD>   11     </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> r </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> CUBE </TD>
+    <TD> - </TD>
+    <TD> &lt;NONE&gt; </TD>
+    <TD>   12     </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> r </TD>
+    <TD> scalar </TD>
+</TR>
+<TR>
+    <TD> CUBE </TD>
+    <TD> - </TD>
+    <TD> .LL </TD>
+    <TD>   13     </TD>
+    <TD> s,t </TD>
+    <TD> vec2    </TD>
+    <TD> r,lod </TD>
+    <TD> vec2   </TD>
+</TR>
+</TABLE>
+</ol>
+</p>
+
+For destination registers Rd1,Rd0, the following restrictions apply based on wmsk specification. </p>
+<p>
+<ol>
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Legal modifier table for Rd1,Rd0,wmsk for 32 bit return data (.F16 is not present)</EM></CAPTION>
+<TR>
+    <th> Rd1 </th>
+    <th> wmsk </th>
+    <th> wmsk encoding </th>
+    <th> Rd0-size </th>
+    <th> Rd0-packing </th>
+    <th> Rd1-size </th>
+    <th> Rd1-packing </th>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> R     </TD>
+    <TD> 0 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0+0 = R component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> G     </TD>
+    <TD> 1 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0+0 = G component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> B     </TD>
+    <TD> 2 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0+0 = B component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> A     </TD>
+    <TD> 3 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0+0 = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> RG    </TD>
+    <TD> 4 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = R component,<br> Rd0+1 = G component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> RA    </TD>
+    <TD> 5 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = R component,<br> Rd0+1 = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> GA    </TD>
+    <TD> 6 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = G component,<br> Rd0+1 = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> BA    </TD>
+    <TD> 7 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = B component,<br> Rd0+1 = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RGB   </TD>
+    <TD> 0 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = R component,<br> Rd0+1 = G component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1+0=B component </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RGA   </TD>
+    <TD> 1 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = R component,<br> Rd0+1 = G component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1+0=A component </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RBA   </TD>
+    <TD> 2 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = R component,<br> Rd0+1 = B component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1+0=A component </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> GBA   </TD>
+    <TD> 3 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = G component,<br> Rd0+1 = B component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1+0=A component </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RGBA  </TD>
+    <TD> 4 </TD>
+    <TD> vec2   </TD>
+    <TD> Rd0+0 = R component,<br> Rd0+1 = G component </TD>
+    <TD> vec2   </TD>
+    <TD> Rd1+0=B component,<br> Rd1+1=A component </TD>
+</TR>
+</TABLE>
+</ol>
+
+<ol>
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Legal modifier table for Rd1,Rd0,wmsk for packed F16 return data (.F16 is present)</EM></CAPTION>
+<TR>
+    <th> Rd1 </th>
+    <th> wmsk </th>
+    <th> wmsk encoding </th>
+    <th> Rd0-size </th>
+    <th> Rd0-packing </th>
+    <th> Rd1-size </th>
+    <th> Rd1-packing </th>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> R     </TD>
+    <TD> 0 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = 0 </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> G     </TD>
+    <TD> 1 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = G component,<br> Rd0[31:16] = 0 </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> B     </TD>
+    <TD> 2 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = B component,<br> Rd0[31:16] = 0 </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> A     </TD>
+    <TD> 3 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = A component,<br> Rd0[31:16] = 0 </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> RG    </TD>
+    <TD> 4 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = G component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> RA    </TD>
+    <TD> 5 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> GA    </TD>
+    <TD> 6 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = G component,<br> Rd0[31:16] = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> RZ </TD>
+    <TD> BA    </TD>
+    <TD> 7 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = B component,<br> Rd0[31:16] = A component </TD>
+    <TD> none </TD>
+    <TD> must be RZ </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RGB   </TD>
+    <TD> 0 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = G component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1[15:0] =B component,<br> Rd1[31:16] = 0 </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RGA   </TD>
+    <TD> 1 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = G component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1[15:0] =A component,<br> Rd1[31:16] = 0 </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RBA   </TD>
+    <TD> 2 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = B component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1[15:0] =A component,<br> Rd1[31:16] = 0 </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> GBA   </TD>
+    <TD> 3 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = G component,<br> Rd0[31:16] = B component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1[15:0] =A component,<br> Rd1[31:16] = 0 </TD>
+</TR>
+<TR>
+    <TD> non-RZ </TD>
+    <TD> RGBA  </TD>
+    <TD> 4 </TD>
+    <TD> scalar </TD>
+    <TD> Rd0[15:0] = R component,<br> Rd0[31:16] = G component </TD>
+    <TD> scalar </TD>
+    <TD> Rd1[15:0] =B component,<br> Rd1[31:16]=A component </TD>
+</TR>
+</TABLE>
+</ol>
+</p>
+</p>
+
+<p>
+The texture parameter source registers Ra/Rb and the destination (result) registers Rd0/Rd1
+have alignment restrictions based on the number of scalar registers being read/written. Specifically, 
+<ol> 
+	<li> Rd0/Rd1 should be aligned to number of valid components being returned (as specified by wmask) </li>
+	<li> Ra/Rb should always be aligned to </li>
+	<ol style="list-style-type : lower-alpha">
+		<li> 1 (scalar register) if the scalar count for that register (Ra or Rb) is 1 </li>
+		<li> 2 (vec2 register)   if the scalar count for that register (Ra or Rb) is 2 </li>
+	</ol>
+	<li> Rb must be specified as RZ if no parameters need to be packed in Rb.</li>
+	<li> Ra/Rb must not be specified as RZ if any parameters need to be packed in Ra/Rb.</li>
+</ol>
+</p>
+<p>
+Some input texture values will be sanitized before being used, 
+see <a href="#TextureInputCoordinateSanitation">Additional Information</a> 
+for more details.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+TEXS corresponds to these DX ops:</p>
+<pre>
+   sample    =  TEXS                   // 
+   sample_d  =  TXD/sw emulated        // emulate this via SAM/SWZ/TEX/RAM
+   sample_l  =  TEXS.LL                // lod      supplied
+   sample_c  =  TEXS.DC                // depth comparison filter with reference value
+   sample_lz =  TEXS.LZ                // lod level 0 (finest)
+</pre>
+
+<h4><a name="TextureInputCoordinateSanitation" />Sanitation of Texture Input Coordinates:</h4>
+<p>
+Texture input coordinates go through a sanitation step before being used in texture calculations.  </p>
+  <ul><li>+Infinity will be clamped to max float</li>
+  <li>-Infinity will be clamped to min float</li>
+  <li>NaN will be driven to zero</li>
+  </ul>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+TEXS        RZ, R0, R19, R29, 0x1, 2D, RG;   # reads R19 &amp; R29; writes R0 & R1
+TEXS.LL     R0, R2,  R4,  R9, 0x3, 2D, RGBA; # reads R4, R5, &amp;  R9; writes R0, R1, R2, &amp; R3
+TEXS.DC     R4, R0,  R8, R19, 0x2, 2D, RGBA; # reads R8, R9, &amp; R19; writes R4, R5, R0, &amp; R1
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

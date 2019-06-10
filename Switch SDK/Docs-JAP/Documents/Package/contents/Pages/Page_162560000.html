@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>スレッド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- スレッド -->
+<div class="pagetitle" id="PageId_162560000">スレッド</div>
+<div class="text_separate">
+<h1 id="Anchor_162560000_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_162560000_h2_1">サウンドスレッドとタスクスレッド</a>
+    </li>
+    <li>
+      <a href="#Anchor_162560000_h2_3">処理のコマンド化とコマンドバッファ</a>
+    </li>
+    <li>
+      <a href="#Anchor_162560000_h2_4">コマンド生成</a>
+    </li>
+    <li>
+      <a href="#Anchor_162560000_h2_5">コマンドのフラッシュ</a>
+    </li>
+    <li>
+      <a href="#Anchor_162560000_h2_7">タスクの処理</a>
+    </li>
+    <li>
+      <a href="#Anchor_162560000_h2_8">タスクスレッドの優先度</a>
+    </li>
+    <li>
+      <a href="#Anchor_162560000_h2_9">排他制御の必要がある関数</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_162560000_h1_2">スレッド</h1>
+<p>Atk ライブラリでは内部で複数のスレッドを利用しています。</p>
+<p>ここでは各スレッドの役割やその際に使用されるバッファについての説明を行います。</p>
+<h2 id="Anchor_162560000_h2_1">サウンドスレッドとタスクスレッド</h2>
+<p>Atk ライブラリを初期化すると、内部でサウンドスレッドとタスクスレッドと呼ばれる２つのスレッドが起動します。</p>
+<p>一般的にオーディオのパラメータ更新などの処理は、アプリケーションスレッドの更新周期よりも<br />短い間隔で実行する必要があるため、Atk ライブラリではアプリケーションスレッドとは別のスレッド（サウンドスレッド）で更新処理を行っています。</p>
+<p>また、オーディオの更新周期以内で波形の差し替えやパラメータ更新処理が終わらないとノイズの原因になるため、<br />サウンドスレッドではファイル読み込みなどの重い処理を実行せず、別のスレッドで実行しています。</p>
+<p>この重い処理はタスクスレッドで実行しています。</p>
+<p>具体的には、</p>
+<ul>
+  <li>ストリームサウンドのファイル読み込みと圧縮オーディオのデコード</li>
+  <li>プレイヤーヒープ使用時のウェーブサウンド、シーケンスサウンドのファイル読み込み</li>
+</ul>
+<p>の処理がタスクスレッドで実行されます。</p>
+<!--Remove-->
+<!--Remove-->
+<p>
+  <br />
+</p>
+<h2 id="Anchor_162560000_h2_3">処理のコマンド化とコマンドバッファ</h2>
+<p>Atk ライブラリでは、サウンドの再生・停止やパラメータ変更などの処理をスレッドをまたいで<br />伝えるために、処理をコマンド化し、そのコマンドのリストをキューを介してサウンドスレッドに渡します。<br />サウンドスレッドで処理が終わったコマンドのリストは、再び別のキューを介してアプリケーションスレッドに<br />渡された後に破棄されます。</p>
+<p>これらの処理で使用されるコマンドは、コマンドバッファと呼ばれるメモリ領域から確保され、<br />破棄されるまで保持されます。</p>
+<p>
+  <br />
+</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162560000/161437097.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <br />
+</p>
+<p>上記は、アプリケーションスレッドとサウンドスレッドの処理の伝達における処理の話ですが、<br />サウンドスレッドとタスクスレッドの処理の伝達にも、同様の仕組みが使用されているため、<br />Atk ライブラリには、２つのコマンドバッファが存在しています。</p>
+<h2 id="Anchor_162560000_h2_4">コマンド生成</h2>
+<p>コマンドはアプリケーションスレッドから、<span class="ApiLink_nn__atk__SoundStartable__StartSound">nn::atk::SoundStartable::StartSound</span>() を実行したときなどのタイミングで、<br />コマンドバッファから確保され、パラメータを設定した後にリストに追加されます。<br />もしコマンドバッファのメモリに余裕がなく、確保できなかった場合には、以下の手順が実行されます。</p>
+<ol>
+  <li>現時点で解放待ちになっているコマンドのリストがあれば解放して再度確保を試みる。</li>
+  <li>これまでに積まれているコマンドをフラッシュし、処理されるまで待った後、解放して再度確保を試みる。</li>
+</ol>
+<p>
+  <br />
+</p>
+<!--Remove-->
+<h2 id="Anchor_162560000_h2_5">コマンドのフラッシュ</h2>
+<p>コマンドはフラッシュされるまでリストに蓄積されつづけ、フラッシュしたタイミングでキューを経由してサウンドスレッドに渡されます。<br />サウンドスレッドでは、フラッシュされたコマンドのリストを１回のオーディオの更新処理ですべて実行した後、別のキューを介して元のスレッドに渡されます。</p>
+<p>
+  <br />
+</p>
+<!--Remove-->
+<h2 id="Anchor_162560000_h2_7">タスクの処理</h2>
+<p>コマンド実行中にファイル読み込みなどを含む処理がある場合には、サウンドスレッドでは実行せずタスクとしてタスクリストに追加します。<br />タスクスレッドでは、追加されたタスクを取り出し実行が完了した際に、タスクスレッド用のコマンドバッファからコマンドを確保しリストに追加します。<br />その後は、アプリケーションスレッド - サウンドスレッド間と同様な流れでコマンドのリストのやり取りがあり、サウンドスレッド上で実行結果の反映が行われます。&nbsp;</p>
+<p>
+  <br />
+</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162560000/161437780.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_162560000_h2_8">タスクスレッドの優先度</h2>
+<p>タスクスレッドはストリームサウンドのファイル読み込みに使用されるため、優先度が低く設定されているとファイル読み込みが追いつかなくなってしまいます。<br />そのため、タスクスレッドの優先度は高めに設定しておく必要があります。</p>
+<p>デフォルト値のままでも問題ありませんが、調整したい場合には&nbsp;<span class="ApiLink_nn__atk__SoundSystem__SoundSystemParam">nn::atk::SoundSystem::SoundSystemParam</span> で値を変更することができます。</p>
+<h2 id="Anchor_162560000_h2_9">排他制御の必要がある関数</h2>
+<p>マルチスレッドまたはマルチコア環境下で atk の API を同時に操作するとき、排他制御を行う必要がある関数が存在します。<br />これらの API を排他制御せずに呼ぶと、スレッドが使用するコマンドの中身が壊れ、アサートが発生するなどの不具合が起きる場合があります。</p>
+<p>排他制御を行う必要がある関数は、以下の通りとなります。<br />(引数の異なる関数も、すべて対象となります)</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>
+    <ul>
+      <li>Initialize()</li>
+      <li>Finalize()</li>
+      <li>Update()</li>
+    </ul>
+  </li>
+  <li>
+    <span class="ApiLink_nn__atk__SoundStartable">nn::atk::SoundStartable</span> およびそれを継承したクラス (<span class="ApiLink_nn__atk__SoundArchivePlayer">nn::atk::SoundArchivePlayer</span>, <span class="ApiLink_nn__atk__SoundActor">nn::atk::SoundActor</span>, <span class="ApiLink_nn__atk__Sound3DActor">nn::atk::Sound3DActor</span>)<ul><li>StartSound()</li><li>HoldSound()</li><li>Prepare()</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__atk__SoundDataManager">nn::atk::SoundDataManager</span>
+    <ul>
+      <li>Initialize()</li>
+      <li>Finalize()</li>
+      <li>InvalidateSoundData()</li>
+      <li>ClearFileAddresInFroupFile()</li>
+    </ul>
+  </li>
+  <li>
+    <span class="ApiLink_nn__atk__SequenceSoundHandle">nn::atk::SequenceSoundHandle</span>
+    <ul>
+      <li>WriteVariable()</li>
+      <li>WriteGlobalVariable()</li>
+      <li>WriteTrackVariable()</li>
+      <li>SetTempoRatio()</li>
+      <li>SetChannelPriority()</li>
+      <li>SetTrackMute()</li>
+      <li>SetTrackSilence()</li>
+      <li>SetTrackVolume()</li>
+      <li>SetTrackPitch()</li>
+      <li>SetTrackBankIndex()</li>
+      <li>SetTrackTrancepose()</li>
+      <li>SetTrackVelocityRange()</li>
+      <li>SetTrackMixVolume()</li>
+      <li>SetTrackOutputPan()</li>
+      <li>SetTrackOutputSurroundPan()</li>
+      <li>SetTrackOutputMainSend()</li>
+      <li>SetTrackOutputFxSend()<ul><li><span style="color: rgb(33,33,33); text-decoration: none;">SoundHandle に存在せず、 SequenceSoundHandle 特有に用意されている Set 関連の関数が主な対象となります</span></li></ul></li>
+    </ul>
+  </li>
+  <li>
+    <span class="ApiLink_nn__atk__StreamSoundHandle">nn::atk::StreamSoundHandle</span>
+    <ul>
+      <li>SetTrackOutputLine()</li>
+      <li>ResetTrackOutputLine()</li>
+      <li>SetTrackMixVolume()</li>
+      <li>SetTrackOutputVolume()</li>
+      <li>SetTrackOutputPan()</li>
+      <li>SetTrackOutputSurroundPan()</li>
+      <li>SetTrackOutputMainSend()</li>
+      <li>SetTrackOutputEffectSend()<ul><li><span style="color: rgb(33,33,33); text-decoration: none;">SoundHandle に存在せず、 StreamSoundHandle 特有に用意されている Set 関連の関数が主な対象となります</span></li></ul></li>
+    </ul>
+  </li>
+  <li>
+    <span style="color: rgb(33,33,33); text-decoration: none;">
+      <span class="ApiLink_nn__atk__WaveSoundHandle">nn::atk::WaveSoundHandle</span>
+    </span>
+    <ul>
+      <li>
+        <span style="color: rgb(33,33,33); text-decoration: none;">SetChannelPriority()</span>
+        <ul>
+          <li>
+            <span style="color: rgb(33,33,33); text-decoration: none;">SoundHandle に存在せず、 WaveSoundHandle 特有に用意されている Set 関連の関数が主な対象となります</span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <span class="ApiLink_nn__atk__SoundSystem">nn::atk::SoundSystem</span>
+    <ul>
+      <li>AppendEffect()</li>
+      <li>RemoveEffect()</li>
+      <li>ClearEffect()</li>
+      <li>SetOutputMode()</li>
+      <li>SetOutputDeviceFlag()</li>
+      <li>SetMasterVolume()</li>
+    </ul>
+  </li>
+  <li>
+    <span class="ApiLink_nn__atk__SubMix">nn::atk::SubMix</span>, <span class="ApiLink_nn__atk__FinalMix">nn::atk::FinalMix</span><ul><li>AppendEffect()</li><li>RemoveEffect()</li><li>ClearEffect()</li></ul></li>
+</ul>
+<p>
+  <br />
+</p>
+<!--Remove-->
+<!--Remove-->
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__atk__SoundStartable__StartSound', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_startable.html#ae6b4818e3c22546b1884dee8a0d51a49' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem__SoundSystemParam', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_system_1_1_sound_system_param.html' )
+SetUrl( 'ApiLink_nn__atk__SoundArchivePlayer', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_archive_player.html' )
+SetUrl( 'ApiLink_nn__atk__SoundStartable', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_startable.html' )
+SetUrl( 'ApiLink_nn__atk__SoundActor', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_actor.html' )
+SetUrl( 'ApiLink_nn__atk__Sound3DActor', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound3_d_actor.html' )
+SetUrl( 'ApiLink_nn__atk__SoundDataManager', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_data_manager.html' )
+SetUrl( 'ApiLink_nn__atk__SequenceSoundHandle', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sequence_sound_handle.html' )
+SetUrl( 'ApiLink_nn__atk__StreamSoundHandle', '../../../Api/HtmlNX/classnn_1_1atk_1_1_stream_sound_handle.html' )
+SetUrl( 'ApiLink_nn__atk__WaveSoundHandle', '../../../Api/HtmlNX/classnn_1_1atk_1_1_wave_sound_handle.html' )
+SetUrl( 'ApiLink_nn__atk__SoundSystem', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sound_system.html' )
+SetUrl( 'ApiLink_nn__atk__SubMix', '../../../Api/HtmlNX/classnn_1_1atk_1_1_sub_mix.html' )
+SetUrl( 'ApiLink_nn__atk__FinalMix', '../../../Api/HtmlNX/classnn_1_1atk_1_1_final_mix.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

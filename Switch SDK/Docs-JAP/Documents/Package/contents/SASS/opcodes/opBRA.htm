@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>BRA/BRX/JMP/JMX</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    BRA : Relative Branch<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "BRA", description => "Relative Branch" } -->
+    BRX : Relative Branch Indirect<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "BRX", description => "Relative Branch Indirect" } -->
+    JMP : Absolute Jump<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "JMP", description => "Absolute Jump" } -->
+    JMX : Absolute Jump Indirect<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "JMX", description => "Absolute Jump Indirect" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "BRA", subsection => 9.1 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "BRX", subsection => 9.1 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "JMP", subsection => 9.1 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "JMX", subsection => 9.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+   Relative branches:
+<code>        <code>{@{!}Pg}</code>   <code><b>BRA</b>{.U}{.LMT}</code>   <code>{CC.test,}#ImmS24</code>               <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BRA" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>BRA</b>{.U}{.LMT}</code>   <code>{CC.test,}c[#ImmU05][#ImmU16]</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   <code><b>// This form is not patchable and is deprecated.</b></code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BRA" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>BRX</b>{.LMT}</code>       <code>{CC.test,}Ra + #ImmS24</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "BRX" } -->
+
+   Absolute Jumps:
+<code>        <code>{@{!}Pg}</code>   <code><b>JMP</b>{.U}{.LMT}</code>   <code>{CC.test,}#ImmU32</code>               <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "JMP" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>JMP</b>{.U}{.LMT}</code>   <code>{CC.test,}c[#ImmU05][#ImmU16]</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "JMP" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>JMX</b>{.LMT}</code>       <code>{CC.test,}Ra + #ImmS32</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "JMX" } -->
+
+.U      Unanimous condition, branch/jump is only taken if all active
+        threads in the warp agree on taking the branch.
+
+.LMT    ApiCallLimit check (limit already reached by previous PRET, see the <a href="opRET.htm"><b>RET/PRET</b></a> opcode page for more details.)
+
+.test:  { <b>.F,      .LT,     .EQ,     .LE,      .GT,      .NE,      .GE,   .NUM, </b>    Signed numeric tests
+          <b>.NAN,    .LTU,    .EQU,    .LEU,     .GTU,     .NEU,     .GEU,  .T*,  </b>    Signed or Unordered tests 
+          <b>.OFF,    .LO,     .SFF,    .LS,      .HI,      .SFT,     .HS,   .OFT, </b>    Unsigned integer tests
+          <b>.CSM_TA, .CSM_TR, .CSM_MX, .FCSM_TA, .FCSM_TR, .FCSM_MX, .RLE,  .RGT  </b>}   Clip State Machine tests
+        If no condition code test is specified, CC.TRUE is assumed.
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Conditional control flow.</p>
+
+<p> <b>BRA/BRX</b> compute a target PC address using  a PC-relative signed
+offset operand and a signed immediate offset on a per thread basis and then
+jumps to target PC if branch condition evaluates to true.  Note that the value
+in Ra is considered as a <em>signed</em> value.  Target (offset) address is
+specified as an offset in bytes, not instructions or words, relative to the PC
+of the <i>next</i> instruction within the address range specified by the 40b
+virtual base address (PROGRAM_BASE).</p>
+    
+<p> <b>JMP/JMPX</b> compute a target PC address using an absolute (unsigned)
+address operand and a signed immediate offset on per thread basis.  Note
+that the value in Ra is considered as an <em>unsigned</em> value.  Target
+address is specified in bytes, not instructions or words, and is an
+absolute offset within the address range specified by the 40b virtual base
+address (PROGRAM_BASE).</p>
+
+<p>
+The branch/jump condition is based on a predicate AND condition code bits.  To
+branch/jump only on the predicate, use CC.TRUE. To branch/jump only on CC, use PT
+for the predicate.</p>
+<p>
+Branch/Jump target can be:</p>
+<pre>
+Branch/Jump target operands can be:
+  (1) Immediate                         // BRA and JMP 
+      - Immediate lsb0 and lsb1 must be 0
+      - S24 (24 bit signed)   immediate for BRA 
+      - U32 (32 bit unsigned) immediate for JMP
+  (2) Immediate Address Constant        // BRA and JMP
+      The interpretation of constant is as follows:
+       JMP: As U32 (with a range 0f 0..4GB) absolute target PC 
+       BRA: As S32 (with a range of +/- 0..2GB)  PC-relative byte offset.
+  (3) Register + Immediate              // BRX and JMX
+      - Ra is in bytes (Ra+Imm may then sum to word-aligned) and interpreted as 
+       JMX: As u32 (with a range 0f 0..4GB) absolute target PC 
+       BRX: As s32 (with a range of +/- 0..2GB)  PC-relative byte offset.
+      - immediate is signed and in bytes
+        - Even when Ra=Rz the immediate is still signed, which is different from most
+	  opcodes that use the register + offset semantics.  
+        - S24 (24 bit signed) immediate for BRX 
+        - S32 (32 bit signed) immediate for JMX
+
+The target PC computation (Ra + imm)/(PC + Ra +imm )/(PC +const) is done with "infinite precision"  then final
+	result is checked to not overflow the range 0..4GB.
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+<p>
+A branch/jump op cannot push a SYNC token as is needed to synchronize potentially
+divergent control flow (an if-then-else construct). To push a SYNC token, the 
+programmer should use an <b>SSY</b> instruction prior to the branch/jump, and a <b>NOP.S (SYNC)</b> at
+the end of the potentially divergent code.  See the <a href="opSSY.htm"><b>SSY</b></a> opcode page for more information.</p>
+<p>
+<!--There is no special protection against a target address that is in the middle of a 64b
+instruction. The instruction set supports 32b and 64b instructions.</p>-->
+<p>
+The .LMT option allows <b>CAL</b> nesting limits to be checked when a branch is used in
+conjunction with <b>PRET</b> to perform conditional subroutine calls.  If the <b>.LMT</b> option
+is specified, the per-warp <b>LMT</b> state bit is checked before executing the branch, 
+and if set, the branch instruction is converted into a <b>NOP</b>. The <b>LMT</b> state bit is left
+intact by the branch. For more details refer to the <b><a href="opRET.htm">PRET</a></b> description.</p>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>BRA</b>  REL:0x28;                     // defaults to CC.TRUE
+<b>BRA</b>  CC.EQ,c[2][0x48];
+<b>BRX</b>  CC.GE,R5+0x128;
+<b>JMP</b>  CC.LT,0x128000;
+<b>JMP</b>  CC.EQ,c[2][0x48];
+<b>JMP</b>  ABS:0xCA80;
+<b>JMX</b>  CC.GE,R5+0x128000;
+
+// pseudo-code example
+if (CC.LT)
+  R6 = R0;
+else
+  R6 = R1;
+R7 = R6*R6;
+
+// in assembler could be:
+  SSY    LABEL0;
+  BRA    CC.GE,LAB_ELSE;          // or GEU if fp comparison
+LAB_IF:
+  MOV  R6,R0;
+  SYNC;
+LAB_ELSE:
+  MOV  R6,R1;
+  SYNC;
+LABEL0:
+  MUL    R7,R6,R6;                // sync happens <i>before</i> MUL
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>6軸センサーの注意事項</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 6軸センサーの注意事項 -->
+<div class="pagetitle" id="PageId_173235025">6軸センサーの注意事項</div>
+<div class="text_separate">
+<h1 id="Anchor_173235025_h1_1">はじめに</h1>
+<p>SixAxisSensor が提供するセンサー入力の取り扱いに関して、アプリケーション開発者が注意すべき事項についてまとめます。</p>
+<h2 id="Anchor_173235025_h2_1">静止ノイズへの対応</h2>
+<p>
+  <strong>微小なセンサー入力を利用するアプリケーションは、センサーに載る静止ノイズを考慮してください。</strong>
+</p>
+<p>見かけ上静止状態にある場合であっても、センサー内部で発生するノイズにより加速度・角速度ともに定常的に微小な入力が入ります。(便宜上、静止ノイズと呼びます)</p>
+<p>この静止ノイズは、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#aa66ff48ea73363a4c112b65df7d39d60">SixAxisSensorState::acceleration</a>&nbsp;、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#ad72278b7dd3bb8c5410d33eca1fe59a8">SixAxisSensorState::angularVelocity</a>&nbsp;の各軸に対して、以下の範囲でランダムに発生します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>センサー値</th>
+      <th>最大静止ノイズ</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#aa66ff48ea73363a4c112b65df7d39d60">acceleration</a>
+      </td>
+      <td>&plusmn;0.02</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#ad72278b7dd3bb8c5410d33eca1fe59a8">angularVelocity</a>
+      </td>
+      <td>&plusmn;0.005</td>
+    </tr>
+  </tbody>
+</table>
+<p>静止ノイズが発生することで、アプリケーション上で入力があったかのようなふるまいをしてしまうことが無いように、</p>
+<p>微小な入力を扱う場合は適宜切り捨てるなどの対処をお願い致します。</p>
+<p>なお、ユーザーがコントローラーを机上に置くなどして、ユーザー入力が入らない状況での静止判定を行いたい場合は、<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a3146b6ef32e7228a5580833a41f4e3fd">IsSixAxisSensorAtRest()</a>&nbsp;をご利用ください。</p>
+<h2 id="Anchor_173235025_h2_2">感度ズレへの対応</h2>
+<p>
+  <strong>センサーの感度は、湿度・気温・経年変化などにより感度がずれることを</strong>
+  <strong>考慮してください。</strong>
+</p>
+<p>センサーの感度は、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#aa66ff48ea73363a4c112b65df7d39d60">SixAxisSensorState::acceleration</a>&nbsp;、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#ad72278b7dd3bb8c5410d33eca1fe59a8">SixAxisSensorState::angularVelocity</a>&nbsp;の各軸に対して、最大 &plusmn; 8% の範囲でずれる可能性があることを考慮してアプリケーションを実装してください。</p>
+<p>同一種類のコントローラーであっても、その個体差で操作感が大きく異なってしまう可能性があります。</p>
+<p>&nbsp;たとえば、入力値が単純に閾値を超えたかどうかで操作の判定を行う場合、同じ操作でもセンサーによって入力値が異なるので、ゲーム性も変わってしまいます。</p>
+<p>&nbsp;また、微小な操作を要求する場合、センサーの感度が大きく影響するので感度の調整が必要になることも考えられます。</p>
+<h2 id="Anchor_173235025_h2_3">ゼロ点ズレへの対応</h2>
+<p>
+  <strong>静止判定や微小な姿勢情報を利用するアプリケーションは、ゼロ点のズレを考慮してください。</strong>
+</p>
+<p>加速度センサーのゼロ点は、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_six_axis_sensor_state.html#aa66ff48ea73363a4c112b65df7d39d60">SixAxisSensorState::acceleration</a>&nbsp;の各軸に対して、最大 &plusmn; 0.13 G のずれが蓄積する可能性があることを考慮してアプリケーションを実装してください。</p>
+<p>ジャイロセンサーのゼロ点は、システム内部で動的に逐次補正されます。</p>
+<p>ユーザーがコントローラーを振ったりせず、センサー入力が安定したときにジャイロセンサーのゼロ点が補正され、ドリフト誤差が相殺されます。</p>
+<p>
+  <span style="color: rgb(51,51,51);">自動補正が完了するまでの過渡期では、意図しない入力が入る可能性があります。</span>
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

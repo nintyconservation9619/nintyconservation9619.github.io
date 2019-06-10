@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>オフラインWebアプレット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- オフラインWebアプレット -->
+<div class="pagetitle" id="PageId_231477360">オフラインWebアプレット</div>
+<div class="text_separate">
+<p>オフラインWebアプレットは、アプリケーションに付加されたWebコンテンツ（オフラインHTML）を、Webブラウザーを用いて表示するライブラリアプレットです。</p>
+<h1 id="Anchor_231477360_h1_1">オフラインWebアプレット利用にあたっての注意&nbsp;</h1>
+<h2 id="Anchor_231477360_h2_1">インターネット上のファイルの参照</h2>
+<p>オフラインHTML内には、インターネット上のWebページへのリンクを張ったり、インターネット上の画像や JavaScript やスタイルシートなどへの参照を含めることは出来ません。</p>
+<h1 id="Anchor_231477360_h1_2">オフラインHTMLのアプリケーションへの付加</h1>
+<p>オフラインWebアプレットが表示するWebコンテンツはオフラインHTMLとしてアプリケーションに付加されている必要があります。オフラインHTMLをアプリケーションに付加する方法は、<a href="../Pages/Page_168771670.html">アプリケーションに付属可能なドキュメントの作成</a>を参照してください。</p>
+<!--Remove-->
+<!--Remove-->
+<h1 id="Anchor_231477360_h1_3">オフラインHTMLのフォルダー構成</h1>
+<p>オフラインWebアプレットは <span class="ApiLink_nn__web__ShowOfflineHtmlPageArg">nn::web::ShowOfflineHtmlPageArg</span> のコンストラクタを通じて指定されたパスを、アプリケーションに付加されたフォルダーからの相対パスとして解釈し、表示対象のHTMLファイルを決定します。</p>
+<p>この時、与えられたパスの親フォルダーをたどって、拡張子 .htdocs のついたフォルダを見つけると、そのフォルダーをブラウザーにとってのルートフォルダーとみなします。</p>
+<p>パスから対応するHTMLファイルを見つけられなかった場合や、拡張子 .htdocs のついたフォルダーを見つけられなかった場合は、オフラインWebアプレットはWebページを表示することが出来ません。</p>
+<ul>
+  <li>OfflineHtml/htmlcontents0.htdocs/index.html</li>
+  <li>OfflineHtml/htmlcontents0.htdocs/sub/page01.html</li>
+  <li>OfflineHtml/htmlcontents0.htdocs/img/img0.png</li>
+  <li>OfflineHtml/htmlcontents1.htdocs/index.html</li>
+  <li>OfflineHtml/htmlcontents1.htdocs/img/img1.png</li>
+</ul>
+<p>例えば、上記の様に５つのファイルがあり、フォルダ OfflineHtml/ がアプリケーションに付加されている場合は、オフラインWebアプレットは下記の様に動作します。</p>
+<ul>
+  <li>&quot;htmlcontents0.htdocs/index.html&quot; をパスとして指定することで OfflineHtml/htmlcontents0.htdocs/index.html を開くことができます。</li>
+  <li>このときブラウザーにとってのルートフォルダーは OfflineHtml/htmlcontents0.htdocs/ となります。</li>
+  <li>このときこの HTML ファイルから &lt;a href=&quot;/sub/page01.html&quot;&gt; もしくは &lt;a href=&quot;./sub/page01.html&quot;&gt; として OfflineHtml/htmlcontents0.htdocs/sub/page01.html にリンクを張ることができます。</li>
+  <li>このときこの HTML ファイルから &lt;img src=&quot;/img/img0.png&quot;&gt; として OfflineHtml/htmlcontents0.htdocs/img/img0.png をページに埋め込むことができます。</li>
+  <li>このとき OfflineHtml/htmlcontents<strong>1</strong>.htdocs/ の下にあるファイルに対して OfflineHtml/htmlcontents<strong>0</strong>.htdocs/index.html からはリンクを張ることは出来ません。</li>
+</ul>
+<p>使用例は、<a href="../../../Api/HtmlNX/_page_sample_web_offline_simple.html">WebOfflineSimple のサンプル</a>、<a href="../../../Api/HtmlNX/_page_sample_web_demo.html">WebDemo のサンプル</a>を参照してください。</p>
+<h1 id="Anchor_231477360_h1_4">ヘッダファイルのインクルード</h1>
+<p>libnn_web.a をプロジェクトにリンクしてください。また、プログラム中に下記のコードを記述してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/web/web_OfflineApi.h&gt; 
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>
+      <span style="color: rgb(51,51,51);">NintendoSDK NXAddon 5.3.0 からヘッダファイルが変更されました。以前のバージョンで使用していた nn/web/offline_Api.h は、今後削除される予定です。</span>
+    </p>
+  </div>
+</div>
+<h1 id="Anchor_231477360_h1_5">オフラインWebアプレットの起動</h1>
+<p>オフラインWebアプレットは対応した API を呼び出すことで利用できます。オフラインWebアプレットを起動する API は、アプレットが終了するまで処理をブロックします。<span class="ApiLink_nn__web__ShowOfflineHtmlPageArg">nn::web::ShowOfflineHtmlPageArg</span> のコンストラクタの引数を通じて開きたいオフラインHTMLのパスを指定して下さい。</p>
+<p>以下にコードのサンプルを示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::web::</span><span class="n">ShowOfflineHtmlPageArg</span> <span class="n">showOfflineHtmlPageArg</span><span class="p">(</span><span class="s">&quot;htmlcontents0.htdocs/index.html&quot;</span><span class="p">);</span>
+<span class="nn">nn::web::</span><span class="n">OfflinePageReturnValue</span> <span class="n">offlinePageReturnValue</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::web::</span><span class="n">ShowOfflineHtmlPage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">offlinePageReturnValue</span><span class="p">,</span> <span class="n">showOfflineHtmlPageArg</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_231477360_h2_2">起動時のオプション指定</h2>
+<p>オフラインWebアプレット起動時には <span class="ApiLink_nn__web__ShowOfflineHtmlPageArg">nn::web::ShowOfflineHtmlPageArg</span> のメンバー関数を通じて様々な起動オプションを与えることができます。詳しくは API リファレンスをご覧ください。</p>
+<h2 id="Anchor_231477360_h2_3">終了時の状況取得</h2>
+<p>
+  <span class="ApiLink_nn__web__ShowOfflineHtmlPage">nn::web::ShowOfflineHtmlPage</span> の第一引数に与えた <span class="ApiLink_nn__web__OfflineHtmlPageReturnValue">nn::web::OfflineHtmlPageReturnValue</span> のインスタンスのメンバーを通じてオフラインWebアプレットの終了時の状況を取得することができます。詳しくは API リファレンスをご覧ください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>最後に開いていたオフラインHTMLのパスを返す&nbsp;<span class="ApiLink_nn__web__OfflineHtmlPageReturnValue__GetLastUrl">nn::web::OfflineHtmlPageReturnValue::GetLastUrl</span>() は、終了理由を返す&nbsp;<span class="ApiLink_nn__web__OfflineHtmlPageReturnValue__GetOfflineExitReason">nn::web::OfflineHtmlPageReturnValue::GetOfflineExitReason</span>() の値が OfflineExitReason_CallbackUrlReached の場合のみ、有効な値を返すことに注意してください。</p>
+  </div>
+</div>
+<p>
+  <a name="Anchor_231477360_callbackurl"></a>
+</p>
+<h1 id="Anchor_231477360_h1_6">コールバックURL</h1>
+<p>コールバックURLという機能を使って、オフラインHTMLでユーザーが操作した結果をアプリケーションへ返すことができます。<br />オフラインWebアプレットは、&quot;<a href="http://localhost/">http://localhost/</a>&quot; という固定の文字列（コールバックURL）に「前方一致」する URL へ到達すると、終了してアプリケーションへ戻ります。<br />コールバックURLに前方一致する URL へ到達してアプリケーションへ戻った場合、アプリケーションはその URL を取得して、最後にユーザーが操作した結果を得ることができます。<br />以下は、htmlcontents0.htdocs/index.html を表示し、コールバックURLに前方一致する URL へ到達してオフラインWebアプレットが終了した場合に、その URL をアプリケーションで取得するサンプルです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::web::</span><span class="n">ShowOfflineHtmlPageArg</span> <span class="n">showOfflineHtmlPageArg</span><span class="p">(</span><span class="s">&quot;htmlcontents0.htdocs/index.html&quot;</span><span class="p">);</span>
+<span class="nn">nn::web::</span><span class="n">OfflineHtmlPageReturnValue</span> <span class="n">offlineHtmlPageReturnValue</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::web::</span><span class="n">ShowOfflineHtmlPage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">offlineHtmlPageReturnValue</span><span class="p">,</span> <span class="n">showOfflineHtmlPageArg</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">offlineHtmlPageReturnValue</span><span class="p">.</span><span class="n">GetOfflineExitReason</span><span class="p">()</span> <span class="o">==</span> <span class="nn">nn::web::</span><span class="n">OfflineExitReason_CallbackUrlReached</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">offlineHtmlPageReturnValue</span><span class="p">.</span><span class="n">GetLastUrl</span><span class="p">());</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>オフラインWebアプレットの標準の操作では X ボタンや B ボタンなどの操作でオフラインWebアプレットを終了することができますが、コールバックURLを使って、オフラインHTMLのリンクを決定した時や JavaScript による任意のタイミングで、オフラインWebアプレットを終了させることができます。</p>
+<p>使用例は、<a href="../../../Api/HtmlNX/_page_sample_web_demo_pause_menu.html">WebDemoPauseMenu のサンプル</a>を参照してください。</p>
+<h2 id="Anchor_231477360_h2_4">オフラインHTMLからWebアプレットを呼び出す</h2>
+<p>オフラインWebアプレットはインターネット上のWebページを開くことができないため、オフラインHTMLからインターネットの URL へ直接遷移することはできません。</p>
+<p>コールバックURLを使うと、一旦アプリケーションを経由してWebアプレットを呼び出すことができます。</p>
+<p>以下は、&quot;<a href="http://localhost/?href=">http://localhost/?href=</a>&quot; から始まる URL へ到達してオフラインWebアプレットが終了した場合に、その文字列の後ろに続けて記述された URL を取得し、その URL をWebアプレットで開くサンプルです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">callbackUrlStartsWith</span> <span class="o">=</span> <span class="s">&quot;http://localhost/?href=&quot;</span><span class="p">;</span>
+<span class="nn">nn::web::</span><span class="n">ShowOfflineHtmlPageArg</span> <span class="n">showOfflineHtmlPageArg</span><span class="p">(</span><span class="s">&quot;htmlcontents0.htdocs/index.html&quot;</span><span class="p">);</span>
+<span class="nn">nn::web::</span><span class="n">OfflineHtmlPageReturnValue</span> <span class="n">offlineHtmlPageReturnValue</span><span class="p">;</span>
+<span class="nn">nn::</span><span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::web::</span><span class="n">ShowOfflineHtmlPage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">offlineHtmlPageReturnValue</span><span class="p">,</span> <span class="n">showOfflineHtmlPageArg</span><span class="p">);</span>
+<span class="kt">bool</span> <span class="n">isCallbackUrlValid</span> <span class="o">=</span> <span class="n">strncmp</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">offlineHtmlPageReturnValue</span><span class="p">.</span><span class="n">GetLastUrl</span><span class="p">(),</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">callbackUrlStartsWith</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">strnlen</span><span class="p">(</span><span class="n">callbackUrlStartsWith</span><span class="p">,</span> <span class="nn">nn::web::ShowOfflineHtmlPageArg::</span><span class="n">DocumentPathMaxLength</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span> <span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="o">&amp;&amp;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">offlineHtmlPageReturnValue</span><span class="p">.</span><span class="n">GetOfflineExitReason</span><span class="p">()</span> <span class="o">==</span> <span class="nn">nn::web::</span><span class="n">OfflineExitReason_CallbackUrlReached</span> <span class="o">&amp;&amp;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">isCallbackUrlValid</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">url</span> <span class="o">=</span> <span class="n">offlineHtmlPageReturnValue</span><span class="p">.</span><span class="n">GetLastUrl</span><span class="p">()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">+</span> <span class="n">strnlen</span><span class="p">(</span><span class="n">callbackUrlStartsWith</span><span class="p">,</span> <span class="nn">nn::web::ShowOfflineHtmlPageArg::</span><span class="n">DocumentPathMaxLength</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::web::</span><span class="n">ShowWebPageArg</span> <span class="n">webPageArg</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::web::</span><span class="n">WebPageReturnValue</span> <span class="n">webPageReturnValue</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::web::</span><span class="n">ShowWebPage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">webPageReturnValue</span><span class="p">,</span> <span class="n">webPageArg</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>使用例は、<a href="../../../Api/HtmlNX/_page_sample_web_demo_instruction_manual.html">WebDemoInstructionManual のサンプル</a>を参照してください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__web__ShowOfflineHtmlPageArg', '../../../Api/HtmlNX/classnn_1_1web_1_1_show_offline_html_page_arg.html' )
+SetUrl( 'ApiLink_nn__web__ShowOfflineHtmlPage', '../../../Api/HtmlNX/namespacenn_1_1web.html#af2c03470427a3c9a0930a8c6a2d283b5' )
+SetUrl( 'ApiLink_nn__web__OfflineHtmlPageReturnValue', '../../../Api/HtmlNX/classnn_1_1web_1_1_offline_html_page_return_value.html' )
+SetUrl( 'ApiLink_nn__web__OfflineHtmlPageReturnValue__GetLastUrl', '../../../Api/HtmlNX/classnn_1_1web_1_1_offline_html_page_return_value.html#abe034e43c45bc79b83be863f033cc8f3' )
+SetUrl( 'ApiLink_nn__web__OfflineHtmlPageReturnValue__GetOfflineExitReason', '../../../Api/HtmlNX/classnn_1_1web_1_1_offline_html_page_return_value.html#ae66570dabc972bc28e450e6615f2a733' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

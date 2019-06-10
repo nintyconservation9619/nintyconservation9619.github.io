@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>並列処理</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 並列処理 -->
+<div class="pagetitle" id="PageId_105384186">並列処理</div>
+<div class="text_separate">
+<p>大量の処理を分割して並列に処理することで、終了までの時間を短縮し、CPUリソースを最適に利用できます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_105384186/124259961.png" width="600" class="embedded-image" />
+  </span>
+</p>
+<h1 id="Anchor_105384186_h1_1">エフェクトランタイムでの並列処理について</h1>
+<p>エフェクトランタイムの並列処理には、３つのケースが考えられます。</p>
+<ul>
+  <li>ユーザーのエフェクトの操作を並列で行う</li>
+  <li>エフェクトの計算処理を並列で行う</li>
+  <li>エフェクトの描画処理を並列で行う</li>
+</ul>
+<p>現状のエフェクトランタイムは以下のような対応状況になっています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>具体的な操作</th>
+      <th>対応状況</th>
+      <th>nn::vfx::Config での設定が必要か？</th>
+    </tr>
+    <tr>
+      <td>エフェクトの操作の並列処理</td>
+      <td>エミッタセットの生成や破棄、各エミッタセットに対しての操作</td>
+      <td>対応済</td>
+      <td style="text-align: center;">不必要</td>
+    </tr>
+    <tr>
+      <td>エフェクト計算処理の並列処理</td>
+      <td>nn::vfx::System::BeginFrame / Calculate メソッドの呼び出し</td>
+      <td>
+        <span style="color: rgb(255,0,0);">対応予定</span>
+      </td>
+      <td style="text-align: center;">-</td>
+    </tr>
+    <tr>
+      <td>エフェクト描画処理の並列処理</td>
+      <td>
+        <p>
+          <span class="ApiLink_nn__vfx__System__Draw">nn::vfx::System::Draw</span> /&nbsp;AddSortBuffer /&nbsp;DrawSortBuffer メソッドの呼び出し、</p>
+        <p>また、<span class="ApiLink_nn__vfx__System__SetViewParam">nn::vfx::System::SetViewParam</span> など描画設定メソッドの呼び出し</p>
+      </td>
+      <td>対応済</td>
+      <td style="text-align: center;">必要</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_105384186/104736419.png" width="900" class="embedded-image" />
+  </span>
+</p>
+<h2 id="Anchor_105384186_h2_1">ユーザー操作の並列処理</h2>
+<p>ユーザーが行うエミッタセットの作成や破棄、生成済みエミッタセットのへの操作は、特に制限なく並列な処理から呼び出すことが可能です。ただし、エミッタセットの生成や破棄のタイミングでエフェクトランタイムが内部で保有するリソースの確保の際に排他処理を行う必要があるため、内部でMutex による Lock 処理を行います。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_105384186_h2_2">エフェクト描画処理の並列処理</h2>
+<p>複数のコア、スレッドから描画コマンドを発行することができます。描画処理を並列で行う場合、nn:vfx::Config::SetProcessingCount にて並列処理させたい数を指定し、<span class="ApiLink_nn__vfx__System__Draw">nn::vfx::System::Draw</span> /&nbsp;AddSortBuffer /&nbsp;DrawSortBuffer メソッド呼び出し時に、引数にてどの並列処理インデックスで処理するのか指定する必要があります。</p>
+<p>描画処理を並列で行う場合、書き込み先のコマンドバッファはそれぞれで異なるコマンドバッファを指定する必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エフェクトシステムの初期化
+</span><span class="nn">nn::vfx::</span><span class="n">Config</span> <span class="n">config</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">SetProcessingCount</span><span class="p">(</span> <span class="mi">2</span> <span class="p">);</span>    <span class="c1">// 並列数 2 を指定する
+</span><span class="n">pEffectSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">nn::vfx::</span><span class="n">System</span><span class="p">(</span> <span class="n">config</span> <span class="p">);</span>
+
+<span class="c1">// エフェクトの並列描画処理関数
+</span><span class="kt">void</span> <span class="nf">VfxMultiDrawProcess</span><span class="p">(</span> <span class="kt">int</span> <span class="n">processIndex</span><span class="p">,</span> <span class="kt">int</span> <span class="n">groupId</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">SetViewParam</span><span class="p">(</span> <span class="n">processIndex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">viewParam</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">mVfxSys</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span> <span class="n">processIndex</span><span class="p">,</span> <span class="n">groupId</span> <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// スレッド0 からエフェクトの並列描画処理関数を呼び出す
+</span><span class="n">VfxMultiDrawProcess</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">gourp_0</span> <span class="p">);</span>
+
+<span class="c1">// スレッド1 からエフェクトの並列描画処理関数を呼び出す
+</span><span class="n">VfxMultiDrawProcess</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gourp_1</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_105384186_h3_1">描画並列処理メソッド一覧</h3>
+<ul>
+  <li>
+    <span class="ApiLink_nn__vfx__System__SetFrameBufferTexture">nn::vfx::System::SetFrameBufferTexture</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__SetDepthBufferTexture">nn::vfx::System::SetDepthBufferTexture</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__InvalidateFrameBufferTexture">nn::vfx::System::InvalidateFrameBufferTexture</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__InvalidateDepthBufferTexture">nn::vfx::System::InvalidateDepthBufferTexture</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__SetDrawViewFlag">nn::vfx::System::SetDrawViewFlag</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__SetViewParam">nn::vfx::System::SetViewParam</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__SetShaderType">nn::vfx::System::SetShaderType</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__Draw">nn::vfx::System::Draw</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__AddSortBuffer">nn::vfx::System::AddSortBuffer</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__vfx__System__DrawSortBuffer">nn::vfx::System::DrawSortBuffer</span>
+  </li>
+</ul>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System__Draw', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a8befb11b8700a158ba4bff5961f239b0' )
+SetUrl( 'ApiLink_nn__vfx__System__SetViewParam', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#ad7641401cb70b8e58b6cbedd4117371d' )
+SetUrl( 'ApiLink_nn__vfx__System__SetFrameBufferTexture', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#aca1e93a47be57e1c56b1453438ad22bc' )
+SetUrl( 'ApiLink_nn__vfx__System__SetDepthBufferTexture', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#ac669d3277fcddff2d6fcaa6b6728d145' )
+SetUrl( 'ApiLink_nn__vfx__System__InvalidateFrameBufferTexture', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a5db91a7b604cdfe76a46c545c92b5217' )
+SetUrl( 'ApiLink_nn__vfx__System__InvalidateDepthBufferTexture', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a08f912d4c18913ac1c78d895e7419ca9' )
+SetUrl( 'ApiLink_nn__vfx__System__SetDrawViewFlag', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a40c99ba3ea78cc80bb2e88d1879b55ca' )
+SetUrl( 'ApiLink_nn__vfx__System__SetShaderType', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a609a61df18ee97514869c7984ca1130d' )
+SetUrl( 'ApiLink_nn__vfx__System__AddSortBuffer', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#abc4d0816f94eb03fafcedf36ec3988b3' )
+SetUrl( 'ApiLink_nn__vfx__System__DrawSortBuffer', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a5465e7f31c343a42f6ef192dc1dd1a3d' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

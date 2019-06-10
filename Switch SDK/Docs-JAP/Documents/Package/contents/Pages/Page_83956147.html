@@ -1,0 +1,554 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>メモリ管理</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- メモリ管理 -->
+<div class="pagetitle" id="PageId_83956147">メモリ管理</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956147_h1_1">メモリ管理機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_83956147_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83956147_h3_1">メモリの動的確保</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_83956147_h4_1">メモリヒープ機能</a>
+          </li>
+          <li>
+            <a href="#Anchor_83956147_h4_2">仮想アドレスメモリ管理機能</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_83956147_h3_2">メモリアクセス権設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_3">メモリフェンス</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83956147_h2_2">メモリヒープ機能の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956147_h2_3">仮想アドレスメモリ管理機能の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956147_h2_4">メモリ管理機能の具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956147_h2_5">メモリ管理機能の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_83956147_h2_6">メモリ管理機能使用上の補足事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83956147_h3_4">使用可能なメモリ量</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_5">メモリの初期値</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_6">デフォルトのメモリヒープ獲得</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_7">メモリヒープサイズの増減</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_8">メモリヒープの先頭アドレス</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_9">メモリブロックの獲得とメモリヒープの消費量</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_10">メモリヒープで自前のメモリ管理機構を構築する上での注意</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_11">仮想アドレスメモリ管理機能でのメモリ消費</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_12">仮想アドレスメモリ管理機能のアドレス空間</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_13">2GiB 以上のサイズの指定</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_14">メモリアクセス権の変更ができる領域とできない領域</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_15">メモリアクセス権の変更に伴うシステムメモリ枯渇について</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_16">メモリのロックに関して</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_83956147_h2_7">NX プラットフォーム固有の情報</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_83956147_h3_17">nmeta の設定</a>
+        </li>
+        <li>
+          <a href="#Anchor_83956147_h3_18">SystemResourceSize の値の決定</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_83956147_h1_1">メモリ管理機能</h1>
+<h2 id="Anchor_83956147_h2_1">機能概要</h2>
+<p>メモリ管理機能は、メモリの動的確保やアクセス権設定などメモリに関する基礎的な操作を行うための機能です。</p>
+<h3 id="Anchor_83956147_h3_1">メモリの動的確保</h3>
+<p>プログラムで動的にメモリを確保するための最も低レイヤの仕組みにはメモリヒープ機能と仮想アドレスメモリ管理機能の 2 種類があります。これら以外のメモリ確保手段はこれらの仕組みの上に構築されています。</p>
+<p>この 2 種類は併用することができますが、プログラム全体でどちらか片方の仕組みのみを使用することを想定しています。プログラムではどちらか片方のみを使用することを推奨します。</p>
+<p>仮想アドレスメモリ管理機能を使用することでメモリヒープ機能で実現できるすべての機能を実現できるため、仮想アドレスメモリ管理機能はメモリヒープ機能のスーパーセットと考えることができます。ただし仮想アドレスメモリ管理機能は OS ライブラリの内部で独自にメモリの割り当てを行い、若干のメモリを消費します。</p>
+<div class="platform_nx">
+  <div class="info_new">
+    <div class="info_new_left">参考：</div>
+    <div class="info_new_right">
+      <p>OS ライブラリ内部でのメモリ消費に加えて、NX プラットフォームでは仮想アドレスメモリ管理機能を使用する場合、プログラムが利用できるメモリの総量が減少します。詳細は <a href="#Anchor_83956147_platform_info">NX プラットフォーム固有の情報</a>を参照してください。</p>
+    </div>
+  </div>
+</div>
+<h4 id="Anchor_83956147_h4_1">メモリヒープ機能</h4>
+<p style="color: rgb(51,51,51);">
+  <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">メモリヒープ機能とは、プログラム実行時にひと続きの連続したメモリ領域を確保し、そこからメモリブロックと呼ばれるメモリ領域を獲得・返却することが出来る機能です。メモリヒープ領域は、自メモリ空間上に１つだけ確保することが出来ます。</span> </span>
+</p>
+<p style="color: rgb(51,51,51);">
+  <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">利用者はまず最初に、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2be8bac50d8d37a91f866d9e0c55886e">nn::os::SetMemoryHeapSize()</a> を使ってメモリヒープ領域のサイズを決定します。通常、この処理はアプリケーションが起動したときに <a href="../Pages/Page_92310396.html#Anchor_92310396_h1_2">nninitStartup()</a> の中で一度だけ発行することが推奨されています。メモリヒープを設定できるサイズの単位は、ターゲット環境ごとに決められており <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aeed47f05ce9175eb46876c1ddd0512c7">nn::os::MemoryHeapUnitSize</a> 定数で参照できます。<br /> </span> </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">メモリヒープを確保した後は、</span> </span> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">nn::os::AllocateMemoryBlock()</a> および <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20fa47e171856fb202b60e6b2a1de719">nn::os::FreeMemoryBlock()</a> を使って<span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">メモリブロックの獲得と返却を行なうことが出来ます。メモリブロックを獲得・返却できるサイズの単位は、ターゲット環境ごとに決められており <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ade84ad9f438e76820510ca0623c5a823">nn::os::MemoryBlockUnitSize</a> 定数で参照できます。<br /> </span> </span></p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>独自の nninitStartup() を定義しない場合のメモリヒープやメモリブロックの獲得内容については「<a href="../Pages/Page_92310396.html#Anchor_92310396_call_nninitStartup">デフォルトの nninitStartup()</a>」を参照して下さい。</p>
+  </div>
+</div>
+<h4 id="Anchor_83956147_h4_2">仮想アドレスメモリ管理機能</h4>
+<p>仮想アドレスメモリ管理機能では仮想アドレス空間上でのアドレス範囲の確保および解放と、確保したアドレス範囲中で任意に実メモリの割り当ておよび割り当ての解除を行うことができます。</p>
+<h3 id="Anchor_83956147_h3_2">メモリアクセス権設定</h3>
+<p>メモリの動的確保で確保したメモリ領域や、プログラム自身の data/bss 領域に対して <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae3d0ddd1807c032d7ab0e0fda9739bef">nn::os::SetMemoryPermission()</a> を利用することで対象メモリ領域のメモリアクセス権を設定することができます。</p>
+<p>指定可能なメモリのアドレスやサイズは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">nn::os::MemoryPageSize</a> の整数倍でなければなりません。また指定可能なメモリアクセス権は以下のいずれかでなければなりません。</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a883ab0b53c72a07619d9e83de4836b9aaf6942de46447bc0df8294a749a329d08">nn::os::MemoryPermission_None</a> &nbsp;</li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a883ab0b53c72a07619d9e83de4836b9aad0057f9250371335c5b9292ff44e1750"> nn::os::MemoryPermission_ReadOnly </a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a883ab0b53c72a07619d9e83de4836b9aa57ead1592d9473ac1c22f0b4f75ed2c0"> nn::os::MemoryPermission_ReadWrite </a>
+  </li>
+</ul>
+<p>なお、本 API でメモリブロック領域のメモリアクセス権を変更したものを <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20fa47e171856fb202b60e6b2a1de719">nn::os::FreeMemoryBlock()</a> でメモリヒープに返却する場合は、自動的に <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a883ab0b53c72a07619d9e83de4836b9aa57ead1592d9473ac1c22f0b4f75ed2c0">nn::os::MemoryPermission_ReadWrite</a> に再設定されます。</p>
+<h3 id="Anchor_83956147_h3_3">メモリフェンス</h3>
+<p>NintendoSDK の動作環境対象となっている一部のプロセッサでは、プログラムの高速実行を実現するためにプログラムの命令順序を動的に入れ替えて実行するアウトオブオーダーの仕組みを搭載しているものがあります。命令実行順序の入れ替えによってプログラム中のメモリアクセス順序も入れ替えられて実行されます。この時、各プロセッサコアによってこのメモリアクセス順序が違って観測されるという現象が発生します。例えば、コア 0 上でメモリ書き込み命令 A の次にメモリ書き込み命令 B が実行された場合に、コア 1 上では命令 A&rarr;B の順でメモリの書き換えが観測され、コア 2 上では命令 B&rarr;A の順でメモリの書き換えが観測されるという現象が起きることがあります。</p>
+<p>メモリフェンス機能は、このようなメモリアクセス命令の実行順序や観測順序を制限するためのものです。実行順序と観測順序の入れ替えが制限されたメモリアクセスは、他のプロセッサコアからも同じメモリアクセス順序で観測されるようになります。</p>
+<p>各 API は <span class="ApiLink_nn__os__FenceMemoryXxxxYyyy">nn::os::FenceMemoryXxxxYyyy</span>() という名前になっており、Xxxx および Yyyy には Store, Load, Any のメモリアクセスの種類を表す名前が入ります。詳細は「<a href="../../../Api/HtmlNX/_page_notification_os_memory_fence.html">OS-API のメモリーフェンスについて</a>」を参照して下さい。メモリのフェンス機能は、std::atomic のフェンス機能を使っても期待した結果を得ることができます。</p>
+<h2 id="Anchor_83956147_h2_2">メモリヒープ機能の使用方法</h2>
+<p>メモリヒープ機能は、まず最初にメモリヒープ領域を確保することから始まります。</p>
+<p>以下のように、アプリケーションが起動した直後ぐらいのタイミング（nninitStartup() の中を推奨）でメモリヒープの全体サイズを設定します。これにより、メモリが十分に利用可能な状態であれば、指定されたサイズのメモリヒープが確保され利用可能になります。メモリヒープのサイズは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aeed47f05ce9175eb46876c1ddd0512c7">nn::os::MemoryHeapUnitSize</a> の整数倍でなければなりません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">SetMemoryHeapSize</span><span class="p">(</span> <span class="mi">32</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span>   <span class="c1">// 例えば 32 MiB
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// メモリヒープの確保に失敗
+</span><span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>もしくは、プログラム起動時のメモリ使用状況に応じて、設定可能な最大メモリヒープサイズを設定することもできます。詳細は「<a href="#Anchor_83956147_memory_management_anchor1">メモリ管理機能使用上の補足事項／使用可能なメモリ量</a>」を参照して下さい。</p>
+<p>メモリヒープを確保した後であれば、以下のようにしてメモリブロックを獲得することが出来ます。メモリブロックのサイズは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ade84ad9f438e76820510ca0623c5a823">nn::os::MemoryBlockUnitSize</a> の整数倍でなければなりません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">uintptr_t</span>  <span class="n">address</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">AllocateMemoryBlock</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">address</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span>   <span class="c1">// 例えば 2 MiB
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// メモリブロックの獲得に失敗
+</span><span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>獲得したメモリブロックは、以下のようにしてメモリヒープに返却することができます。返却できるメモリブロックのサイズは、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ade84ad9f438e76820510ca0623c5a823">nn::os::MemoryBlockUnitSize</a> の整数倍でなければなりません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::os::</span><span class="n">FreeMemoryBlock</span><span class="p">(</span> <span class="n">address</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span>   <span class="c1">// ここでは 2 MiB を返却
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956147_h2_3">仮想アドレスメモリ管理機能の使用方法</h2>
+<div class="platform_nx">
+  <div class="note_new">
+    <div class="note_new_left">注意：</div>
+    <div class="note_new_right">
+      <p>NX プラットフォームでは仮想アドレスメモリ管理機能を使用するには nmeta ファイルの設定が必要です。詳細は <a href="#Anchor_83956147_platform_info">NX プラットフォーム固有の情報</a>を参照してください。</p>
+    </div>
+  </div>
+</div>
+<p>仮想アドレスメモリ管理機能ではメモリを利用するために 2 ステップを行う必要があります。</p>
+<p>最初のステップではアドレス領域を確保します。アドレス領域のサイズは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">nn::os::MemoryPageSize</a> の整数倍でなければなりません。この時点では仮想アドレス空間上の領域を確保しただけで、まだメモリとして使用することはできません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="kt">uintptr_t</span> <span class="n">address</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">AllocateAddressRegion</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">address</span><span class="p">,</span> <span class="mi">4ull</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span>   <span class="c1">// 例えば 4 GiB
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アドレス領域の確保に失敗
+</span><span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>2 番目のステップでは確保したアドレス領域の中に実メモリを割り当てます。実メモリを割り当てるアドレスとそのサイズは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">nn::os::MemoryPageSize</a> の整数倍でなければなりません。実メモリを割り当てることによりメモリとして使用することができるようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="kt">uintptr_t</span> <span class="n">assignAt</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="mi">4ull</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">AllocateMemoryPages</span><span class="p">(</span> <span class="n">assignAt</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span>   <span class="c1">// 例えば末尾に 2 MiB
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 実メモリの割り当てに失敗
+</span><span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これで assignAt から 2MiB の領域に実メモリが割り当てられます。</p>
+<p>割り当てられた実メモリは部分的に割り当てを解除することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="kt">uintptr_t</span> <span class="n">at</span> <span class="o">=</span> <span class="n">assignAt</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">FreeMemoryPages</span><span class="p">(</span> <span class="n">at</span><span class="p">,</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span>   <span class="c1">// 例えば真ん中の 8 KiB
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 実メモリの割り当て解除に失敗
+</span><span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>これで assignAt から 1020 KiB の実メモリ、8 KiB の空き領域、1020 KiB の実メモリが割り当てられた状態になります。</p>
+<p>以下のようにしてアドレス領域を解放することもできます。アドレス領域の解放時には領域内に割り当てられていた実メモリは自動的に割り当てが解除されます。アドレス領域は部分的に解放することはできません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">FreeAddressRegion</span><span class="p">(</span> <span class="n">address</span> <span class="p">);</span>    <span class="c1">// 4 GiB のアドレス領域全体を解放
+</span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アドレス領域の解放に失敗
+</span><span class="p">}</span> </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83956147_h2_4">メモリ管理機能の具体的な使用例</h2>
+<p>具体的な使用例は、<a href="../../../Api/HtmlNX/_page_sample_os_memory_heap.html"> メモリ管理機能サンプル </a> &nbsp; &nbsp;を参照して下さい。</p>
+<h2 id="Anchor_83956147_h2_5">メモリ管理機能の関数リファレンス</h2>
+<p>詳細は以下のリンク先を参照して下さい。</p>
+<p>【メモリヒープ関連関数】</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2be8bac50d8d37a91f866d9e0c55886e">nn::os::SetMemoryHeapSize()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">nn::os::AllocateMemoryBlock()</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20fa47e171856fb202b60e6b2a1de719">nn::os::FreeMemoryBlock()</a>
+  </li>
+</ul>
+<p>【仮想アドレスメモリ管理関連関数】</p>
+<ul>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11dca1988a4d23dc773f216847a56ecd">nn::os::AllocateAddressRegion()</a> </li>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a822e071b5061ef30ce2202d67fad8dd0">nn::os::FreeAddressRegion()</a> </li>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#afc2aecae3365f9881e63f3c9a77be239">nn::os::AllocateMemoryPages()</a> </li>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#aadde176efe5d5ec8352539a4c41cc468">nn::os::FreeMemoryPages()</a> </li>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a49b13b1f8e6e4fa352192eb9d121ff49">nn::os::VirtualAddressMemoryResourceUsage()</a> </li>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ab9e6556970df605db16e5548b9fd188c">nn::os::IsVirtualAddressMemoryEnabled()</a> </li>
+</ul>
+<p>【メモリ使用状況の参照】</p>
+<ul>
+  <li> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a79f2a489da0a124ebdc8130595c70b94">nn::os::QueryMemoryInfo()</a> <br /> </li>
+</ul>
+<p>【メモリアクセス権の設定】</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae3d0ddd1807c032d7ab0e0fda9739bef">nn::os::SetMemoryPermission()</a>
+  </li>
+</ul>
+<p>【メモリフェンス関連関数】</p>
+<ul>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a0b9900ac6f5ffc3cceeaf9e4d4628fd6">nn::os::FenceMemoryStoreStore()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a89bc7c5ef7a7884fa2cdb771d1050045">nn::os::FenceMemoryStoreLoad()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a8ecf770755dd217ffff4479db6102863">nn::os::FenceMemoryStoreAny()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a36d20e99e9c3b0e699b51a13acd3ead6">nn::os::FenceMemoryLoadStore()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a24612da5b069435fc5f1d8f8720adadf">nn::os::FenceMemoryLoadLoad()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a367aa8b77b2ae4d88e358810ef54b973">nn::os::FenceMemoryLoadAny()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#acebc9c7ff99fc0e1b04a693daeebda8f">nn::os::FenceMemoryAnyStore()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#a7bfb421bf54c835b5b731db28d171cf9">nn::os::FenceMemoryAnyLoad()</a>
+  </li>
+  <li>
+    <a class="el" href="../../../Api/HtmlNX/namespacenn_1_1os.html#addf5cd70de75b033bb8ae4eac87f8fe2">nn::os::FenceMemoryAnyAny()</a>
+  </li>
+</ul>
+<p>【不具合解析用関数】（製品機では使用不可）</p>
+<ul>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20238ce26424ba34876552fb2d53165a">nn::os::IsMemoryLocked(void* address, size_t size)</a>
+  </li>
+  <li>
+    <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ac2789b550619d98db2c52198839d35c0">nn::os::IsMemoryLocked(uintptr_t address, size_t size)</a>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<h2 id="Anchor_83956147_h2_6">メモリ管理機能使用上の補足事項</h2>
+<p>
+  <a name="Anchor_83956147_memory_management_anchor1"></a>
+</p>
+<h3 id="Anchor_83956147_h3_4">使用可能なメモリ量</h3>
+<p>各プラットフォームではプログラムが使用可能なメモリの合計量が定められています。使用可能なメモリの合計量から現状のプログラムで既に使われているメモリ量を差し引くことで、その時点での最大量の空きメモリ量を知ることができます。例えば、使用可能な残りのメモリ全てをメモリヒープとして設定するには次の実装を参考にして下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+#include &lt;nn/util/util_BitUtil.h&gt;
+</span>
+<span class="nn">nn::os::</span><span class="n">MemoryInfo</span> <span class="n">memInfo</span><span class="p">;</span>
+<span class="nn">nn::os::</span><span class="n">QueryMemoryInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memInfo</span><span class="p">);</span>
+
+<span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">memInfo</span><span class="p">.</span><span class="n">totalAvailableMemorySize</span><span class="p">)</span> <span class="o">-</span> <span class="n">memInfo</span><span class="p">.</span><span class="n">totalUsedMemorySize</span><span class="p">;</span>
+<span class="n">size</span> <span class="o">=</span> <span class="nn">nn::util::</span><span class="n">align_down</span><span class="p">(</span><span class="n">size</span> <span class="p">,</span> <span class="nn">nn::os::</span><span class="n">MemoryBlockUnitSize</span><span class="p">);</span>
+
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">SetMemoryHeapSize</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>  <span class="c1">// 確保可能な最大サイズでメモリヒープを設定
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956147_h3_5">メモリの初期値</h3>
+<p>確保されたメモリの初期値は不定です。必要に応じて初期化して利用してください。</p>
+<h3 id="Anchor_83956147_h3_6">デフォルトのメモリヒープ獲得</h3>
+<p>NintendoSDK では、<a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> というユーザ定義関数がプログラム起動時に呼ばれます。ユーザがこの関数を定義しなかった場合は、SDK が内部に持つデフォルトの <a href="../../../Api/HtmlNX/init___startup_8h.html#ac781c07f35d3d9e7a71d21ad25e25f8f">nninitStartup()</a> が呼ばれます。詳細は、<a href="../Pages/Page_92310396.html">プログラムの起動と初期化</a> を参照して下さい。</p>
+<h3 id="Anchor_83956147_h3_7">メモリヒープサイズの増減</h3>
+<p>
+  <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">メモリヒープは、一度確保した後でも<span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">再度 <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2be8bac50d8d37a91f866d9e0c55886e">nn::os::SetMemoryHeapSize()</a> を発行す</span> </span>ることで、そのサイズを動的に増減することが出来ます。<br /> </span> </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">メモリヒープを大きくする場合は、既存のメモリヒープの末尾に追加分のメモリが確保されます。そのため、メモリヒープが既に使用中の状態であってもサイズを大きくすることが可能です。追加分のメモリ確保に失敗した場合は、既存のメモリヒープのサイズのまま変更されません。</span> </span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">メモリヒープを小さくする場合は、既存のメモリヒープの末尾から<span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);">不要になったサイズ分を解放</span> </span>します。この場合、既存のメモリヒープのうち解放対象となる末尾部分のメモリ以外は使用中の状態であってもサイズを小さくすることが可能です。また、メモリヒープを最小の 0 Byte に戻すことも出来ます。この場合はメモリヒープ内の全てのメモリブロックが返却済み（もしくは未獲得）でなければなりません。</span> </span>
+</p>
+<h3 id="Anchor_83956147_h3_8">メモリヒープの先頭アドレス</h3>
+<p>メモリヒープの先頭アドレスは、ターゲット環境によって異なります。</p>
+<p>一度確保したメモリヒープを<span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);"> <span style="color: rgb(51,51,51);"> <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a2be8bac50d8d37a91f866d9e0c55886e">nn::os::SetMemoryHeapSize()</a> </span> </span> </span> </span>にて 0 Byte に戻した後に再度メモリヒープを確保した場合、それらのメモリヒープの先頭アドレスが前回確保した時と同じアドレスになる保障はありません。</p>
+<h3 id="Anchor_83956147_h3_9">メモリブロックの獲得とメモリヒープの消費量</h3>
+<p>OS ライブラリは、メモリヒープから <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">AllocateMemoryBlock()</a> で獲得された領域とそうでない領域を管理していますが、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">AllocateMemoryBlock()</a> で獲得したメモリサイズを超えてメモリヒープを消費することはありません。</p>
+<p>例えば、32MiB のメモリヒープが設定された場合、<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">AllocateMemoryBlock()</a> で 2MiB 獲得した直後も残りのメモリヒープはちょうど 30MiB であり、1byte の誤差もありません。そこから更に 30MiB を獲得した場合、残りのメモリヒープはちょうど 0 Byte となります。</p>
+<p>ただし、メモリヒープの残りサイズが合計 30MiB だからといって、必ず 30MiB の <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">AllocateMemoryBlock()</a> に成功するとは限りません。これはメモリヒープ内でフラグメントが発生している可能性があるためです。メモリ管理機能では、アプリケーション起動の早い段階で比較的大きなサイズのメモリを提供することを目的としており、頻繁に <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">AllocateMemoryBlock()</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20fa47e171856fb202b60e6b2a1de719">FreeMemoryBlock()</a> が繰り返されることを想定していませんのでご注意ください。</p>
+<h3 id="Anchor_83956147_h3_10">メモリヒープで自前のメモリ管理機構を構築する上での注意</h3>
+<p>メモリヒープ内のメモリ領域を、独自のメモリ管理機構を使って管理したい場合は、必ずその管理対象領域を  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd"> AllocateMemoryBlock() </a>  で確保した上で行なって下さい。<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a875bf6b3129f06654e641513c63017dd">AllocateMemoryBlock()</a> で確保していないメモリヒープ領域を直接メモリアクセスした場合、動作は保障されません。</p>
+<h3 id="Anchor_83956147_h3_11">仮想アドレスメモリ管理機能でのメモリ消費</h3>
+<p>仮想アドレスメモリ管理機能ではアドレス領域の管理のために OS ライブラリ内部でメモリの動的確保を行っています。このため <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a11dca1988a4d23dc773f216847a56ecd">nn::os::AllocateAddressRegion()</a> の呼び出し時に内部でメモリの動的確保が行われることがあります。OS ライブラリ内部で動的確保されたメモリは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a79f2a489da0a124ebdc8130595c70b94">nn::os::QueryMemoryInfo()</a> で取得できる値の <a class="el" href="../../../Api/HtmlNX/structnn_1_1os_1_1_memory_info.html#a179fcdecd518686555036d0db3a5014c">totalUsedMemorySize</a> に含まれます。</p>
+<h3 id="Anchor_83956147_h3_12">仮想アドレスメモリ管理機能のアドレス空間</h3>
+<p>仮想アドレスメモリ管理機能では仮想アドレス空間からアドレス領域を確保することができますが、使用できる仮想アドレス空間は 63 GiB です。管理上のオーバーヘッドが発生するため実際に使用できるアドレス領域の合計はこれよりも少なくなります。</p>
+<h3 id="Anchor_83956147_h3_13">2GiB 以上のサイズの指定</h3>
+<p>64bit のビルド環境において 2GiB 以上のサイズを指定する際、以下のような記述はサイズ計算を誤っています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">SetMemoryHeapSize</span><span class="p">(</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>C/C++ 言語仕様により定数の「2」は int 型であるため「2 * 1024 * 1024 * 1024」も int 型として計算され、符号付き 32bit の範囲で表現される負の最大値として計算された上で、それが 64bit 符号なしの size_t へ暗黙キャストされて引数として渡すことになります。正しくは以下のように記述して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">SetMemoryHeapSize</span><span class="p">(</span> <span class="mi">2ull</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83956147_h3_14">メモリアクセス権の変更ができる領域とできない領域</h3>
+<p>全てのメモリ領域が<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae3d0ddd1807c032d7ab0e0fda9739bef"> nn::os::SetMemoryPermission()</a> によってメモリアクセス権を自由に変更できるわけではなく、以下のように変更できる領域とできない領域がありますのでご注意下さい。</p>
+<ul>
+  <li>メモリアクセス権を変更できる領域<ul><li>メモリヒープ領域</li><li>仮想アドレスメモリ管理機能で実メモリを割り当てている領域<br /> </li><li>静的な変数領域（RW や ZI セクション）</li></ul></li>
+  <li>メモリアクセス権を変更できない領域<ul><li>プログラムのコード領域など（EX や RO セクションなど）</li><li>スレッドのスタック領域</li><li>その他、上記「メモリアクセス権を変更できる領域」以外の領域</li><li>上記「メモリアクセス権を変更できる領域」であっても、NintendoSDK の API で使用中の領域</li></ul></li>
+</ul>
+<h3 id="Anchor_83956147_h3_15">メモリアクセス権の変更に伴うシステムメモリ枯渇について</h3>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#ae3d0ddd1807c032d7ab0e0fda9739bef">nn::os::SetMemoryPermission()</a> によって、例えば 4KByte 単位で異なるメモリアクセス権の変更を広大なメモリ空間に対して大量に行なうと、システム内部でメモリが枯渇する可能性があります。これは、プログラムのメモリ空間の管理を行なう上で必要となるシステムメモリが枯渇することで発生します。</p>
+<p>このようなメモリ枯渇が発生するための詳細な条件（設定するサイズ、設定するメモリ領域の数）は、メモリの使用量や使用方法に強く依存します。通常使用においては問題とならない程度のシステムメモリは確保していますが上記観点での使用には注意が必要です（前述のような小さな粒度で細かくメモリアクセス権を変更するような使い方は推奨されません）。</p>
+<h3 id="Anchor_83956147_h3_16">メモリのロックに関して</h3>
+<p>一部の NintendoSDK の API によって特定のメモリ領域がロックされることがあります。「メモリ領域のロック」とは、そのメモリ領域をシステムが何らかの目的で使用中であることを示します。ロックされているメモリ領域に対して間違ってアクセスした場合、必ずしもユーザ例外やアボートが発生するとは限らず、その動作は保証されません。特に以下のような誤使用があった場合も動作は未定義であり、その瞬間には何も起きなくても、しばらく経ってから異常な動作として表面化する場合がありますのでご注意下さい。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__os">nn::os</span> の同期オブジェクトを、ロックされたメモリ領域に配置した場合</li>
+  <li>std::atomic 系のアトミック変数を、ロックされたメモリ領域に配置した場合</li>
+  <li>NintendoSDK や本体機能（ライブラリアプレット等）にメモリを渡す API において、ロックされたメモリ領域を渡した場合</li>
+</ul>
+<p>なお、特定のメモリ領域がロックされているか否かは <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a20238ce26424ba34876552fb2d53165a">nn::os::IsMemoryLocked()</a> で調べることができます（ただし、製品機では使用できません）。メモリのアロケータやデアロケータの内部でこの API を使ってメモリ状態をチェックすることで問題を発見できる場合があります。</p>
+<p>どのような API によってメモリ領域がロックされるかについては、NintendoSDK の各 API のドキュメントやリファレンスをご参照ください。</p>
+<p>&nbsp;</p>
+<div class="platform_nx">
+  <p>
+    <a name="Anchor_83956147_platform_info"></a>
+  </p>
+  <h2 id="Anchor_83956147_h2_7">NX プラットフォーム固有の情報</h2>
+  <h3 id="Anchor_83956147_h3_17">nmeta の設定</h3>
+  <p>NX プラットフォームで仮想アドレスメモリ管理機能を使用する場合は <a href="../Pages/Page_166503043.html">nmeta ファイルに設定</a>が必要です。</p>
+  <p>nmeta ファイルの SystemResourceSize に 0 より大きい値を設定してください。</p>
+  <table class="codeblock">
+    <tbody>
+      <tr>
+        <td class="code">
+          <div class="codeblock"><pre>...
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;Core&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;SystemResourceSize&gt;</span>0x01000000<span class="nt">&lt;/SystemResourceSize&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/Core&gt;</span> 
+...</pre></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="Anchor_83956147_h3_18">SystemResourceSize の値の決定</h3>
+  <p>SystemResourceSize で指定したサイズぶんのメモリは、プログラムが使用可能なメモリ量から差し引かれ、プログラムの仮想アドレス空間を管理するために使用されます。以下ではプログラムの仮想アドレス空間を管理するために使用されるメモリを管理メモリと呼びます。</p>
+  <p>管理メモリに必要なメモリ量は理論最大値では 256 MiB であり、この値を SystemResourceSize に設定することで管理メモリが不足することはなくなります。ですがこの値は大きすぎるうえ、一般的なアプリケーションでは 16 MiB で十分であることが多いようです。このため SystemResourceSize の値はプログラムごとに設定可能となっており、各プログラムではこの SystemResourceSize として適切な値を設定する必要があります。</p>
+  <p>管理メモリが足りない場合、仮想アドレスメモリ管理機能の API を呼び出した時に <a href="../../../Api/HtmlNX/classnn_1_1os_1_1_result_out_of_resource.html">nn::os::ResultOutOfResource</a> が返ります。また <a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a49b13b1f8e6e4fa352192eb9d121ff49">nn::os::GetVirtualAddressMemoryResourceUsage()</a> で現在の管理メモリの使用量を確認することができます。<a href="../../../Api/HtmlNX/namespacenn_1_1os.html#a49b13b1f8e6e4fa352192eb9d121ff49">nn::os::GetVirtualAddressMemoryResourceUsage()</a> で取得できる <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_virtual_address_memory_resource_usage.html#aa6e16d1c6e86d32ea7ad8d59b74ed1b8">usedSize</a> がプログラム動作中の様々なシーンで <a href="../../../Api/HtmlNX/structnn_1_1os_1_1_virtual_address_memory_resource_usage.html#a1efd0c9c08708455bca8ee2e4fd03f77">assignedSize</a> (=SystemResourceSize の設定値)より小さい値となるように SystemResourceSize を設定するようにしてください。</p>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+// ApiLink_nn__os__FenceMemoryXxxxYyyy
+SetUrl( 'ApiLink_nn__os', '../../../Api/HtmlNX/namespacenn_1_1os.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

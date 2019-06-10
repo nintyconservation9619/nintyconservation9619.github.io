@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>カスタムシェーダを利用する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- カスタムシェーダを利用する -->
+<div class="pagetitle" id="PageId_126577171">カスタムシェーダを利用する</div>
+<div class="text_separate">
+<h1 id="Anchor_126577171_h1_1">カスタムシェーダを利用する</h1>
+<p>ここではゲームアプリで用意したプログラマブルシェーダの設定方法について、サンプルカスタムシェーダを用いて説明します。<br />サンプルカスタムシェーダで、ライトの影響を受ける煙のエフェクトを作成します。<br /> </p>
+<p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93522162.png" class="embedded-image" /></span> オプション」設定の【プロジェクト設定】にサンプルプロジェクトファイル「ProjConfig.xml」を設定することで、サンプルとして用意された以下のようなカスタムシェーダが利用できます。<br />また、プリミティブパーティクルを使用したエフェクトでは、法線マップやライトマップの反映状況を EffectViewer で確認できます。<br /> </p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p> サンプルカスタムシェーダ は以下の場所にあります。<br /> <strong>\Samples\Sources\Applications\VfxCustomShader\Resources\</strong></p>
+  </div>
+</div>
+<h2 id="Anchor_126577171_h2_1">準備</h2>
+<p>あらかじめ EffectMaker と EffectViewerを起動した状態から作業を進めます。</p>
+<p>
+  <strong>     <span class="status_macro_base status_macro_Blue">関連リンク</span>     </strong> EffectMaker と EffectViewer の起動方法については<strong>   <a href="../Pages/Page_83956096.html">「作業の流れ」</a> </strong>を参照してください。</p>
+<h3 id="Anchor_126577171_h3_1">カスタムシェーダを登録する</h3>
+<p>以下の手順で、サンプルとして用意されたプロジェクト設定ファイルを EffectMaker に登録します。<br />プロジェクト設定ファイルを登録することで、関連付けされたサンプルのカスタムシェーダが利用できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>EffectMaker メインメニュー「ツール」から「オプション」を選択し、オプション設定ダイアログを開きます。</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>【プロジェクト設定】を選択します。</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>
+        <p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/91326320.png" class="embedded-image" /></span> プロジェクト設定ファイルパス」にサンプルプロジェクトファイル ProjConfig.xml を登録します。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>OK ボタンでオプションの設定内容を確定します。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126577171_h3_2">エミッタセットの読み込み</h3>
+<p>以下の手順で、サンプルとして用意されたエミッタセットファイルを EffectMaker に読み込みます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>メインメニュー項目 [ファイル]&rarr;[ <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/83079802.png" class="embedded-image" /></span> 開く]を選択します。</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>ウィンドウが開きますので、以下の場所からエミッタセットファイル（.eset）を選択し、ファイルを開きます。<br /> <strong>        \Samples\Sources\Resources\Vfx \Eset \Smoke_Template.eset  </strong></td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_126577171_h3_3">ビューアを確認する</h3>
+<p>以下のように、読み込んだエフェクトがビューアに転送されていることを確認します。<br />以降はビューアで変化を確認しながら作業を進めます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83955557/198955352.gif" class="embedded-image" />
+        </span>
+      </th>
+      <th style="text-align: center;">
+        <p>使用したプリミティブモデル</p>
+        <p>
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_83956195/193057778.png" height="250" class="embedded-image" />
+          </span>
+        </p>
+      </th>
+    </tr>
+    <tr>
+      <td colspan="2">この煙のエフェクトはプリミティブパーティクルを使用しています。<br /> 右側の画像のように、DCC ツールで法線を広げた板状のポリゴンを登録しています。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_126577171_h2_2">カスタムシェーダの設定</h2>
+<p>読み込んだエミッタセットにカスタムシェーダを設定します。</p>
+<h3 id="Anchor_126577171_h3_4">エミッタノードを選択する</h3>
+<p>ワークスペースから「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/83079868.png" class="embedded-image" /></span> Smoke_Template」直下にある「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/83079866.png" class="embedded-image" /></span> Primitive」を選択します。</p>
+<h3 id="Anchor_126577171_h3_5">「Cstmシェーダ」タブを選択する</h3>
+<p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> Cstmシェーダタブ」を選択します。</p>
+<h3 id="Anchor_126577171_h3_6">「Cstmシェーダ」タブを設定する</h3>
+<p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/91326320.png" width="16" class="embedded-image" /></span> カスタムシェーダ」の「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> カスタムシェーダ設定」が「Custom Shader Sample」であることを確認します。<br />「Custom Shader Sample」はサンプルとして用意されたカスタムシェーダです。<br />「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/91326320.png" class="embedded-image" /></span> シェーダーキー」には「Custom Shader Sample」の設定項目が並びます。</p>
+<h3 id="Anchor_126577171_h3_7">ライティングの設定</h3>
+<p>シェーダーキーでライティングのパラメータを設定します。</p>
+<p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/91326320.png" class="embedded-image" /></span> シェーダーキー」にサンプルとして用意されたシェーダの「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520244.png" class="embedded-image" /></span> チェックボックス」が並びます。<br />「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> Sample Light」と「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> SimleIbl」を「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520239.png" class="embedded-image" /></span> チェックボックス ON」に設定します。</p>
+<p>「パラメータ」の「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> IBLカラー 0」を「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83956195/198956525.png" width="24" class="embedded-image" /></span> RGB = 1.0,1.0,1.0」、「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> IBLカラー 1」を「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83956195/198956524.png" width="24" class="embedded-image" /></span>RGB = 0.7,0.75,1.0」に変更します。</p>
+<p>以下はビューアへの出力結果です。<br />使用したプリミティブモデルは平面ですが、よく見るとポリゴンの分割形状が確認できます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955557/198956547.gif" class="embedded-image" />
+  </span> <span class="confluence-embedded-file-wrapper">&nbsp;</span></p>
+<div class="confluence-information-macro has-no-icon confluence-information-macro-information">
+  <div class="confluence-information-macro-body">
+    <p>完成データは以下の場所にあります。<br /> <strong> \Samples\Sources\Resources\Vfx\Eset\Smoke.eset</strong></p>
+  </div>
+</div>
+<h2 id="Anchor_126577171_h2_3">法線マップによるライティングの設定</h2>
+<p>作成した煙のエフェクトに法線マップテクスチャを設定し、より精度の高いエフェクトを作成します。</p>
+<h3 id="Anchor_126577171_h3_8">エミッタノードを選択する</h3>
+<p>ワークスペースから「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/83079868.png" class="embedded-image" /></span> Smoke」直下にある「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/83079866.png" class="embedded-image" /></span> Primitive」を選択します。</p>
+<h3 id="Anchor_126577171_h3_9">「テクスチャ」タブを選択する</h3>
+<p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span> テクスチャタブ」を選択し、法線マップテクスチャを登録します。<br /> 「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/94709232.png" width="40" class="embedded-image" /></span> テクスチャ1 サブタブ」を選択し、「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> ファイル指定」の 「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/83080046.png" class="embedded-image" /></span> ロードボタン」で以下のファイルを指定します。<br /> <span class="confluence-embedded-file-wrapper confluence-embedded-manual-size">&nbsp;</span> <strong> \Samples\Sources\Resources\Vfx\Eset\Textures\Smoke_Normal.ftxb   </strong></p>
+<h3 id="Anchor_126577171_h3_10">「Cstmシェーダ」タブを選択する</h3>
+<p>「<span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520159.png" width="40" class="embedded-image" /></span>&nbsp;</span>Cstmシェーダタブ」を選択します。</p>
+<h3 id="Anchor_126577171_h3_11">「Cstmシェーダ」タブを設定する</h3>
+<p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/91326320.png" class="embedded-image" /></span> シェーダーキー」の「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> Sample Light」を「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520244.png" class="embedded-image" /></span> チェックボックス OFF」に設定します。<br />「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="40" class="embedded-image" /></span> Normal Map」のチェックボックスを「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520239.png" class="embedded-image" /></span> チェックボックス ON」に設定します。<span class="confluence-embedded-file-wrapper">&nbsp;</span></p>
+<p>以下はビューアへの出力結果です。<br />法線マップで凸凹させている為、ポリゴンの分割形状が目立ちません。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955557/198956568.gif" class="embedded-image" />
+  </span>
+</p>
+<p>完成データは以下の場所にあります。<br /> <strong> \Samples\Sources\Resources\Vfx\Eset\Smoke_NormalMap.eset</strong></p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>  &nbsp;以下は関連ページへのリンクです。 </p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_92121400.html">オプション【プロジェクト設定】</a>
+      </th>
+      <td>ゲームプロジェクト毎の設定ができるオプション設定【プロジェクト設定】について説明します。</td>
+      <td>
+        <span class="embedded-file-wrapper image-left-wrapper">
+          <img src="../Attachments/Attach_83955555/83080721.png" width="100" alt="DoNotOpenViewer ビジュアルアーティスト" title="DoNotOpenViewer ビジュアルアーティスト" class="embedded-image image-left" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_100908135.html">カスタムシェーダ設定</a>
+      </th>
+      <td>ゲームアプリで用意したプログラマブルシェーダの設定について説明します。</td>
+      <td>
+        <span class="embedded-file-wrapper image-left-wrapper">
+          <img src="../Attachments/Attach_83955555/83080721.png" width="100" alt="DoNotOpenViewer ビジュアルアーティスト" title="DoNotOpenViewer ビジュアルアーティスト" class="embedded-image image-left" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955731.html">カスタムシェーダの例</a>
+      </th>
+      <td>いろんな表現をカスタムシェーダを利用して実装する例を紹介します。</td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_83955555/83080723.png" width="100" alt="DoNotOpenViewer プログラマ" title="DoNotOpenViewer プログラマ" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

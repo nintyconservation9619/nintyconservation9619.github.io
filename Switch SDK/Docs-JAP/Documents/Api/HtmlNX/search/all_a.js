@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['j',['J',['../structnn_1_1hid_1_1_keyboard_key.html#a84cb3f54faa162af844c89f3b916330a',1,'nn::hid::KeyboardKey']]],
+  ['jam',['Jam',['../classnn_1_1os_1_1_message_queue.html#ac9761c1ac40faa8a10cf93f886a2c13b',1,'nn::os::MessageQueue']]],
+  ['jammessagequeue',['JamMessageQueue',['../namespacenn_1_1os.html#a7a47bc9d914dbdf48011deeb859cb877',1,'nn::os']]],
+  ['journey',['journey',['../structnn_1_1vfx_1_1detail_1_1_super_stripe_instance.html#ab80b2448124de40806a6f863a17d6552',1,'nn::vfx::detail::SuperStripeInstance']]],
+  ['joyxpadbutton',['JoyXpadButton',['../structnn_1_1hid_1_1_joy_xpad_button.html',1,'nn::hid']]],
+  ['joyxpadbuttonset',['JoyXpadButtonSet',['../namespacenn_1_1hid.html#aa0e345dbb84fbb85dcebf6044e359753',1,'nn::hid']]],
+  ['joyxpadid',['JoyXpadId',['../structnn_1_1hid_1_1_joy_xpad_id.html',1,'nn::hid']]],
+  ['joyxpadstate',['JoyXpadState',['../structnn_1_1hid_1_1_joy_xpad_state.html',1,'nn::hid']]],
+  ['jpegdecoder',['JpegDecoder',['../classnn_1_1image_1_1_jpeg_decoder.html',1,'nn::image']]],
+  ['jpegdecoder',['JpegDecoder',['../classnn_1_1image_1_1_jpeg_decoder.html#ae991b3d9cddddb02cf1a111bb69ee3ca',1,'nn::image::JpegDecoder']]],
+  ['jpegencoder',['JpegEncoder',['../classnn_1_1image_1_1_jpeg_encoder.html#a2bab2e1a9cecc52af117dea9e0df0c48',1,'nn::image::JpegEncoder']]],
+  ['jpegencoder',['JpegEncoder',['../classnn_1_1image_1_1_jpeg_encoder.html',1,'nn::image']]],
+  ['jpegsamplingratio',['JpegSamplingRatio',['../namespacenn_1_1image.html#ac9106d5a0df8b9453f48ec618cf0850e',1,'nn::image']]],
+  ['jpegsamplingratio_5f420',['JpegSamplingRatio_420',['../namespacenn_1_1image.html#ac9106d5a0df8b9453f48ec618cf0850ea2575ed66bbafcccad163adcc13c2cf95',1,'nn::image']]],
+  ['jpegsamplingratio_5f422',['JpegSamplingRatio_422',['../namespacenn_1_1image.html#ac9106d5a0df8b9453f48ec618cf0850eaba2e1ec1cc9aa9fca34701b1f1c22de6',1,'nn::image']]],
+  ['jpegsamplingratio_5f444',['JpegSamplingRatio_444',['../namespacenn_1_1image.html#ac9106d5a0df8b9453f48ec618cf0850ea5ff0e6b73867b9eb10cdbdf083374664',1,'nn::image']]],
+  ['jpegstatus',['JpegStatus',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3',1,'nn::image']]],
+  ['jpegstatus_5fok',['JpegStatus_Ok',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a2f99a50104618a54e9d4e3bfa4e35ffc',1,'nn::image']]],
+  ['jpegstatus_5foutofmemory',['JpegStatus_OutOfMemory',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ad4e1063e46f1d81cbe1f8551d168af82',1,'nn::image']]],
+  ['jpegstatus_5foutputoverabounds',['JpegStatus_OutputOverabounds',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a8555609ba8a5e8f6f61e61b15a5db680',1,'nn::image']]],
+  ['jpegstatus_5fshortoutput',['JpegStatus_ShortOutput',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ae620d8f647aed850da0669fd1da2edc5',1,'nn::image']]],
+  ['jpegstatus_5funsupportedformat',['JpegStatus_UnsupportedFormat',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3ad1803e0673b13c21b3d858764a11a390',1,'nn::image']]],
+  ['jpegstatus_5fwrongformat',['JpegStatus_WrongFormat',['../namespacenn_1_1image.html#a8c78190141f5d2997ea6dfdaac0730e3a1308872f653d3d1b6fcd42dabf5a392a',1,'nn::image']]],
+  ['jpeg_20デコードと_20exif_20解析',['JPEG デコードと Exif 解析',['../_page_sample_image_jpeg_decoding.html',1,'PageSampleImage']]],
+  ['jpeg_20エンコードと_20exif_20情報の設定',['JPEG エンコードと Exif 情報の設定',['../_page_sample_image_jpeg_encoding.html',1,'PageSampleImage']]]
+];

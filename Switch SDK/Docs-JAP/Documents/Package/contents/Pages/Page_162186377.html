@@ -1,0 +1,1234 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'],['\\(','\\)']],
+    ignoreClass: ".*",
+    processClass: "math-(display|inline)",
+    processEscapes: false,
+    processRefs: false
+  },
+  "HTML-CSS": {
+    imageFont: null
+  }
+});
+</script>
+<script type="text/javascript" src="../template/js/MathJax/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+<title>ポリゴンリダクション</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ポリゴンリダクション -->
+<div class="pagetitle" id="PageId_162186377">ポリゴンリダクション</div>
+<div class="text_separate">
+<h1 id="Anchor_162186377_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_162186377_h1_1">目次</a>
+    </li>
+    <li>
+      <a href="#Anchor_162186377_h1_2">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_162186377_h1_3">用語</a>
+    </li>
+    <li>
+      <a href="#Anchor_162186377_h1_4">メッシュ簡略化（ポリゴンリダクション）とは？</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_162186377_h2_1">Edge Based Simplification</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_2">縮退するエッジのコスト計算</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_3">最適化位置の計算</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_4">簡略化アルゴリズムの動作</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_162186377_h1_5">各パラメータ・機能説明</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_162186377_h2_5">簡略化レートの指定</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_6">簡略化の品質設定</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_1">アルゴリズムの概説</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_7">プロパティを考慮した簡略化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_2">パラメータ設定</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_8">エッジの保護</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_3">開放端と保護角</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_162186377_h4_1">開放端</a>
+          </li>
+          <li>
+            <a href="#Anchor_162186377_h4_2">ＵＶ空間とＵＶアトラス</a>
+          </li>
+          <li>
+            <a href="#Anchor_162186377_h4_3">ＵＶハードエッジ、ＵＶ空間における開放端</a>
+          </li>
+          <li>
+            <a href="#Anchor_162186377_h4_4">エッジ保護角</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_162186377_h3_4">パラメータ設定 : 開放端の保護</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_162186377_h4_5">開放端検出について</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_162186377_h3_5">パラメータ設定　：　UVハードエッジの保護</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_9">UV座標値を考慮した簡略化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_6">UV空間（2次元空間）とメッシュ空間（3次元空間）の参照関係</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_7">UVエッジの縮退コスト①　非ハードエッジの縮退コスト</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_8">UVエッジの縮退コスト②　ハードエッジの縮退コスト</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_9">ＵＶ重み　：　UVコストとメッシュコストを同時に利用した簡略化</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_10">パラメータ設定　：　ＵＶ重み</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_10">法線を考慮した簡略化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_11">法線コストの算出方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_12">パラメータ設定</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_11">モーションを考慮した簡略化</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_13">重みの計算方法</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_14">パラメータ設定</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_12">簡略化時の動作制御に用いるパラメータ</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_162186377_h3_15">簡略化後の位置を設定する</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_162186377_h4_6">サブメッシュ境界について</a>
+          </li>
+        </ul>
+        <li>
+          <a href="#Anchor_162186377_h3_16">簡略化時に、生成される面の形状、面積を制御する</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_17">高さのオフセットを与える</a>
+        </li>
+        <li>
+          <a href="#Anchor_162186377_h3_18">変化量を蓄積しない　：　平滑化オプション</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_162186377_h2_13">メッシュを事前処理する</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_162186377_h1_6">過去にあった問題点とＦＡＱ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_162186377_h2_14">地形データに穴が開いてしまう</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_15">ＵＶが崩れる</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_16">特徴的な頂点が動く</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_17">指定したポリゴン数まで削除が出来ない</a>
+      </li>
+      <li>
+        <a href="#Anchor_162186377_h2_18">シェイプ圧縮後の形状が削れ過ぎてしまう</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_162186377_h1_7">目的別オプション早見表</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_162186377_h1_2">概要</h1>
+<p>中間ファイルオプティマイザ内に組み込まれている、ポリゴンリダクション機能の使用説明書です。このドキュメントは、本プログラムをメンテナンスするエンジニアや、より詳細な実装情報を必要とする方、実際に運用される方を対象とした解説を行っています。</p>
+<p>
+  <a href="../Pages/Page_161295697.html">3D／チュートリアル／ポリゴンリダクション</a>
+</p>
+<p>に、実践的な導入方法が記述されています。</p>
+<p>&nbsp;</p>
+<p>簡略化は、</p>
+<p>1）分けられた頂点や、分けられたシェープなどの結合処理を行いデータを扱いやすく高い効果が得られる状態へと変換</p>
+<p>2) テクスチャ座標空間と、シェープ空間の参照関係を構築</p>
+<p>3）簡略化を実行</p>
+<p>4）バイナリ変換可能な状態へ再度変換</p>
+<p>の4つのプロセスを経て行われます。簡略化は以下の機能をもちます。</p>
+<ul style="list-style-type: square;">
+  <li>基本的な形状簡略化</li>
+  <li>テクスチャ座標をＵＶ空間で評価する事による、テクスチャ座標の損失の最小化</li>
+  <li>ブレンドウェイトを利用する事による、アニメーションを考慮した簡略化</li>
+  <li>法線を利用した特徴的な形状の保護</li>
+  <li>元メッシュとの頂点共有による、出力データサイズの削減</li>
+  <li>面積、フェースの形状などを考慮して削減フェースを選択するオプション</li>
+</ul>
+<p>各章、各節において、技術的な説明、およびその利用方法について説明します。このドキュメントは、運用頂くプログラマの技術に対する理解を深めると同時に、実際に使用いただくアーティストにもパラメータの理解をしていただく事で、開発に際する運用を容易にする目的で作成されています。</p>
+<p>&nbsp;</p>
+<p>不明な点などありましたら、お気軽にお問い合わせください。</p>
+<h1 id="Anchor_162186377_h1_3">用語</h1>
+<p>ここでは、本ドキュメントで使用される用語の内、汎用的に用いられるものについて説明を行います。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>用語</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>メッシュ</td>
+      <td>三次元幾何形状の、一部または全体そのものを指します</td>
+    </tr>
+    <tr>
+      <td>シェイプ</td>
+      <td>モデル中間ファイルフォーマットにおけるシェイプのことを指します。</td>
+    </tr>
+    <tr>
+      <td>モデル</td>
+      <td>シェイプの集合、またはモデル中間ファイルそのものを指します。</td>
+    </tr>
+    <tr>
+      <td>サブメッシュ</td>
+      <td>モデル中間ファイルによって定義される、シェイプの一部または全体を指します</td>
+    </tr>
+    <tr>
+      <td>フェイス（面）</td>
+      <td>メッシュを構成するポリゴン＝三角形の一つを指します</td>
+    </tr>
+    <tr>
+      <td>UV空間</td>
+      <td>ＵＶ座標によって構成される2次元空間、例えばＭａｙａのUVウインドウで見られる空間、を指します。</td>
+    </tr>
+    <tr>
+      <td>UVアトラス</td>
+      <td>ＵＶ空間内でＵＶ座標によって作成される閉じた形状の一つの事を示します。</td>
+    </tr>
+    <tr>
+      <td>開放端（オープンエッジ）</td>
+      <td>各空間において構成される辺のうち、片方しかフェイスと接していないものの事を指します。</td>
+    </tr>
+    <tr>
+      <td>ハードエッジ</td>
+      <td>プロパティにおける開放端です。本プラグインでは、ＵＶハードエッジ＝UV空間の開放端のみを指します</td>
+    </tr>
+    <tr>
+      <td>コスト</td>
+      <td>形状変化の際に失われる形状の量を指します。</td>
+    </tr>
+  </tbody>
+</table>
+<p>記号の定義</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>記号</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>e(i,j)</td>
+      <td>頂点iと頂点jを端点にもつメッシュのエッジを示します</td>
+    </tr>
+    <tr>
+      <td>ue(i,j)</td>
+      <td>頂点iと頂点jを端点にもつＵＶのエッジを示します</td>
+    </tr>
+    <tr>
+      <td>Q(v)</td>
+      <td>頂点位置v に対する、簡略化による形状変化の量を示す値</td>
+    </tr>
+    <tr>
+      <td>&Delta;(a,b,c)</td>
+      <td>頂点a,b,c からなる三角形</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_162186377_edge-based-simplification"></a>
+</p>
+<h1 id="Anchor_162186377_h1_4">メッシュ簡略化（ポリゴンリダクション）とは？</h1>
+<p>ここでは基本となる簡略化処理の概要に触れることで、本機能で行っている各処理をより理解して頂く事を目的に、ポリゴンリダクションの背景について触れます。</p>
+<p>ポリゴンリダクションは、任意のサイズの入力メッシュから選択的に削除可能な頂点／エッジ／フェイスを選択して削除し、メッシュのフェイス数を減らす技術です。削減可能な頂点／エッジ／フェイスは、削除後のメッシュと削除前のメッシュの近似度を高く維持する様に選択されます。ポリゴンリダクションには、多くの研究があり、成果が発表されています。これら既存の研究成果は、Mario Botschらによる書籍&quot;Polygon Mesh Processing&quot;(ISBN-10: 1568814267、ISBN-13: 978-1568814261)等の文献に詳しく書かれていますが、ここではこれらの内で、本プラグインに関係のある技術について説明します。</p>
+<h2 id="Anchor_162186377_h2_1">Edge Based Simplification</h2>
+<div>
+  <p>上述のラグランジュ乗数を設定します。本ライブラリで採用している戦略でもあるEdge Based Simplificationの基本的な動作は、下図に示す様に削除可能なエッジを選択しエッジ両端の頂点を一つの頂点へと移動しエッジを削除する事で簡略化を行うというものです。削除するエッジは、エッジを削除した場合の体積変動量などから選択される事が多く、代表的な手法に、Quadric Error Metrics などがあります。これらの手法の特徴は、縮退させる辺の選択方法に現れます。辺を縮退させた際の形状の変化量をコストとして計算し、このコストの内、最小となる様なエッジを縮退させる【貪欲法】による簡略化を行う事で、簡略化処理による形状変化量を最小化するという特徴を持ちます。</p>
+  <p>
+    <span class="embedded-file-wrapper image-center-wrapper">
+      <img src="../Attachments/Attach_162186377/161426969.png" class="embedded-image image-center" />
+    </span>
+  </p>
+  <p style="text-align: center;">図１：エッジ縮退による簡略化の様子。頂点Vi, Vj を端点にもつエッジe(i,j)を削除した場合、エッジの両側に存在する二つのフェイス f1とf2が消え、二つの頂点がVi' に纏まる事で2面（1頂点）が削減されます。</p>
+</div>
+<h2 id="Anchor_162186377_h2_2">縮退するエッジのコスト計算</h2>
+<p style="text-align: center;">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162186377/161426968.png" class="embedded-image" />
+  </span>
+</p>
+<p style="text-align: center;">図２：Ｑｕａｄｒｉｃ Error Metric　によるコスト計算の概念図。&nbsp;</p>
+<p style="text-align: left;">縮退するエッジは貪欲法によって、もっともコストの低いものから選ばれます。ここでは、縮退するエッジコストについて説明します。若干の工夫が存在しますが、エッジのコストは、Quadric&nbsp; Error Metric(QEM)によるコスト計算の考えを基本的に用いているため、QEMのコスト計算について説明を行います。QEMの基本的な考え方は非常に単純です。図２において、コストの値は任意の頂点vとフェースfの距離を二乗し距離を頂点v1 の周辺の全てのフェイスの集合｛S｝について計算し足し合わせたものです。ここで距離の2乗を行っているのは、単に形状の凹凸によって変化量の符号が変化しキャンセルされる事を回避する為だと考えてくださって結構です。</p>
+<p style="text-align: left;">コストをQ(v)とすると</p>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426967.png" width="500" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: left;">という式で計算が行われます。この時、v は頂点座標、面は方程式 n・x + d = 0 であらわされています。距離の2乗を展開した結果として得られる、頂点位置 v に依存しない値、{A,b,c}の組を作用素として保存しておくことで、コストの計算を容易にすることが可能になります。</p>
+<h2 style="text-align: left;" id="Anchor_162186377_h2_3">最適化位置の計算</h2>
+<div class="math-display">\[ v^T(n \cdot n^T)v + 2dn^T \cdot v + d^2 \]</div>
+<p style="text-align: left;">コストを求める式は、式の形から明らかな様に、狭義凸二次関数になっています。非線形の二次計画問題の最適解は、ニュートン法などの最適化法で求める事が多いですが、良く知られている様に、狭義凸2次関数の最適解は</p>
+<div class="math-display">\[ {\nabla}Q=2Av_{min} + 2b = 0 \]</div>
+<p style="text-align: left;">によって得られます。この式を展開して</p>
+<div class="math-display">\[ v_{min} = A^{-1}b \]</div>
+<p>の連立方程式を解くだけで最適化位置が求まる事になり、単にガウス・ジョルダン法、またはＬＵ分解などを行う事で、直接方程式を解くか、逆行列を求める事で、高速に最適位置を求められます。ただし、行列Ａが縮退している、つまり行列式がゼロの場合は逆行列を求める事ができないので、最適解が求まらないという問題があります。また同時に、誤差が蓄積するので、逆行列を求める方法では良い影響を与えない場合があります。計算量は、標準的なＬＵ分解と比べても、三倍も多いのですが、ガウスジョルダン法で連立方程式を解くのが賢明だと言えます。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_162186377_h2_4">簡略化アルゴリズムの動作</h2>
+<p>ここまで説明してきたコストと、それを計算するための固有情報、QuadricErrorMetric（Q）を用いた簡略化アルゴリズムの概要を説明します。</p>
+<ol>
+  <li>メッシュM上の全ての頂点 v&isin;M について、Q<sub>v </sub>を計算する</li>
+  <li>上の全てのエッジ e(v1,v2) &isin;Mについて、コスト C = Q<sub>v1</sub>(newV) + Q<sub>v2</sub>(newV)&nbsp;を計算する。ここでnewVは新たな頂点座標</li>
+  <li>計算した全てのエッジに対するコストをヒープに格納する</li>
+  <li>最少のコストを持つエッジをヒープから取得し、エッジ縮退を実行する。実行後、新たな頂点についての作用素を、Q<sub>newV</sub>&nbsp;=Q<sub>v1</sub>&nbsp;+&nbsp;Q<sub>v2</sub>&nbsp;として更新する</li>
+  <li>newVを端点に持つエッジのコストを計算しヒープを更新する</li>
+  <li>削減ポリゴン数が目標に達していれば終了し、そうでなければ4へ戻る</li>
+</ol>
+<p>以上の1－6までを実行する事で、簡略化を実行します。</p>
+<p>本ライブラリでは、コストを計算するQに対し、様々な重みづけを与えることで、必要に応じた縮退の優先順位の決定を行っています。その為、ここで紹介したアルゴリズムの基本的な動作をご理解いただき念頭に置いて頂くことが、運用と今後のメンテナンスなどの際に役に立つと考えます。</p>
+<h1 id="Anchor_162186377_h1_5">各パラメータ・機能説明</h1>
+<p>ここからは各パラメータの使用方法・効果・計算方法などを具体的に説明していきます。各パラメータについて、その都度、設定方法と、主にプログラマ向けの文書として技術情報を説明しますので、参考にして頂ければと思います。</p>
+<h2 id="Anchor_162186377_h2_5">簡略化レートの指定</h2>
+<ul>
+  <li>正規パラメータ : --target-rate-lod-level* &lt;rate&gt;</li>
+</ul>
+<p>&ldquo;*&rdquo; の部分には、1－9の数字を入れます。&lt;rate&gt;　には、0から1.0 までの任意の数字を与えてください。--target-rate-lod-level1 でレベル1のLODという意味になっています。したがって、Lv1-9までのLODを作成する事ができます。アルゴリズムは、与えた数字になるまでポリゴン簡略化を実行しようとしますが、削減できるフェースがなくなり簡略化処理を途中で終了する場合があります。</p>
+<p>[引数] rate , 0 ～1の少数。　0.25を与えた場合25％まで削減します</p>
+<p>&lt;使用例&gt;3dIntermediateFileOptimizer human.fmdb --polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.3&quot;</p>
+<p>図3は、元のポリゴンとその実行結果です。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426960.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図３:簡略化結果：左（オリジナル）2103ポリゴン 右（簡略化結果） 630ポリゴン</p>
+<p style="text-align: left;">&nbsp;</p>
+<h2 id="Anchor_162186377_h2_6">簡略化の品質設定</h2>
+<ul>
+  <li>正規パラメータ: --quality=&lt;quality&gt;</li>
+</ul>
+<p>著しく大きな変化をしない様に、最初に計算されたコストの最大値からX％までを削除可能とするエッジとして扱います。つまり、コストの最大値&times;X％の値以下のエッジのみが縮退するので、極端な形状変化を抑えることが出来ますが、場合によっては削減ポリゴン数が目標に達しない場合もあります。また、設定値が1.0の場合には、面の裏返り防止処理なども行わず最大限の削除をします。</p>
+<p>（特に形状のはっきりした機械的なオブジェクトなどの）最大値が著しく大きい場合には、かなり小さい設定値でないと機能しない事があります。</p>
+<p>【引数】quality,&nbsp; 0 ～1の少数　既定値：0.99</p>
+<p>&lt;使用例&gt;3dIntermediateFileOptimizer human.fmdb --polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.3 --quality 0.004&quot;</p>
+<p>次の画像は、使用例による出力結果です。図3の出力結果にたいして、--quality&nbsp;を加えた結果となっていますので、図3と比較すると違いが分かりやすいです。最大コストの0.4％以下のエッジのみを削減の対象とした結果、目元、口元など特徴的な場所が保護されやすくなっている反面、ポリゴン数が多く残っています。</p>
+<p>開放端（次節で説明してます）が存在すると、コストの最大値が大きくなる為に、設定値が小さくないと効果が出にくくなっています。同時に、開放端を動かすコストは、メッシュ内部のエッジを動かすコストよりは遥かに大きいので、開放端が動きにくくなる傾向はあります。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426959.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図４：簡略化結果：左（オリジナル）2103ポリゴン 右（簡略化結果） 865ポリゴン</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_1">アルゴリズムの概説</h3>
+<p>パラメータ --quality はオリジナルのメッシュに対する体積の変動量を抑えるための設定です。計算された各エッジのコストの最大値Mに対して、指定rateをRとすると、任意のコストxが x &lt;= R*M の場合にのみ削減を行います。また、R=1.0の場合には、面の裏返り防止処理なども行わず最大限の削除をします。</p>
+<p>
+  <a name="Anchor_162186377_property-flag"></a>
+  <br />
+</p>
+<h2 id="Anchor_162186377_h2_7">プロパティを考慮した簡略化</h2>
+<p>ここでは、プロパティを考慮した簡略化について説明します。本ライブラリの簡略化では、モデルに与えられた複数のプロパティを考慮して、その値がなるべく自然に保たれるような簡略化を行う事ができます。</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_2">パラメータ設定</h3>
+<ul>
+  <li>正規パラメータ：--property-flag &lt;flag&gt;</li>
+</ul>
+<p>リダクション時に考慮するプロパティを指定するパラメータです。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>Position　// 頂点位置を考慮する
+Normal        //頂点法線を考慮する
+UV            //UV座標（テクスチャ座標）を考慮する
+BlendWeight //モーションを考慮する
+All</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>リダクション時に考慮するプロパティを指定します。上記の文字列を組み合わせるか、それぞれ別個に設定する事で追加します。</p>
+<p>具体的には、</p>
+<p>--property-flag Position|Normal</p>
+<p>の様に、&quot;|&quot;記号で繋ぎ合わせるか、</p>
+<p>--property-flag Position&nbsp;--property-flag Normal</p>
+<p>の様に複数回呼ぶことで設定します。</p>
+<p>
+  <br />を指定した場合は、頂点と法線、UV 座標が考慮されます。<br />既定値:Position</p>
+<p>
+  <strong>ＵＶを考慮した場合、法線を考慮した場合、ブレンドウェイトを考慮した場合、のそれぞれの動作については、それぞれの別の節で説明を行います。ここでは単に、パラメータの設定方法のみを説明しました。</strong>
+</p>
+<p>
+  <a name="Anchor_162186377_protection_angle"></a>
+  <br />
+</p>
+<h2 id="Anchor_162186377_h2_8">エッジの保護</h2>
+<p>まず、エッジの保護パラメータの効果と設定を理解して頂くために必要な用語と前提知識に関して、簡単な説明を行います。その後に、パラメータの設定について説明します。</p>
+<h3 id="Anchor_162186377_h3_3">開放端と保護角</h3>
+<p>ここでは、まず開放端とエッジの保護角について説明します。</p>
+<h4 id="Anchor_162186377_h4_1">開放端</h4>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426956.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図5：開放端の図</p>
+<p>図5の赤いエッジの事を開放端、またはOpen Edgeと呼びます。青いエッジは、エッジの左右にフェースが存在していますが、赤いエッジには一方にしかフェースが存在しません。つまり、片方閉じていないエッジという事で、このように呼びます。</p>
+<h4 id="Anchor_162186377_h4_2">ＵＶ空間とＵＶアトラス</h4>
+<p>図7に示す様に、モデルにテクスチャが適用されている場合には、シェイプとは別にＵＶ座標が作る形状が存在します。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426958.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p>&nbsp;</p>
+<p style="text-align: center;">図7：ドラゴンモデル（46568ポリゴン）とそのＵＶ座標</p>
+<p>簡略化を行う場合に、図7右に見られるようなＵＶ空間に作られた閉じた図形（これをＵＶアトラスと呼びます）の形状を保護しなければ、簡略化後のモデルにテクスチャを張った結果は大きく損なわれる場合があります。特に、ＵＶアトラスの開放端（次で説明）を保護できない場合には、テクスチャを張った場合の描画結果は著しく損なわれます。このような理由から、本ライブラリでは特に指定をしない場合でも、ＵＶハードエッジの保護を行います。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426957.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図8：ハードエッジが壊れてしまった以前の例。今バージョンではこの様な問題は、殆どの場合、起こりません。</p>
+<h4 style="text-align: left;" id="Anchor_162186377_h4_3">ＵＶハードエッジ、ＵＶ空間における開放端</h4>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426953.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図９：ＵＶハードエッジ</p>
+<p>図9の様に{v 0,...,v6}からなる6角形メッシュがあり、青と橙で色分けられているUVアトラスが割り当てられている場合には、{v3, v4, v5}ではUV空間のインデックスが異なり、時に値が異なります。この時に、e(4,5), e(3,4)をハードエッジと呼びます。</p>
+<p style="text-align: left;">
+  <strong>ハードエッジを、中間ファイルの仕様から、&rdquo;インデックスの違い&rdquo;ではなく&rdquo;距離&rdquo;で判定しています。 従って、ハードエッジにしたい頂点については、ＵＶ座標値を一定以上の距離(0.00001)を離してください。</strong>
+</p>
+<h4 id="Anchor_162186377_h4_4">エッジ保護角</h4>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426955.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図６：エッジ保護角</p>
+<p>図６の太い実線を開放端とします。二本のエッジは、それぞれ角度thetaで接続しています。向きを考えず、図は左右それぞれを&Theta;として扱います。つまり、保護角thetaは0～90度の間で設定される数字となっています。</p>
+<p>この条件は、本ドキュメント内では特に言及しない限り全て同様のものであると考えてください。</p>
+<p style="text-align: left;">
+  <strong>
+    <br />
+  </strong>
+</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_4">パラメータ設定 : 開放端の保護</h3>
+<ul>
+  <li style="text-align: left;">正規パラメータ：--open-edge-lock-angle &lt;theta&gt;</li>
+</ul>
+<p>開放端の保護角を設定します。0～90度までの任意の値を設定し、指定角度以下のエッジを動かすことが出来るエッジとして扱います。&lt; theta&gt;の部分に角度を与えて使用します。</p>
+<p style="text-align: left;">【引数】theta,&nbsp; 0 ～90度の角度（※ラディアン指定ではない）　既定値：90.0</p>
+<p style="text-align: left;">&lt;使用例&gt;3dIntermediateFileOptimizer human.fmdb --polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.25 --open-edge-lock-angle XX&quot;</p>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426954.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図９：左:オリジナル（2576 ポリゴン）　中央　保護:90(643 ポリゴン)　右　保護角:0 ( 644 ポリゴン )</p>
+<p style="text-align: left;">図９に実行結果をしめします。左のオリジナルメッシュを、それぞれ保護角90度、つまり保護なし、と保護角0度、つまり一切の境界を動かさない、設定で実行した結果です。ポリゴン数は、ほぼ同じですが、開放端付近の実行結果が全く異なります。</p>
+<h4 style="text-align: left;" id="Anchor_162186377_h4_5">開放端検出について</h4>
+<p>開放端検出は、Winged Edge 構造を使って行っています。Winged Edge 構造は、エッジの縮退時に更新を行う為に最後まで利用し続けます。</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_5">パラメータ設定　：　UVハードエッジの保護</h3>
+<ul>
+  <li>正規パラメータ：--lock-uv-hard-edge &lt;theta&gt;</li>
+</ul>
+<p>【引数】theta ：　0～90度までの角度を入れる。ただし90度を指定した場合、ハードエッジの保護は行わない設定になる。既定値：90</p>
+<p>＜使用例＞3dIntermediateFileOptimizer human.fmdb --polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.125 --property-flag Position|UV --lock-uv-hard-edge 90&quot;</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426952.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図10：　5820 ポリゴン。ハードエッジの保護なしでの実行結果、ＵＶ境界が動く分だけ、形状は維持される</p>
+<p style="text-align: left;">＜使用例＞3dIntermediateFileOptimizer human.fmdb&nbsp;--polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.125 --property-flag Position|UV --lock-uv-hard-edge 0&quot;</p>
+<p style="text-align: center;">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162186377/161426951.png" class="embedded-image" />
+  </span>
+</p>
+<p style="text-align: center;">図１１：　5820 ポリゴン。ハードエッジを全く動かさない設定での実行結果、ＵＶ境界は動かないが、その分、形状の保持が難しくなる</p>
+<p style="text-align: left;">図10、11に実行結果を示します。ＵＶハードエッジの保護を行わないもの、と、完全に行うものの2点を示しています。図に見られるように、UVハードエッジの保護は形状への影響が非常に強い傾向にあります。一方で、低ポリゴン数のメッシュで、ＵＶアトラスを多く持つようなものについては、境界の保護を行わない時にはＵＶを張った時の結果が大きく損なわれる事があります。そうした場合に、このパラメータによって、ＵＶを貼った時の描画結果が大きく損なわれる事を防いで下さい。</p>
+<h2 style="text-align: left;" id="Anchor_162186377_h2_9">UV座標値を考慮した簡略化</h2>
+<p>ここでは、<strong>パラメータ --property-flag に ＵＶ 考慮フラグを追加した場合</strong>の動作と、UV重みパラメータの設定について説明をします。UV考慮フラグを有効にしただけでは、ＵＶを考慮した簡略化は必ずしも効果的ではない場合があります。ここで説明する、ＵＶ重みパラメータを適切に設定して頂くことが重要です。</p>
+<h3 id="Anchor_162186377_h3_6">UV空間（2次元空間）とメッシュ空間（3次元空間）の参照関係</h3>
+<p>図7に、メッシュとそのＵＶアトラスを示しています。メッシュ上の頂点iと頂点jを端点に持つエッジe(i,j)は、UV空間ではUV座標の頂点k と 頂点lを端点にもつ、エッジue(k,l)でもあります。メッシュ上のエッジが縮退すると同時に、ＵＶエッジも縮退する必要があります。</p>
+<p>例えば、図12において、メッシュにおけるe(4,5)が縮退する時には、2本のＵＶ空間のue(4,5)も同時に縮退する事になります。縮退した結果は、図13になります。</p>
+<p style="text-align: center;">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162186377/161426949.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p style="text-align: center;">図12　縮退前の状態</p>
+<p style="text-align: center;">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162186377/161426940.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p style="text-align: center;">図13　縮退後の状態</p>
+<p style="text-align: left;">図12、13で示した縮退の様子から、メッシュ空間とＵＶ空間におけるそれぞれのエッジには参照関係が存在し、それを正しく考慮した簡略化が必要であるという事が言えます。既に冒頭において、メッシュの簡略化におけるコストの算出については解説を行いました。同様に、ＵＶ空間においても、簡略化されるエッジを選ばなければなりません。以下では、ＵＶを考慮した簡略化を理解いただくためにＵＶ簡略化の際に必要な、ＵＶエッジの縮退コストの算出方法について概説を加えたいと思います。</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_7">UVエッジの縮退コスト①　非ハードエッジの縮退コスト</h3>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426947.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図14：UVエッジの縮退コスト</p>
+<p style="text-align: left;">UVエッジで境界エッジ以外のものが縮退する場合には、図14に示す様な計算方法でコストを算出します。既に説明したようにメッシュの場合は、平面からの距離がコストでした。これを次元をさげると、自然に縮退前のエッジからの距離ということになるだろうと思いますが、それはすなわち、頂点からの距離とほぼ同じものとみなすことが出来ます。そこで、エッジの両端点からの距離の内で最大値をコストとして利用します。これによって、頂点が参照するＵＶ座標の変化量を最小に抑えようとします。</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_8">UVエッジの縮退コスト②　ハードエッジの縮退コスト</h3>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426946.png" width="500" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図15：ＵＶハードエッジの縮退コスト</p>
+<p style="text-align: left;">ＵＶ境界が縮退する場合には、単に距離での評価では正確な評価を行う事が出来ません。そこで、図15の様に、ハードエッジが縮退される場合に、ハードエッジ上の頂点と縮退後の頂点を結んだ三角形の面積によって評価を行います。図では、&Delta;(v0',v0,v2)と&Delta;(v0',v1,v3)を増加分の面積、&Delta;(v0', v0, v1)を減少分コストとして、その和をハードエッジの縮退コストとして使用します。</p>
+<p style="text-align: left;">
+  <a name="Anchor_162186377_uv-wait"></a>
+  <br />
+</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_9">ＵＶ重み　：　UVコストとメッシュコストを同時に利用した簡略化</h3>
+<p>UV空間をメッシュの空間へ投射するような手法では、各空間のコストは、線形接続によって表すことが出来るので、単純に各コストを足せばいい、という事でした。しかし、現在の手法では、各コストの計算式に線形性はありませんので、足し合わせる事に正当な理由はありません。ですので、例えば重みとして利用する、などの考え方もありますが、本ライブラリでは次のようにして、それぞれのコストを利用します。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426945.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p>まず、メッシュのエッジ全体で体積の変化量によるヒープを構築します。そのヒープの中から、ユーザーによってUV重みで指定される値の分、コストの低い方からエッジを取得し、それらのエッジについてUVエッジのコストを求めて、UVコストのヒープを構築し、UVヒープより取り出した最小の変化のエッジを縮退させます。</p>
+<p>感覚的に説明すると、形状変化の下位R%を形状変化量としては全く等価とみなして、その中で、最もＵＶ座標が変化しないエッジを選んで縮退させます。</p>
+<h3 id="Anchor_162186377_h3_10">パラメータ設定　：　ＵＶ重み</h3>
+<p>UV重みを利用する為には、--property-flag でUVを有効化する必要があります。</p>
+<ul>
+  <li>正規パラメータ：--uv-weight &lt;value&gt;</li>
+</ul>
+<p>【引数】value, [0,1]の値を与えます。0の場合は、プロパティを考慮しないのと同様の結果がえられます。既定値：0.05</p>
+<p>
+  <strong>
+    <span style="color: rgb(255,0,0);">ここで、重みに0.001を与えた場合には、メッシュコストの 0.1 % のエッジを等価にします。つまり、10000本のエッジの中から、コストに低い方から10本を同列とみなす事になります。0.1を与えた場合は、実に100本分のエッジによる形状変化を等価とみなすことになります。</span>
+  </strong>
+</p>
+<p>
+  <span style="color: rgb(255,0,0);">従って、<strong>この設定はかなり結果に影響を与えます</strong>。</span>
+</p>
+<p>形状が機械的で平らな面のおおい場合には設定値が多少大きくても、影響は少なくなりますが、凹凸の強い形状では設定値が高いほど形状の変化を正しく反映できなくなります。メッシュによって最適な値を設定して頂くのがいいと思いますが、ポリゴン数に応じて既定値を決め、結果として形状が大きく損なわれている場合などで、調整して頂くのが使いやすいかと思います。</p>
+<p>＜使用例＞3dIntermediateFileOptimizer human.fmdb&nbsp;--polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.125 --property-flag Position|UV --lock-uv-hard-edge 90 --uv-weight 0.0&quot;</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426952.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図16：結果（5821ポリゴン）</p>
+<p>＜使用例＞3dIntermediateFileOptimizer human.fmdb&nbsp;--polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.125 --property-flag Position|UV --lock-uv-hard-edge 90 --uv-weight 0.001&quot;</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426944.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図17：結果（5821ポリゴン）</p>
+<p>＜使用例＞3dIntermediateFileOptimizer human.fmdb&nbsp;--polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.125 --property-flag Position|UV --lock-uv-hard-edge 90 --uv-weight 0.005&quot;</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426943.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図18：結果（5821ポリゴン）</p>
+<p>＜使用例＞3dIntermediateFileOptimizer human.fmdb&nbsp;--polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.125 --property-flag Position|UV --lock-uv-hard-edge 90　--uv-weight 0.05&quot;</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426941.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図19：結果（5821ポリゴン）</p>
+<p>三つの例では、徐々にUV重みを大きくしていきました。5%の設定では、オリジナルメッシュが持つ約70000本のエッジの中から、最初は3500本のエッジを等価とみなします。等価とみなされるエッジの本数は簡略化が進むに従って、エッジの本数が減少するのと同時に減少していきますが、図19から、5%というのは影響の大きすぎる設定値であることが言えます。このモデルでは、図17の設定値で十分ということは結果から言えそうですが、<span style="color: rgb(255,0,0);"><strong>設定値はオリジナルメッシュのエッジ本数に応じて適宜設定される方が良いでしょう</strong>。</span></p>
+<p>
+  <a name="Anchor_162186377_--normal-weight"></a>
+  <br />
+</p>
+<h2 id="Anchor_162186377_h2_10">法線を考慮した簡略化</h2>
+<p>法線を考慮した簡略化を行うには、<strong>--property-flag で法線フラグを設定する必要があります</strong>。法線重みを設定した、法線を考慮した簡略化によって、特徴的な稜線の保護が出来ます。</p>
+<h3 id="Anchor_162186377_h3_11">法線コストの算出方法</h3>
+<p>特徴的な形状を保護する為に、近似的に曲面の変化量（微分値）を評価するような方法を用います。それは、以下の方法で計算します。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426939.png" width="500" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図20：特徴的な頂点保護</p>
+<p style="text-align: left;">図20は2次元の図形を縮退させる場合の模式図です。図20の赤いエッジを縮退させる場合、縮退先は、図20の右下の様になる事が、形状を保存するという観点で考えた場合には、最も望ましいという事が言えます。従って、こうなる場合を最適とする様な計算を模式化する必要があります。</p>
+<p style="text-align: left;">ここで、各頂点法線を考えます。</p>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426938.png" width="500" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: left;">図のように頂点法線を求めた時、図20における、赤いエッジが縮退する場合の変化量を、</p>
+<span class="math-inline">\( gp0 \cdot v_{new} + d_{vol}=0 \)</span><p>,</p>
+<span class="math-inline">\( gp1 \cdot v_{new} + d_{vol}=0 \)</span><p>&nbsp;</p>
+<p style="text-align: left;">によって求めます。この時、v<sub>new</sub> は(2,2)が移動した場合の新しい頂点位置で、d<sub>vol</sub>は(2,2)を通る、頂点法線を法線とする平面の方程式のパラメータです。この式は、幾何的には頂点法線を法線とする面から新しい頂点までの距離を表しています。これらを2乗することで符号をキャンセルし、形状のコストに加算します。この処理によって、特徴的な頂点が移動する場合のコストを自然に扱う事ができます。</p>
+<span class="math-inline">\( (gp0 \cdot v_{new} + d_{vol})^2 \)</span><p>&nbsp;</p>
+<p style="text-align: left;">同時に、この式は形状変化量を求める式、</p>
+<span class="math-inline">\( (n^T \cdot v_{new} + d)^2 \)</span><p style="text-align: left;">&nbsp;</p>
+<p style="text-align: left;">と同じ式ですし、意味していることも同じなので、線形接続を行う事ができます。よって、新しい最適化位置は、自然に</p>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426934.png" width="300" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: left;">を計算する事で求める事ができます。この時、&gamma;はラグランジュ乗数になっており、この値を法線重みによって設定します。</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_12">パラメータ設定</h3>
+<p>--normal-weight で、上述のラグランジュ乗数を設定します。</p>
+<ul>
+  <li>正規パラメータ：--normal-weight &lt;value&gt;</li>
+</ul>
+<p>【引数】value, [0,1]の値を与えます。0の場合は、プロパティを考慮しないのと同様の結果がえられます。既定値：0.05</p>
+<p>
+  <a name="Anchor_162186377_blendweight-property-flag"></a>
+</p>
+<h2 style="text-align: left;" id="Anchor_162186377_h2_11">モーションを考慮した簡略化</h2>
+<p>簡易的なものですが、ブレンドウェイトを使った簡略化が可能です。<strong>--property-flagフラグに、ブレンドウェイトフラグを追加してご利用下さい</strong>。</p>
+<h3 id="Anchor_162186377_h3_13">重みの計算方法</h3>
+<p>BlendWeight&nbsp;</p>
+<span class="math-inline">\( b= \{x0,x1,x2,x3 \in R \mid 0 \leq x0 \leq 1.0, \leq x1 \leq 1.0, \leq x2 \leq 1.0, \leq x3 \leq 1.0, x0+ x1+ x2+ x3 = 1.0 \} \)</span><p>に対して、x0= x1= x2= x3=0.25を最大に、x0=1, x1=x2=x3=0（他も一緒）を最小にする様な重みを考えます。この時、分散vは、平均ｗを</p>
+<span class="math-inline">\( w = \frac{x0 + x1 + x2 + x3}{4} \)</span><p>として</p>
+<span class="math-inline">\( v  =  \frac{((x0 - w)^2 + (x1 - w)^2 + (x2 - w)^2 + (x3 - w)^2)}{4} , 1e-4 \leq v \leq 1e4 \)</span><p>で取り、重みは　<span class="math-inline">\( pow( basenum, \frac{1.0}{v} ) \)</span>にします。</p>
+<p>この時、basenum はユーザー入力変数で、 0&lt; basenum &lt;= e(ネイピア数)です</p>
+<p>BlendWeight が2つしか設定されていない場合は、残り2つをゼロで扱います。</p>
+<p>そうすることで、4つ（最大数）の BlendWeight の割り当てがある頂点を</p>
+<p>最も重く扱う効果があります。狙いとして、1より大きな数では平均的に数値が割り当てられてる場合を重く1より小さな数では、一つしか値がない場合を重くとる様にすること、また1の場合は重みなしとして扱う効果があります。</p>
+<h3 id="Anchor_162186377_h3_14">パラメータ設定</h3>
+<ul>
+  <li>正規パラメータ：--anim-blend-weight=&lt;value&gt;</li>
+</ul>
+<p>【引数】value、0からネイピア数までの任意の少数、既定値1</p>
+<p>Animation　Blend Weightに応じた頂点重みを計算する場合の基数です。既定値1は、重みの効果はありません。</p>
+<p>＜使用例＞3dIntermediateFileOptimizer human.fmdb&nbsp;--polygon-reduction --polygon-reduction-options &quot;--target-rate-lod-level1 0.3 --property-flag Position|BlendWeight &ndash;optimize-position-policy 3 --anim-blend-weight 2.0&quot;</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426932.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図22：　実行結果：　左、ブレンドウェイトなし。右、ブレンドウェイトあり。</p>
+<p style="text-align: left;">図22に実行結果を示しています。ブレンドウェイトの考慮を考慮した場合、関節付近にメッシュが残るようになります。ただし、どのようにモーションをしているか？と言う状態は、ブレンドウェイトからだけでは、難しいため、動作の状態を考慮してはいません。</p>
+<h2 style="text-align: left;" id="Anchor_162186377_h2_12">簡略化時の動作制御に用いるパラメータ</h2>
+<p>ここでは、その他の、簡略化時の挙動を制御する事が可能なパラメータについて説明を行います。</p>
+<p>
+  <a name="Anchor_162186377_optimize-position-policy"></a>
+</p>
+<h3 id="Anchor_162186377_h3_15">簡略化後の位置を設定する</h3>
+<p>ここでは、削減後の位置をどのようにして決定するかを設定するオプションについて説明します。</p>
+<ul>
+  <li>正規パラメータ：--optimize-position-policy &lt;mode&gt;</li>
+</ul>
+<p>&lt;mode&gt;に各モードの番号を与えることで使用します。頂点共有モード、と頂点共有を行わないモードが存在します。</p>
+<p>【引数】mode, 以下より選択。　既定値：OptimalOnEdge&nbsp;</p>
+<ul>
+  <li>SharedPosition : 頂点共有モードで実行</li>
+  <li>OptimalOnEdge : エッジ上の任意の点に移動</li>
+  <li>OptimalOnSpace : 最適化計算を行う</li>
+  <li>OptimalOnFace: エッジの両翼の面の中で、重心座標を用いて最適な位置に移動</li>
+</ul>
+<p>頂点共有を行う場合は、各レベルのLODの間で同じ頂点ストリームを使用する様に簡略化を行うので、簡略化後のデータサイズが小さくなる特徴があるものの、一方で特徴が損なわれやすいです。とにかく、ＬＯＤを含むデータのサイズを小さくしたい場合に有効です。</p>
+<p>頂点共有を行わない場合、最も無難なパラメータはOptimalOnEdge&nbsp;です。OptimalOnEdge&nbsp;は、エッジ上の任意の点の中で最も影響の小さな位置へ移動しますので、機械や建物などの特徴的な形状に強く、一方で動物、キャラクタなどの滑らかな形状にも妥当な結果を得やすい無難な設定です。</p>
+<p>OptimalOnFaceは、エッジ両翼の面の重心座標系内で良さそうな位置を探索するオプションです。OptimalOnEdge&nbsp;と同様に機能し、良い結果がでることもありますが、計算時間が最も大きい欠点があります。</p>
+<p>OptimalOnSpace&nbsp;は、計算によって最も影響の少ない位置を求めて移動します。動物・キャラクタなどの滑らかな形状では良い効果を発揮しやすい一方で、開放端の多いオブジェクトや機械、建物などで位置の変動が大きくなり形状を損なう場合があります。</p>
+<p>&nbsp;</p>
+<p>
+  <span style="color: rgb(255,0,0);">
+    <strong>基本的にはOptimalOnSpace&nbsp;か、OptimalOnEdge&nbsp;のいずれかを使われるのが良いでしょう。</strong>
+  </span>
+</p>
+<p>＜実行例＞</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426930.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図24：SharedPosition&nbsp; の場合、頂点共有で使用する。細い三角形が出来やすい</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426929.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図25：OptimalOnEdge&nbsp;の場合、最も無難な結果を返す。機械の様な角ばったオブジェクトに強い。</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426928.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図26:OptimalOnFace&nbsp;の場合、ＵＶなども重心座標内で探索計算をするので非常に計算時間が長い</p>
+<p>
+  <span class="embedded-file-wrapper image-center-wrapper">
+    <img src="../Attachments/Attach_162186377/161426927.png" class="embedded-image image-center" />
+  </span>
+</p>
+<p style="text-align: center;">図27:OptimalOnSpace&nbsp;の場合、計算によって最適位置を求める。もっともいい結果を得やすい。</p>
+<h4 style="text-align: left;" id="Anchor_162186377_h4_6">サブメッシュ境界について</h4>
+<p>LODモデルは、画面上で必要とされる詳細度に応じてLODレベルを場所によって変更して表示する場合があります。その1モデル内で詳細度を変更可能な単位をサブメッシュとして設定されています。詳細について別のドキュメントなどをご参照ください。<br />本機能では、サブメッシュ境界は必ず保護します。</p>
+<h3 style="text-align: left;" id="Anchor_162186377_h3_16">
+  <a name="Anchor_162186377_polyred-poly-weights"></a>簡略化時に、生成される面の形状、面積を制御する</h3>
+<p>簡略化を行う事で、非常に細長いポリゴンが出来るなど、時に面の形や大きさなどが偏る事があります。</p>
+<p>ここでは、そうした状況に対応するためのパラメータとその使い方について説明します。</p>
+<ul>
+  <li>正規パラメータ：--policy&nbsp;&lt;mode&gt;</li>
+</ul>
+<p>削減時に、各フェースの評価方針を決定します。各フェースに対して、削りにくさ、削りやすさを設定し、より意図した簡略化を行える様にします。</p>
+<p>【引数】以下から選択、既定値Default</p>
+<ul>
+  <li>AreaBased: 面積重視</li>
+  <li>AngleBased: 角度、各面の形状を重視</li>
+  <li>Default：&nbsp; 特に重み付けはしない（規定値</li>
+  <li>AreaAngleBased : 角度、面積ともに重視</li>
+</ul>
+<p>Defaultでは重みづけは行いませんが、形状的には自然な結果を得やすい設定です。AreaBased&nbsp; 設定では、面積の小さなフェースから選択され削除されていくように重みを加えることができます。AngleBasedでは、フェースの各頂点の角度が同じ値にそろえるような重みを加えて実行します。</p>
+<p>&lt;実行結果&gt;</p>
+<table style="margin-left: auto; margin-right: auto;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_162186377/161426926.png" width="500" class="embedded-image image-center" />
+        </span>
+      </th>
+      <th>
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_162186377/161426925.png" width="500" class="embedded-image image-center" />
+        </span>
+      </th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">図28　Default での結果。もっとも無難な結果が得られる</td>
+      <td>
+        <p>図29 AreaBased での結果、</p>
+        <p>面積の小さなポリゴンが優先的に削除対象となる事で、特徴が損なわれている</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_162186377/161426923.png" width="500" class="embedded-image image-center" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper image-center-wrapper">
+          <img src="../Attachments/Attach_162186377/161426924.png" width="500" class="embedded-image image-center" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>図31 AreaAngleBased での結果、</p>
+        <p>面積、面の形状に対して、同時に重みを掛けた場合。</p>
+        <p>他のオプションよりも正三角形に保ちやすく、面の大きさも均一になりやすい。</p>
+      </td>
+      <td>
+        <p>図30 Anglebased での結果、</p>
+        <p>面の形状に対して重みづけを行った結果。正三角形から形が歪むほど、重みは大きくなる</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>基本的には、Defaultで運用して頂く場合が、最も万能で、形状に対する評価が反映されやすいです。面積を一定に、三角形の形状を一定に、などの要求があった場合に異なるオプションをご利用ください。</p>
+<p>
+  <a name="Anchor_162186377_distance-offset"></a>
+</p>
+<h3 id="Anchor_162186377_h3_17">高さのオフセットを与える</h3>
+<p>アルゴリズムの特性上、完全に同一平面で構築された場所の形状変化量を評価する事ができません（距離がゼロになるので）。この様な状況に対応する為に、僅かにオフセットを与えることで、平面でもコストの計算を有効にします。</p>
+<p>
+  <strong>このパラメータを使う場合の注意として、オフセットを与える分、位置が持ち上がってしまうので --optimize-position-policy OptimalOnSpace との組み合わせにはご注意ください。</strong>
+</p>
+<ul>
+  <li>正規パラメータ：--distance-offset &lt;value&gt;</li>
+</ul>
+<p>平坦部分の多い、機械的なオブジェクトでも凹凸のあるオブジェクトであれば使う必要はありません。<strong>2次元平面を簡略化する必要がある場合にご利用ください</strong></p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426920.png" width="500" class="embedded-image" />
+        </span>
+      </th>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426921.png" width="500" class="embedded-image" />
+        </span>
+      </th>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426922.png" width="500" class="embedded-image" />
+        </span>
+      </th>
+    </tr>
+    <tr>
+      <td>オリジナルメッシュ（ＵＶアトラスをメッシュ化したもの）</td>
+      <td>図32 オフセットを入れなかった場合</td>
+      <td>図33 オフセットを入れた場合</td>
+    </tr>
+  </tbody>
+</table>
+<p>図33にオフセットを入れた場合の結果を示します。図32のオフセットを入れなかった場合を示します。オフセットを入れる事で、三角形の面積に対する評価が入っている事が分かります。</p>
+<h3 id="Anchor_162186377_h3_18">
+  <a name="Anchor_162186377_polyred-smoothing"></a>変化量を蓄積しない　：　平滑化オプション</h3>
+<p style="text-align: center;">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_162186377/161426918.png" width="500" class="embedded-image" />
+  </span>
+</p>
+<p style="text-align: center;">図34、コスト蓄積に関する模式図</p>
+<p style="text-align: left;">図34にコスト（変化量）の蓄積に関する模式的なイメージ図を示しています。図34の黒の点v0は、もともとの頂点位置を示し、簡略化でv1-v4を経て、最終的にオレンジの点v5 に至ったとします。青線は、簡略化の手順を示しています。通常のコスト演算では、v4からv5へ頂点を動かす場合、v0-v5までの（中心へと延びている）緑の線（矢印）の長さを全て足し合わせるような計算を行います。一点の周りを振動するような簡略化の進み方が起こった場合に、この移動距離が全て蓄積される事になる、ということですが、この場合、元のメッシュとの形状変化の量は実質的には、それほど大きくないにも関わらず、大きな変化が起こる操作と認識される事になります。この様な結果を除外する為に、v5と中心点の間を結ぶ緑の線のみを用いて評価する様なオプションが、ここで説明する平滑化オプションです。</p>
+<ul>
+  <li style="text-align: left;">正規パラメータ：--smoothing</li>
+</ul>
+<p style="text-align: left;">より特徴が残りやすくなり、建物や機械的な形状などに向いているオプションです。また、誤差の蓄積が起こらなくなるので、非常に小さな面で構成されている形状を簡略化する場合にも、誤動作を防ぎやすくする効果があります。</p>
+<p style="text-align: left;">大きな特徴が保護される一方で、細かな特徴が失われやすいという面もあります。</p>
+<table style="margin-left: auto; margin-right: auto;" class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426915.png" width="500" class="embedded-image" />
+        </span>
+      </th>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426914.png" width="500" class="embedded-image" />
+        </span>
+      </th>
+    </tr>
+    <tr>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426912.png" width="500" class="embedded-image" />
+        </span>
+      </td>
+      <td>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426913.png" width="500" class="embedded-image" />
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">平滑化オプションなし</td>
+      <td>平滑化オプションあり</td>
+    </tr>
+    <tr>
+      <td>距離を蓄積できる様な処理を行う為、細かな特徴が残る</td>
+      <td>距離を蓄積できる様な処理を行わないので、大まかな特徴を維持するのに適している</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <a name="Anchor_162186377_polyred-merge-shape"></a>
+</p>
+<h2 id="Anchor_162186377_h2_13">メッシュを事前処理する</h2>
+<p>
+  <span style="color: rgb(255,0,0);">もともと Maya 上で作成されているときに一つのメッシュだったものが、モデル中間ファイルでは複数のシェイプに分断される形で保存されています。モデル中間ファイルでは 1 シェイプ 1 マテリアルという制約があるためです。</span>
+</p>
+<p>
+  <span style="color: rgb(255,0,0);">&nbsp;</span>これらの境界はすべて開放端になっており、未処理の場合は、全てが「全く異なるメッシュ」として処理が行われてしまいます。この結果として、ポリゴン数が思ったよりも削れない、結果が悪い、という問題が起こり得ます。この問題を回避する為に、全てのシェイプを、簡略化の前に結合可能であれば結合する事で、モデルを一つのメッシュに纏めて簡略化を行う事ができます。</p>
+<p>簡略化が終わった後には、元のシェイプに分ける事で前後の整合性を保持します。</p>
+<p>シェイプ結合は標準で適用されます。--disable-merge-shape で無効化することができます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426917.png" class="embedded-image" />
+        </span>
+      </th>
+      <th>
+        <span class="embedded-file-wrapper ">
+          <img src="../Attachments/Attach_162186377/161426916.png" class="embedded-image" />
+        </span>
+      </th>
+    </tr>
+    <tr>
+      <td>図35 シェイプ結合あり</td>
+      <td>図36 シェイプ結合なし</td>
+    </tr>
+  </tbody>
+</table>
+<p>図36は、シェイプ結合なしで簡略化を行った場合です。至る所に穴が開いたり、欠損が起こったりしていますが、図35の様に結合を行う場合には穴がなくなっています。</p>
+<h1 id="Anchor_162186377_h1_6">過去にあった問題点とＦＡＱ</h1>
+<p>下記の問題点、およびそれ以外の問題点も含めて、問題点が解決しない場合にはお気軽に担当者までお問い合わせください。修正いたします。</p>
+<h2 id="Anchor_162186377_h2_14">地形データに穴が開いてしまう</h2>
+<p>穴が開く場合は、シェイプ結合による頂点結合が行えていない場合があります。ほぼ同じ位置でも、２点間の距離が0.00001（既定の足切り値） より離れている場合には、２点は一致しない点として処理されます。また、地形にボーンが入っている場合には、エクスポートの段階で誤差の為に一致しない点として識別される距離離れてしまう可能性があります。</p>
+<h2 id="Anchor_162186377_h2_15">ＵＶが崩れる</h2>
+<p>UVハードエッジの角度を設定していますか？</p>
+<p>適当な角度が設定されている場合には、ＵＶの崩壊は起こりにくくなっています。保護角の設定と、ＵＶ重みの設定を変更してみてください。</p>
+<h2 id="Anchor_162186377_h2_16">特徴的な頂点が動く</h2>
+<p>ノーマルを考慮する設定にしてください。同時に、特徴的な稜線角を設定して下さい。</p>
+<h2 id="Anchor_162186377_h2_17">指定したポリゴン数まで削除が出来ない</h2>
+<p>ＵＶアトラスが多く存在しており、ＵＶハードエッジの保護角を小さな角度に設定している場合など、保護要件が強い場合には簡略化が途中で止まります。想定したポリゴン数まで簡略化が行われない場合は、保護角を緩和する、試しにテクスチャ考慮をやめるなどを行ってみて下さい。</p>
+<p>また、シェイプ結合を無効化している場合に、開放端保護角が小さい場合にも同様に、ポリゴン数が減らない問題が発生しやすくなります。</p>
+<h2 id="Anchor_162186377_h2_18">シェイプ圧縮後の形状が削れ過ぎてしまう</h2>
+<p>ポリゴンリダクションはシェイプ単位で処理を行うため、シェイプ圧縮をするとシェイプ圧縮前と比べて結果が変化します。また、シェイプ圧縮はボーン圧縮の影響を受けるため、ボーン圧縮によりシェイプ圧縮の結果が変わると、リダクション結果も変化します。現在、シェイプ圧縮による結果の変化を抑制する手段はありません。特定のシェイプの形状が削れ過ぎてしまう場合は、--target-rate-per-shapes オプションを使用して特定のシェイプの形状簡略化率の下限を設定したり、--exclude-shapes オプションでリダクション対象から除外することで回避することができます。</p>
+<h1 id="Anchor_162186377_h1_7">目的別オプション早見表</h1>
+<p>より破綻を軽減したリダクション結果を得たい場合に、どのようにすれば良いか目的別に表に記します。</p>
+<p>リダクションの詳細説明は<a href="../Pages/Page_83955705.html#Anchor_83955705_polygon_reduction">中間ファイルオプティマイザー</a>のポリゴンリダクションを参照してください。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>目的</th>
+      <th>詳細</th>
+      <th>コマンド</th>
+      <th>既定値</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <th rowspan="4">
+        <p>ポリゴンの破綻を軽減したい</p>
+        <br />
+        <br />
+        <br />
+      </th>
+      <td>
+        <p>オープンエッジの破綻を軽減したい</p>
+      </td>
+      <td>
+        <strong>--open-edge-lock-angle &lt;arg&gt;</strong>
+      </td>
+      <td>
+        <strong>90.0</strong>
+      </td>
+      <td>値を小さくします（0.0～90.0）</td>
+    </tr>
+    <tr>
+      <td>特徴的な頂点の破綻を軽減したい</td>
+      <td>
+        <strong>--feature-angle</strong>
+      </td>
+      <td>
+        <strong>80.0</strong>
+      </td>
+      <td>値を小さくします（0.0～180.0）</td>
+    </tr>
+    <tr>
+      <td>
+        <p>極端なリダクションを減らして破綻を軽減したい</p>
+      </td>
+      <td>
+        <strong>--disable-merge-shape</strong>
+      </td>
+      <td>
+        <strong>無効</strong>
+      </td>
+      <td>
+        <p>ファイル内のシェイプを結合せずにリダクションを行います。</p>
+        <p>シェイプをまたいで頂点がマージされなくなります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>部分的に元の形のまま維持したい</p>
+      </td>
+      <td>
+        <strong>--exclude-shapes &quot;&quot;</strong>
+      </td>
+      <td>&nbsp;</td>
+      <td>指定したシェイプをリダクション処理の対象外とします。</td>
+    </tr>
+    <tr>
+      <th rowspan="2">法線の破綻を軽減したい</th>
+      <td>頂点位置を考慮して破綻を軽減したい</td>
+      <td>
+        <p>
+          <strong>--property-flag &lt;arg&gt;</strong>
+        </p>
+        <p>&nbsp;</p>
+      </td>
+      <td>
+        <strong>Position</strong>
+      </td>
+      <td>
+        <p>Normal：頂点位置を考慮します。</p>
+        <p>同時に複数の設定が行えます。</p>
+        <p>（Normal、UV、BlendWeight、All）</p>
+      </td>
+    </tr>
+    <tr>
+      <td>頂点法線に対する重みを考慮して破綻を軽減したい</td>
+      <td>
+        <p>
+          <strong>--normal-weight &quot;&quot;</strong>
+        </p>
+        <p>(--property-flag Normal 設定時のみ値が有効）</p>
+      </td>
+      <td>
+        <strong>1.0</strong>
+      </td>
+      <td>値を大きくします（0.0～DoubleMax）</td>
+    </tr>
+    <tr>
+      <th rowspan="3">
+        <p>UVの破綻を軽減したい</p>
+        <br />
+        <br />
+        <br />
+        <br />
+      </th>
+      <td>UV 座標（テクスチャ座標）を考慮して破綻を軽減したい</td>
+      <td>
+        <strong>--property-flag &lt;arg&gt;</strong>
+      </td>
+      <td>
+        <strong>Position</strong>
+      </td>
+      <td>
+        <p>UV：UV 座標を考慮します。</p>
+        <p>同時に複数の設定が行えます。</p>
+        <p>（Normal、UV、BlendWeight、All）</p>
+      </td>
+    </tr>
+    <tr>
+      <td>UV ハードエッジの角度を考慮して破綻を軽減したい</td>
+      <td>
+        <p>
+          <strong>--lock-uv-hard-edge &lt;arg&gt;</strong>
+        </p>
+        <p>(--property-flag UV 設定時のみ値が有効）</p>
+      </td>
+      <td>
+        <strong>90.0</strong>
+      </td>
+      <td>値を小さくします（0.0～90.0）</td>
+    </tr>
+    <tr>
+      <td>UV に対する評価割合を上げて破綻を軽減したい</td>
+      <td>
+        <p>
+          <strong>--uv-weight &quot;&quot;</strong>
+        </p>
+        <p>(--property-flag UV 設定時のみ値が有効）</p>
+      </td>
+      <td>
+        <strong>0.05</strong>
+      </td>
+      <td>値を大きくします（0.0～1.0）</td>
+    </tr>
+    <tr>
+      <th rowspan="9">
+        <span style="color: rgb(51,51,51);">ポリゴンの破綻を軽減したい（その他）</span>
+        <br />
+        <br />
+        <br />
+        <span style="color: rgb(51,51,51);">&nbsp;</span>
+        <br />
+        <br />
+        <br />
+        <br />
+      </th>
+      <td rowspan="4">
+        <span style="color: rgb(51,51,51);">リダクションの計算を変更して破綻を軽減したい</span>
+        <br />
+        <br />
+        <br />
+      </td>
+      <td rowspan="4">
+        <strong>--optimize-position-policy &lt;arg&gt;</strong>
+        <br />
+        <br />
+        <br />
+      </td>
+      <td rowspan="4">
+        <strong>OptimalOnEdge</strong>
+        <br />
+        <br />
+        <br />
+      </td>
+      <td>
+        <p>SharedPosition：</p>
+        <p>いずれかの頂点を使用し、ベースモデルとの頂点共有を行います。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>OptimalOnEdge：</p>
+        <p>エッジ上で最も最適な位置を求めて使用します。</p>
+        <p>機械や建物のような角ばった形状に適しています。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>OptimalOnSpace：</p>
+        <p>縮退後の位置を計算し、空間中で最適な位置を求めます。</p>
+        <p>動物や人間など滑らかな形状に適しています。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>OptimalOnFace：</p>
+        <p>エッジを共有する 2 面上の任意の点のどこかを縮退後の位置にします。</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="3">
+        <span style="color: rgb(51,51,51);">面積と形状を考慮して破綻を軽減したい</span>
+        <br />
+        <br />
+        <br />
+        <br />
+      </td>
+      <td rowspan="3">
+        <strong>--policy &lt;arg&gt;</strong>
+        <br />
+        <br />
+        <br />
+        <br />
+      </td>
+      <td rowspan="3">
+        <strong>重みなし</strong>
+        <br />
+        <br />
+        <br />
+        <br />
+      </td>
+      <td>AreaBased：面積を重視します。</td>
+    </tr>
+    <tr>
+      <td>AngleBased：形状を重視します。</td>
+    </tr>
+    <tr>
+      <td>AreaAngleBased：面積と形状の双方に重みが付きます。</td>
+    </tr>
+    <tr>
+      <td>モーションを考慮して破綻を軽減したい</td>
+      <td>
+        <strong>--property-flag &lt;arg&gt;</strong>
+      </td>
+      <td>
+        <strong>Position</strong>
+      </td>
+      <td>
+        <p>BlendWeight：モーションを考慮します。</p>
+        <p>同時に複数の設定が行えます。</p>
+        <p>（Normal、UV、BlendWeight、All）</p>
+      </td>
+    </tr>
+    <tr>
+      <td>Animation Blend Weight に応じた頂点の重みを考慮して破綻を軽減したい</td>
+      <td>
+        <p>&nbsp;<strong>--anim-blend-weight &quot;&quot;</strong></p>
+        <p>(--property-flag BlendWeight 設定時のみ値が有効）</p>
+      </td>
+      <td>
+        <strong>1.0</strong>
+      </td>
+      <td>値を大きくします（0.0～eネイピア数）</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <ul>
+      <li>破綻を軽減するよう値を調整するとポリゴン数は増える傾向があります。</li>
+    </ul>
+    <ul>
+      <li>表に記載して無い設定もあります。<a href="../Pages/Page_83955705.html#Anchor_83955705_polygon_reduction">中間ファイルオプティマイザー</a>のポリゴンリダクションを参照してください。</li>
+    </ul>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

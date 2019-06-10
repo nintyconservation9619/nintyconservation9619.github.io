@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>情報とオブジェクト</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 情報とオブジェクト -->
+<div class="pagetitle" id="PageId_83955654">情報とオブジェクト</div>
+<div class="text_separate">
+<h1 id="Anchor_83955654_h1_1">情報とオブジェクト</h1>
+<p>ここでは、GFX におけるほとんどのクラスが従う、情報とオブジェクトの構成について説明します。</p>
+<h2 id="Anchor_83955654_h2_1">概要</h2>
+<p>低レベルグラフィックス API によって異なるデータと、低レベルグラフィックス API に依存せず共通に扱えるデータを明確に切り分けるために、GFX では情報とオブジェクトの概念を導入します。<br />これにより、たとえば、低レベルグラフィックスグラフィックス API に依存しない共通に扱えるデータだけを、過不足なくリソース化することなどができます。</p>
+<p>低レベルグラフィックス API に依存しないクラスは情報と呼ばれます。それは GPU とは対話せず、単にいくつかの変数を格納しているだけです。オブジェクトを初期化するための引数としての役割を担います。</p>
+<p>低レベルグラフィックス API に依存するクラスはオブジェクトと呼ばれ、低レベルグラフィックス API の数だけバリエーションをもっています。それは GPU と対話するために、対象の低レベルグラフィックス API に特有な情報を保持しています。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955654/90145093.png" class="embedded-image" />
+  </span>
+</p>
+<p>情報とオブジェクトのどちらも、GFX におけるクラスの規則に従います。詳細については<a href="../Pages/Page_83955626.html">クラス</a>を参照してください。&nbsp;</p>
+<h2 id="Anchor_83955654_h2_2">情報</h2>
+<p>情報は、低レベルグラフィックス API に依存せず、共通に扱えるパラメーターを保持しているクラスです。<br />低レベルグラフィックス API に依存していないため、オブジェクトと異なりバリエーションをもっていません。リソース化されることを想定しています。</p>
+<p>情報はオブジェクトに依存せず、それ自身で完結しています。</p>
+<p>情報は対応するオブジェクトを初期化するためのパラメーターをもっています。それぞれのパラメーターは、対応する Set 関数を通して設定されます。また、情報に設定されているパラメーターは、対応する Get 関数を通して取得されます。<br />それぞれのパラメーターは低レベルグラフィックス API 特有ではなく、列挙値のパラメーターについては GFX で定義されている列挙を使います。<br />興味のないパラメーターについては、SetDefault() 関数を呼ぶことで GFX にデフォルト値を設定させることができます。<br />また、リソース化されることを想定しているため、パラメータの最後にある程度の予約領域を確保しています。&nbsp;</p>
+<p>情報クラスはその名前に接尾辞 &quot;Info&quot; がついています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::gfx::*Info</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>すべての情報クラスは以下のインターフェイスをもっています。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>インターフェイス</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>コンストラクター</td>
+      <td>それぞれのパラメーターをゼロに初期化</td>
+    </tr>
+    <tr>
+      <td>SetDefault()</td>
+      <td>それぞれのパラメーターをデフォルトに初期化</td>
+    </tr>
+  </tbody>
+</table>
+<p>デフォルト値はコンストラクターによるゼロ初期化値とは異なり、一般的によく使われる値を意味します。</p>
+<p>オブジェクトの初期化のために使用したあと、情報はオブジェクトによって参照されないため、破棄することができます。オブジェクトを初期化するための一時的な変数として宣言することができます。</p>
+<h2 id="Anchor_83955654_h2_3">オブジェクト</h2>
+<p>オブジェクトは、低レベルグラフィックス API に依存しており、GPU と対話するためのステートを保持しているクラスです。<br />低レベルグラフィックス API に依存しているため、それぞれの低レベルグラフィックス API についてのバリエーションをもっており、 その内容は異なります。<br />バリエーションについては<a href="../Pages/Page_83956170.html">低レベルグラフィックス API のバリエーション</a>を参照してください。</p>
+<p>オブジェクトは情報と異なり、特有の接尾辞をもちません。</p>
+<p>オブジェクトは対応する情報を使って初期化されます。対応する情報は InfoType として定義されます。<br />いくつかの低レベルグラフィックス API と同様に、オブジェクトは初期化したあと変更することはできません。 オブジェクトの不変性は、ドライバにおける検証や整合性をとる必要のある機会を減らします。変更したい場合は、破棄してから、ふたたび情報を使って初期化してください。<br />また、初期化時の情報の内容を取得することもできません。初期化時の情報の内容を知りたい場合は、つねに情報とセットで管理しておくなどの方法が利用できます。</p>
+<p>低レベル API ではオブジェクトのコピーが禁止されているまたは推奨されていないことがあるため、オブジェクトは基本的にコピーコンストラクターを公開しておらず、コピーを禁止するよう設計されています。ただし例外的に、低レベル API オブジェクトを含んでおらず低レベル API によってそのデータ構造が変わらないオブジェクトについては、コピーが許可されている場合があり、そのようなオブジェクトではコピーコンストラクターが公開されています。</p>
+<p>デバイスを例外として、すべてのオブジェクトはその初期化と破棄にデバイスを要求します。</p>
+<p>デバイスを除くすべてのオブジェクトが共通にもつインターフェイスは以下です。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>インターフェイス</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>InfoType</td>
+      <td>対応する情報の型定義</td>
+    </tr>
+    <tr>
+      <td>コンストラクター</td>
+      <td>オブジェクトをゼロ初期化</td>
+    </tr>
+    <tr>
+      <td>
+        <p>【メモリープールが不要の場合】</p>
+        <p>Initialize( <span class="ApiLink_nn__gfx__Device">nn::gfx::Device</span>* pDevice, const InfoType&amp; info )</p>
+      </td>
+      <td>info の情報からオブジェクトを初期化</td>
+    </tr>
+    <tr>
+      <td>
+        <p>【メモリープールが要求される場合】</p>
+        <p>Initialize( <span class="ApiLink_nn__gfx__Device">nn::gfx::Device</span>* pDevice, const InfoType&amp; info, <span class="ApiLink_nn__gfx__MemoryPool">nn::gfx::MemoryPool</span>* pMemoryPool, ptrdiff_t memoryPoolOffset, size_t memoryPoolSize )</p>
+      </td>
+      <td>info の情報からオブジェクトを初期化し、参照するメモリープールを設定</td>
+    </tr>
+    <tr>
+      <td>Finalize( <span class="ApiLink_nn__gfx__Device">nn::gfx::Device</span>* pDevice )</td>
+      <td>オブジェクトを破棄</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955654_h3_1">追加要求メモリー</h3>
+<p>いくつかのオブジェクトは、初期化するために追加のメモリーを要求します。初期化前にそれを渡しておく必要があります。<br />追加要求メモリーは、GetRequiredMemorySize() が 0 より大きい値を返す場合に SetMemory() によって設定する必要があります。</p>
+<p>追加要求メモリーは、その先頭アドレスについてアライメントを要求することもあります。<br />このアライメントは、RequiredMemoryInfo_Alignment として定義されており、追加要求メモリーとして渡すメモリーはこのアライメントに従っている必要があります。</p>
+<p>追加要求メモリーのサイズとアライメントは、低レベルグラフィックス API のバリエーションによって異なることに注意してください。</p>
+<p>追加要求メモリーについての共通インターフェイスは以下です。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>インターフェイス</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>RequiredMemoryInfo_Alignment</td>
+      <td>SetMemory に渡すメモリーが従うべきアライメント</td>
+    </tr>
+    <tr>
+      <td>GetRequiredMemorySize( const InfoType&amp; info )</td>
+      <td>この info で初期化するために必要な追加要求メモリーのサイズを返す</td>
+    </tr>
+    <tr>
+      <td>SetMemory( void* memory, size_t size )</td>
+      <td>初期化前に必要な追加要求メモリーを設定する</td>
+    </tr>
+    <tr>
+      <td>GetMemory()</td>
+      <td>設定された追加要求メモリーへのポインターを返す</td>
+    </tr>
+  </tbody>
+</table>
+<p>オブジェクトを破棄しても、追加要求メモリーは破棄されません。続く初期化で必要なメモリーのサイズとアライメントがやはり設定してあるメモリーと適合しているならば、そのまま続けて初期化することができます。</p>
+<h3 id="Anchor_83955654_h3_2">ユーザーポインター</h3>
+<p>多くの gfx のオブジェクトは、ユーザーが自由に設定・取得できるユーザーポインターをひとつ含んでいます。<br />SetUserPtr() により任意のユーザーポインターを設定し、GetUserPtr() により設定した任意のユーザーポインターを取得することができます。<br />これは主に、特定のオブジェクトに対してユーザー側で追加情報を結び付けたい場合に利用します。&nbsp;</p>
+<p>SetUserPtr() と GetUserPtr() をのぞいて、gfx ライブラリーがユーザーポインターを読み書きしたり利用したりすることはありません。</p>
+<h3 id="Anchor_83955654_h3_3">破棄についての制限</h3>
+<p>オブジェクトは、GPU によって使用中でなくなれば破棄することができます。</p>
+<p>もっとも粗い同期としては、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#afceb1f20a49ed58f99e33f2324312e1b">nn::gfx::Queue</a> の <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#afc21092b4436c72ed0ca8d23c6a2ff78">Sync</a> 関数を呼び出せば、この関数が返るときにはそれまでに提出されたコマンドの実行が完了していることが保証されるため、次の <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_queue.html#a3513accbae08380417a92fb51043f1e8">ExecuteCommand</a> 関数の呼び出しまでの間にオブジェクトを破棄することが可能です。&nbsp;</p>
+<p>コマンドバッファー単位での同期を取るには、<a href="../Pages/Page_83955552.html">フェンス</a>を利用する方法があります。<br />コマンドバッファーとともに提出されたフェンスがシグナル状態になれば、そのコマンドバッファーに含まれるコマンドはすべて GPU による実行が完了しているため、これにより破棄可能かどうかを判断することができます。&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__Device', '../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_device.html' )
+SetUrl( 'ApiLink_nn__gfx__MemoryPool', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#ad620d8208dd309eb7c4dd5973a6aeee5' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

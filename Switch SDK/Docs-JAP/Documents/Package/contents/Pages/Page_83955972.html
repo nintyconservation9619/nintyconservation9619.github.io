@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>インダイレクトテクスチャ機能</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- インダイレクトテクスチャ機能 -->
+<div class="pagetitle" id="PageId_83955972">インダイレクトテクスチャ機能</div>
+<div class="text_separate">
+<h1 id="Anchor_83955972_h1_1">インダイレクトテクスチャ機能</h1>
+<p>ここでは、インダイレクトテクスチャ機能の利用方法を説明します。<br /> インダイレクトテクスチャ機能とは、あるテクスチャ画像を別のテクスチャ画像を使用して歪ませる処理です。<br /> 歪ませるテクスチャと歪ませられるテクスチャの 2 枚のテクスチャを組み合わせて使用することで、複雑なエフェクトを作成することが可能です。<br /> <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955988/83080406.png" class="embedded-image" /></span></p>
+<h2 id="Anchor_83955972_h2_1">インダイレクト処理の仕組み</h2>
+<p>インダイレクト処理の仕組みを解説します。</p>
+<h3 id="Anchor_83955972_h3_1">インダイレクトテクスチャの各成分の扱われ方</h3>
+<p>インダイレクトテクスチャの各成分はこちらの説明のように扱われます。<br /> 各成分の値により、横方向と縦方向の基本的な歪み度合いが決まります。</p>
+<h4 id="Anchor_83955972_h4_1">例１</h4>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955988/83080407.png" class="embedded-image" />
+  </span>
+</p>
+<p>2チャンネルフォーマットのインダイレクトテクスチャ（中央のテクスチャ）の R 成分と A 成分を全て 128 にした場合は、インダイレクト処理による歪みは起こりません。</p>
+<h4 id="Anchor_83955972_h4_2">例２</h4>
+<p>インダイレクトテクスチャ（中央のテクスチャ）の R 成分と A 成分に 128 以外の値を設定した領域（画像中央部の円）だけ歪みます。<br /> （歪まされるテクスチャとインダイレクトテクスチャは、共に 256 x 256 サイズのテクスチャとし、インダイレクトテクスチャ中央部の円は 128 ピクセルの大きさとしています。）</p>
+<p class="img">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955988/83080404.png" class="embedded-image" />
+  </span>
+</p>
+<ol class="ui">
+  <li>R 成分と A 成分をそれぞれ 128 にしています。</li>
+  <li>R 成分と A 成分をそれぞれ 160 (= 128 + 32) にしています。</li>
+  <li>32 ピクセル<strong>右下</strong>の部分が表示されます。</li>
+</ol>
+<h3 id="Anchor_83955972_h3_2">インダイレクト行列による歪み度合いの変換</h3>
+<p>インダイレクトテクスチャにより求められた横縦それぞれの方向の歪み度合いにスケールや回転変換を適用することが可能です。<br /> スケールや回転にはアニメーションを設定することができるので工夫すると面白い効果を作ることができます。</p>
+<h2 id="Anchor_83955972_h2_2">テクスチャワープ機能の利用方法</h2>
+<h3 id="Anchor_83955972_h3_3">インダイレクトテクスチャ設定の大まかな流れ</h3>
+<p>インダイレクトテクスチャ設定は大きく 3 つの手順に分かれます</p>
+<p>Ⅰ．テクスチャの読み込み<br /> Ⅱ．プロパティ：マテリアルへのテクスチャ設定（最低でも通常テクスチャとインダイレクトテクスチャの2枚分を設定します）<br /> Ⅲ．プロパティ：マテリアルの テクスチャコンバイナ設定</p>
+<h2 id="Anchor_83955972_h2_3">3枚のテクスチャに対するインダイレクトテクスチャ</h2>
+<p>3枚のテクスチャに対してインダイレクトテクスチャを設定したときの動作を解説します。<br />なお、インダイレクトテクスチャを2つ設定するなどの、下記以外のパターンは、レイアウトエディタ2.9.0より前のバージョンでは設定可能でしたが、不定な動作となっていました。<br />レイアウトエディタ2.9.0以降はツール側で設定できなくなります。</p>
+<h3 id="Anchor_83955972_h3_4">「インダイレクト[歪みソース=自分、対象=前段]」を2枚目に合成設定</h3>
+<p>以下のように 2 枚目によって 1 枚目が歪み、その結果と 3 枚目を合成します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955988/83080405.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_83955972_h3_5">「インダイレクト[歪みソース=自分、対象=前段]」を3枚目に合成設定</h3>
+<p>以下のように1枚目と 2 枚目を合成し、3 枚目によってその結果が歪みます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955988/83080401.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_83955972_h3_6">「インダイレクト[歪みソース=自分と後段の混合結果、対象=前段]」を2枚目に合成設定</h3>
+<p>以下のように 2 枚目と 3 枚目を合成し、その結果によって1枚目が歪みます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955988/83080402.png" class="embedded-image" />
+  </span>
+</p>
+<h3 id="Anchor_83955972_h3_7">「インダイレクト[歪みソース=自分(3枚目)、対象=前段1と前段2]」を3枚目に合成設定</h3>
+<p>以下のように 3 枚目によって 1 枚目と 2 枚目が歪み、それぞれの結果を合成します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955988/83080403.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a name="Anchor_83955972_example"></a>
+</p>
+<h2 id="Anchor_83955972_h2_4">使用例</h2>
+<p>以下はインダイレクト機能を使用した表現サンプルです。<br />プリセット「<span style="color: rgb(51,51,51);">歪みソース=自分、対象=前段」と「<span style="color: rgb(51,51,51);">歪みソース=自分と後段の混合結果、対象=前段</span>」の比較画像です。<br /></span></p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <p style="text-align: center;">歪みソース=自分、対象=前段</p>
+      </th>
+      <th style="text-align: center;">
+        <span style="color: rgb(51,51,51);">歪みソース=自分と後段の混合結果、対象=前段</span>
+      </th>
+    </tr>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_113819952/316221251.gif" height="250" class="embedded-image" />
+          </span>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <span class="embedded-file-wrapper ">
+            <img src="../Attachments/Attach_113819952/316221254.gif" height="250" class="embedded-image" />
+          </span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="content-wrapper">
+          <p>「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955988/316223776.png" width="16" class="embedded-image" /></span> 歪み画像」で前段の画像を歪ませて「波紋」を表現しています。</p>
+        </div>
+      </td>
+      <td>
+        <div class="content-wrapper">
+          <p>同じ「<span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955988/316223776.png" width="16" class="embedded-image" /></span> 歪み画像」を合成した結果で前段の画像を歪ませています。<br />波紋が広がるタイミングをずらすことで、より自然に見せています。</p>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>インダイレクトテクスチャに関連したサンプルがあります。</p>
+<p>サンプルデータの場所：NintendoSDK\Samples\Sources\Resources\Ui2d 以下</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>\indirect\indirect.flyt</th>
+      <td>
+        <p>テクスチャの st 座標を、別のテクスチャを使用して歪ませることのできる機能です。</p>
+        <p>テクスチャワープとも呼ばれます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>\expression\flyt\test\Font_Sample.flyt</th>
+      <td>「Ａ」の文字に加算で「Ａ」の輪郭のみのテクスチャをインダイレクトテクスチャで歪ませ、SRT アニメをかけています。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span> 以下は関連ページへのリンクです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83956183.html">サンプル一覧</a>
+      </th>
+      <td>LayoutEditor を使用したサンプルデータの一覧です。 ( 付録 )</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_173214165.html">インダイレクトテクスチャ</a>
+      </th>
+      <td>インダイレクトテクスチャのサンプルについて説明します。 ( 付録 )</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83956062.html">インダイレクトテクスチャのテクスチャフォーマットによる挙動の違い</a>
+      </th>
+      <td>インダイレクトテクスチャのテクスチャフォーマットによる挙動の違いについて説明します。 ( 機能説明 )</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: SpyAudio.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">SpyAudio.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_spy_audio.html">SpyAudio</a> および <a class="el" href="_spy_audio_8cpp.html" title="nn::spy, nn::spy::audio ライブラリのサンプルプログラム ">SpyAudio.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;climits&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cmath&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/hid.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___keyboard_key_8h.html">nn/hid/hid_KeyboardKey.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___npad_8h.html">nn/hid/hid_Npad.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="htcs_8h.html">nn/htcs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="mem_8h.html">nn/mem.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="settings_8h.html">nn/settings.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="settings___debug_pad_8h.html">nn/settings/settings_DebugPad.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="util___format_string_8h.html">nn/util/util_FormatString.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/spy.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/spy/audio/spy_AudioSpyModule.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="audio_8h.html">Audio.h</a>&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_CONFIG_COMPILER_CLANG)</span></div>
+<div class="line"><span class="preprocessor">#pragma clang diagnostic ignored &quot;-Wunused-const-variable&quot;</span></div>
+<div class="line"><span class="preprocessor">#pragma clang diagnostic ignored &quot;-Wunused-function&quot;</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> HeapSize = 128 * 1024 * 1024;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">size_t</span> SpyControllerDataBufferLength = 1024 * 1024;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">char</span> g_Heap[HeapSize];</div>
+<div class="line">    <a name="_a0"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html">nn::mem::StandardAllocator</a> g_Allocator;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6">nn::hid::NpadIdType</a> g_NpadIds[] =</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a1"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">nn::hid::NpadId::No1</a>,</div>
+<div class="line">        <a name="a2"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#afc19a9a80ac740645b567fc7e1dc36cf">nn::hid::NpadId::Handheld</a>,</div>
+<div class="line">    };</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> NpadIdCountMax = <span class="keyword">sizeof</span>(g_NpadIds) / <span class="keyword">sizeof</span>(g_NpadIds[0]);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a3"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> g_PadButtonSet;</div>
+<div class="line">    <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> g_PadLastButtonSet;</div>
+<div class="line"></div>
+<div class="line">    <a name="_a4"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html">nn::spy::SpyController</a> g_SpyController;</div>
+<div class="line">    <a name="_a5"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html">nn::spy::audio::AudioSpyModule</a> g_AudioSpyModule;</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a4ae1647031daf4050c711c413891bae8">nn::spy::audio::AudioSpyModule::ChannelType</a> g_ChannelTypes[] =</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a6"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a4ae1647031daf4050c711c413891bae8a3873f4d89662da72e6fc4b8e1522368d">nn::spy::audio::AudioSpyModule::ChannelType_FrontLeft</a>,</div>
+<div class="line">        <a name="a7"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a4ae1647031daf4050c711c413891bae8a3937ef8d17e564765618aa7106ba4bae">nn::spy::audio::AudioSpyModule::ChannelType_FrontRight</a>,</div>
+<div class="line">    };</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span>* g_WorkBufferForSpyController = <span class="keyword">nullptr</span>;</div>
+<div class="line">    <span class="keywordtype">void</span>* g_WorkBufferForAudioSpyModule = <span class="keyword">nullptr</span>;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">int</span> g_AppFrameCount = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span>* g_MountRomCacheBuffer = <span class="keyword">nullptr</span>;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span>* Alloc(<span class="keywordtype">size_t</span> size)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> g_Allocator.<a name="a8"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#a53438b7a6199e4f100c59312d2f123cf">Allocate</a>(size);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> <a class="code" href="namespacenns_1_1g3d.html#ac23ca3ba1949451319eb3bbaec93a93d">Free</a>(<span class="keywordtype">void</span>* addr, <span class="keywordtype">size_t</span> size)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a9"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(size);</div>
+<div class="line">        g_Allocator.<a name="a10"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#ad81377b59c5e1532869b003cd9b5f318">Free</a>(addr);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> InitializeHid()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a11"></a><a class="code" href="namespacenn_1_1hid.html#a52f910e37e347a944be54f6860a8ed11">nn::hid::InitializeDebugPad</a>();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">//キーボードのキーを DebugPad のボタンに割り当てます。</span></div>
+<div class="line">        <a name="_a12"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html">nn::settings::DebugPadKeyboardMap</a> map;</div>
+<div class="line">        <a name="a13"></a><a class="code" href="namespacenn_1_1settings.html#a1c86670409b8289e21443084ae4cbf83">nn::settings::GetDebugPadKeyboardMap</a>(&amp;map);</div>
+<div class="line">        map.<a name="a14"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a855fdaccf56bd08f6930e2cfa5a4911a">buttonA</a> = nn::hid::KeyboardKey::A::Index;</div>
+<div class="line">        map.<a name="a15"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aaeab1b454664e959f1f3b3043bd85b9e">buttonB</a> = nn::hid::KeyboardKey::B::Index;</div>
+<div class="line">        map.<a name="a16"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a7da4c30b07d176a47fcf5793fcf2aa09">buttonX</a> = nn::hid::KeyboardKey::X::Index;</div>
+<div class="line">        map.<a name="a17"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#adfbe65964d33d758e464390324a2b9b1">buttonY</a> = nn::hid::KeyboardKey::Y::Index;</div>
+<div class="line">        map.<a name="a18"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a0657e9987759d3369eee3afeac0cbd22">buttonL</a> = nn::hid::KeyboardKey::L::Index;</div>
+<div class="line">        map.<a name="a19"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#ad9915929ab80efc8ff1e1e0ddb0c4dd1">buttonR</a> = nn::hid::KeyboardKey::R::Index;</div>
+<div class="line">        map.<a name="a20"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aa4fd4510c2a0d1ba4c5109c84e302692">buttonLeft</a> = nn::hid::KeyboardKey::LeftArrow::Index;</div>
+<div class="line">        map.<a name="a21"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aa7e06839199547265a73743783278f01">buttonRight</a> = nn::hid::KeyboardKey::RightArrow::Index;</div>
+<div class="line">        map.<a name="a22"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a1df7216265c45816bcdac2b13534d895">buttonUp</a> = nn::hid::KeyboardKey::UpArrow::Index;</div>
+<div class="line">        map.<a name="a23"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a31b4f18eb874401cde83cfaaadf5e31a">buttonDown</a> = nn::hid::KeyboardKey::DownArrow::Index;</div>
+<div class="line">        map.<a name="a24"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aa281d2e4e1da30fec73c628a630ce668">buttonStart</a> = nn::hid::KeyboardKey::Space::Index;</div>
+<div class="line">        <a name="a25"></a><a class="code" href="namespacenn_1_1settings.html#ae9b76cefb57e6e7731aa9c433a725d68">nn::settings::SetDebugPadKeyboardMap</a>(map);</div>
+<div class="line"></div>
+<div class="line">        <a name="a26"></a><a class="code" href="namespacenn_1_1hid.html#a54ad6953b9cef17b4d79171e819b0048">nn::hid::InitializeNpad</a>();</div>
+<div class="line"></div>
+<div class="line">        <a name="a27"></a><a class="code" href="namespacenn_1_1hid.html#ac04a55a989058f9d69c5c3e4e29c4480">nn::hid::SetSupportedNpadStyleSet</a>(nn::hid::NpadStyleFullKey::Mask | nn::hid::NpadStyleHandheld::Mask);</div>
+<div class="line">        <a name="a28"></a><a class="code" href="namespacenn_1_1hid.html#a82326d8c0d5f888fce443798bb829e97">nn::hid::SetSupportedNpadIdType</a>(g_NpadIds, NpadIdCountMax);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> InitializeHtcs()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a29"></a><a class="code" href="namespacenn_1_1htcs.html#a7eab72b8843a2a9ff763f52b78da680e">nn::htcs::Initialize</a>(Alloc, <a class="code" href="namespacenns_1_1g3d.html#ac23ca3ba1949451319eb3bbaec93a93d">Free</a>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> FinalizeHtcs()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a30"></a><a class="code" href="namespacenn_1_1htcs.html#abf5eb36f3563222450920fad56fdaf61">nn::htcs::Finalize</a>();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> InitializeFileSystem()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a31"></a><a class="code" href="namespacenn_1_1fs.html#ac021c163ba94a44a2b53cb848c462930">nn::fs::SetAllocator</a>(Alloc, <a class="code" href="namespacenns_1_1g3d.html#ac23ca3ba1949451319eb3bbaec93a93d">Free</a>);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordtype">size_t</span> cacheSize = 0;</div>
+<div class="line">        <a name="a32"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a33"></a><a class="code" href="namespacenn_1_1fs.html#a5df6e3385c795a5bd046790ef7f17f2d">nn::fs::QueryMountRomCacheSize</a>(&amp;cacheSize));</div>
+<div class="line">        g_MountRomCacheBuffer = g_Allocator.<a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#a53438b7a6199e4f100c59312d2f123cf">Allocate</a>(cacheSize);</div>
+<div class="line">        <a name="a34"></a><a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(cacheSize == 0 || g_MountRomCacheBuffer != <span class="keyword">nullptr</span>);</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(</div>
+<div class="line">            <a name="a35"></a><a class="code" href="namespacenn_1_1fs.html#a2e453fe1fbf8f818dc45bbd2897105cd">nn::fs::MountRom</a>(<span class="stringliteral">&quot;asset&quot;</span>, g_MountRomCacheBuffer, cacheSize)</div>
+<div class="line">        );</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> FinalizeFileSystem()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a36"></a><a class="code" href="namespacenn_1_1fs.html#ac8a95249afd4a87a55d319dfecb0466c">nn::fs::Unmount</a>(<span class="stringliteral">&quot;asset&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">        g_Allocator.<a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#ad81377b59c5e1532869b003cd9b5f318">Free</a>(g_MountRomCacheBuffer);</div>
+<div class="line">        g_MountRomCacheBuffer = <span class="keyword">nullptr</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> InitializeSpy()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// nn::spy::SpyController を初期化します。</span></div>
+<div class="line">        <a name="_a37"></a><a class="code" href="structnn_1_1spy_1_1_spy_controller_1_1_initialize_arg.html">nn::spy::SpyController::InitializeArg</a> initializeArg;</div>
+<div class="line">        initializeArg.<a name="a38"></a><a class="code" href="structnn_1_1spy_1_1_spy_controller_1_1_initialize_arg.html#a33f2b841ab275d5296c9732dabcdfb46">dataBufferLength</a> = SpyControllerDataBufferLength;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordtype">size_t</span> bufferSize = <a name="a39"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#ad8db1285f74c0bd6e0ab7235da276e2f">nn::spy::SpyController::GetRequiredMemorySize</a>(initializeArg);</div>
+<div class="line">        g_WorkBufferForSpyController = g_Allocator.<a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#a53438b7a6199e4f100c59312d2f123cf">Allocate</a>(bufferSize);</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(bufferSize == 0 || g_WorkBufferForSpyController != <span class="keyword">nullptr</span>);</div>
+<div class="line"></div>
+<div class="line">        g_SpyController.<a name="a40"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#a15e999cee5cc9967eb8a517e4fc8c839">Initialize</a>(initializeArg, g_WorkBufferForSpyController, bufferSize);</div>
+<div class="line"></div>
+<div class="line">        g_AppFrameCount = 0;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> FinalizeSpy()</div>
+<div class="line">    {</div>
+<div class="line">        g_SpyController.<a name="a41"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#a737740a71504977a92759dac6f628584">Finalize</a>();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (g_WorkBufferForSpyController)</div>
+<div class="line">        {</div>
+<div class="line">            g_Allocator.<a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#ad81377b59c5e1532869b003cd9b5f318">Free</a>(g_WorkBufferForSpyController);</div>
+<div class="line">            g_WorkBufferForSpyController = <span class="keyword">nullptr</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> InitializeSpyAudio()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// バッファを確保して、AudioSpyModule を初期化</span></div>
+<div class="line">        <span class="keyword">const</span> <a name="_a42"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html">nn::audio::AudioRendererParameter</a> audioRendererParameter = GetAudioRendererParameter();</div>
+<div class="line"></div>
+<div class="line">        <a name="_a43"></a><a class="code" href="structnn_1_1spy_1_1audio_1_1_audio_spy_module_1_1_initialize_arg.html">nn::spy::audio::AudioSpyModule::InitializeArg</a> initializeArg;</div>
+<div class="line">        initializeArg.<a name="a44"></a><a class="code" href="structnn_1_1spy_1_1audio_1_1_audio_spy_module_1_1_initialize_arg.html#ac07abe78d79662ad08d9e267ab4c87c2">pAudioRendererParameter</a> = &amp;audioRendererParameter;</div>
+<div class="line">        initializeArg.<a name="a45"></a><a class="code" href="structnn_1_1spy_1_1audio_1_1_audio_spy_module_1_1_initialize_arg.html#a2140b572fdd8d7cb9ba3bee7d2ea09d1">waveformChannelCount</a> = <span class="keyword">sizeof</span>(g_ChannelTypes) / <span class="keyword">sizeof</span>(g_ChannelTypes[0]);</div>
+<div class="line">        initializeArg.<a name="a46"></a><a class="code" href="structnn_1_1spy_1_1audio_1_1_audio_spy_module_1_1_initialize_arg.html#acf93e005c3f1b93303dcb14847a52a14">pWaveformChannelTypes</a> = g_ChannelTypes;</div>
+<div class="line">        initializeArg.<a name="a47"></a><a class="code" href="structnn_1_1spy_1_1audio_1_1_audio_spy_module_1_1_initialize_arg.html#a22ea20926dc533b039be4a1ac092c087">waveformSampleFormat</a> = <a name="a48"></a><a class="code" href="namespacenn_1_1audio.html#a2edc363ab06840fc2eaf2acb551bf0c1a28ddfdb7464233b0bd4fa406aff3e31a">nn::audio::SampleFormat_PcmInt16</a>;</div>
+<div class="line">        <span class="keywordtype">size_t</span> bufferSize = <a name="a49"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a869736af29aab0c726d78e1025ca5955">nn::spy::audio::AudioSpyModule::GetRequiredMemorySize</a>(initializeArg);</div>
+<div class="line">        g_WorkBufferForAudioSpyModule = g_Allocator.<a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#a53438b7a6199e4f100c59312d2f123cf">Allocate</a>(bufferSize);</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(bufferSize == 0 || g_WorkBufferForAudioSpyModule != <span class="keyword">nullptr</span>);</div>
+<div class="line">        g_AudioSpyModule.<a name="a50"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a5f3fc21f22236d5a46a871f1fa2d9eae">Initialize</a>(initializeArg, g_WorkBufferForAudioSpyModule, bufferSize);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// AudioSpyModule の登録</span></div>
+<div class="line">        g_SpyController.<a name="a51"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#a8815a41df05d03047fc31d32b73d0f36">RegisterModule</a>(g_AudioSpyModule);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> FinalizeSpyAudio()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// AudioSpyModule の登録解除</span></div>
+<div class="line">        g_SpyController.<a name="a52"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#ad6dc518a47a291aeb0f0c9f8574826b1">UnregisterModule</a>(g_AudioSpyModule);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// AudioSpyModule の終了処理</span></div>
+<div class="line">        g_AudioSpyModule.<a name="a53"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a5f165c1a565b4cecfd6d96af3d919c23">Finalize</a>();</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// AudioSpyModule のバッファ解放</span></div>
+<div class="line">        <span class="keywordflow">if</span> (g_WorkBufferForAudioSpyModule)</div>
+<div class="line">        {</div>
+<div class="line">            g_Allocator.<a class="code" href="classnn_1_1mem_1_1_standard_allocator.html#ad81377b59c5e1532869b003cd9b5f318">Free</a>(g_WorkBufferForAudioSpyModule);</div>
+<div class="line">            g_WorkBufferForAudioSpyModule = <span class="keyword">nullptr</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Spy ツールと通信を開始します。</span></div>
+<div class="line">    <span class="keywordtype">void</span> StartSpy()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="_a54"></a><a class="code" href="structnn_1_1spy_1_1_spy_controller_1_1_open_arg.html">nn::spy::SpyController::OpenArg</a> openArg;</div>
+<div class="line">        <span class="keywordtype">bool</span> openResult = g_SpyController.<a name="a55"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#a0c43c48ffe9cdcbba64845eab23bd374">Open</a>(openArg);</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(openResult);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Spy ツールとの通信を終了します。</span></div>
+<div class="line">    <span class="keywordtype">void</span> StopSpy()</div>
+<div class="line">    {</div>
+<div class="line">        g_SpyController.<a name="a56"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#a2b3bbbb145f76452014c148787e97185">Close</a>();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// AudioSpyModule を使って、nn::audio から取得したパフォーマンスデータを Spy ツールに送信します。</span></div>
+<div class="line">    <span class="keywordtype">void</span> PushAudioPerformanceMetrics()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">void</span>* audioPerformanceBuffer = SwitchAudioPerformanceFrameBuffer();</div>
+<div class="line">        g_AudioSpyModule.<a name="a57"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#aa6218ee47bf877246ed3691ebebf2c11">PushPerformanceMetrics</a>(audioPerformanceBuffer, GetRequiredBufferSizeForAudioPerformanceFrames());</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// AudioSpyModule を使って、nn::audio から取得した出力波形を Spy ツールに送信します。</span></div>
+<div class="line">    <span class="keywordtype">void</span> PushWaveform(<a name="_a58"></a><a class="code" href="classnn_1_1os_1_1_tick.html">nn::os::Tick</a> tick)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">void</span>* buffer;</div>
+<div class="line">        <span class="keywordtype">size_t</span> readSize = <a class="code" href="namespacenn_1_1audio.html#a3b5cb0cd36d72dce3c5cc039e9c48f85">ReadCircularBufferSink</a>(&amp;buffer);</div>
+<div class="line">        <span class="keywordflow">if</span> (readSize &gt; 0)</div>
+<div class="line">        {</div>
+<div class="line">            g_AudioSpyModule.<a name="a59"></a><a class="code" href="classnn_1_1spy_1_1audio_1_1_audio_spy_module.html#a3bd08f5fbe1ab79d538a0237241f932f">PushWaveform</a>(buffer, readSize, tick);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// DebugModule を使って、Spy のデバッグ情報を Spy ツールに送信します。</span></div>
+<div class="line">    <span class="keywordtype">void</span> PushSpyDebugInfo()</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// データバッファ使用量を送信します。</span></div>
+<div class="line">        g_SpyController.<a name="a60"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#a918988f627baecc0bc35c2f8726b33ec">GetDebugModule</a>().<a name="a61"></a><a class="code" href="classnn_1_1spy_1_1_debug_module.html#adb9a809fd317e69140a333ba78a480fc">PushDataBufferUsage</a>();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Npad のボタン状態を DebugPad のボタン状態に変換します。</span></div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> MapNpadButtonSet(<span class="keyword">const</span> <a name="_a62"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::NpadButtonSet</a>&amp; buttons)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct </span>{</div>
+<div class="line">            <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::NpadButtonSet</a> from;</div>
+<div class="line">            <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> to;</div>
+<div class="line">        } buttonMapList[] = {</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::A::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::A::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::B::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::B::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::X::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::X::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::Y::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::Y::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::L::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::L::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::R::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::R::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::Left::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::Left::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::Right::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::Right::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::Up::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::Up::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::Down::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::Down::Mask,</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                nn::hid::NpadButton::Plus::Mask,</div>
+<div class="line">                nn::hid::DebugPadButton::Start::Mask,</div>
+<div class="line">            },</div>
+<div class="line">        };</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> result = {};</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; buttonMap : buttonMapList)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span> ((buttons &amp; buttonMap.from) == buttonMap.from)</div>
+<div class="line">            {</div>
+<div class="line">                result |= buttonMap.to;</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">return</span> result;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// デバッグパッドを更新します。</span></div>
+<div class="line">    <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> UpdateDebugPad()</div>
+<div class="line">    {</div>
+<div class="line">        g_PadLastButtonSet = g_PadButtonSet;</div>
+<div class="line"></div>
+<div class="line">        {</div>
+<div class="line">            <a name="_a63"></a><a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html">nn::hid::DebugPadState</a> state;</div>
+<div class="line">            <a name="a64"></a><a class="code" href="namespacenn_1_1hid.html#ad6819dc9ed7d781a23a0a44cd2a7f86c">nn::hid::GetDebugPadState</a>(&amp;state);</div>
+<div class="line">            g_PadButtonSet = state.<a name="a65"></a><a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#ab4522c3704007142e1e0619e5ed0f06e">buttons</a>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keyword">auto</span> <span class="keywordtype">id</span> : g_NpadIds)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">const</span> <span class="keyword">auto</span> styles = <a name="a66"></a><a class="code" href="namespacenn_1_1hid.html#a50e56789aa106765d43935bb1838c797">nn::hid::GetNpadStyleSet</a>(<span class="keywordtype">id</span>);</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span> (styles.Test&lt;<a name="_a67"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadStyleFullKey</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                <a name="_a68"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html">nn::hid::NpadFullKeyState</a> state;</div>
+<div class="line">                <a name="a69"></a><a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;state, <span class="keywordtype">id</span>);</div>
+<div class="line">                g_PadButtonSet |= MapNpadButtonSet(state.<a name="a70"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#ab47273cb70afeff22b5a21a62db2abab">buttons</a>);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span> (styles.Test&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadStyleHandheld</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                <a name="_a71"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html">nn::hid::NpadHandheldState</a> state;</div>
+<div class="line">                <a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;state, <span class="keywordtype">id</span>);</div>
+<div class="line">                g_PadButtonSet |= MapNpadButtonSet(state.<a name="a72"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a>);</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">return</span> ~g_PadLastButtonSet &amp; g_PadButtonSet;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> PrintUsage()</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a73"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;-----------------------------\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; SpyAudio:\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"><span class="preprocessor">#if !defined(NN_BUILD_CONFIG_SPY_ENABLED)</span></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; Warning!\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;   nn::spy is disabled.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;   nn::spy is only available on Debug or Develop build.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; [A]              play SE 0.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; [B]              play SE 1.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; [X]              play SE 2.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; [Y]              play SE 3.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; [L]              enable / disable Reverb.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; [+/Start][Space] exit.\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;-----------------------------\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> PrintMessageLine(<span class="keyword">const</span> <span class="keywordtype">char</span>* message)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(message);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">        <a name="a74"></a><a class="code" href="classnn_1_1spy_1_1_log_module.html#ab36b40af40b0bdd68cbc626df43d2f2d">nn::spy::LogModule::Write</a>(g_SpyController, message);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> PrintMessage(<span class="keyword">const</span> <span class="keywordtype">char</span>* message)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(message);</div>
+<div class="line">        <a class="code" href="classnn_1_1spy_1_1_log_module.html#ab36b40af40b0bdd68cbc626df43d2f2d">nn::spy::LogModule::Write</a>(g_SpyController, message);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> PrintResult(<span class="keywordtype">bool</span> result)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span>* strResult = result ? <span class="stringliteral">&quot; (success)&quot;</span> : <span class="stringliteral">&quot; (failure)&quot;</span>;</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(strResult);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">        <a class="code" href="classnn_1_1spy_1_1_log_module.html#ab36b40af40b0bdd68cbc626df43d2f2d">nn::spy::LogModule::Write</a>(g_SpyController, strResult);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">void</span> Mainloop()</div>
+<div class="line">    {</div>
+<div class="line">        PrintUsage();</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">while</span> (<a name="a75"></a><a class="code" href="nn___macro_8h.html#a71c0f58f6d49fe1392380eed4509ab9a">NN_STATIC_CONDITION</a>(<span class="keyword">true</span>))</div>
+<div class="line">        {</div>
+<div class="line">            WaitAudioRendererEvent();</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// アプリケーションフレームの開始時間を記録します。</span></div>
+<div class="line">            g_SpyController.<a name="a76"></a><a class="code" href="classnn_1_1spy_1_1_spy_controller.html#ab75947870a5481e7a169c8c6869ad508">SetCurrentApplicationFrame</a>(g_AppFrameCount++);</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> triggered = UpdateDebugPad();</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// SE を再生します。</span></div>
+<div class="line">            <span class="keywordflow">if</span> (triggered.<a name="a77"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::DebugPadButton::A</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                PrintMessage(<span class="stringliteral">&quot;PlaySe(0) ...&quot;</span>);</div>
+<div class="line">                <span class="keywordtype">bool</span> result = PlaySe(0);</div>
+<div class="line">                PrintResult(result);</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">if</span> (triggered.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::DebugPadButton::B</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                PrintMessage(<span class="stringliteral">&quot;PlaySe(1) ...&quot;</span>);</div>
+<div class="line">                <span class="keywordtype">bool</span> result = PlaySe(1);</div>
+<div class="line">                PrintResult(result);</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">if</span> (triggered.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::DebugPadButton::X</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                PrintMessage(<span class="stringliteral">&quot;PlaySe(2) ...&quot;</span>);</div>
+<div class="line">                <span class="keywordtype">bool</span> result = PlaySe(2);</div>
+<div class="line">                PrintResult(result);</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">if</span> (triggered.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::DebugPadButton::Y</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                PrintMessage(<span class="stringliteral">&quot;PlaySe(3) ...&quot;</span>);</div>
+<div class="line">                <span class="keywordtype">bool</span> result = PlaySe(3);</div>
+<div class="line">                PrintResult(result);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// リバーブの ON / OFF を切り替えます。</span></div>
+<div class="line">            <span class="keywordflow">if</span> (triggered.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::DebugPadButton::L</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                PrintMessageLine(IsEnableReverb() ? <span class="stringliteral">&quot;EnableReverb(false)&quot;</span> : <span class="stringliteral">&quot;EnableReverb(true)&quot;</span>);</div>
+<div class="line">                EnableReverb(!IsEnableReverb());</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span> (triggered.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt;<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::DebugPadButton::Start</a>&gt;())</div>
+<div class="line">            {</div>
+<div class="line">                PrintMessageLine(<span class="stringliteral">&quot;Exit&quot;</span>);</div>
+<div class="line">                <span class="keywordflow">return</span>;</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="namespacenn_1_1audio.html#acf560fde488cb8a60016e2463031f51c">RequestUpdateAudioRenderer</a>();</div>
+<div class="line">            <a class="code" href="classnn_1_1os_1_1_tick.html">nn::os::Tick</a> tick = <a name="a78"></a><a class="code" href="namespacenn_1_1os.html#a79e29821bfb2b0c3a5c222488e90cc89">nn::os::GetSystemTick</a>();</div>
+<div class="line"></div>
+<div class="line">            PushAudioPerformanceMetrics();</div>
+<div class="line">            PushWaveform(tick);</div>
+<div class="line">            PushSpyDebugInfo();</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">} <span class="comment">// namespace {anonymous}</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="comment">//  メイン関数です。</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a79"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    g_Allocator.Initialize(g_Heap, <span class="keyword">sizeof</span>(g_Heap));</div>
+<div class="line"></div>
+<div class="line">    InitializeHid();</div>
+<div class="line">    InitializeHtcs();</div>
+<div class="line">    InitializeFileSystem();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Audio を初期化します。</span></div>
+<div class="line">    InitializeAudio(g_Allocator);</div>
+<div class="line">    InitializeAudioPerformanceMetrics(g_Allocator);</div>
+<div class="line">    InitializeCircularBufferSink(g_Allocator);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Spy の初期化して開始します。</span></div>
+<div class="line">    InitializeSpy();</div>
+<div class="line">    InitializeSpyAudio();</div>
+<div class="line">    StartSpy();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// メインループです。</span></div>
+<div class="line">    Mainloop();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Spy を停止して、終了します。</span></div>
+<div class="line">    StopSpy();</div>
+<div class="line">    FinalizeSpyAudio();</div>
+<div class="line">    FinalizeSpy();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Audio を終了します。</span></div>
+<div class="line">    FinalizeCircularBufferSink(g_Allocator);</div>
+<div class="line">    FinalizeAudioPerformanceMetrics(g_Allocator);</div>
+<div class="line">    FinalizeAudio(g_Allocator);</div>
+<div class="line"></div>
+<div class="line">    FinalizeFileSystem();</div>
+<div class="line">    FinalizeHtcs();</div>
+<div class="line">}</div>
+<div class="line"></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

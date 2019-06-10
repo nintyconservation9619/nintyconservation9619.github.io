@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>F2F</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    F2F : Floating Point To Floating Point Conversion<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Floating Point To Floating Point Conversion" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Conversion Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "F2F", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>F2F</b>{.FTZ}{.dstfmt.srcfmt}{.rnd}{.SAT}</code>   <code>Rd{.CC},{-}{|}Sb{.extract}{|}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "F2F" } -->
+
+ .FTZ         fp32 denorm inputs and outputs are flushed to sign-preserving 0.0
+              (as long as neither .dstfmt/.srcfmt are FP64).
+
+ .srcfmt:     { <b>.F16, .F32*, .F64, INVALID</b> } 
+ .dstfmt:     { <b>.F16, .F32*, .F64, INVALID</b> } 
+              ----------------------------------------
+                 .SRCFMT     .DSTFMT       Status
+              ----------------------------------------
+                  .F16        .F16           OK
+                  .F16        .F32           OK
+                  .F16        .F64        <b>Illegal</b>
+                  .F32        .F16           OK
+                  .F32        .F32           OK
+                  .F32        .F64           OK
+                  .F64        .F16        <b>Illegal</b>
+                  .F64        .F32           OK
+                  .F64        .F64           OK
+              ----------------------------------------
+
+ .rnd:        if (.srcfmt &lt; .dstfmt)
+                { <b>INVALID</b> } 
+              else if (.srcfmt == .dstfmt)
+                { <b>.PASS*, .ROUND, .FLOOR, .CEIL, .TRUNC</b> } 
+              else
+                { <b>.RN*, .RM, .RP, .RZ</b> } 
+
+ .SAT:        saturate to (+0.0,1.0). NaN is converted to +0.0.
+              Only supported if .srcfmt and .dstfmt are not FP64.
+
+ .CC:         Write condition codes
+
+ .extract:    {.H0,.H1}
+              .F16 extraction from bottom(H0) or top(H1) 16b.
+              Only legal if srcfmt==.F16
+              
+
+The following source Sb combinations are allowed for FP16 input:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(((#Imm20 &amp; 0x0000_ffff)&lt;&lt;16) | (#Imm20 &amp; 0x0000_ffff))
+
+The following source Sb combinations are allowed for FP32 input:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20&lt;&lt;12)
+
+The following source Sb combinations are allowed for FP64 input:
+    Sb(even aligned register)
+    Sb(64-bit constant with immediate address -- 
+       Upper 32-bits are taken from constant, lower 3 address bits must be 0x4, 
+       Lower 32 bits of Sb are always 0)
+    Sb(#IMM20&lt;&lt;44)
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+<p>
+The floating point contents of source Sb are converted/moved into destination Rd.</p>
+<pre>
+  .F16 is 1.5.10 format              // denorms are supported/don't-care in all APIs
+  .F32 is 1.8.23 format              // denorms NOT supported in DirectX
+  .F64 is 1.11.52 format             // denorms are supported/don't-care in all modes
+</pre>
+
+<p>
+Write destination of .F16 would be padded with top 16b of 0.</p>
+<p>
+The conversions are as follows:</p>
+<ol><li>Optional absolute value and/or negate. If both are specified, the abs is done first.</li>
+    <li>Conversion modes (.rnd):
+    <ol><li>If the source format has less mantissa bits than the destination format: (encoding fields IR[1] and RND[2] ignored)
+	 lsb pad destination mantissa with 0's</li>
+        <li>If the source format is the same as the destination format and encoding field IR[1] = PASS:
+	 Pass-through (encoding field RND[2] ignored)</li>
+        <li>If the source format is the same as the destination format and encoding field IR[1] = RND:
+        <pre>
+         0: .ROUND - Integer Round to the nearest even       // round
+         1: .FLOOR - Integer Round towards -Infinity         // floor
+         2: .CEIL  - Integer Round towards +Infinity         // ceiling
+         3: .TRUNC - Integer Round towards 0                 // truncate 
+         </pre></li>
+         <li>If the source format has more mantissa bits than the destination format: (encoding field IR[1] ignored)
+         <pre>
+         0: .RN - Mantissa lsb round to nearest even
+         1: .RM - Mantissa lsb round towards -Infinity 
+         2: .RP - Mantissa lsb rount towards +Infinity
+         3: .RZ - Mantissa lsb round towards 0
+         </pre></li>
+    </ol></li>
+    <li>Optional saturate (.SAT) to (+0.0,1.0). NaN is converted to +0.0.</li>
+</ol>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>F2F.F32.F32</b> R0,-R1;
+<b>F2F.F32.F32.CEIL</b> R0,-R1;
+<b>F2F.F32.F16</b> R0,-R1.H0;
+<b>F2F.F16.F32.RN</b> R0,-R1;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

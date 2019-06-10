@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>制限</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 制限 -->
+<div class="pagetitle" id="PageId_83955873">制限</div>
+<div class="text_separate">
+<h1 id="Anchor_83955873_h1_1">制限</h1>
+<p>ここでは、GFX ライブラリーを使う際の制限について説明します。</p>
+<h2 id="Anchor_83955873_h2_1">GL4 版での GLSL シェーダーにおけるユニフォームブロックとサンプラーの初期 binding の上書き</h2>
+<p>GFX において、GL4 版でシェーダーを初期化する際に GLSL ソースを使う場合は、ユニフォームブロックやサンプラーに binding レイアウト修飾子を指定していても、シェーダー初期化の際にその値が変更されることがあります。</p>
+<h3 id="Anchor_83955873_h3_1">セパレートシェーダーの場合</h3>
+<p>GL4 版でシェーダーを&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_shader_info.html#a281495fe6c18ea882544a90391dba39b">nn::gfx::ShaderInfo::SetSeparationEnabled( true )</a>&nbsp;の情報から初期化する場合は、あらゆる binding 指定が上書きされる可能性があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span> <span class="n">binding</span> <span class="o">=</span> <span class="mi">3</span> <span class="p">)</span> <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">tex</span><span class="p">;</span> <span class="c1">// binding は 3 ではないかもしれない
+</span><span class="n">layout</span><span class="p">(</span> <span class="n">binding</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">std140</span> <span class="p">)</span> <span class="n">uniform</span> <span class="n">Mat</span> <span class="c1">// binding は 4 ではないかもしれない
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>初期 binding の値をあてにすることができないため、<a href="../../../Api/HtmlNX/namespacenn_1_1gfx.html#a134193f9c28fadc8dfd08e80f55677b1">nn::gfx::Shader</a> の <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_t_shader.html#a40f2b7445a7507aa747549259ce13a86">GetInterfaceSlot</a>&nbsp;を呼ぶことで動的に値を取得してください。</p>
+<h3 id="Anchor_83955873_h3_2">非セパレートシェーダーの場合</h3>
+<p>GL4 版でシェーダーを&nbsp;<a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_shader_info.html#a281495fe6c18ea882544a90391dba39b">nn::gfx::ShaderInfo::SetSeparationEnabled( false )</a> の情報から初期化する場合は、binding に 0 を指定している場合のみ上書きされる可能性があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span> <span class="n">binding</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span> <span class="n">uniform</span> <span class="n">sampler2D</span> <span class="n">tex</span><span class="p">;</span> <span class="c1">// binding は 0 ではないかもしれない
+</span><span class="n">layout</span><span class="p">(</span> <span class="n">binding</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">std140</span> <span class="p">)</span> <span class="n">uniform</span> <span class="n">Mat</span> <span class="c1">// binding は 4
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>初期 binding の値を使いたい場合は 0 以外の値を指定してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

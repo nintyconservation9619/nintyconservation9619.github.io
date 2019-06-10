@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>FSET</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    FSET : FP32 Compare And Set<br>
+    <!-- SUMMARY_TABLE_INFO { description => "FP32 Compare And Set" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "FSET", subsection => 0 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>FSET</b>{.bval}.cmp{<b>.FTZ</b>}</code>       <code>Rd{<b>.CC</b>}, {-}{|}Ra{|}, {-}{|}Sb{|}</code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FSET" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>FSET</b>{.bval}.cmp{<b>.FTZ</b>}.bop</code>   <code>Rd{<b>.CC</b>}, {-}{|}Ra{|}, {-}{|}Sb{|}, {<b>!</b>}Pp</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "FSET" } -->
+
+
+  .bval:  { <b>.BM*, .BF</b> }
+          Boolean mask or Boolean float value to set in Rd, default .BM
+
+  .cmp:   { <b>.F,   .LT,  .EQ,  .LE,  .GT,  .NE,  .GE,  .NUM,</b>    FP32 numeric comparisons
+            <b>.NAN, .LTU, .EQU, .LEU, .GTU, .NEU, .GEU, .T  </b> }   FP32 numeric or Unordered comparisons
+
+ .FTZ:       Denorm inputs are flushed to sign preserving 0.0.
+
+  .bop:   { <b>.AND, .OR, .XOR</b> }        Boolean op with predicate {!}Pp
+
+  .CC:    Write condition codes
+
+<b>FSET</b> allows the following source Sb:
+    Sb(register)
+    Sb(constant with immediate address)
+    Sb(#IMM20&lt;&lt;12)
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+<b>FSET</b>{.bval}.cmp.bop compares register Ra and source operand Sb with
+FP32 comparison operation .cmp, combines the Boolean comparison result with
+predicate operand {!}Pp using the Boolean operation .bop, and sets
+the destination register Rd to integer ~0x0 or floating point 1.0f 
+if the comparison is true, otherwise it sets Rd to 0. The Boolean operation
+.bop may be <b>.AND</b>, <b>.OR</b>, or <b>.XOR</b>, corresponding to the C
+Boolean operations <b>&amp;</b>, <b>|</b>, and <b>^</b>.</p>
+
+<pre>
+    if (<b>.BM</b>) Rd =  ( (Ra .cmp Sb) .bop {!}Pp )? 0xFFFF_FFFF: 0;     // SET Boolean mask all 1s or all 0s
+    if (<b>.BF</b>) Rd =  ( (Ra .cmp Sb) .bop {!}Pp )? 0x3F80_0000: 0;     // SET FP32 Boolean 1.0f or 0.0f
+</pre>
+
+<p>
+Use .bop {!}Pp for nested conditions, with an inner comparison of Ra vs. Sb,
+conditioned on an outer predicate Pp.</p>
+<p>
+The simple instruction format without .bop {!}Pp assembles as <b>.AND PT</b>,
+with the following effective functionality: </p>
+<pre>
+    if (.BM) Rd =  (Ra .cmp Sb)? 0xFFFF_FFFF: 0;     // Set Boolean mask all 1s or all 0s
+    if (.BF) Rd =  (Ra .cmp Sb)? 0x3F80_0000: 0;     // Set Boolean float FP32 1.0f or 0.0f
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>FSET.BF.AND</b> R0,R1,-R2, P3, NEU;
+
+<b>FSET.LT</b>           R8, R1, -R2;            // R8 = (R1 &lt; -R2)? ~0x0: 0;
+<b>FSET.BM.LT</b>        RZ.CC, R1, -R2;         // CC.SF = (R1 &lt; -R2); CC.ZF = !(R1 &lt; -R2); CC.OF = CC.CF = 0;
+<b>FSET.BF.GEU.FTZ</b>   R8, R1, 2.5;            // R8 = ((FTZ(R1) &gt;= 2.5) || isNan(R1))? 1.0f: 0;
+<b>FSET.EQ</b>           R8, R1, -|c[1][0x44]|;  // R8 = (R1 == -|c[1][0x44]|)? ~0x0: 0;
+
+<b>FSET.LT.AND</b>       R8, R1, R2, !P3;        // R8 = ((R1 &lt; R2) &amp; !P3)? ~0x0: 0;
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

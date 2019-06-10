@@ -1,0 +1,450 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダーリソースフロー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダーリソースフロー -->
+<div class="pagetitle" id="PageId_106333222">シェーダーリソースフロー</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_106333222_h1_1">概要</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333222_h2_1">ファイル一覧</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_106333222_h1_2">クイックフロー</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_106333222_h2_2">1. シェーダーソースの作成</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333222_h2_3">2. シェーダー設定ファイル (.fsca, .fscb) の作成</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333222_h2_4">3. シェーダー定義ファイル (.fsdb) の生成</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333222_h2_5">4. シェーダー定義ファイル (.fsdb) の利用</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333222_h2_6">5. (任意) シェーダーバリエーションファイル (.fsva, .fsvb) の作成</a>
+      </li>
+      <li>
+        <a href="#Anchor_106333222_h2_7">6. シェーダーアーカイブファイル (.bfsha) の作成</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_106333222_h1_1">概要</h1>
+<p>ここでは作成したシェーダーソースを g3d ランタイムで扱えるバイナリー形式に変換するまでのリソースフローについて説明します。ユーザーが作成したシェーダーソースは、最終的にバイナリーファイルに変換してランタイムで利用します。リソースフローで使用するシェーダーソースや中間ファイルは、主にランタイムで扱うシェーダーの構造(シェーディンモデルやシェーダープログラム)を定義したり、<a href="../Pages/Page_83955978.html">3DEditor</a> によるモデルのマテリアル編集をするための設定を行います。</p>
+<p style="text-align: center;">
+  <br />
+</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_106333222/flowchart_1.svg" />
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_106333222_h2_1">ファイル一覧</h2>
+<p>g3d シェーダーシステムでは以下の 5 種類のファイルを扱います。中間ファイルの詳細は「&nbsp;<a href="../IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;」で確認して下さい。シェーダー定義ファイルは拡張子が fsda も存在しますが 3D シェーダーコンバーターが fsda に非対応なので、基本的に fsdb を使用してください。</p>
+<table class="relative-table wrapped" style="width: 81.6786%;">
+  <colgroup>
+    <col style="width: 18.9516%;" />
+    <col style="width: 6.51882%;" />
+    <col style="width: 10.6855%;" />
+    <col style="width: 29.8387%;" />
+    <col style="width: 5.91398%;" />
+    <col style="width: 28.0914%;" />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>名前</th>
+      <th style="text-align: center;">拡張子</th>
+      <th style="text-align: center;">形式</th>
+      <th style="text-align: center;">作成方法</th>
+      <th style="text-align: center;">必須</th>
+      <th style="text-align: center;">役割</th>
+    </tr>
+    <tr>
+      <th>シェーダーソース</th>
+      <td style="text-align: center;">自由</td>
+      <td style="text-align: center;">ソースコード</td>
+      <td style="text-align: center;">
+        <p>ユーザーによる記述</p>
+      </td>
+      <td style="text-align: center;">〇</td>
+      <td style="text-align: center;">
+        <p>シェーダーロジックの記述</p>
+        <p>アノテーションの記述</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シェーダー設定ファイル</th>
+      <td style="text-align: center;">fsca/fscb</td>
+      <td style="text-align: center;">中間ファイル</td>
+      <td style="text-align: center;">ユーザーによる記述</td>
+      <td style="text-align: center;">〇</td>
+      <td style="text-align: center;">
+        <p>シェーディングモデルの定義</p>
+        <p>バリエーションの範囲設定</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シェーダー定義ファイル</th>
+      <td style="text-align: center;">fsdb</td>
+      <td style="text-align: center;">中間ファイル</td>
+      <td style="text-align: center;">シェーダー設定ファイルを <a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>で変換</td>
+      <td style="text-align: center;">〇</td>
+      <td style="text-align: center;">
+        <p>3DEditor でのマテリアル編集の参照先</p>
+        <p>モデル中間ファイルへのシェーダーアサイン</p>
+      </td>
+    </tr>
+    <tr>
+      <th>シェーダーバリエーションファイル</th>
+      <td style="text-align: center;">fsva/fsvb</td>
+      <td style="text-align: center;">中間ファイル</td>
+      <td style="text-align: center;">
+        <p>ユーザーによる記述</p>
+      </td>
+      <td style="text-align: center;">任意</td>
+      <td style="text-align: center;">バリエーションの詳細指定</td>
+    </tr>
+    <tr>
+      <th>シェーダーアーカイブ</th>
+      <td style="text-align: center;">bfsha</td>
+      <td style="text-align: center;">バイナリーファイル</td>
+      <td style="text-align: center;">シェーダー定義ファイルを 3D シェーダーコンバーターで変換</td>
+      <td style="text-align: center;">〇</td>
+      <td style="text-align: center;">g3d ランタイムで読み込まれる</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_106333222_h1_2">クイックフロー</h1>
+<p>シェーダーソースから、ランタイムで扱えるバイナリー形式に変換するまでの流れを簡単に説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_106333222_h2_1">ファイル一覧</a>
+    </li>
+    <li>
+      <a href="#Anchor_106333222_h2_2">1. シェーダーソースの作成</a>
+    </li>
+    <li>
+      <a href="#Anchor_106333222_h2_3">2. シェーダー設定ファイル (.fsca, .fscb) の作成</a>
+    </li>
+    <li>
+      <a href="#Anchor_106333222_h2_4">3. シェーダー定義ファイル (.fsdb) の生成</a>
+    </li>
+    <li>
+      <a href="#Anchor_106333222_h2_5">4. シェーダー定義ファイル (.fsdb) の利用</a>
+    </li>
+    <li>
+      <a href="#Anchor_106333222_h2_6">5. (任意) シェーダーバリエーションファイル (.fsva, .fsvb) の作成</a>
+    </li>
+    <li>
+      <a href="#Anchor_106333222_h2_7">6. シェーダーアーカイブファイル (.bfsha) の作成</a>
+    </li>
+  </ul>
+</p>
+<h2 id="Anchor_106333222_h2_2">1.&nbsp;シェーダーソースの作成</h2>
+<p>シェーダーソースには、<strong>シェーダーコードと<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>を記述</strong>します。基本的にシェーダーコードはユーザーが自由に記述することが可能ですが、g3d ライブラリーやモデル中間ファイル、<a href="../Pages/Page_83955978.html">3DEditor</a> などのツールとの連携を行うために、変数やユニフォームブロックなどのシンボル情報にアノテーションを付加する必要があります。また、g3d ライブラリーがサポートする一部のユニフォームブロックの機能などは g3d のシステムの仕様に沿った定義を行う必要があります。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_1">シェーダーアノテーション</h3>
+<p>g3d シェーダーシステムでは、コメント形式の<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>によって&nbsp;<strong>g3d ライブラリーやモデル中間ファイル、ツールなどで使用する情報を制御</strong>します。アノテーションでは以下のような設定ができます。</p>
+<ul>
+  <li>シェーダーバリエーションの制御</li>
+  <li>モデルとのシェーダーの関連付けのためのヒント情報の埋め込み</li>
+  <li>3DEditor 上の UI 定義</li>
+  <li>モデル頂点バッファの頂点インターリーブの設定</li>
+  <li>ユニフォームブロックの設定</li>
+</ul>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_2">ユニフォームブロック</h3>
+<p>
+  <a href="../Pages/Page_106332818.html">ユニフォームブロック</a>はユーザーが自由に設定することも可能ですが、<strong>シェイプ・スケルトン・マテリアル・オプション</strong>の 4 種類のユニフォームブロックに関しては g3d のシステムでサポートしており、ランタイムでは g3d ライブラリー内の対応するクラスで計算された結果をそのままシェーダーにロードすることができます。例えば、シェイプは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shape_obj.html">nn::g3d::ShapeObj</a> クラス、スケルトンは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_skeleton_obj.html">nn::g3d::SkeletonObj</a> クラス、マテリアルは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_material_obj.html">nn::g3d::MaterialObj</a> クラス、オプションは <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_shading_model_obj.html">nn::g3d::ShadingModelObj</a> クラスで値が計算され、それらの結果を直接シェーダーの各ユニフォームブロックへロードすることができます。ただし、g3d システムでサポートしているユニフォームブロックを使用する場合は、g3d の仕様に沿った定義をシェーダーソース内で行う必要があります。詳しくは<a href="../Pages/Page_106332818.html">ユニフォームブロック</a>を確認して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// g3d でサポートされるユニフォームブロックを使用する場合は適切にアノテーションを記述する必要がある
+</span><span class="n">layout</span><span class="p">(</span><span class="n">std140</span><span class="p">)</span> <span class="n">uniform</span> <span class="n">Skeleton</span> <span class="c1">// @@ id=&quot;skel&quot; type=&quot;skeleton&quot;
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vec4</span> <span class="n">mtx</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">128</span><span class="p">];</span>
+<span class="p">};</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_3">オプション変数</h3>
+<p>オプション変数は<strong><a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>の生成を制御する変数</strong>です。オプション変数を定義し、オプション変数を使用した分岐を記述することでバリエーションが定義されます。シェーダーバリエーションは、1 つのシェーダー内で単純な条件分岐を記述するのではなく、バリエーションとしてあらかじめ別々のシェーダーを生成しておくことで実行時の効率を向上させる仕組みです。詳しくは<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>を確認して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#define MULTI_TEX           ( 0 )       </span><span class="c1">// @@ id=&quot;multi_tex&quot; choice=&quot;0: 無し, 1: 補間, 2: 乗算, 3: 加算&quot;
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_4">頂点属性</h3>
+<p>g3d では、頂点属性への明示的なロケーション指定を使用することを推奨します。もし頂点属性のロケーションを指定しない場合は、シェーダーバリエーションによって複数のシェーダープログラムを切り替えて使用する際、頂点属性のロケーションがプログラムごとに変化する可能性があるため、バリエーションごとに頂点ステートを生成する必要があります。頂点属性への明示的なロケーション指定を使用した場合は、シェーダーソースからロケーションを固定することができるため、シェーダープログラムごとにロケーションを切り替える必要がありません。そのため、以下のように頂点属性への明示的なロケーション指定を使用することを推奨します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">layout</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="n">in</span> <span class="n">vec3</span> <span class="n">position</span><span class="p">;</span>
+<span class="n">layout</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="n">in</span> <span class="n">vec3</span> <span class="n">normal</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_106333222_h2_3">2. シェーダー設定ファイル (.fsca, .fscb) の作成</h2>
+<p>シェーダー設定ファイルは主に<strong>シェーディングモデルの宣言</strong>と<strong>シェーダーバリエーションの範囲や設定</strong>を行います。ユーザー自身で&nbsp;<a href="../IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;の fsc の項目を参考にして XML 形式で作成する必要があります。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_5">シェーディングモデルの定義</h3>
+<p>&lt;shader&gt; 要素にシェーディングモデルの定義を記述します。シェーディングモデルは描画に使用するシェーディングの種類を表す概念で、構成するシェーダーコードが異なる場合は別のシェーディングモデルとして定義します。シェーディングモデルを構成するシェーダーコードは &lt;vertex_shader&gt;、&lt;geometry_shader&gt;、&lt;compute_shader&gt;、&lt;fragment_shader&gt; で指定します。また、&lt;macro&gt; を使用することでシェーディングモデル全体に対してマクロを定義することが可能です。そのため、構成するシェーダーコードのパスが同じ場合でも &lt;macro&gt; の定義を別々にしたい場合は別のシェーディングモデルとして定義することになります。例えば、3つのシェーダーソース ( a_vs.glsl と b_vs.glsl, c_fs.glsl ) があった場合、(a_vs.glsl + c_vs.glsl) はシェーディングモデル A、(b_vs.glsl + c_vs.glsl)&nbsp;はシェーディングモデル B というように、シェーダーソースの組み合わせとマクロ定義でシェーディングモデルを定義します。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_6">バリエーションの設定</h3>
+<p>シェーディングモデルを構成するシェーダーコード内の<strong>オプション変数が取り得る値の範囲</strong>を &lt;variation&gt; で設定します。オプション変数はバリエーション生成を制御する変数です。id 属性にはアノテーションで設定されているオプション変数の識別子、choice 属性にはオプション変数が取り得る値の範囲を、default 属性にはデフォルト値を指定します。branch 属性にはバリエーションをプリプロセッサ変数分岐として扱うかユニフォーム変数分岐として扱うかを指定します。プリプロセッサ変数分岐とユニフォーム変数分岐については<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>を確認して下さい。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>バリエーションの範囲はシェーダーコード内のアノテーションでも設定できます。これはシェーダーコードを複数のプロジェクトで共有して使用するケースを想定したものです。<br />例えば、シェーダーコード内のアノテーションでは、シェーダーコードを使用する全てのプロジェクトに対応した幅広いバリエーション範囲を設定し、シェーダー設定ファイル(.fsca, .fscb) ではアノテーションの設定よりも狭い範囲で、プロジェクトに適したバリエーション範囲を設定することを想定しています。</p>
+  </div>
+</div>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_7">記述例</h3>
+<p>以下にシェーダー設定ファイルの例を示します。例では basic という名前のシェーディングモデルを 1 つ宣言し、3 つの<a href="../Pages/Page_84052806.html#Anchor_84052806_optionvalue">オプション変数</a>の取りうる値の範囲を指定しています。シェーダー設定ファイルに記述可能な xml 要素については、&nbsp;<a href="../IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;の fsc の項目を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;nw4f_3dif</span> <span class="na">version=</span><span class="s">&quot;4.0.0&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;shader_config</span> <span class="na">version=</span><span class="s">&quot;4.0.0&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;shader_config_info</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">code_page=</span><span class="s">&quot;65001&quot;</span>
+<span class="nt">/&gt;</span>
+<span class="nt">&lt;include_path_array</span> <span class="na">length=</span><span class="s">&quot;2&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;include_path</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">path=</span><span class="s">&quot;include&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;include_path</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">path=</span><span class="s">&quot;src&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/include_path_array&gt;</span>
+<span class="nt">&lt;shader_array</span> <span class="na">length=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;shader</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">name=</span><span class="s">&quot;basic&quot;</span> <span class="na">material_shader=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;vertex_shader</span> <span class="na">path=</span><span class="s">&quot;basic.glsl&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;fragment_shader</span> <span class="na">path=</span><span class="s">&quot;basic.glsl&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation_array</span> <span class="na">length=</span><span class="s">&quot;3&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">id=</span><span class="s">&quot;albedo_tex&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;bool&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;1&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;true&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">id=</span><span class="s">&quot;vertex_color&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;bool&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;0&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;true&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;variation</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">id=</span><span class="s">&quot;multi_tex&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">choice=</span><span class="s">&quot;[0, 3]&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">default=</span><span class="s">&quot;0&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="na">branch=</span><span class="s">&quot;true&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/variation_array&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/shader&gt;</span>
+<span class="nt">&lt;/shader_array&gt;</span>
+<span class="nt">&lt;/shader_config&gt;</span>
+<span class="nt">&lt;/nw4f_3dif&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_106333222_h2_4">3. シェーダー定義ファイル (.fsdb) の生成</h2>
+<p>シェーダー定義ファイルは、主にモデル中間ファイルに対してアサインユーティリティを使って<strong>シェーダーの変数情報を関連付け</strong>たり、<strong>3DEditor でモデルのマテリアル編集を行う際の参照先</strong>として利用されます。シェーダー定義ファイルは、シェーダーソースとシェーダーアノテーション、シェーダー設定ファイルの情報をすべて含み、内容の編集などの操作が行われることはありません。</p>
+<p>
+  <a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>を使用して シェーダー設定ファイルをコンバートします。以下に shader.fsca から output.fsdb を作成するコマンドの例を示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --output output.fsdb shader.fsca</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_106333222_h2_5">4. シェーダー定義ファイル (.fsdb) の利用</h2>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_8">モデル中間ファイルへの関連付け</h3>
+<p>
+  <strong>
+    <a href="../Pages/Page_83956043.html">アサインユーティリティー</a>
+  </strong>を使用してシェーダー定義ファイルをモデル中間ファイルに関連付けることで、アノテーションの記述に応じた一部のシェーダー情報がモデル中間ファイルに追加されます。詳細は<a href="../Pages/Page_83956043.html">アサインユーティリティー</a>を確認して下さい。</p>
+<ul>
+  <li>シェーダーの描画情報、オプション変数、サンプラー変数、マテリアルユニフォームブロック変数、頂点属性の情報がモデル中間ファイルの &lt;shader_assign&gt; に追加される</li>
+  <li>シェーダーアノテーションで設定された頂点インターリーブ情報に基づいてモデル中間ファイルの頂点バッファの定義が更新される</li>
+</ul>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_106333222/flowchart_2.svg" />
+</div>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_9">3DEditor からの参照</h3>
+<p>
+  <a href="../Pages/Page_83955978.html">3DEditor</a>&nbsp;を使用してシェーダー定義ファイルとモデル中間ファイルを開くことで、モデルのマテリアルに関連する値やオプション変数値の編集を行うことができます。この際、3DEditor は、シェーダー定義ファイル内のシェーダーアノテーションによる UI 設定 (名前・編集可能な要素かどうか・変更可能な値の範囲 等) を参照し、デザイナーが編集を行うための UI 表示を構築します。3DEditor での編集ではモデル中間ファイルの内部の値が書き換わります。シェーダー定義ファイル自体は参照されるのみで内容が書き換わることはありません。</p>
+<p>また、3DEditor ではビューアーライブラリーと接続中にシェーダーのリアルタイム編集を行うことができます。3DEditor はシェーダー定義ファイルが保持しているシェーダーソースを一時領域に展開し、エディタによる編集を待ち受けます。編集後に一時領域に展開されたシェーダーソースの保存を行うと、シェーダープログラムの再コンパイルが行われ、ビューアライブラリーによって編集後のシェーダープログラムに差し替えられます。ただしこれはビューアーライブラリーが保持するリソースのみが更新されているだけで、シェーダー定義ファイル自体は書き換わりません。変更をシェーダーソースに反映させたい場合は元のシェーダーソースに変更を反映してシェーダー定義ファイルまで再生成する必要があります。</p>
+<p>
+  <br />
+</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_106333222/flowchart_3.svg" />
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_106333222_h2_6">5. (任意) シェーダーバリエーションファイル (.fsva, .fsvb) の作成</h2>
+<p>シェーダーバリエーションファイルは、シェーダー設定ファイルで指定した<strong>バリエーション範囲を更に限定</strong>して、シェーダーアーカイブに含めるバリエーションを削減します。全てのバリエーションがバイナリーに含まれるとコンバート時間の増加やバイナリーサイズの増加が問題となるため、実際にモデルで使用されるオプション変数値に対応したバリエーションのみに限定して、シェーダーアーカイブを生成したい場合に使用することを想定しています。</p>
+<p>ユーザー自身で&nbsp;<a href="../IntermediateFileFormat/Html/3d/3dIntermediateFileFormat.html">3D 中間ファイル仕様書</a>&nbsp;の fsv の項目を参考に&nbsp;XML 形式で作成します。プロジェクトではモデル中間ファイル数が多く、手動によるオプション変数値の把握は困難であるため、自動でモデル中間ファイルのオプション変数値を参照してシェーダーバリエーションファイルを生成するスクリプト等を用意して運用することを推奨しています。</p>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_10">記述例</h3>
+<p>以下にシェーダー設定ファイルの例を示します。例では、&lt;opition&gt; で各オプション変数が取り得る値の範囲を絞ることで、&quot;ArchiveName&quot; という名前のシェーダーアーカイブの &quot;ShadingModelName&quot; という名前のシェーディングモデルが持つバリエーションを 1 つに制限しています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;nw4f_3dif</span> <span class="na">version=</span><span class="s">&quot;4.0.0&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;shader_variation</span> <span class="na">version=</span><span class="s">&quot;4.0.0&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;shader_variation_info</span> <span class="na">shader_archive=</span><span class="s">&quot;ArchiveName&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;target_shader_array</span> <span class="na">length=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;target_shader</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">shading_model_name=</span><span class="s">&quot;ShadingModelName&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;shader_program_array</span> <span class="na">length=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;shader_program</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;option_array</span> <span class="na">length=</span><span class="s">&quot;5&quot;</span><span class="nt">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;option</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">id=</span><span class="s">&quot;use_hemisphere_light&quot;</span> <span class="na">choice=</span><span class="s">&quot;1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;option</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">id=</span><span class="s">&quot;use_fog&quot;</span> <span class="na">choice=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;option</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">id=</span><span class="s">&quot;use_directional_light&quot;</span> <span class="na">choice=</span><span class="s">&quot;1&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;option</span> <span class="na">index=</span><span class="s">&quot;3&quot;</span> <span class="na">id=</span><span class="s">&quot;factor_function&quot;</span> <span class="na">choice=</span><span class="s">&quot;mul&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;option</span> <span class="na">index=</span><span class="s">&quot;4&quot;</span> <span class="na">id=</span><span class="s">&quot;use_degamma&quot;</span> <span class="na">choice=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/option_array&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/shader_program&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/shader_program_array&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nt">&lt;/target_shader&gt;</span>
+<span class="nt">&lt;/target_shader_array&gt;</span>
+<span class="nt">&lt;/shader_variation&gt;</span>
+<span class="nt">&lt;/nw4f_3dif&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_11">利用方法</h3>
+<p>シェーダー定義ファイルからシェーダーアーカイブを作成する際に&nbsp;<a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>へ入力します。</p>
+<h2 id="Anchor_106333222_h2_7">6. シェーダーアーカイブファイル (.bfsha) の作成</h2>
+<p>シェーダーアーカイブはランタイムでシェーダーを利用するために必要な情報を保持する<strong>バイナリーファイル</strong>です。シェーダー設定ファイルで定義されたシェーディングモデルや、バリエーション情報としてシェーダープログラムといった g3d のシェーダー構造を持ちます。同一シェーディングモデル内で異なるバリエーションのシェーダープログラムに対して共通のインデックスを使用して各種ロケーションを取得する事や、シェーダーアーカイブをビューアライブラリーにアタッチすることでシェーダーのリアルタイム編集を行うことができます。</p>
+<p>
+  <a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>を使用して、シェーダー定義ファイルをコンバートします。3D シェーダーコンバーターはシェーダー定義ファイルの .fsda 拡張子には対応していないため、.fsdb 拡張子のシェーダー定義ファイルを入力する必要があります。以下に shader.fsdb と shader.fsva から output.bfsha を作成するコマンド例を示します。詳細は<a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>を確認して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dShaderConverter.exe --glsl-version 430 --api-type GL --code-type Binary_Source --output output.bfsha shader.fsdb shader.fsva</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 style="margin-left: 0.5em;" id="Anchor_106333222_h3_12">利用方法</h3>
+<p>ランタイムでは、シェーダーアーカイブファイルを <a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html">nn::g3d::ResShaderFile</a> にキャストした後 Setup を行って利用を開始します。<span class="ApiLink_nn__g3d__ResShaderFile">nn::g3d::ResShaderFile</span> は、<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html" rel="nofollow">nn::g3d::ResShaderArchive</a>&nbsp;と <a href="../../../Api/HtmlNX/structnn_1_1util_1_1_binary_file_header.html">nn::util::BinaryFileHeader</a> や文字列プール等の管理情報を保持します。<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html#ab2a9392d9a139efe97b011ac5aec96c4">nn::g3d::ResShaderFile::GetResShaderArchive()</a> でシェーダーアーカイブの本体である <a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html" rel="nofollow">nn::g3d::ResShaderArchive</a>&nbsp;を取得してシェーダーの操作を行います。この後の利用方法は<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>を確認して下さい。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// ユーザーの実装でファイルをロード
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">pFile</span> <span class="o">=</span> <span class="n">LoadFile</span><span class="p">(</span><span class="s">&quot;ShaderArchive.bfsha&quot;</span><span class="p">);</span>
+ 
+<span class="c1">// ファイルのポインタを nn::g3d::ResShaderFile::ResCast() を使用してキャスト
+</span><span class="nn">nn::g3d::</span><span class="n">ResShaderFile</span><span class="o">*</span> <span class="n">pResShaderFile</span> <span class="o">=</span> <span class="nn">nn::g3d::ResShaderFile::</span><span class="n">ResCast</span><span class="p">(</span><span class="n">pFile</span><span class="p">);</span>
+
+<span class="c1">// nn::g3d::ResShaderFile のセットアップ
+</span><span class="n">pResShaderFile</span><span class="o">-&gt;</span><span class="n">Setup</span><span class="p">(</span><span class="n">pDevice</span><span class="p">);</span>
+&nbsp;
+<span class="c1">// nn::g3d::ResShaderArchive を取得
+</span><span class="nn">nn::g3d::</span><span class="n">ResShaderArchive</span> <span class="n">pResShaderArchive</span> <span class="o">=</span> <span class="n">pResShaderFile</span><span class="o">-&gt;</span><span class="n">GetResShaderArchive</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__g3d__ResShaderFile', '../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_file.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

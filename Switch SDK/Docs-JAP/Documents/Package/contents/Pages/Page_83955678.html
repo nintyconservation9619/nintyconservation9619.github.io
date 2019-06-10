@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エフェクト描画順を制御する</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エフェクト描画順を制御する -->
+<div class="pagetitle" id="PageId_83955678">エフェクト描画順を制御する</div>
+<div class="text_separate">
+<h1 id="Anchor_83955678_h1_1">描画順制御機能</h1>
+<p>描画順を制御する３つの機能を紹介します。ここでいう描画順とは描画コマンドの発行順のこと指します。</p>
+<ul>
+  <li>エミッタセットソート</li>
+  <li>中間ファイル上で解決されるソート</li>
+  <li>描画パス</li>
+</ul>
+<h2 id="Anchor_83955678_h2_1">エミッタセットソート</h2>
+<p>エミッタセット単位でビュー方向に奥から手前にソートを行い描画処理を行います。エミッタセットソートを行うには <span class="ApiLink_nn__vfx__System__AddSortBuffer">nn::vfx::System::AddSortBuffer</span> を呼び出し、グループ単位でエミッタセットをソートバッファに追加し、<span class="ApiLink_nn__vfx__System__DrawSortBuffer">nn::vfx::System::DrawSortBuffer</span> を呼び出しソートバッファに追加されたエミッタセットを描画します。System::DrawSortBuffer 呼び出すとソートバッファの中身はリセットされます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// グループ 0～2 をソートバッファに追加する。
+</span><span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">AddSortBuffer</span><span class="p">(</span> <span class="n">groupID_0</span> <span class="p">);</span>
+<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">AddSortBuffer</span><span class="p">(</span> <span class="n">groupID_1</span> <span class="p">);</span>
+<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">AddSortBuffer</span><span class="p">(</span> <span class="n">groupID_2</span> <span class="p">);</span>
+
+<span class="c1">// ソートバッファに追加されたグループを
+// ビュー方向にソートして描画コマンドを発行する。
+</span><span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">DrawSortBuffer</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_83955678_h4_1">描画プライオリティ</h4>
+<p>エミッタセットごとに描画プライオリティを設定することで、 プライオリティ + ビュー方向にソートすることもできます。プライオリティは、デフォルトで <span class="ApiLink_nn__vfx__DrawPriority_Default">nn::vfx::DrawPriority_Default</span>&nbsp;= 128 が設定されており、プライオリティ値が高いほど後で描画されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// エミッタセット単位で描画プライオリティを設定する。
+</span><span class="n">emitterSet1</span><span class="o">-&gt;</span><span class="n">SetDrawPriority</span><span class="p">(</span> <span class="nn">nn::vfx::</span><span class="n">DrawPriority_Default</span> <span class="p">);</span>
+<span class="n">emitterSet2</span><span class="o">-&gt;</span><span class="n">SetDrawPriority</span><span class="p">(</span> <span class="nn">nn::vfx::</span><span class="n">DrawPriority_Default</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">);</span>  <span class="c1">// emitterSet2 の方が後で描画される
+</span>
+<span class="c1">// ソートして描画コマンド発行。
+</span><span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">AddSortBuffer</span><span class="p">(</span> <span class="n">groupID_0</span> <span class="p">);</span>
+<span class="n">vfxSystem</span><span class="o">-&gt;</span><span class="n">DrawSortBuffer</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955678_h2_2">中間ファイル上で解決されるソート</h2>
+<p>プログラマによるランタイム上でソートではなく、 EffectMaker のエミッタ設定による描画順制御です。</p>
+<h4 id="Anchor_83955678_h4_2">エミッタソート</h4>
+<p>エミッタセット内に含まれる複数のエミッタは、 EffectMaker 上のエミッタツリー上の並び順で描画されます。</p>
+<p style="text-align: left;">
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955678/90145253.png" class="embedded-image" />
+  </span>
+</p>
+<h4 id="Anchor_83955678_h4_3">パーティクルソート</h4>
+<p>パーティクルソート機能を利用するには、EffectMaker、パーティクルソートUIでソートタイプを切り替えます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955678/90145254.png" class="embedded-image" />
+  </span>
+</p>
+<p>パーティクルソートは、４つのソートタイプから選択できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>タイプ　　　　　</th>
+      <th>概要　　</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td>ソートしない</td>
+      <td>そのままの状態で描画します。</td>
+      <td>CPU/GPUともに最速に動作します。</td>
+    </tr>
+    <tr>
+      <td>昇順</td>
+      <td>パーティクル生成順に描画します。</td>
+      <td>CPUでパーティクル年齢を利用して昇順ソートを行います。</td>
+    </tr>
+    <tr>
+      <td>降順</td>
+      <td>パーティクル逆生成順に並べて描画します。</td>
+      <td>CPUでパーティクル年齢を利用して降順ソートを行います。 </td>
+    </tr>
+    <tr>
+      <td>Zソート</td>
+      <td>パーティクルをビュー方向に並べて描画します。</td>
+      <td>CPUでパーティクル位置とカメラ位置を利用してZソートを行います。 <br /> GPU/GPU+StreamOutエミッタを利用する場合は、<br />パーティクル生成時の位置を利用してZソートが行われます。 </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_83955678_h2_3">描画パス</h2>
+<p>描画パス機能を利用することで、エミッタセット内に含まれる複数のエミッタに対して任意のタイミングで描画処理を行えます。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955678/90145255.png" class="embedded-image" />
+  </span>
+</p>
+<p>描画パスを利用するにはプロジェクトコンフィグファイルへの描画パス設定、アプリ側で描画パスを指定して描画コールを行う、２つのステップが必要になります。</p>
+<h3 id="Anchor_83955678_h3_1">描画パス設定をプロジェクトコンフィグに記述する</h3>
+<p>プロジェクトコンフィグに以下にで示すように&lt;DrawPaths/&gt;で記述します。Idで指定できる値は　0 ～ 63 までです。Text には、EffectMakerUI上で表示するテキストを指定します。記述された描画パス設定は、EffectMaker のオプションで内容の設定内容の確認が行えます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;EffectMakerProjectConfig&gt;
+&nbsp;&nbsp;&lt;LinearMode&gt;false&lt;/LinearMode&gt;
+&nbsp;&nbsp;&lt;DrawPaths&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Path Id=&quot;3&quot; Text=&quot;不透明&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Path Id=&quot;2&quot; Text=&quot;カラーコピー前&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Path Id=&quot;0&quot; Text=&quot;デフォルト&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Path Id=&quot;1&quot; Text=&quot;縮小バッファ&quot; /&gt;
+&nbsp;&nbsp;&lt;/DrawPaths&gt;
+&lt;/EffectMakerProjectConfig&gt;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>記述したプロジェクトコンフィグに従って EffectMaker / エミッタタブ / 描画設定に設定した描画パス一覧が表示され、エミッタ単位で選択できるようになります。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_83955678/90145256.png" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="with-breadcrumbs">
+          <a href="../Pages/Page_83955992.html">プロジェクト設定ファイル</a>
+        </span>
+      </th>
+      <td>プロジェクト設定ファイルの詳細が記述されたページへのリンクです。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955678_h3_2">描画パスを指定して描画コールを行う</h3>
+<p>アプリ側で以下のように描画コールすることで、描画パス指定付で描画を行えます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// 呼び出し順に従い、指定描画パスエミッタが描画されます。
+// groupID内エミッタセットに含まれる nw::eft::EFT_DRAW_PATH_FLAG_3で指定されるエミッタが描画される
+effectSystem-&gt;Draw( groupID, nw::eft::EFT_DRAW_PATH_FLAG_3 );    
+effectSystem-&gt;Draw( groupID, nw::eft::EFT_DRAW_PATH_FLAG_2 );
+effectSystem-&gt;Draw( groupID, nw::eft::EFT_DRAW_PATH_FLAG_0 );
+effectSystem-&gt;Draw( groupID, nw::eft::EFT_DRAW_PATH_FLAG_1 );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955678_h3_3">描画パスコールバック</h3>
+<p>描画パスコールバックを利用することで、エミッタ描画処理時に、エミッタ設定されている描画パスごとにコールバックを呼び出すことができます。<br />縮小バッファに描画するパスでは、描画設定を変更する、などといったニーズに利用できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <td>コールバック関数の型</td>
+      <td>DrawPathRenderStateSetCallback</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955678_h3_4">指定描画パスエミッタが存在するか調べる</h3>
+<p>以下のメソッドを利用することで、描画直前に指定描画パスに属するエミッタが描画されるかチェックすることができます。指定パスを描画する際に付属する処理を省く際に利用できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>if ( effectSystem-&gt;IsHasRenderingEmitter( groupID, nw::eft::EFT_DRAW_PATH_FLAG_1 ) )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// フレームバッファを縮小バッファに切り替える。
+
+&nbsp;&nbsp;&nbsp;&nbsp;// 縮小バッファに描画を行う。
+&nbsp;&nbsp;&nbsp;&nbsp;effectSystem-&gt;Draw( groupID, nw::eft::EFT_DRAW_PATH_FLAG_1 );
+
+&nbsp;&nbsp;&nbsp;&nbsp;// フレームバッファを戻して、縮小バッファをフレームバッファに書き戻す
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955678_h3_5">特定エミッタの描画パスを変更する</h3>
+<p>エミッタコールバック内で以下のメソッドを利用し、再生中のエミッタの描画パスを変更することができます。<br />フレームバッファ &rarr; 縮小フレームバッファ への描画先を切り替える際に利用できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>void _EmitterPostCalcCallback( nw::eft2::EmitterPostCalcArg&amp; arg )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;// 描画パスを切り替える。
+&nbsp;&nbsp;&nbsp;&nbsp;arg.emitter-&gt;SetDrawPath( path );
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_83955678_h2_4">描画パスの利用例</h2>
+<p>描画ソートと描画パスの利用例を紹介します。</p>
+<h3 id="Anchor_83955678_h3_6">不透明エフェクトを利用する場合</h3>
+<p>不透明エフェクトを利用する場合、不透明エミッタ　&rarr;　半透明エミッタ　の順に描画することで描画結果の破綻を回避することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>//  EffectMaker プロジェクトコンフィグ側設定
+&lt;Path Id=&quot;0&quot; Text=&quot;不透明&quot; /&gt;
+&lt;Path Id=&quot;1&quot; Text=&quot;半透明&quot; /&gt;
+
+//　groupIDグループ に含まれる不透明設定のエミッタを描画する
+vfxSystem-&gt;Draw( groupID, EFFECT_DRAW_PATH_OPAQUE( 0x01 &lt;&lt; 0 ) );    
+
+//　groupIDグループ に含まれる半透明設定のエミッタを描画する
+vfxSystem-&gt;Draw( groupID, EFFECT_DRAW_PATH_TRANSLUCENT( 0x01 &lt;&lt; 1 ) );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_83955678_h3_7">屈折対象にそれまでに描画したエフェクトを含めたい場合</h3>
+<p>屈折表現を利用するエフェクトを描画する際に、それまでに描画した不透明・半透明エフェクトを屈折対象に含めたい場合、<br />一番最後に屈折設定のエミッタを描画する必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>//  EffectMaker プロジェクトコンフィグ側設定
+&lt;Path Id=&quot;0&quot; Text=&quot;不透明&quot; /&gt;
+&lt;Path Id=&quot;1&quot; Text=&quot;半透明&quot; /&gt;
+&lt;Path Id=&quot;2&quot; Text=&quot;屈折&quot; /&gt;
+ 
+//　groupIDグループ に含まれる不透明設定のエミッタを描画する
+vfxSystem-&gt;Draw( groupID, EFFECT_DRAW_PATH_OPAQUE( 0x01 &lt;&lt; 0 ) );    
+
+//　groupIDグループ に含まれる半透明設定のエミッタを描画する
+vfxSystem-&gt;Draw( groupID, EFFECT_DRAW_PATH_TRANSLUCENT( 0x01 &lt;&lt; 1 ) );
+
+// この時点でのカラーバッファの内容をテクスチャ化し、エフェクトランタイムに設定
+vfxSystem-&gt;SetFrameBufferTexture( frameBufferTexture );
+
+//　groupIDグループ に含まれる屈折エフェクト設定のエミッタを描画する
+vfxSystem-&gt;Draw( groupID, EFFECT_DRAW_PATH_REFRACT( 0x01 &lt;&lt; 2 ) );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__vfx__System__AddSortBuffer', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#abc4d0816f94eb03fafcedf36ec3988b3' )
+SetUrl( 'ApiLink_nn__vfx__System__DrawSortBuffer', '../../../Api/HtmlNX/classnn_1_1vfx_1_1_system.html#a5465e7f31c343a42f6ef192dc1dd1a3d' )
+// ApiLink_nn__vfx__DrawPriority_Default
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>DescriptorPoolAllocator</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- DescriptorPoolAllocator -->
+<div class="pagetitle" id="PageId_162934648">DescriptorPoolAllocator</div>
+<div class="text_separate">
+<h1 id="Anchor_162934648_h1_1">はじめに</h1>
+<p>DescriptorPoolAllocator は、デスクリプタープール上のスロットを小分けにして使用するためのアロケーターです。</p>
+<p>管理領域用のメモリーは、ユーザーが指定したコールバック関数によって確保・解放されます。</p>
+<h1 id="Anchor_162934648_h1_2">DescriptorPoolAllocator</h1>
+<h2 id="Anchor_162934648_h2_1">ヘッダーファイル</h2>
+<p>nn/gfx/util/gfx_DescriptorPoolAllocator.hをインクルードしてください。</p>
+<h2 id="Anchor_162934648_h2_2">使用方法</h2>
+<p>1. アロケーターで使用するメモリ確保・解放関数を用意します。</p>
+<p>デスクリプタープール自体もあらかじめ初期化しておく必要があります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/gfx/util/gfx_DescriptorPoolAllocator.h&gt;
+</span>
+<span class="kt">void</span><span class="o">*</span> <span class="nf">UserAllocateFunction</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pParam</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">pParam</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">UserFreeFunction</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">pParam</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">pParam</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nn">nn::gfx::</span><span class="n">DescriptorPool</span> <span class="n">g_DescriptorPool</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>2. DescriptorPoolAllocator を初期化します。</p>
+<p>メモリー確保・解放関数、デスクリプタープール、開始スロットインデックス、スロット数、スレッドセーフフラグを指定します。</p>
+<p>スレッドセーフを有効にすると、Allocate 関数および Free 関数がスレッドセーフで呼ばれるようになります。</p>
+<p>
+  <br />
+</p>
+<p>開始スロットインデックスには、０以上の値を指定しなければいけません。</p>
+<p>スロット数には、１以上 <span class="ApiLink_nn__gfx__util__DescriptorPoolAllocator__SlotCountMax">nn::gfx::util::DescriptorPoolAllocator::SlotCountMax</span> 以下の値を指定しなければいけません。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">baseSlotIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>    <span class="c1">// baseSlotIndex &gt;= 0
+</span><span class="kt">int</span> <span class="n">slotCount</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>    <span class="c1">// (slotCount &gt;= 1) &amp;&amp; (slotCount &lt;= nn::gfx::util::DescriptorPoolAllocator::SlotCountMax)
+</span><span class="kt">bool</span> <span class="n">threadSafe</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+<span class="nn">nn::gfx::util::</span><span class="n">DescriptorPoolAllocator</span> <span class="n">allocator</span><span class="p">;</span>
+<span class="n">allocator</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">UserAllocateFunction</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">nullptr</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">UserFreeFunction</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">nullptr</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&amp;</span><span class="n">g_DescriptorPool</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">baseSlotIndex</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">slotCount</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">threadSafe</span>
+<span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>3. Allocate 関数でスロットのインデックスを確保します。</p>
+<p>count で指定した数だけの、連続したインデックス区間を確保できます。</p>
+<p>
+  <br />
+</p>
+<p>確保に失敗すると、<span class="ApiLink_nn__gfx__util__DescriptorPoolAllocator__InvalidIndex">nn::gfx::util::DescriptorPoolAllocator::InvalidIndex</span> が返ります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">indexSlotA</span> <span class="o">=</span> <span class="n">allocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="n">count</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">indexSlotB</span> <span class="o">=</span> <span class="n">allocator</span><span class="p">.</span><span class="n">Allocate</span><span class="p">(</span><span class="n">count</span><span class="p">);</span>
+ 
+<span class="k">if</span><span class="p">(</span><span class="n">indexSlotA</span> <span class="o">==</span> <span class="nn">nn::gfx::util::DescriptorPoolAllocator::</span><span class="n">InvalidIndex</span><span class="p">){</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 確保失敗
+</span><span class="p">}</span>
+<span class="k">if</span><span class="p">(</span><span class="n">indexSlotB</span> <span class="o">==</span> <span class="nn">nn::gfx::util::DescriptorPoolAllocator::</span><span class="n">InvalidIndex</span><span class="p">){</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 確保失敗
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>4. Free 関数で確保済みのインデックス区間を解放します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="n">allocator</span><span class="p">.</span><span class="n">Free</span><span class="p">(</span><span class="n">indexSlotA</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>5. Finalize 関数を呼び出して、アロケーターの終了処理を行います。</p>
+<p>このとき、割り当て済みで解放していない区間があった場合は、内部で自動的に解放されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// indexSlotB は Finalize() によって自動的に解放される
+</span><span class="n">allocator</span><span class="p">.</span><span class="n">Finalize</span><span class="p">();</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<p>その他の機能については関数リファレンスを参照してください。</p>
+<h2 id="Anchor_162934648_h2_3">Dump フォーマット</h2>
+<p>
+  <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_descriptor_pool_allocator.html#a6994eec703f03d7dac3adb88cfee4112">Dump()</a> を呼び出した時のアロケータ内部の情報は以下の XML フォーマットで表示されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;<span class="o">&lt;</span><span class="n">heapinfo</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">offset</span><span class="o">&gt;</span><span class="mi">0</span><span class="o">&lt;/</span><span class="n">offset</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">factor</span><span class="o">&gt;</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">factor</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">max_allocatable_size</span><span class="o">&gt;</span><span class="mi">16777214</span><span class="o">&lt;/</span><span class="n">max_allocatable_size</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">free_memory</span><span class="o">&gt;</span><span class="mi">16777214</span><span class="o">&lt;/</span><span class="n">free_memory</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">allocated_memory</span><span class="o">&gt;</span><span class="mi">2</span><span class="o">&lt;/</span><span class="n">allocated_memory</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">freelists</span><span class="o">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">free</span> <span class="n">index</span><span class="o">=</span><span class="err">'</span><span class="mi">255</span><span class="err">'</span> <span class="n">first</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000000000002</span><span class="err">'</span> <span class="n">last</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000001000000</span><span class="err">'</span> <span class="n">size</span><span class="o">=</span><span class="err">'</span><span class="mi">16777214</span><span class="err">'</span><span class="o">/&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;/</span><span class="n">freelists</span><span class="o">&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">allocs</span><span class="o">&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">&lt;</span><span class="n">alloc</span> <span class="n">level0</span><span class="o">=</span><span class="sc">'0'</span> <span class="n">level1</span><span class="o">=</span><span class="sc">'0'</span> <span class="n">level2</span><span class="o">=</span><span class="sc">'0'</span> <span class="n">first</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000000000000</span><span class="err">'</span> <span class="n">last</span><span class="o">=</span><span class="err">'</span><span class="mo">0000000000000002</span><span class="err">'</span> <span class="n">size</span><span class="o">=</span><span class="sc">'2'</span><span class="o">/&gt;</span>
+&nbsp;&nbsp;<span class="o">&lt;/</span><span class="n">allocs</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">heapinfo</span><span class="o">&gt;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>各要素の説明については <span class="ApiLink_nn__mem__NumberLineAllocator__Dump">nn::mem::NumberLineAllocator::Dump</span>() と同様になりますので、<a href="../Pages/Page_165040249.html">nn::mem::NumberLineAllocator</a> のドキュメントを参照してください。</p>
+<h2 id="Anchor_162934648_h2_4">API リファレンス</h2>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1gfx_1_1util.html">nn::gfx::util 名前空間</a> の <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_descriptor_pool_allocator.html">DescriptorPoolAllocator クラス</a> を参照してください。</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__util__DescriptorPoolAllocator__SlotCountMax', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_descriptor_pool_allocator.html#af8ad5383b56e74dfb5ad7b7ae61065b8' )
+SetUrl( 'ApiLink_nn__gfx__util__DescriptorPoolAllocator__InvalidIndex', '../../../Api/HtmlNX/classnn_1_1gfx_1_1util_1_1_descriptor_pool_allocator.html#ad769f91002a334f6c511852909e6fc41' )
+SetUrl( 'ApiLink_nn__mem__NumberLineAllocator__Dump', '../../../Api/HtmlNX/classnn_1_1mem_1_1_number_line_allocator.html#ae5d998734ed79c7a8fc1401e9ecc740f' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

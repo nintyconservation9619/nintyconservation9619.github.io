@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>AST</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    AST : Attribute Store<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Attribute Store" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Graphics Load/Store Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "AST", subsection => 5 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+       Immediate attribute stores:
+<code>        <code>{@{!}Pg}</code>   <code><b>AST</b>{.P}{.sz}</code>    <code>a[#ImmU10],Rb,{Rc}</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "AST" } -->
+
+       Indexed patch attribute stores:
+<code>        <code>{@{!}Pg}</code>   <code><b>AST</b>.P{.sz}</code>      <code>a[Ra + #ImmS11],Rb</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "AST" } -->
+
+       Indexed VTG (Vertex,Tess,Geom) attribute stores:
+<code>        <code>{@{!}Pg}</code>   <code><b>AST</b>.PHYS{.sz}</code>   <code>a[Ra],Rb,{Rc}</code>        <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "AST" } -->
+
+ .P:      Store patch attributes
+ .sz:     { <b>.32*, .64, .96, .128</b> } 
+ .PHYS:   Indexed mode for VTG attribute load that uses physical attribute number determined via AL2P
+	  .PHYS is encoded as .P=0 and Ra!=RZ and imm=0
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Store VTG (Vertex,Tess,Geom) attribute(s).</p>
+This instruction performs stores to the patch section or attribute section (of ISBE structure),
+or to attribute fifo's of geometry shader fifos (GSFIFO).
+</p>
+
+Attribute writes:
+
+<p>
+When performing attribute writes, attribute address is specified as
+<li> either specified as <b>unsigned</b> 10b immediate (Ra is RZ or not specified), in which case it is interpreted as logical attribute byte address or 
+<li> if  Ra is specified and is not RZ, the immediate has to be zero and value in Ra register is the 
+   al2pResult_vtg_t data structure result  of <b>AL2P</b> instruction. </p> 
+<p>
+Store data is register specified in Rb.
+</p>
+
+Normal Geometry shaders need to specify additional register Rc that contains current state for hw state
+machine managing each thread's attribute fifo. This state machine must be initialized to 0 at the beginning of the Geometry
+Shader program. The shader program should not attempt to change the contents of the
+state machine register as it is deemed an opaque value.  Since this state machine indirectly
+specifies the vertex offset to write the attribute data to, HW will kill writes that could 
+damage another threads data.  However modifying the GS state machine is extremely dangerous 
+and should never be done by SW without the OUT instruction.</p>
+<p>
+<b>IMPORTANT</b>: When a GS program terminates, the SM hw will auto-generate a 
+           final <b>OUT</b> instruction that will source <b>R0</b> as the final state
+           machine. Any GS program <b>must</b> have R0 up-to-date with the current
+           state machine whenever the thread can possibly terminate. If this
+           is not done, GS output will be lost. It is strongly recommended
+           that all GS programs just reserve R0 as the state machine register.
+           The update of the state machine register happens via <b>OUT</b> instruction. </p> 
+
+<p>
+Vertex and Tessellation shaders do not need to specify Rc and do not use Rc.</p>
+<h4>Patch Attributes writes:</h4>
+
+For patch attribute writes, attrubute address within patch is specified  as  Ra + #sImm11 byte address. 
+If Ra is not specified or Ra is RZ, the input address is an <b>unsigned</b> 10b immediate byte address.
+<p>
+Patch Attributes only exist for TI shader outputs.  An attribute store can be directed to the patch attribute section by using the 
+.P suffix.  This per-patch data is only stored once per patch, so if multiple threads write to the same destination, only one 
+can win (which thread wins is deterministic for AST, but may vary between architectures, and should not be relied upon).  
+Stores to the per-patch area are not protected by an OMAP, instead presenting a directly addressable buffer for attributes.  Attributes
+written by TI shaders can only be read by that TI shader (using ALD.O) and the TS shaders.</p>
+<p>
+TESSELLATION_LOD_* attributes are a special case of patch attributes, as seen on the <a href="Attribute_Address_Map_and_Default_Table.htm#PatchAttributeAddressMap">Patch Attribute Address Map</a>).  They
+must be written to a fixed location, and are laid out for the maximum case (quads).  If triangles/line tessellation is being performed 
+instead, some of these TESSELLATION_LOD_* attributes are no longer needed.  When in Triangle/Line tessellation mode, values written
+to the additional attributes will be ignored by TG, meaning SW can safely use them as generic patch attributes (despite their names).</p>
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+An output BMAP is formed from the IMAP of the next shader,
+the OMAP of the current shader, and the address of the attribute. </p>  
+<p>
+For the most common usage cases, the BMAP Definition is simply:</p>
+<pre>
+   output BMAP = (OMAP from current stage &amp; (IMAP from next stage | ST_REQ from current stage))
+</pre>
+
+<p>
+For an attribute address, the following table describes the behavior:</p>
+<pre>
+  ----------------------------------------------
+   output BMAP       Store Result
+  ----------------------------------------------
+       0             Silently Discarded
+       1             Store OK
+  ----------------------------------------------
+</pre>
+
+<p>
+Writing attribute addresses above 1024 (256*4) or below 0 will result in the write being silently discarded.</p>
+<p>
+.sz controls the size of stored data. Supported options are 32, 64, 96, and 128 bits, read
+from consecutive data registers.</p>
+<p>
+Each attribute is assumed to be a 32b scalar. When doing a vector store, <b>AST</b> will
+access up to 4 consecutive logical attribute addresses.</p>
+<p>
+Alignment applies to both register and attribute index. LSB bits are dropped for alignment:</p>
+<pre>
+   .32      forces (Ra+#ImmS11) 2 lsb to 00.
+   .64      forces Rd register address[0:0] to  0 and (Ra+#ImmS11) 3 lsb to 000.
+   .96/.128 forces Rd register address[1:0] to 00 and (Ra+#ImmS11) 4 lsb to 0000.
+</pre>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>AST</b>.128     a[64   ],R1;
+<b>AST</b>.P.64    a[R0-16],R1;
+<b>AST</b>.PHYS.32 a[R0   ],R1, R2;
+
+using AL2P to do indexed AST:
+<b>AL2P</b>.O.128      R0,  R1, -32;
+<b>AST</b>.PHYS.128    R2,  a[R0] ;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

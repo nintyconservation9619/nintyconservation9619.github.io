@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>エラーおよび警告</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- エラーおよび警告 -->
+<div class="pagetitle" id="PageId_83956072">エラーおよび警告</div>
+<div class="text_separate">
+<p>ここでは、エクスポートプラグインのエラーと警告について説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83956072_h1_1">エラーの対処方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_83956072_h1_2">警告の対処方法</a>
+    </li>
+  </ul>
+</p>
+<p>
+  <a name="Anchor_83956072_types_errors"></a>
+</p>
+<h1 id="Anchor_83956072_h1_1">エラーの対処方法</h1>
+<p>出力時にエラーが発生した場合は出力ウィンドウ（Output Window）とスクリプトエディタに表示されます。<br />とくに解説が必要なエラーについて記述します。</p>
+<ul>
+  <li>
+    <strong>テクスチャーと UV セットの組合せがオブジェクトによって異なります<br /> </strong> 詳しくは  <a href="../Pages/Page_83955838.html#Anchor_83955838_multiple_uv">マルチ UV</a>   の説明を参照してください。</li>
+</ul>
+<p>
+  <a name="Anchor_83956072_kind_warning"></a>
+</p>
+<h1 id="Anchor_83956072_h1_2">警告の対処方法</h1>
+<p>出力時に警告が発生した場合は出力ウィンドウ（Output Window）とスクリプトエディタに表示されます。<br />とくに解説が必要な警告について記述します。</p>
+<ul>
+  <li>
+    <p>
+      <strong>joint ノードで、親ノードのスケールが inverseScale アトリビュートに接続されていません<br /> </strong> Maya 上でセグメントスケール補正が反映されないので、接続してください。<br />  次の MEL を実行すると、シーン中の全 joint ノードの inverseScale アトリビュートに親ノードのスケールが接続されます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>{
+&nbsp;&nbsp;&nbsp;&nbsp;for ($j in `ls -typ joint`)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string $p[] = `listRelatives -p -pa $j`;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (size($p) != 0 &amp;&amp; nodeType($p[0]) == &quot;joint&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string $ins[] = `listConnections -p 1 -s 1 -d 0 ($j + &quot;.inverseScale&quot;)`;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (size($ins) != 0)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($ins[0] == $p[0] + &quot;.scale&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;continue;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print (&quot;disconnect: &quot; + $j + &quot; &lt;-- &quot; + $ins[0] + &quot;\n&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;disconnectAttr ($ins[0]) ($j + &quot;.inverseScale&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print (&quot;connect: &quot; + $j + &quot; &lt;-- &quot; + $p[0] + &quot;\n&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;connectAttr -f ($p[0] + &quot;.scale&quot;) ($j + &quot;.inverseScale&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>VibrationDevice</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- VibrationDevice -->
+<div class="pagetitle" id="PageId_104488991">VibrationDevice</div>
+<div class="text_separate">
+<h1 id="Anchor_104488991_h1_1">VibrationDevice</h1>
+<h2 id="Anchor_104488991_h2_1">概要</h2>
+<p>VibrationDevice は、振動子を操作するために用意された機構です。</p>
+<p>VibrationDevice に<a href="../Pages/Page_104489003.html">振動値</a>を送信することによって、振動子を振動させることができます。</p>
+<p>&nbsp;</p>
+<p>どの振動子を操作するか指定するために、 <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_device_handle.html">VibrationDeviceHandle</a> を取得する必要があります。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_device_handle.html">VibrationDeviceHandle</a>&nbsp;を取得するためには、&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a2950ca0147b2bbb09a2c34aeaf527ca2">GetVibrationDeviceHandles()</a> 関数を利用します。</p>
+<p>&nbsp;</p>
+<p>振動子の情報を取得するには、 <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aa51427fb3bfd53f3a8784a868a020f23">GetVibrationDeviceInfo()</a> 関数を利用します。</p>
+<p>振動子を振動させる前に、振動子ごとに <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#af610eb6d705297bd91c56825b39383bf">InitializeVibrationDevice()</a>&nbsp;関数を利用して初期化処理を行う必要があります。</p>
+<p>&nbsp;</p>
+<p>振動子を振動させるには、 <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#adc2935e350eab46cc13a4e9d33c61ef9">SendVibrationValue()</a> 関数を利用します。</p>
+<p>振動子で発生している実際の振動値を取得するには、 <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a2fb585205dac5c49b24bf045b8796307">GetActualVibrationValue()</a> 関数を利用します。</p>
+<h2 id="Anchor_104488991_h2_2">VibrationDevice の使用方法</h2>
+<ol>
+  <li>
+    <p>NpadId から <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_vibration_device_handle.html">VibrationDeviceHandle</a>&nbsp;を取得します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Npad.h&gt;
+#include &lt;nn/hid/hid_Vibration.h&gt;
+</span>
+<span class="n">NpadStyleSet</span> <span class="n">npadStyle</span> <span class="o">=</span> <span class="nn">nn::hid::NpadStyleFullKey::</span><span class="n">Mask</span><span class="p">;</span>
+<span class="nn">nn::hid::</span><span class="n">NpadIdType</span> <span class="n">npadIds</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> <span class="nn">nn::hid::NpadId::</span><span class="n">No1</span> <span class="p">};</span>
+
+<span class="c1">// Npad 関連の初期化処理
+</span><span class="nn">nn::hid::</span><span class="n">SetSupportedNpadStyleSet</span><span class="p">(</span><span class="n">npadStyle</span><span class="p">);</span>
+<span class="nn">nn::hid::</span><span class="n">SetSupportedNpadIdType</span><span class="p">(</span><span class="n">npadIds</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npadIds</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npadIds</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+
+<span class="c1">// 振動子のハンドルを取得
+</span><span class="k">const</span> <span class="kt">int</span> <span class="n">VibrationDeviceCountMax</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationDeviceHandle</span> <span class="n">vibrationDevices</span><span class="p">[</span><span class="n">VibrationDeviceCountMax</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">vibrationDeviceCount</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">GetVibrationDeviceHandles</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">vibrationDevices</span><span class="p">,</span> <span class="n">VibrationDeviceCountMax</span><span class="p">,</span> <span class="n">npadId</span><span class="p">,</span> <span class="n">npadStyle</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>
+      <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#af610eb6d705297bd91c56825b39383bf">InitializeVibrationDevice()</a>&nbsp;関数を利用して振動子を初期化します。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Npad.h&gt;
+#include &lt;nn/hid/hid_Vibration.h&gt;
+</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vibrationDeviceCount</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 振動子の初期化
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">InitializeVibrationDevice</span><span class="p">(</span><span class="n">vibrationDevices</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>必要に応じて <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#adc2935e350eab46cc13a4e9d33c61ef9">SendVibrationValue()</a>&nbsp;関数を利用して、振動子を振動させます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_Npad.h&gt;
+#include &lt;nn/hid/hid_Vibration.h&gt;
+</span>
+<span class="nn">nn::hid::</span><span class="n">VibrationDeviceInfo</span> <span class="n">info</span><span class="p">;</span>
+
+<span class="c1">// 左の振動子が、振幅 0.5、周波数 160Hz で振動するように制御する処理
+</span><span class="nn">nn::hid::</span><span class="n">VibrationValue</span> <span class="n">v1</span> <span class="o">=</span> <span class="nn">nn::hid::VibrationValue::</span><span class="n">Make</span><span class="p">(</span><span class="mf">0.5f</span><span class="p">,</span> <span class="mf">160.0f</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span> <span class="mf">320.0f</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vibrationDeviceCount</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">GetVibrationDeviceInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">info</span><span class="p">,</span> <span class="n">vibrationDevices</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">info</span><span class="p">.</span><span class="n">position</span> <span class="o">==</span> <span class="nn">nn::hid::</span><span class="n">VibrationDevicePosition_Left</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">SendVibrationValue</span><span class="p">(</span><span class="n">vibrationDevices</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">v1</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 右の振動子が、振幅 0.5、周波数 320Hz で振動するように制御する処理
+</span><span class="nn">nn::hid::</span><span class="n">VibrationValue</span> <span class="n">v2</span> <span class="o">=</span> <span class="nn">nn::hid::VibrationValue::</span><span class="n">Make</span><span class="p">(</span><span class="mf">0.0f</span><span class="p">,</span> <span class="mf">160.0f</span><span class="p">,</span> <span class="mf">0.5f</span><span class="p">,</span> <span class="mf">320.0f</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vibrationDeviceCount</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">GetVibrationDeviceInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">info</span><span class="p">,</span> <span class="n">vibrationDevices</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">info</span><span class="p">.</span><span class="n">position</span> <span class="o">==</span> <span class="nn">nn::hid::</span><span class="n">VibrationDevicePosition_Right</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">SendVibrationValue</span><span class="p">(</span><span class="n">vibrationDevices</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">v2</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// すべての振動子が振動を停止するように制御する処理
+</span><span class="nn">nn::hid::</span><span class="n">VibrationValue</span> <span class="n">v0</span> <span class="o">=</span> <span class="nn">nn::hid::VibrationValue::</span><span class="n">Make</span><span class="p">();</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vibrationDeviceCount</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">SendVibrationValue</span><span class="p">(</span><span class="n">vibrationDevices</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">v0</span><span class="p">);</span>
+<span class="p">}</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_104488991_h2_3">VibrationDevice のサンプル</h2>
+<p>Samples/Sources/Applications/HidVibrationBasic に配置されているサンプルを参照してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

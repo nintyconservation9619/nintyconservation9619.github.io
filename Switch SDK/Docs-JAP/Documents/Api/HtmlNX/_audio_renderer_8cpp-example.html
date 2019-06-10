@@ -1,0 +1,739 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: AudioRenderer.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">AudioRenderer.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_audio_audio_renderer.html">オーディオレンダラ</a> および <a class="el" href="_audio_renderer_8cpp.html" title="オーディオレンダラのサンプルプログラム ">AudioRenderer.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cmath&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;new&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/nns_Log.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="mem_8h.html">nn/mem.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fs_8h.html">nn/fs.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___time_span_8h.html">nn/nn_TimeSpan.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="audio_8h.html">nn/audio.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/audio/audio_HidUtilities.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nns/audio/audio_WavFormat.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/hid.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___keyboard_key_8h.html">nn/hid/hid_KeyboardKey.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="hid___npad_8h.html">nn/hid/hid_Npad.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="settings___debug_pad_8h.html">nn/settings/settings_DebugPad.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// choose rendering engine sample rate</span></div>
+<div class="line"><span class="comment">//const int RenderRate = 48000;</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> RenderRate = 32000;</div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> RenderCount = (RenderRate / 200);</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// choose number of files to play</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> BgmCount = 1;</div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">int</span> SeCount = 4;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span> Title[] = <span class="stringliteral">&quot;AudioRenderer&quot;</span>;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// - and add / remove them to / from the files lists</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* g_BgmFileNames[BgmCount] =</div>
+<div class="line">{</div>
+<div class="line">    <span class="stringliteral">&quot;asset:/AudioRenderer/SampleBgm0-2ch.wav&quot;</span>,</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* g_SeFileNames[SeCount] =</div>
+<div class="line">{</div>
+<div class="line">    <span class="stringliteral">&quot;asset:/AudioCommon/SampleSe0.adpcm&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;asset:/AudioCommon/SampleSe1.adpcm&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;asset:/AudioCommon/SampleSe2.adpcm&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;asset:/AudioCommon/SampleSe3.adpcm&quot;</span>,</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><a name="a0"></a><a class="code" href="nn___macro_8h.html#a6ce9d4b07ab8bec971ac8875873615b5">NN_ALIGNAS</a>(4096) <span class="keywordtype">char</span> g_WorkBuffer[8 * 1024 * 1024];</div>
+<div class="line">NN_AUDIO_ALIGNAS_MEMORY_POOL_ALIGN <span class="keywordtype">char</span> g_WaveBufferPoolMemory[14 * 1024 * 1024];</div>
+<div class="line"></div>
+<div class="line"><a name="_a1"></a><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html">nn::mem::StandardAllocator</a> g_Allocator;</div>
+<div class="line"><a class="code" href="classnn_1_1mem_1_1_standard_allocator.html">nn::mem::StandardAllocator</a> g_WaveBufferAllocator;</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">char</span>* g_MountRomCacheBuffer = NULL;</div>
+<div class="line"></div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span>* Allocate(<span class="keywordtype">size_t</span> size)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> g_Allocator.Allocate(size);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> Deallocate(<span class="keywordtype">void</span>* p, <span class="keywordtype">size_t</span> size)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a2"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(size);</div>
+<div class="line">    g_Allocator.Free(p);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line">std::size_t GenerateSineWave(<span class="keywordtype">void</span>** data, <span class="keywordtype">int</span> sampleRate, <span class="keywordtype">int</span> frequency, <span class="keywordtype">int</span> sampleCount)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// g_WaveBufferAllocator が管理するメモリ領域はすべて waveBufferMemoryPool メモリプールに追加されています。</span></div>
+<div class="line">    int16_t* p = <span class="keyword">static_cast&lt;</span>int16_t*<span class="keyword">&gt;</span>(g_WaveBufferAllocator.Allocate(sampleCount * <span class="keyword">sizeof</span>(int16_t), <a name="a3"></a><a class="code" href="namespacenn_1_1audio.html#af5777df6841245416b561fc93f1786b1">nn::audio::BufferAlignSize</a>));</div>
+<div class="line">    <a name="a4"></a><a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(p);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span> Pi = 3.1415926535897932384626433f;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = 0; i &lt; sampleCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        p[i] = <span class="keyword">static_cast&lt;</span>int16_t<span class="keyword">&gt;</span>(std::numeric_limits&lt;int16_t&gt;::max() * sinf(2 * Pi * frequency * i / sampleRate));</div>
+<div class="line">    }</div>
+<div class="line">    *data = p;</div>
+<div class="line">    <span class="keywordflow">return</span> sampleCount * <span class="keyword">sizeof</span>(int16_t);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line">std::size_t ReadAdpcmFile(<a name="_a5"></a><a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html">nn::audio::AdpcmHeaderInfo</a>* header, <span class="keywordtype">void</span>** adpcmData, <span class="keyword">const</span> <span class="keywordtype">char</span>* filename)</div>
+<div class="line">{</div>
+<div class="line">    <a name="_a6"></a><a class="code" href="structnn_1_1fs_1_1_file_handle.html">nn::fs::FileHandle</a> handle;</div>
+<div class="line">    <a name="_a7"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a name="a8"></a><a class="code" href="namespacenn_1_1fs.html#a0f2b5b30657b1ffaf1dec49bfb36462b">nn::fs::OpenFile</a>(&amp;handle, filename, <a name="a9"></a><a class="code" href="namespacenn_1_1fs.html#a4c97b79cce78a95c2333dbc9053b9393afde4472d2b455879cad02aade386ac0d">nn::fs::OpenMode_Read</a>);</div>
+<div class="line">    <a name="a10"></a><a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    int64_t size;</div>
+<div class="line">    uint8_t adpcmheader[<a name="a11"></a><a class="code" href="namespacenn_1_1audio.html#a479d71524bc751e97134b42f508777fc">nn::audio::AdpcmHeaderSize</a>];</div>
+<div class="line"></div>
+<div class="line">    result = <a name="a12"></a><a class="code" href="namespacenn_1_1fs.html#aba29e01d386e809349d60eccdb15ff21">nn::fs::GetFileSize</a>(&amp;size, handle);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    *adpcmData = g_WaveBufferAllocator.Allocate(static_cast&lt;std::size_t&gt;(size) - <span class="keyword">sizeof</span>(adpcmheader), <a class="code" href="namespacenn_1_1audio.html#af5777df6841245416b561fc93f1786b1">nn::audio::BufferAlignSize</a>);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(*adpcmData);</div>
+<div class="line"></div>
+<div class="line">    result = <a name="a13"></a><a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, 0, adpcmheader, <span class="keyword">sizeof</span>(adpcmheader));</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, <span class="keyword">sizeof</span>(adpcmheader), *adpcmData, static_cast&lt;size_t&gt;(size) - <span class="keyword">sizeof</span>(adpcmheader));</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line">    <a name="a14"></a><a class="code" href="namespacenn_1_1fs.html#ac8bd9e828751bd4f953acfa765278f84">nn::fs::CloseFile</a>(handle);</div>
+<div class="line"></div>
+<div class="line">    <a name="a15"></a><a class="code" href="namespacenn_1_1audio.html#ab03e6d7ff5aae809885ee1cd530e1f4a">nn::audio::ParseAdpcmHeader</a>(header, adpcmheader, <span class="keyword">sizeof</span>(adpcmheader));</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>std::size_t<span class="keyword">&gt;</span>(size) - <span class="keyword">sizeof</span>(adpcmheader);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line">std::size_t ReadWavFile(nns::audio::WavFormat* format, <span class="keywordtype">void</span>** data, <span class="keyword">const</span> <span class="keywordtype">char</span>* filename)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="structnn_1_1fs_1_1_file_handle.html">nn::fs::FileHandle</a> handle;</div>
+<div class="line">    <a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a class="code" href="namespacenn_1_1fs.html#a0f2b5b30657b1ffaf1dec49bfb36462b">nn::fs::OpenFile</a>(&amp;handle, filename, <a class="code" href="namespacenn_1_1fs.html#a4c97b79cce78a95c2333dbc9053b9393afde4472d2b455879cad02aade386ac0d">nn::fs::OpenMode_Read</a>);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    int64_t size;</div>
+<div class="line"></div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1fs.html#aba29e01d386e809349d60eccdb15ff21">nn::fs::GetFileSize</a>(&amp;size, handle);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    *data = g_WaveBufferAllocator.Allocate(static_cast&lt;std::size_t&gt;(size), <a class="code" href="namespacenn_1_1audio.html#af5777df6841245416b561fc93f1786b1">nn::audio::BufferAlignSize</a>);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(*data);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// DATA チャンクを読む必要がありますが、ここではそれが 1024 バイト以内に見つかると仮定しています</span></div>
+<div class="line">    <span class="keyword">const</span> std::size_t WavHeaderDataSize = 1024;</div>
+<div class="line"></div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, 0, *data, WavHeaderDataSize);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    nns::audio::WavResult wavResult = nns::audio::ParseWavFormat(format, *data, WavHeaderDataSize);</div>
+<div class="line">    <a name="a16"></a><a class="code" href="nn___abort_8h.html#a93be5bd646d8b7f02fb8115c603a00c7">NN_ABORT_UNLESS_EQUAL</a>(wavResult, nns::audio::WavResult_Success);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a93be5bd646d8b7f02fb8115c603a00c7">NN_ABORT_UNLESS_EQUAL</a>(format-&gt;bitsPerSample, 16);  <span class="comment">// このサンプルでは 16bit PCM を仮定しています</span></div>
+<div class="line"></div>
+<div class="line">    result = <a class="code" href="namespacenn_1_1fs.html#a81801a404563984f8c6cc1483cc6d730">nn::fs::ReadFile</a>(handle, static_cast&lt;std::size_t&gt;(format-&gt;dataOffset), *data, static_cast&lt;std::size_t&gt;(format-&gt;dataSize));</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line">    <a class="code" href="namespacenn_1_1fs.html#ac8bd9e828751bd4f953acfa765278f84">nn::fs::CloseFile</a>(handle);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>std::size_t<span class="keyword">&gt;</span>(format-&gt;dataSize);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeFileSystem()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a17"></a><a class="code" href="namespacenn_1_1fs.html#ac021c163ba94a44a2b53cb848c462930">nn::fs::SetAllocator</a>(Allocate, Deallocate);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">size_t</span> cacheSize = 0;</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(<a name="a18"></a><a class="code" href="namespacenn_1_1fs.html#a5df6e3385c795a5bd046790ef7f17f2d">nn::fs::QueryMountRomCacheSize</a>(&amp;cacheSize));</div>
+<div class="line">    g_MountRomCacheBuffer = <span class="keyword">new</span>(std::nothrow) <span class="keywordtype">char</span>[cacheSize];</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(g_MountRomCacheBuffer);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(</div>
+<div class="line">        <a name="a19"></a><a class="code" href="namespacenn_1_1fs.html#a2e453fe1fbf8f818dc45bbd2897105cd">nn::fs::MountRom</a>(<span class="stringliteral">&quot;asset&quot;</span>, g_MountRomCacheBuffer, cacheSize)</div>
+<div class="line">    );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> FinalizeFileSystem()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a20"></a><a class="code" href="namespacenn_1_1fs.html#ac8a95249afd4a87a55d319dfecb0466c">nn::fs::Unmount</a>(<span class="stringliteral">&quot;asset&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">delete</span>[] g_MountRomCacheBuffer;</div>
+<div class="line">    g_MountRomCacheBuffer = NULL;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> InitializeHidDevices()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a21"></a><a class="code" href="namespacenn_1_1hid.html#a52f910e37e347a944be54f6860a8ed11">nn::hid::InitializeDebugPad</a>();</div>
+<div class="line">    <a name="a22"></a><a class="code" href="namespacenn_1_1hid.html#a54ad6953b9cef17b4d79171e819b0048">nn::hid::InitializeNpad</a>();</div>
+<div class="line">    <span class="keyword">const</span> <a class="code" href="namespacenn_1_1hid.html#a5923008962b52bf501f91b30013aedd6">nn::hid::NpadIdType</a> npadIds[2] = { <a name="a23"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">nn::hid::NpadId::No1</a>, <a name="a24"></a><a class="code" href="structnn_1_1hid_1_1_npad_id.html#afc19a9a80ac740645b567fc7e1dc36cf">nn::hid::NpadId::Handheld</a> };</div>
+<div class="line">    <a name="a25"></a><a class="code" href="namespacenn_1_1hid.html#ac04a55a989058f9d69c5c3e4e29c4480">nn::hid::SetSupportedNpadStyleSet</a>(nn::hid::NpadStyleFullKey::Mask | nn::hid::NpadStyleHandheld::Mask);</div>
+<div class="line">    <a name="a26"></a><a class="code" href="namespacenn_1_1hid.html#a82326d8c0d5f888fce443798bb829e97">nn::hid::SetSupportedNpadIdType</a>(npadIds, <span class="keyword">sizeof</span>(npadIds) / <span class="keyword">sizeof</span>(npadIds[0]));</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">//キーボードのキーを DebugPad のボタンに割り当てます。</span></div>
+<div class="line">    <a name="_a27"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html">nn::settings::DebugPadKeyboardMap</a> map;</div>
+<div class="line">    <a name="a28"></a><a class="code" href="namespacenn_1_1settings.html#a1c86670409b8289e21443084ae4cbf83">nn::settings::GetDebugPadKeyboardMap</a>(&amp;map);</div>
+<div class="line">    map.<a name="a29"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a855fdaccf56bd08f6930e2cfa5a4911a">buttonA</a>     = nn::hid::KeyboardKey::A::Index;</div>
+<div class="line">    map.<a name="a30"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aaeab1b454664e959f1f3b3043bd85b9e">buttonB</a>     = nn::hid::KeyboardKey::B::Index;</div>
+<div class="line">    map.<a name="a31"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a7da4c30b07d176a47fcf5793fcf2aa09">buttonX</a>     = nn::hid::KeyboardKey::X::Index;</div>
+<div class="line">    map.<a name="a32"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#adfbe65964d33d758e464390324a2b9b1">buttonY</a>     = nn::hid::KeyboardKey::Y::Index;</div>
+<div class="line">    map.<a name="a33"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a0657e9987759d3369eee3afeac0cbd22">buttonL</a>     = nn::hid::KeyboardKey::L::Index;</div>
+<div class="line">    map.<a name="a34"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#ad9915929ab80efc8ff1e1e0ddb0c4dd1">buttonR</a>     = nn::hid::KeyboardKey::R::Index;</div>
+<div class="line">    map.<a name="a35"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a21c82c5b3453501e14dd54caa551ec3b">buttonZL</a>    = nn::hid::KeyboardKey::U::Index;</div>
+<div class="line">    map.<a name="a36"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#adfaed2c7da3a1e237e559b0ae6014c0e">buttonZR</a>    = nn::hid::KeyboardKey::V::Index;</div>
+<div class="line">    map.<a name="a37"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aa4fd4510c2a0d1ba4c5109c84e302692">buttonLeft</a>  = nn::hid::KeyboardKey::LeftArrow::Index;</div>
+<div class="line">    map.<a name="a38"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aa7e06839199547265a73743783278f01">buttonRight</a> = nn::hid::KeyboardKey::RightArrow::Index;</div>
+<div class="line">    map.<a name="a39"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a1df7216265c45816bcdac2b13534d895">buttonUp</a>    = nn::hid::KeyboardKey::UpArrow::Index;</div>
+<div class="line">    map.<a name="a40"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#a31b4f18eb874401cde83cfaaadf5e31a">buttonDown</a>  = nn::hid::KeyboardKey::DownArrow::Index;</div>
+<div class="line">    map.<a name="a41"></a><a class="code" href="structnn_1_1settings_1_1_debug_pad_keyboard_map.html#aa281d2e4e1da30fec73c628a630ce668">buttonStart</a> = nn::hid::KeyboardKey::Space::Index;</div>
+<div class="line">    <a name="a42"></a><a class="code" href="namespacenn_1_1settings.html#ae9b76cefb57e6e7731aa9c433a725d68">nn::settings::SetDebugPadKeyboardMap</a>(map);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> PrintUsage()</div>
+<div class="line">{</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;--------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;%s Sample\n&quot;</span>, Title);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;--------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[A]             StartSound                   (SampleSe0)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[B]             StartSound                   (SampleSe1)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[X]             StartSound                   (SampleSe2)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[Y]             StartSound                   (SampleSe3)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[L]             Toggle Biquad filter enabled (SampleBgm0-2ch)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[R]             Toggle BGM Play state        (SampleBgm0-2ch)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[AnalogStickL]  ControlVolume                (SineWave)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[Left][Right]   ControlVolume                (SineWave)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[AnalogStickR]  ControlPitch                 (SineWave)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[Up][Down]      ControlPitch                 (SineWave)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[ZLeft/U]       PanVolume (Left)             (SampleBgm0-2ch)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[ZRight/V]      PanVolume (Right)            (SampleBgm0-2ch)\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;[Start/Space]   Shut down sample program\n&quot;</span>);</div>
+<div class="line">    NNS_LOG(<span class="stringliteral">&quot;-------------------------------------------------------\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a43"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    g_Allocator.Initialize(g_WorkBuffer, <span class="keyword">sizeof</span>(g_WorkBuffer));</div>
+<div class="line">    g_WaveBufferAllocator.Initialize(g_WaveBufferPoolMemory, <span class="keyword">sizeof</span>(g_WaveBufferPoolMemory));</div>
+<div class="line"></div>
+<div class="line">    InitializeFileSystem();</div>
+<div class="line">    InitializeHidDevices();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// レンダラのパラメータを指定します。</span></div>
+<div class="line">    <a name="_a44"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html">nn::audio::AudioRendererParameter</a> parameter;</div>
+<div class="line">    <a name="a45"></a><a class="code" href="namespacenn_1_1audio.html#af1be1ecc5ba5ca23a05775316ebff714">nn::audio::InitializeAudioRendererParameter</a>(&amp;parameter);</div>
+<div class="line">    parameter.<a name="a46"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a1e47a1581c947e7587b50b6213251c3d">sampleRate</a> = RenderRate;</div>
+<div class="line">    parameter.<a name="a47"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a1c8b7223c7e2ce641691f4e4f93000dd">sampleCount</a> = RenderCount;</div>
+<div class="line">    parameter.<a name="a48"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a38ecaacde5a6d9de76cad74d059d6974">mixBufferCount</a> = 6 + 2; <span class="comment">// FinalMix(6) + SubMix(2)</span></div>
+<div class="line">    parameter.<a name="a49"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a3bbb69be1b623e247314f4fa80e577fa">voiceCount</a> = 24;</div>
+<div class="line">    parameter.<a name="a50"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a4480cc7ffd699f0217b0febf02a71672">subMixCount</a> = 2;</div>
+<div class="line">    parameter.<a name="a51"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a4f9259d7a2e411fab727bdc69c169584">sinkCount</a> = 1;</div>
+<div class="line">    parameter.<a name="a52"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#afb69fcc23de0e1bd691be65858c6ce61">effectCount</a> = 2;</div>
+<div class="line">    parameter.<a name="a53"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#adc0048497f26f959223bdffa24ac4a53">performanceFrameCount</a> = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ミックスバッファとオーディオバスの関係を定義します。</span></div>
+<div class="line">    <span class="keywordtype">int</span> channelCount = 2;</div>
+<div class="line">    int8_t mainBus[2];</div>
+<div class="line">    mainBus[<a name="a54"></a><a class="code" href="namespacenn_1_1audio.html#ae5febdb32531c0ab471ab02f6a0c2892a4ef16b2ffb413506d04e548a98a61ab9">nn::audio::ChannelMapping_FrontLeft</a>] = 4;</div>
+<div class="line">    mainBus[<a name="a55"></a><a class="code" href="namespacenn_1_1audio.html#ae5febdb32531c0ab471ab02f6a0c2892a45f9acfb3cfbbe1a5c256bff1da701f2">nn::audio::ChannelMapping_FrontRight</a>] = 5;</div>
+<div class="line">    int8_t auxBusA[2];</div>
+<div class="line">    auxBusA[<a class="code" href="namespacenn_1_1audio.html#ae5febdb32531c0ab471ab02f6a0c2892a4ef16b2ffb413506d04e548a98a61ab9">nn::audio::ChannelMapping_FrontLeft</a>] = 0;</div>
+<div class="line">    auxBusA[<a class="code" href="namespacenn_1_1audio.html#ae5febdb32531c0ab471ab02f6a0c2892a45f9acfb3cfbbe1a5c256bff1da701f2">nn::audio::ChannelMapping_FrontRight</a>] = 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// パラメータがシステムでサポートされているかどうかを確認します。</span></div>
+<div class="line">    <a name="a56"></a><a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(</div>
+<div class="line">        <a name="a57"></a><a class="code" href="namespacenn_1_1audio.html#a47cd70bf97b71c04d03843b62acba7aa">nn::audio::IsValidAudioRendererParameter</a>(parameter),</div>
+<div class="line">        <span class="stringliteral">&quot;Invalid AudioRendererParameter specified.&quot;</span></div>
+<div class="line">    );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// レンダラのワークバッファを準備します。</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> workBufferSize = <a name="a58"></a><a class="code" href="namespacenn_1_1audio.html#af768fcd83e023fd40092651305304749">nn::audio::GetAudioRendererWorkBufferSize</a>(parameter);</div>
+<div class="line">    <span class="keywordtype">void</span>* workBuffer = g_Allocator.Allocate(workBufferSize, <a name="a59"></a><a class="code" href="namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">nn::os::MemoryPageSize</a>);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(workBuffer);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a60"></a><a class="code" href="classnn_1_1os_1_1_system_event.html">nn::os::SystemEvent</a> systemEvent;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// レンダラを初期化します。</span></div>
+<div class="line">    <a name="_a61"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_handle.html">nn::audio::AudioRendererHandle</a> handle;</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(</div>
+<div class="line">        <a name="a62"></a><a class="code" href="namespacenn_1_1audio.html#ae9541c61a6710260800fe7800759fcb2">nn::audio::OpenAudioRenderer</a>(&amp;handle, &amp;systemEvent, parameter, workBuffer, workBufferSize).IsSuccess(),</div>
+<div class="line">        <span class="stringliteral">&quot;Failed to open AudioRenderer&quot;</span></div>
+<div class="line">    );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// AudioRendererConfig を初期化します。</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> configBufferSize = <a name="a63"></a><a class="code" href="namespacenn_1_1audio.html#a95cbf601a713ee8fa8a4a2154adc4577">nn::audio::GetAudioRendererConfigWorkBufferSize</a>(parameter);</div>
+<div class="line">    <span class="keywordtype">void</span>* configBuffer = g_Allocator.Allocate(configBufferSize, <a class="code" href="namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">nn::os::MemoryPageSize</a>);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#ae872300a22548da2b586ef68d2c048a3">NN_ABORT_UNLESS_NOT_NULL</a>(configBuffer);</div>
+<div class="line">    <a name="_a64"></a><a class="code" href="structnn_1_1audio_1_1_audio_renderer_config.html">nn::audio::AudioRendererConfig</a> config;</div>
+<div class="line">    <a name="a65"></a><a class="code" href="namespacenn_1_1audio.html#ad760c8918bd571a6fb2b4e93890610c3">nn::audio::InitializeAudioRendererConfig</a>(&amp;config, parameter, configBuffer, configBufferSize);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a66"></a><a class="code" href="structnn_1_1audio_1_1_final_mix_type.html">nn::audio::FinalMixType</a> finalMix;</div>
+<div class="line">    <a name="a67"></a><a class="code" href="namespacenn_1_1audio.html#a873526a8a5b24dd901aaa35d93497b6e">nn::audio::AcquireFinalMix</a>(&amp;config, &amp;finalMix, 6);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a68"></a><a class="code" href="structnn_1_1audio_1_1_sub_mix_type.html">nn::audio::SubMixType</a> subMix0;</div>
+<div class="line">    <a name="a69"></a><a class="code" href="namespacenn_1_1audio.html#a6426c6dc92a7269ee764a54c3e2640f1">nn::audio::AcquireSubMix</a>(&amp;config, &amp;subMix0, parameter.<a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a1e47a1581c947e7587b50b6213251c3d">sampleRate</a>, 1);</div>
+<div class="line">    <a class="code" href="structnn_1_1audio_1_1_sub_mix_type.html">nn::audio::SubMixType</a> subMix1;</div>
+<div class="line">    <a class="code" href="namespacenn_1_1audio.html#a6426c6dc92a7269ee764a54c3e2640f1">nn::audio::AcquireSubMix</a>(&amp;config, &amp;subMix1, parameter.<a class="code" href="structnn_1_1audio_1_1_audio_renderer_parameter.html#a1e47a1581c947e7587b50b6213251c3d">sampleRate</a>, 1);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// レンダラの出力先を用意します。</span></div>
+<div class="line">    <a name="_a70"></a><a class="code" href="structnn_1_1audio_1_1_device_sink_type.html">nn::audio::DeviceSinkType</a> deviceSink;</div>
+<div class="line">    <span class="comment">// オーディオ出力デバイスへの入力を設定します。</span></div>
+<div class="line">    <span class="comment">// mainBus に指定したミックスバッファのインデックスに応じて出力チャンネルが決定されます。</span></div>
+<div class="line">    <span class="comment">// mainBus[nn::audio::ChannelMapping_FrontLeft] が L チャンネルに、</span></div>
+<div class="line">    <span class="comment">// mainBus[nn::audio::ChannelMapping_FrontRight] が R チャンネルにそれぞれ出力されます。</span></div>
+<div class="line">    <a class="code" href="classnn_1_1_result.html">nn::Result</a> result = <a name="a71"></a><a class="code" href="namespacenn_1_1audio.html#a3488400bca0314937bc5976edd547b65">nn::audio::AddDeviceSink</a>(&amp;config, &amp;deviceSink, &amp;finalMix, mainBus, channelCount, <span class="stringliteral">&quot;MainAudioOut&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SubMix(0) を FinalMix へ接続します</span></div>
+<div class="line">    <a name="a72"></a><a class="code" href="namespacenn_1_1audio.html#a2a766e7c0da8dfff24930b1f4eb83a36">nn::audio::SetSubMixDestination</a>(&amp;config, &amp;subMix0, &amp;finalMix);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SubMix(0) の 0 番目のバッファを FinalMix の mainBus[0]、mainBus[1] へ</span></div>
+<div class="line"><span class="comment"></span>    <a name="a73"></a><a class="code" href="namespacenn_1_1audio.html#abc7f204e66f9b215f7ba0356fc254c21">nn::audio::SetSubMixMixVolume</a>(&amp;subMix0, &amp;finalMix, 0.5f, 0, mainBus[0]);</div>
+<div class="line">    <a class="code" href="namespacenn_1_1audio.html#abc7f204e66f9b215f7ba0356fc254c21">nn::audio::SetSubMixMixVolume</a>(&amp;subMix0, &amp;finalMix, 0.5f, 0, mainBus[1]);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SubMix(1) を SubMix(0) へ接続します</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1audio.html#a2a766e7c0da8dfff24930b1f4eb83a36">nn::audio::SetSubMixDestination</a>(&amp;config, &amp;subMix1, &amp;subMix0);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SubMix(1) の 0 番目のバッファを SubMix(0) の 0 番目のバッファへ</span></div>
+<div class="line">    <span class="comment">// ボリューム 0.5f でミックスするように設定します</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1audio.html#abc7f204e66f9b215f7ba0356fc254c21">nn::audio::SetSubMixMixVolume</a>(&amp;subMix1, &amp;subMix0, 0.5f, 0, 0);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// BufferMixer を用意し、登録します。</span></div>
+<div class="line">    <a name="_a74"></a><a class="code" href="structnn_1_1audio_1_1_buffer_mixer_type.html">nn::audio::BufferMixerType</a> mixer1;</div>
+<div class="line">    result = <a name="a75"></a><a class="code" href="namespacenn_1_1audio.html#a64e2ff6a0becd7888a5915a47da16f83">nn::audio::AddBufferMixer</a>(&amp;config, &amp;mixer1, &amp;finalMix);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line">    <a name="a76"></a><a class="code" href="namespacenn_1_1audio.html#a521246a99840f3af2fcecad1af6fd215">nn::audio::SetBufferMixerInputOutput</a>(&amp;mixer1, auxBusA, mainBus, channelCount);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// BufferMixer パラメータを設定します。</span></div>
+<div class="line">    <a name="a77"></a><a class="code" href="namespacenn_1_1audio.html#a9356d381249ea40a4973f20cc281eec0">nn::audio::SetBufferMixerVolume</a>(&amp;mixer1, 0, 1.0f);</div>
+<div class="line">    <a class="code" href="namespacenn_1_1audio.html#a9356d381249ea40a4973f20cc281eec0">nn::audio::SetBufferMixerVolume</a>(&amp;mixer1, 1, 1.0f);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 設定したパラメータをレンダラに反映させます。</span></div>
+<div class="line">    result = <a name="a78"></a><a class="code" href="namespacenn_1_1audio.html#acf560fde488cb8a60016e2463031f51c">nn::audio::RequestUpdateAudioRenderer</a>(handle, &amp;config);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// レンダリングを開始します。</span></div>
+<div class="line">    result = <a name="a79"></a><a class="code" href="namespacenn_1_1audio.html#a44661dca198e6c56cbfbaed66a44a37c">nn::audio::StartAudioRenderer</a>(handle);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Voice を用意します。</span></div>
+<div class="line">    <a name="_a80"></a><a class="code" href="structnn_1_1audio_1_1_voice_type.html">nn::audio::VoiceType</a> voiceSine;</div>
+<div class="line">    <a name="_a81"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html">nn::audio::WaveBuffer</a> waveBufferSine;</div>
+<div class="line">    <span class="keywordtype">void</span>* dataSine;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// WaveBuffer に追加するサンプルデータを保持するためのメモリプールを準備します。</span></div>
+<div class="line">    <a name="_a82"></a><a class="code" href="structnn_1_1audio_1_1_memory_pool_type.html">nn::audio::MemoryPoolType</a> waveBufferMemoryPool;</div>
+<div class="line">    <span class="keyword">auto</span> ret = <a class="code" href="namespacenn_1_1audio.html#a8e729dd96ffab9b24c406fd7d7785f06">AcquireMemoryPool</a>(&amp;config, &amp;waveBufferMemoryPool, g_WaveBufferPoolMemory, <span class="keyword">sizeof</span>(g_WaveBufferPoolMemory));</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(ret);</div>
+<div class="line">    ret = <a class="code" href="namespacenn_1_1audio.html#a8b260c415c7b0c1b76d65200822e99c0">RequestAttachMemoryPool</a>(&amp;waveBufferMemoryPool);</div>
+<div class="line">    <a class="code" href="nn___abort_8h.html#a5c1a90d3a6474658ae0ac5dc5bcb14e4">NN_ABORT_UNLESS</a>(ret);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Voice で再生する波形を準備します。</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">int</span> sineSampleRate = 32000;</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">int</span> sineFrequency = 440;</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">int</span> sineSampleCount = 32000;</div>
+<div class="line">        std::size_t size = GenerateSineWave(&amp;dataSine, sineSampleRate, sineFrequency, sineSampleCount);</div>
+<div class="line"></div>
+<div class="line">        <a name="a83"></a><a class="code" href="namespacenn_1_1audio.html#a3bca63fcdf6dc8330e4e5e2e9a7d2d47">nn::audio::AcquireVoiceSlot</a>(&amp;config, &amp;voiceSine, sineSampleRate, 1, <a name="a84"></a><a class="code" href="namespacenn_1_1audio.html#a2edc363ab06840fc2eaf2acb551bf0c1a28ddfdb7464233b0bd4fa406aff3e31a">nn::audio::SampleFormat_PcmInt16</a>, <a name="a85"></a><a class="code" href="structnn_1_1audio_1_1_voice_type.html#a6f1689a41d6f65a48aca90ca186b477a">nn::audio::VoiceType::PriorityHighest</a>, <span class="keyword">nullptr</span>, 0);</div>
+<div class="line">        <a name="a86"></a><a class="code" href="namespacenn_1_1audio.html#ac2d383d7deb8ebdff561da3961f87a6e">nn::audio::SetVoiceDestination</a>(&amp;config, &amp;voiceSine, &amp;subMix1);</div>
+<div class="line"></div>
+<div class="line">        waveBufferSine.<a name="a87"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#ad7ea254b8bcd4cfa996c2187969a1989">buffer</a> = dataSine;</div>
+<div class="line">        waveBufferSine.<a name="a88"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a0dd91dcb09e9ee27c717728270c0e3c3">size</a> = size;</div>
+<div class="line">        waveBufferSine.<a name="a89"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#af06a8f9b5986c743352b492c3bf5d911">startSampleOffset</a> = 0;</div>
+<div class="line">        waveBufferSine.<a name="a90"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a510857dab35b885cc45775d3ca0e2d9c">endSampleOffset</a> = sineSampleCount;</div>
+<div class="line">        waveBufferSine.<a name="a91"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a8998952082859b6ab22549250fad5003">loop</a> = 0;</div>
+<div class="line">        waveBufferSine.<a name="a92"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a09535d7c451e0b53d0c1c4acba8af70d">isEndOfStream</a> = <span class="keyword">false</span>;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 波形を Voice に追加します。</span></div>
+<div class="line">        <a name="a93"></a><a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSine, &amp;waveBufferSine);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSine, &amp;waveBufferSine);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSine, &amp;waveBufferSine);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSine, &amp;waveBufferSine);</div>
+<div class="line">        <a name="a94"></a><a class="code" href="namespacenn_1_1audio.html#a350b53b438bbf861d57f2a007a44921e">nn::audio::SetVoicePlayState</a>(&amp;voiceSine, nn::audio::VoiceType::PlayState_Play);</div>
+<div class="line">        <a name="a95"></a><a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceSine, &amp;subMix1, 0.707f / 2, 0, 0);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// BGM</span></div>
+<div class="line">    <a class="code" href="structnn_1_1audio_1_1_voice_type.html">nn::audio::VoiceType</a> voiceBgm[BgmCount];</div>
+<div class="line">    <a class="code" href="structnn_1_1audio_1_1_wave_buffer.html">nn::audio::WaveBuffer</a> waveBufferBgm;</div>
+<div class="line">    <span class="keywordtype">void</span>* dataBgm[BgmCount];</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; BgmCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        nns::audio::WavFormat format;</div>
+<div class="line">        std::size_t dataSize = ReadWavFile(&amp;format, &amp;dataBgm[i], g_BgmFileNames[i]);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// 読み込んだ WAV 形式ファイルのチャンネル数を指定してボイスを取得します。</span></div>
+<div class="line">        <span class="comment">// マルチチャンネルのデータを読み込んだ場合には、チャンネル数分のボイスを消費することに注意してください。</span></div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a3bca63fcdf6dc8330e4e5e2e9a7d2d47">nn::audio::AcquireVoiceSlot</a>(&amp;config, &amp;voiceBgm[i], format.sampleRate, format.channelCount, <a class="code" href="namespacenn_1_1audio.html#a2edc363ab06840fc2eaf2acb551bf0c1a28ddfdb7464233b0bd4fa406aff3e31a">nn::audio::SampleFormat_PcmInt16</a>, <a class="code" href="structnn_1_1audio_1_1_voice_type.html#a6f1689a41d6f65a48aca90ca186b477a">nn::audio::VoiceType::PriorityHighest</a>, <span class="keyword">nullptr</span>, 0);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#ac2d383d7deb8ebdff561da3961f87a6e">nn::audio::SetVoiceDestination</a>(&amp;config, &amp;voiceBgm[i], &amp;finalMix);</div>
+<div class="line"></div>
+<div class="line">        waveBufferBgm.<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#ad7ea254b8bcd4cfa996c2187969a1989">buffer</a> = dataBgm[i];</div>
+<div class="line">        waveBufferBgm.<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a0dd91dcb09e9ee27c717728270c0e3c3">size</a> = dataSize;</div>
+<div class="line">        waveBufferBgm.<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#af06a8f9b5986c743352b492c3bf5d911">startSampleOffset</a> = 0;</div>
+<div class="line">        waveBufferBgm.<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a510857dab35b885cc45775d3ca0e2d9c">endSampleOffset</a> = <span class="keyword">static_cast&lt;</span>int32_t<span class="keyword">&gt;</span>(dataSize / <span class="keyword">sizeof</span>(int16_t)) / format.channelCount;</div>
+<div class="line">        waveBufferBgm.<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a8998952082859b6ab22549250fad5003">loop</a> = <span class="keyword">true</span>;</div>
+<div class="line">        waveBufferBgm.<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a09535d7c451e0b53d0c1c4acba8af70d">isEndOfStream</a> = <span class="keyword">false</span>;</div>
+<div class="line">        waveBufferBgm.<a name="a96"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a04b836718c60e740f6728d29ca686393">pContext</a> = <span class="keyword">nullptr</span>;</div>
+<div class="line">        waveBufferBgm.<a name="a97"></a><a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#af5f4159c74e68b2339196b804a1dbbbf">contextSize</a> = 0;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceBgm[i], &amp;waveBufferBgm);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a350b53b438bbf861d57f2a007a44921e">nn::audio::SetVoicePlayState</a>(&amp;voiceBgm[i], nn::audio::VoiceType::PlayState_Play);</div>
+<div class="line">        <span class="comment">// ボイスの 0 チャンネルを mainBus[0] へ、1 チャンネルを mainBus[1] へ出力するミックスボリュームを設定します。</span></div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceBgm[i], &amp;finalMix, 0.5f, 0, mainBus[0]);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceBgm[i], &amp;finalMix, 0.5f, 1, mainBus[1]);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// カットオフ 2048Hz のローパスフィルタを設定します</span></div>
+<div class="line">        <a name="_a98"></a><a class="code" href="structnn_1_1audio_1_1_biquad_filter_parameter.html">nn::audio::BiquadFilterParameter</a> firstFilter = { <span class="keyword">true</span>, {720, 1439, 720}, {22684, -9350} };</div>
+<div class="line">        <a name="a99"></a><a class="code" href="namespacenn_1_1audio.html#a2003f88e7e7f7abaa42fc54237b6421f">nn::audio::SetVoiceBiquadFilterParameter</a>(&amp;voiceBgm[i], 0, firstFilter);</div>
+<div class="line">        <span class="comment">// カットオフ 1024 Hz のハイパスフィルタを無効状態で設定します。</span></div>
+<div class="line">        <a class="code" href="structnn_1_1audio_1_1_biquad_filter_parameter.html">nn::audio::BiquadFilterParameter</a> secondFilter = { <span class="keyword">false</span>, {14041, -28083, 14041}, {29547, -13563} };</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a2003f88e7e7f7abaa42fc54237b6421f">nn::audio::SetVoiceBiquadFilterParameter</a>(&amp;voiceBgm[i], 1, secondFilter);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SE</span></div>
+<div class="line">    <a class="code" href="structnn_1_1audio_1_1_voice_type.html">nn::audio::VoiceType</a> voiceSe[SeCount];</div>
+<div class="line">    <a class="code" href="structnn_1_1audio_1_1_wave_buffer.html">nn::audio::WaveBuffer</a> waveBufferSe[SeCount];</div>
+<div class="line">    <a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html">nn::audio::AdpcmHeaderInfo</a>* header[SeCount];</div>
+<div class="line">    <span class="keywordtype">void</span>* dataSe[SeCount];</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; SeCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        header[i] = <span class="keyword">reinterpret_cast&lt;</span><a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html">nn::audio::AdpcmHeaderInfo</a>*<span class="keyword">&gt;</span>(g_WaveBufferAllocator.Allocate(<span class="keyword">sizeof</span>(<a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html">nn::audio::AdpcmHeaderInfo</a>), <a name="a100"></a><a class="code" href="nn___macro_8h.html#ac6f80ca2ebf15f619391e35806e9635f">NN_ALIGNOF</a>(<a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html">nn::audio::AdpcmHeaderInfo</a>)));</div>
+<div class="line">        std::size_t dataSeSize = ReadAdpcmFile(header[i], &amp;dataSe[i], g_SeFileNames[i]);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a3bca63fcdf6dc8330e4e5e2e9a7d2d47">nn::audio::AcquireVoiceSlot</a>(&amp;config, &amp;voiceSe[i], header[i]-&gt;sampleRate, 1, <a name="a101"></a><a class="code" href="namespacenn_1_1audio.html#a2edc363ab06840fc2eaf2acb551bf0c1ab78e0cfd4dc7851b77c0b4ad3c355a72">nn::audio::SampleFormat_Adpcm</a>, <a class="code" href="structnn_1_1audio_1_1_voice_type.html#a6f1689a41d6f65a48aca90ca186b477a">nn::audio::VoiceType::PriorityHighest</a>, &amp;header[i]-&gt;parameter, <span class="keyword">sizeof</span>(<a name="_a102"></a><a class="code" href="structnn_1_1audio_1_1_adpcm_parameter.html">nn::audio::AdpcmParameter</a>));</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#ac2d383d7deb8ebdff561da3961f87a6e">nn::audio::SetVoiceDestination</a>(&amp;config, &amp;voiceSe[i], &amp;finalMix);</div>
+<div class="line"></div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#ad7ea254b8bcd4cfa996c2187969a1989">buffer</a> = dataSe[i];</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a0dd91dcb09e9ee27c717728270c0e3c3">size</a> = dataSeSize;</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#af06a8f9b5986c743352b492c3bf5d911">startSampleOffset</a> = 0;</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a510857dab35b885cc45775d3ca0e2d9c">endSampleOffset</a> = header[i]-&gt;<a name="a103"></a><a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html#a88500a63b98609e4a17c586cc3913d20">sampleCount</a>;</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a8998952082859b6ab22549250fad5003">loop</a> = <span class="keyword">false</span>;</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a09535d7c451e0b53d0c1c4acba8af70d">isEndOfStream</a> = <span class="keyword">false</span>;</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#a04b836718c60e740f6728d29ca686393">pContext</a> = &amp;header[i]-&gt;<a name="a104"></a><a class="code" href="structnn_1_1audio_1_1_adpcm_header_info.html#a71aae570b7544491e9879eb8d249db0c">loopContext</a>;</div>
+<div class="line">        waveBufferSe[i].<a class="code" href="structnn_1_1audio_1_1_wave_buffer.html#af5f4159c74e68b2339196b804a1dbbbf">contextSize</a> = <span class="keyword">sizeof</span>(<a name="_a105"></a><a class="code" href="structnn_1_1audio_1_1_adpcm_context.html">nn::audio::AdpcmContext</a>);</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSe[i], &amp;waveBufferSe[i]);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a350b53b438bbf861d57f2a007a44921e">nn::audio::SetVoicePlayState</a>(&amp;voiceSe[i], nn::audio::VoiceType::PlayState_Play);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceSe[i], &amp;finalMix, 0.707f / 2, 0, auxBusA[0]);</div>
+<div class="line">        <a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceSe[i], &amp;finalMix, 0.707f / 2, 0, auxBusA[1]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    PrintUsage();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// 波形再生が終わるまで待ちつつ、パラメータを更新します。</span></div>
+<div class="line">    <span class="keywordflow">for</span> (;;)</div>
+<div class="line">    {</div>
+<div class="line">        systemEvent.<a name="a106"></a><a class="code" href="classnn_1_1os_1_1_system_event.html#a51c8560630f9760922b6e180b75a45b2">Wait</a>();</div>
+<div class="line"></div>
+<div class="line">        <a name="_a107"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::NpadButtonSet</a> npadButtonCurrent = {};</div>
+<div class="line">        <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::NpadButtonSet</a> npadButtonDown = {};</div>
+<div class="line">        <a name="_a108"></a><a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html">nn::hid::AnalogStickState</a> analogStickStateL = {};</div>
+<div class="line">        <a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html">nn::hid::AnalogStickState</a> analogStickStateR = {};</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Npad の入力を取得します。</span></div>
+<div class="line">        <span class="keywordflow">if</span> (<a name="a109"></a><a class="code" href="namespacenn_1_1hid.html#a50e56789aa106765d43935bb1838c797">nn::hid::GetNpadStyleSet</a>(<a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">nn::hid::NpadId::No1</a>).Test&lt;nn::hid::NpadStyleFullKey&gt;())</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">static</span> <a name="_a110"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html">nn::hid::NpadFullKeyState</a> npadFullKeyState = {};</div>
+<div class="line">            <a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html">nn::hid::NpadFullKeyState</a> state;</div>
+<div class="line">            <a name="a111"></a><a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;state, <a class="code" href="structnn_1_1hid_1_1_npad_id.html#aa0b93745c1c6de72c1fd2174f35c8ed9">nn::hid::NpadId::No1</a>);</div>
+<div class="line">            npadButtonCurrent |= state.<a name="a112"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#ab47273cb70afeff22b5a21a62db2abab">buttons</a>;</div>
+<div class="line">            npadButtonDown |= state.<a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#ab47273cb70afeff22b5a21a62db2abab">buttons</a> &amp; ~npadFullKeyState.<a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#ab47273cb70afeff22b5a21a62db2abab">buttons</a>;</div>
+<div class="line">            analogStickStateL.<a name="a113"></a><a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> += state.<a name="a114"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#a8239e4b7d6f33bcd80c5337bdb9a583a">analogStickL</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>;</div>
+<div class="line">            analogStickStateL.<a name="a115"></a><a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a> += state.<a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#a8239e4b7d6f33bcd80c5337bdb9a583a">analogStickL</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>;</div>
+<div class="line">            analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> += state.<a name="a116"></a><a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#a52f190f7bbb910f87bfd9c4d71a27581">analogStickR</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>;</div>
+<div class="line">            analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a> += state.<a class="code" href="structnn_1_1hid_1_1_npad_full_key_state.html#a52f190f7bbb910f87bfd9c4d71a27581">analogStickR</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>;</div>
+<div class="line">            npadFullKeyState = state;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">if</span> (<a class="code" href="namespacenn_1_1hid.html#a50e56789aa106765d43935bb1838c797">nn::hid::GetNpadStyleSet</a>(<a class="code" href="structnn_1_1hid_1_1_npad_id.html#afc19a9a80ac740645b567fc7e1dc36cf">nn::hid::NpadId::Handheld</a>).Test&lt;nn::hid::NpadStyleHandheld&gt;())</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">static</span> <a name="_a117"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html">nn::hid::NpadHandheldState</a> npadHandheldState = {};</div>
+<div class="line">            <a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html">nn::hid::NpadHandheldState</a> state;</div>
+<div class="line">            <a class="code" href="namespacenn_1_1hid.html#a1ea1131389075ff5c5d5911dd6da9b8f">nn::hid::GetNpadState</a>(&amp;state, <a class="code" href="structnn_1_1hid_1_1_npad_id.html#afc19a9a80ac740645b567fc7e1dc36cf">nn::hid::NpadId::Handheld</a>);</div>
+<div class="line">            npadButtonCurrent |= state.<a name="a118"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a>;</div>
+<div class="line">            npadButtonDown |= state.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a> &amp; ~npadHandheldState.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a70f94ae42e5414c591583cb9a70877a3">buttons</a>;</div>
+<div class="line">            analogStickStateL.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> += state.<a name="a119"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a5dd5b798f1114ab6898d4f6cea2c0eba">analogStickL</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>;</div>
+<div class="line">            analogStickStateL.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a> += state.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a5dd5b798f1114ab6898d4f6cea2c0eba">analogStickL</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>;</div>
+<div class="line">            analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> += state.<a name="a120"></a><a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a17e24311b66f0c5293e8bab4d24923db">analogStickR</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>;</div>
+<div class="line">            analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a> += state.<a class="code" href="structnn_1_1hid_1_1_npad_handheld_state.html#a17e24311b66f0c5293e8bab4d24923db">analogStickR</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>;</div>
+<div class="line">            npadHandheldState = state;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// DebugPad の入力を取得します。</span></div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">static</span> <a name="_a121"></a><a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html">nn::hid::DebugPadState</a> debugPadState = {};</div>
+<div class="line">            <a name="_a122"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> debugPadButtonCurrent = {};</div>
+<div class="line">            <a class="code" href="structnn_1_1util_1_1_bit_flag_set.html">nn::hid::DebugPadButtonSet</a> debugPadButtonDown = {};</div>
+<div class="line">            <a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html">nn::hid::DebugPadState</a> state;</div>
+<div class="line">            <a name="a123"></a><a class="code" href="namespacenn_1_1hid.html#ad6819dc9ed7d781a23a0a44cd2a7f86c">nn::hid::GetDebugPadState</a>(&amp;state);</div>
+<div class="line">            debugPadButtonCurrent |= state.<a name="a124"></a><a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#ab4522c3704007142e1e0619e5ed0f06e">buttons</a>;</div>
+<div class="line">            debugPadButtonDown |= state.<a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#ab4522c3704007142e1e0619e5ed0f06e">buttons</a> &amp; ~debugPadState.<a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#ab4522c3704007142e1e0619e5ed0f06e">buttons</a>;</div>
+<div class="line">            analogStickStateL.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> += state.<a name="a125"></a><a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#a71e1d6dc08651f6540ef7918f132af18">analogStickL</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>;</div>
+<div class="line">            analogStickStateL.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a> += state.<a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#a71e1d6dc08651f6540ef7918f132af18">analogStickL</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>;</div>
+<div class="line">            analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> += state.<a name="a126"></a><a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#acd0f06e8c4df48ce773501735a6bcb8a">analogStickR</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a>;</div>
+<div class="line">            analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a> += state.<a class="code" href="structnn_1_1hid_1_1_debug_pad_state.html#acd0f06e8c4df48ce773501735a6bcb8a">analogStickR</a>.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#a6242512a4523673a41ad8ee0a70acf1e">y</a>;</div>
+<div class="line">            debugPadState = state;</div>
+<div class="line">            nns::audio::ConvertDebugPadButtonsToNpadButtons(&amp;npadButtonCurrent, debugPadButtonCurrent);</div>
+<div class="line">            nns::audio::ConvertDebugPadButtonsToNpadButtons(&amp;npadButtonDown, debugPadButtonDown);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">//SE を再生します（同じ SE を多重再生しません）。</span></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; SeCount; ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="comment">// SE番号 {0, 1, 2, 3, 4, 5} が、ボタン {A, B, X, Y, L, R} に対応します。</span></div>
+<div class="line">            <span class="keywordflow">if</span>(npadButtonDown.<a name="a127"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>(i))</div>
+<div class="line">            {</div>
+<div class="line">                <span class="keywordflow">if</span> (<a name="a128"></a><a class="code" href="namespacenn_1_1audio.html#af6814512460e40507065e145acc7af73">nn::audio::GetReleasedWaveBuffer</a>(&amp;voiceSe[i]))</div>
+<div class="line">                {</div>
+<div class="line">                    <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSe[i], &amp;waveBufferSe[i]);</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">//サイン波の音量を操作します。</span></div>
+<div class="line">        <span class="keywordtype">float</span> sineVolume = <a name="a129"></a><a class="code" href="namespacenn_1_1audio.html#ad05a1338b668a286d9c37ddfa1ba9823">nn::audio::GetVoiceVolume</a>(&amp;voiceSine) + 0.01f * analogStickStateL.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> / (<a name="a130"></a><a class="code" href="namespacenn_1_1hid.html#aae5f082196ed0f5db69b1862e8b64b4d">::nn::hid::AnalogStickMax</a> + 1);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span>(npadButtonCurrent.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a name="_a131"></a><a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Right</a> &gt;())</div>
+<div class="line">        {</div>
+<div class="line">            sineVolume += 0.01f;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">if</span>(npadButtonCurrent.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Left</a> &gt;())</div>
+<div class="line">        {</div>
+<div class="line">            sineVolume -= 0.01f;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// Voice のボリューム・ミックスボリュームは nn::audio::VoiceType::GetVolumeMin() 以上 nn::audio::VoiceType::GetVolumeMax() 以下の値で指定できます。</span></div>
+<div class="line">        <span class="comment">// このサンプルではノイズにならぬよう (0.0f, 2.0f) もしくは (0.0f, 1.0f) の範囲に制限しています。</span></div>
+<div class="line">        <span class="keywordflow">if</span> (sineVolume &lt; 2.0f &amp;&amp; sineVolume &gt; 0.0f)</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a132"></a><a class="code" href="namespacenn_1_1audio.html#a42ed15ad0c981319180d69ae4cec6b40">nn::audio::SetVoiceVolume</a>(&amp;voiceSine, sineVolume);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; BgmCount; ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span>(npadButtonDown.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::L</a> &gt;())</div>
+<div class="line">            {</div>
+<div class="line">                <span class="comment">// 2 つ目の Biquad フィルタの設定の有効・無効を切り替えます。</span></div>
+<div class="line">                <a class="code" href="structnn_1_1audio_1_1_biquad_filter_parameter.html">nn::audio::BiquadFilterParameter</a> biquadFilterParameter(<a name="a133"></a><a class="code" href="namespacenn_1_1audio.html#aa63ef7618fcb841e6109c23dbb3cfab1">nn::audio::GetVoiceBiquadFilterParameter</a>(&amp;voiceBgm[i], 1));</div>
+<div class="line">                biquadFilterParameter.enable = !biquadFilterParameter.enable;</div>
+<div class="line">                <a class="code" href="namespacenn_1_1audio.html#a2003f88e7e7f7abaa42fc54237b6421f">nn::audio::SetVoiceBiquadFilterParameter</a>(&amp;voiceBgm[i], 1, biquadFilterParameter);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span>(npadButtonDown.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::R</a> &gt;())</div>
+<div class="line">            {</div>
+<div class="line">                <span class="comment">// BGM を ON/OFF します。</span></div>
+<div class="line">                <span class="keywordflow">switch</span> (<a name="a134"></a><a class="code" href="namespacenn_1_1audio.html#a6a3bf3c2ffec715069ca4c948fdc543a">nn::audio::GetVoicePlayState</a>(&amp;voiceBgm[i]))</div>
+<div class="line">                {</div>
+<div class="line">                <span class="keywordflow">case</span> nn::audio::VoiceType::PlayState_Play:</div>
+<div class="line">                    <a class="code" href="namespacenn_1_1audio.html#a350b53b438bbf861d57f2a007a44921e">nn::audio::SetVoicePlayState</a>(&amp;voiceBgm[i], nn::audio::VoiceType::PlayState_Pause);</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line">                <span class="keywordflow">case</span> nn::audio::VoiceType::PlayState_Pause:</div>
+<div class="line">                <span class="keywordflow">case</span> nn::audio::VoiceType::PlayState_Stop:</div>
+<div class="line">                    <a class="code" href="namespacenn_1_1audio.html#a350b53b438bbf861d57f2a007a44921e">nn::audio::SetVoicePlayState</a>(&amp;voiceBgm[i], nn::audio::VoiceType::PlayState_Play);</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line">                <span class="keywordflow">default</span>:</div>
+<div class="line">                    <a name="a135"></a><a class="code" href="nn___abort_8h.html#a205eaac89c47d49cb982bf136e113de2">NN_ABORT</a>(<span class="stringliteral">&quot;Unexpected play state\n&quot;</span>);</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line">                }</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// 左チャンネル</span></div>
+<div class="line">            <span class="keywordtype">float</span> bgmLeftVolume = <a name="a136"></a><a class="code" href="namespacenn_1_1audio.html#a39132243f43c3537219ef3e086b0971f">nn::audio::GetVoiceMixVolume</a>(&amp;voiceBgm[i], &amp;finalMix, 0, mainBus[0]);</div>
+<div class="line">            <span class="keywordflow">if</span>(npadButtonCurrent.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::ZL</a> &gt;())</div>
+<div class="line">            {</div>
+<div class="line">                bgmLeftVolume += 0.01f;</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span>(npadButtonCurrent.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::ZR</a> &gt;())</div>
+<div class="line">            {</div>
+<div class="line">                bgmLeftVolume -= 0.01f;</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span> (bgmLeftVolume &lt; 1.0f &amp;&amp; bgmLeftVolume &gt; 0.0f)</div>
+<div class="line">            {</div>
+<div class="line">                <a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceBgm[i], &amp;finalMix, bgmLeftVolume, 0, mainBus[0]);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">// 右チャンネル</span></div>
+<div class="line">            <span class="keywordtype">float</span> bgmRightVolume = 1.0f - bgmLeftVolume;</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">if</span> (bgmRightVolume &lt; 1.0f &amp;&amp; bgmRightVolume &gt; 0.0f)</div>
+<div class="line">            {</div>
+<div class="line">                <a class="code" href="namespacenn_1_1audio.html#a70fc6665dc0b3ca46c5c9ab6fa8ed08d">nn::audio::SetVoiceMixVolume</a>(&amp;voiceBgm[i], &amp;finalMix, bgmRightVolume, 1, mainBus[1]);</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">//サイン波のピッチを操作します。</span></div>
+<div class="line">        <span class="keywordtype">float</span> sinePitch = <a name="a137"></a><a class="code" href="namespacenn_1_1audio.html#accb7d51c82ba37cfa5027b79b42b3cf0">nn::audio::GetVoicePitch</a>(&amp;voiceSine) + 0.01f * analogStickStateR.<a class="code" href="structnn_1_1hid_1_1_analog_stick_state.html#aed05ac3df82f618228132fb7cdd5eda3">x</a> / (<a class="code" href="namespacenn_1_1hid.html#aae5f082196ed0f5db69b1862e8b64b4d">::nn::hid::AnalogStickMax</a> + 1);</div>
+<div class="line">        <span class="keywordflow">if</span>(npadButtonCurrent.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Up</a> &gt;())</div>
+<div class="line">        {</div>
+<div class="line">            sinePitch += 0.01f;</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">if</span>(npadButtonCurrent.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Down</a> &gt;())</div>
+<div class="line">        {</div>
+<div class="line">            sinePitch -= 0.01f;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (sinePitch &lt; <a name="a138"></a><a class="code" href="structnn_1_1audio_1_1_voice_type.html#af10ada0ecc6c7f231636c224bd6e9bf7">nn::audio::VoiceType::GetPitchMax</a>() &amp;&amp; sinePitch &gt; <a name="a139"></a><a class="code" href="structnn_1_1audio_1_1_voice_type.html#a365b8f1cbfb815e641cf0c3d3244ce43">nn::audio::VoiceType::GetPitchMin</a>())</div>
+<div class="line">        {</div>
+<div class="line">            <a name="a140"></a><a class="code" href="namespacenn_1_1audio.html#aab0b72de28fc0cca6b6a99825cce759e">nn::audio::SetVoicePitch</a>(&amp;voiceSine, sinePitch);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (<span class="keyword">const</span> <a class="code" href="structnn_1_1audio_1_1_wave_buffer.html">nn::audio::WaveBuffer</a>* pWaveBuffer = <a class="code" href="namespacenn_1_1audio.html#af6814512460e40507065e145acc7af73">nn::audio::GetReleasedWaveBuffer</a>(&amp;voiceSine))</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="namespacenn_1_1audio.html#a010efd09f89b3a325238d89b755c748f">nn::audio::AppendWaveBuffer</a>(&amp;voiceSine, pWaveBuffer);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span>(npadButtonDown.<a class="code" href="structnn_1_1util_1_1_bit_flag_set.html#a16d7fcb5bf4461b82f497a58d0fc2e1c">Test</a>&lt; ::<a class="code" href="structnn_1_1util_1_1_bit_flag_set_1_1_flag.html">nn::hid::NpadButton::Plus</a> &gt;())</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        result = <a class="code" href="namespacenn_1_1audio.html#acf560fde488cb8a60016e2463031f51c">nn::audio::RequestUpdateAudioRenderer</a>(handle, &amp;config);</div>
+<div class="line">        <a class="code" href="nn___abort_8h.html#a1e657a678a588533a020c2e947df7772">NN_ABORT_UNLESS_RESULT_SUCCESS</a>(result);</div>
+<div class="line"></div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// レンダリングを終了します。</span></div>
+<div class="line">    <a name="a141"></a><a class="code" href="namespacenn_1_1audio.html#a2dbcd4137f93a2db47d42f8e85055aef">nn::audio::StopAudioRenderer</a>(handle);</div>
+<div class="line">    <a name="a142"></a><a class="code" href="namespacenn_1_1audio.html#a53a495cb3c91182f9400c8ee6640ea95">nn::audio::CloseAudioRenderer</a>(handle);</div>
+<div class="line">    <a name="a143"></a><a class="code" href="namespacenn_1_1os.html#a3d924bc362ec80648323428be5182338">nn::os::DestroySystemEvent</a>(systemEvent.<a name="a144"></a><a class="code" href="classnn_1_1os_1_1_system_event.html#a27b971688da923a2eac49061327552fe">GetBase</a>());</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// メモリを解放します。</span></div>
+<div class="line">    <span class="keywordflow">if</span> (dataSine)</div>
+<div class="line">    {</div>
+<div class="line">        g_WaveBufferAllocator.Free(dataSine);</div>
+<div class="line">        dataSine = <span class="keyword">nullptr</span>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; BgmCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (dataBgm[i])</div>
+<div class="line">        {</div>
+<div class="line">            g_WaveBufferAllocator.Free(dataBgm[i]);</div>
+<div class="line">            dataBgm[i] = <span class="keyword">nullptr</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; SeCount; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (dataSe[i])</div>
+<div class="line">        {</div>
+<div class="line">            g_WaveBufferAllocator.Free(dataSe[i]);</div>
+<div class="line">            dataSe[i] = <span class="keyword">nullptr</span>;</div>
+<div class="line">            g_WaveBufferAllocator.Free(header[i]);</div>
+<div class="line">            header[i] = <span class="keyword">nullptr</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">if</span> (configBuffer)</div>
+<div class="line">    {</div>
+<div class="line">        g_Allocator.Free(configBuffer);</div>
+<div class="line">        configBuffer = <span class="keyword">nullptr</span>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">if</span> (workBuffer)</div>
+<div class="line">    {</div>
+<div class="line">        g_Allocator.Free(workBuffer);</div>
+<div class="line">        workBuffer = <span class="keyword">nullptr</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    FinalizeFileSystem();</div>
+<div class="line">}  <span class="comment">// NOLINT(readability/fn_size)</span></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

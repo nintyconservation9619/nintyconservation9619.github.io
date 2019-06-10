@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シーンアニメーション</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シーンアニメーション -->
+<div class="pagetitle" id="PageId_83955524">シーンアニメーション</div>
+<div class="text_separate">
+<p>シーンアニメーションはカメラ／ライト／フォグのアトリビュートをアニメーションさせて設定します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_83955524_h1_1">カメラ</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955524_h1_2">ライト</a>
+    </li>
+    <li>
+      <a href="#Anchor_83955524_h1_3">フォグ</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_83955524_h1_1">カメラ</h1>
+<p>シーンアニメーションのカメラについて説明します。</p>
+<h2 id="Anchor_83955524_h2_1">カメラの種類</h2>
+<p>Maya プラグインでは、以下のカメラに対応しています。</p>
+<p>1 ノードカメラ</p>
+<p>2 ノードカメラ （カメラ及びエイム）</p>
+<p>3 ノードカメラ （カメラ / エイム / アップ）</p>
+<p>中間ファイルのカメラの回転モードは、1 ノードカメラが euler_zxy、2 ノードカメラと 3 ノードカメラが aim となります。<br />中間ファイルのカメラの投影モードは、camera ノードの<strong>正射投影（Orthographic）</strong>アトリビュートが ON なら正射影（ortho）、OFF なら透視射影（persp）となります。</p>
+<h2 id="Anchor_83955524_h2_2">出力されないカメラ</h2>
+<p>カメラの transform ノードの<strong>可視性（Visibility）アトリビュートが OFF&nbsp;</strong>または<strong>テンプレート（Template）アトリビュートが ON&nbsp;</strong>のときは出力されません（アニメーションが設定されている場合は開始フレームにおける値で判定します）。<br />カメラの transform ノードの親（先祖）ノードの可視性アトリビュートが OFF のときも出力されません。&nbsp;</p>
+<h2 id="Anchor_83955524_h2_3">回転順序（Rotate Order）</h2>
+<p>1 ノードカメラの場合、transform ノードの回転順序アトリビュートは zxy を推奨します。zxy でない場合、ベイクした回転データからアニメーションカーブデータを自動作成して出力します。</p>
+<h2 id="Anchor_83955524_h2_4">カメラのスケール（Camera Scale）</h2>
+<p>camera ノードのカメラのスケールアトリビュートは 1.0 にしてください。</p>
+<h2 id="Anchor_83955524_h2_5">アスペクト比</h2>
+<p>アスペクト比は camera ノードの <strong>水平 / 垂直フィルムアパーチャ（Horizontal / Vertical Film Aperture）</strong> アトリビュートまたはアトリビュートエディタの <strong>フィルムのアスペクト比（Film Aspect Ratio）</strong>  で設定します。</p>
+<h2 id="Anchor_83955524_h2_6">画角</h2>
+<p>画角は camera ノードの <strong>焦点距離（Focal Length）</strong> アトリビュートまたはアトリビュートエディタの <strong>ビューアングル（Angle of View）</strong> または <a href="../Pages/Page_83955874.html">カメラの画角設定プラグイン</a> で設定します。</p>
+<p>&nbsp;ビューアングルは <strong>水平方向の画角</strong> であり、中間ファイルに出力される  <strong>persp_fovy</strong> &nbsp;（ <strong>垂直方向の画角</strong> ）とは値が異なるので注意してください。3DEditor で設定した画角を Maya 上に反映したい場合は <a href="../Pages/Page_83955874.html">カメラの画角設定プラグイン</a> を使用してください。</p>
+<p>&nbsp;水平方向の画角と垂直方向の画角との関係は、アスペクト比によって決まります。</p>
+<p>垂直フィルムアパーチャと焦点距離と persp_fovy の関係は次の式のようになっています。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>persp_fovy = 2 * atan(垂直フィルムアパーチャ * 0.5 / (焦点距離 * 0.03937))</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>（0.03937 は 焦点距離[mm] と 垂直フィルムアパーチャ[inch] を合わせるための係数です。）</p>
+<h2 id="Anchor_83955524_h2_7">正射影カメラの視体積</h2>
+<p>アトリビュートエディタの<strong>解像度ゲートに適合（Fit Resolution Gate）</strong>が「垂直（Vertical）」以外なら、<strong>正射投影幅（Orthographic Width）</strong>アトリビュートを視体積の幅とみなし、アスペクト比から視体積の高さ（中間ファイルの <strong>ortho_height</strong>）を計算して出力します。</p>
+<p>解像度ゲートに適合が「垂直」なら、正射投影幅アトリビュートを視体積の高さとみなしてそのまま出力します。</p>
+<h2 id="Anchor_83955524_h2_8">アニメーションを設定できるアトリビュート</h2>
+<p>アニメーションを設定できるアトリビュートをまとめると次のようになります。</p>
+<ul>
+  <li>カメラの transform ノードの<strong>移動（Translate）</strong>、<strong>回転（Rotate）</strong> （回転は 1 ノードカメラの場合のみ）</li>
+  <li>エイムロケータの transform ノードの<strong>移動（Translate）</strong> （2 ノードカメラと 3 ノードカメラの場合）</li>
+  <li>アップロケータの transform ノードの<strong>移動（Translate）</strong> （3 ノードカメラの場合）</li>
+  <li>lookAt ノードの<strong>ツイスト（Twist）</strong>（2 ノードカメラの場合）</li>
+  <li>camera ノードの<strong>水平 / 垂直フィルムアパーチャ（Horizontal / Vertical Film Aperture）</strong>、<strong>焦点距離（Focal Length）</strong>、<strong>ニア / ファークリッププレーン（Near / Far Clip Plane）</strong>、<strong>正射投影幅（Orthographic Width）</strong></li>
+</ul>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>カメラの位置と回転は<strong>グローバル座標</strong>の値が出力されます。<br />カメラ、エイムロケータ、アップロケータの transform ノードに親ノードがあれば、親ノードの移動・回転・スケールも反映されます。<br />ただし、親ノードの移動・回転が 0 でない場合やスケールが 1 でない場合、ベイクしたデータからアニメーションカーブデータを自動作成して出力します。</p>
+  </div>
+</div>
+<h2 id="Anchor_83955524_h2_9">ユーザーデータ</h2>
+<p>カメラの transform ノードに<a href="../Pages/Page_83955877.html">ユーザーデータ設定プラグイン</a>でユーザーデータを設定することができます。</p>
+<h1 id="Anchor_83955524_h1_2">ライト</h1>
+<p>シーンアニメーションのライトについて説明します。</p>
+<h2 id="Anchor_83955524_h2_10">ライトの種類</h2>
+<p>アンビエントライト、ディレクショナルライト、ポイントライト、スポットライトに対応しています。</p>
+<h2 id="Anchor_83955524_h2_11">出力されないライト</h2>
+<p>ライトの transform ノードの<strong>テンプレート（Template）アトリビュートが ON </strong>のときは出力されません（アニメーションが設定されている場合は開始フレームにおける値で判定します）。</p>
+<h2 id="Anchor_83955524_h2_12">アニメーションを設定できるアトリビュート</h2>
+<p>アニメーションを設定できるアトリビュートをまとめると次のようになります。</p>
+<ul>
+  <li>ライトの transform ノードの<strong>移動（Translate）</strong>、<strong>回転（Rotate）</strong>、<strong>可視性（Visibility）</strong><br /> （移動はポイントライト、スポットライトの場合のみ）<br /> （回転はディレクショナルライト、スポットライトの場合のみ）<br /> 可視性は有効状態として出力されます。</li>
+  <li>ライトのシェイプノードの<strong>カラー（Color）</strong></li>
+  <li>ライトのシェイプノードの<strong>イルミネーションの中心（Center Of Illumination）</strong>、<strong>コーンアングル（Cone Angle）</strong>、<strong>周縁部の角度（Penumbra Angle）</strong>（スポットライトの場合のみ）<br /> イルミネーションの中心はライトの位置から照明の中心までの距離であり、中間ファイルの <strong>aim_*</strong> に影響します。</li>
+  <li>
+    <a href="../Pages/Page_83955872.html">ライトアトリビュート設定プラグイン</a>で追加した距離減衰のカスタムアトリビュート</li>
+</ul>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>ライトの位置と方向は<strong>グローバル座標</strong>の値が出力されます。<br />ライトの transform ノードに親ノードがあれば、親ノードの移動・回転・スケールも反映されます。また、親ノードの可視性も反映されます。<br />ただし、親ノードの移動・回転が 0 でない場合やスケールが 1 でない場合、ベイクしたデータからアニメーションカーブデータを自動作成して出力します。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>可視性に接続したアニメーションカーブの値が 0 でも 1 でもない場合、ベイクしたデータからアニメーションカーブデータを自動作成して出力します。</p>
+  </div>
+</div>
+<h2 id="Anchor_83955524_h2_13">ユーザーデータ</h2>
+<p>ライトの transform ノードに<a href="../Pages/Page_83955877.html">ユーザーデータ設定プラグイン</a>でユーザーデータを設定することができます。</p>
+<h1 id="Anchor_83955524_h1_3">フォグ</h1>
+<p>シーンアニメーションのフォグについて説明します。</p>
+<h2 id="Anchor_83955524_h2_14">フォグの種類</h2>
+<p>環境フォグに対応しています。</p>
+<p>&nbsp;環境フォグはレンダー設定（Render Settings）ウィンドウの「Maya ソフトウェアタブ &gt; レンダーオプション &gt; 環境フォグ（Maya Software タブ &gt; Render Options &gt; Environment Fog）」で設定します。<br />環境フォグのタイプは単純フォグ（Simple Fog）のみ対応しています。環境フォグ（Env Fog）マテリアル（envFog ノード）の<strong>物理フォグ（Physical Fog）</strong>アトリビュートは OFF にしてください。環境フォグマテリアルはハイパーシェードから選択できます。</p>
+<h2 id="Anchor_83955524_h2_15">出力されないフォグ</h2>
+<p>環境フォグの transform ノードの<strong>可視性（Visibility）アトリビュートが OFF </strong>または<strong>テンプレート（Template）アトリビュートが ON </strong>のときは出力されません（アニメーションが設定されている場合は開始フレームにおける値で判定します）。</p>
+<h2 id="Anchor_83955524_h2_16">アニメーションを設定できるアトリビュート</h2>
+<p>アニメーションを設定できるアトリビュートをまとめると次のようになります。<br />環境フォグ（Env Fog）マテリアル（envFog ノード）の<strong>カラー（Color）</strong>、<strong>フォグの近距離 / 遠距離（Fog Near / Far Distance）</strong></p>
+<h2 id="Anchor_83955524_h2_17">ユーザーデータ</h2>
+<p>環境フォグのシェーディンググループに<a href="../Pages/Page_83955877.html">ユーザーデータ設定プラグイン</a>でユーザーデータを設定することができます。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

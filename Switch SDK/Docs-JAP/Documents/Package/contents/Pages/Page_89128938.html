@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>TouchScreen</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- TouchScreen -->
+<div class="pagetitle" id="PageId_89128938">TouchScreen</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_89128938_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_89128938_h1_2">Windows 環境における構成</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_89128938_h2_1">マウスによるエミュレーション</a>
+      </li>
+      <li>
+        <a href="#Anchor_89128938_h2_2">タッチメッセージによるエミュレーション</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_89128938_h1_3">使用方法</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_89128938_h1_1">はじめに</h1>
+<p>内蔵タッチスクリーンを操作するために用意された API です。</p>
+<p>最大 <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#aa85db6859d56799e3105d7979075d57f">TouchStateCountMax</a> 個のタッチについて、下記の入力状態を取得することができます。</p>
+<ul style="list-style-type: square;">
+  <li>タッチの識別子</li>
+  <li>タッチの座標</li>
+  <li>楕円で表された接触範囲</li>
+  <li>接触範囲の傾き</li>
+</ul>
+<p>入力状態の更新は、4 ms 以上の間隔を開けて、その時点における最新のサンプリング値に基いて行われます。</p>
+<p>指またはタッチペンの移動を追跡するための識別子は <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#a128984cae0039666450b6c3cfc017a23">TouchState::fingerId</a> に記録されます。 この値は、0 から始まり、 タッチが検出される度に増加し、全てのタッチが開放されると再び 0 に戻ります。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#aaef5929f0a4a89d4d6e542225f2038b2">TouchState::x</a> と <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#acdc09f8c5bdb3a50894efc81032c22e3">TouchState::y</a> には、タッチ位置を示す LCD 座標が左上端を原点 (0, 0) としてドット単位で記録されます。</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#a8276ab1ba0f923886812150e4b446bdc">TouchState::diameterX</a> と&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#ac95a8453ebd77d18d13b5f7164bf0ada">TouchState::diameterY</a> には楕円で表された範囲の X 軸方向と Y 軸方向の直径が、&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#a85bd4c376ee62fd9f22b41aa8b08fa53">TouchState::rotationAngle</a> には時計回りを正とする接触範囲の回転の度数が記録されます。</p>
+<p>タッチ数の増減は、ユーザによるタッチ操作以外にも、システムによるフォーカス制御などによっても発生しえます。</p>
+<p>タッチの開始と終了がユーザ操作によるものであることを確実する必要がある場合は、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_state.html#a98a4d1fb0144d6f883eed4b30f25a2ee">TouchState::attributes</a> の&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_attribute.html#a15111dcbe20eeb00e2eb7525815480ce">TouchAttribute::Start</a> や&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_attribute.html#a0e41f0d80acf7261156c03e72106a009">TouchAttribute::End</a> を確認してください。</p>
+<p>&nbsp;</p>
+<p>API を利用する際は、まず&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a1d814d34915eac7cfc9b9f92ac3ccc40">InitializeTouchScreen()</a> を呼び出して初期化を行う必要があります。</p>
+<p>入力状態を取得する API として&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a8624d901fc230e7f2e6a19b196cabcbe">GetTouchScreenState()</a> と <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a25c328faac65ac47bec4b4cf6a2e1422">GetTouchScreenStates()</a> が用意されています。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a8624d901fc230e7f2e6a19b196cabcbe">GetTouchScreenState()</a> は最新の入力状態を取得する際に使用します。</p>
+<p>
+  <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a25c328faac65ac47bec4b4cf6a2e1422">GetTouchScreenStates()</a> は、最新の入力状態から遡って、複数の入力状態を取得する際に使用します。 最大で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a360a59400fe001a9567dbb1f4c820617">TouchScreenStateCountMax</a>&nbsp;個まで遡ることができます。</p>
+<p>入力状態の取得が内部状態を変えることはないため、同じ API を繰り返し呼び出した際に、入力状態の更新が挟まれなければ、取得される値は同じとなります。</p>
+<p>入力状態には、更新を行うたびに 1 ずつ増えていく番号が、<a href="../../../Api/HtmlNX/structnn_1_1hid_1_1_touch_screen_state.html#a53ffd7b8ff4ae54b8baca962de641a87">TouchScreenState::samplingNumber</a> として割り当てられます。 取得した入力状態はこの番号から判別することが可能です。</p>
+<h1 id="Anchor_89128938_h1_2">Windows 環境における構成</h1>
+<h2 id="Anchor_89128938_h2_1">マウスによるエミュレーション</h2>
+<p>GFX ライブラリの出力先となるウインドウのクライアント領域をタッチスクリーンと見なして入力状態を決定します。</p>
+<p>領域内で左ボタンが押下されると、左ボタンが開放されるまでカーソル位置を自身の座標とするタッチが発生し続けます。</p>
+<p>左ボタンが押下されたままカーソルが領域外に出た場合、入力状態は最後に観測されたタッチ座標を維持します。</p>
+<h2 id="Anchor_89128938_h2_2">
+  <span style="color: rgb(69,69,69);">タッチメッセージによるエミュレーション</span>
+</h2>
+<p>
+  <span style="color: rgb(69,69,69);">システムがタッチメッセージに対応している場合、 上述のマウスによるエミュレーションに加えて、 タッチメッセージからの入力もタッチとして検出されます。</span>
+</p>
+<p>
+  <span style="color: rgb(69,69,69);">
+    <span style="color: rgb(69,69,69);">タッチメッセージ</span>に対応しているか否かは、下記のような方法で判定できます。</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/nn_Windows.h&gt;
+</span> 
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">GetSystemMetrics</span><span class="p">(</span><span class="n">SM_DIGITIZER</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// タッチメッセージの利用が可能です
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_89128938_h1_3">使用方法</h1>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/nn_Log.h&gt;
+#include &lt;nn/hid.h&gt;
+</span> 
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="c1">// 1. TouchScreen を初期化します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">InitializeTouchScreen</span><span class="p">();</span>
+ 
+<span class="c1">// 2. 必要に応じて入力状態を取得します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">TouchScreenState</span><span class="o">&lt;</span><span class="nn">nn::hid::</span><span class="n">TouchStateCountMax</span><span class="o">&gt;</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{};</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">GetTouchScreenState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">state</span><span class="p">.</span><span class="n">count</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// タッチ毎の処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+ 
+<span class="c1">// 入力状態を取得する際に、過去の入力状態も合わせて取得したい場合は、GetTouchScreenStates() を使用します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::hid::</span><span class="n">TouchScreenState</span><span class="o">&lt;</span><span class="nn">nn::hid::</span><span class="n">TouchStateCountMax</span><span class="o">&gt;</span> <span class="n">states</span><span class="p">[</span><span class="nn">nn::hid::</span><span class="n">TouchScreenStateCountMax</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 最低でも 1 つの入力状態を取得
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">stateCount</span> <span class="o">=</span> <span class="nn">nn::hid::</span><span class="n">GetTouchScreenStates</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// タッチが検出されたならば、TouchScreenStateCountMax 個まで遡って、先頭のタッチの接触時間を算出
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int64_t</span> <span class="n">microSeconds</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">stateCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">bool</span> <span class="n">found</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">count</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">touches</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">fingerId</span> <span class="o">==</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">touches</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fingerId</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// タッチの識別子が一致するものが見つかった場合は経過時間に加算
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">found</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">microSeconds</span> <span class="o">+=</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">touches</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">deltaTime</span><span class="p">.</span><span class="n">GetMicroSeconds</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">found</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;%lld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">microSeconds</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

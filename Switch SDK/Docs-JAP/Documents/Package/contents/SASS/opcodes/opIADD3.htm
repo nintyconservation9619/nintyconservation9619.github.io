@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>IADD3</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    IADD3 : 3-input Integer Addition<br>
+    <!-- SUMMARY_TABLE_INFO { description => "3-input Integer Addition" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "IADD3", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>IADD3</b>{.X}</code>         <code>Rd{.CC}, {-}Ra, {-}Sb, {-}Rc</code>                                 <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "IADD3" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>IADD3</b>{.dir}{.X}</code>   <code>Rd{.CC}, {-}Ra{.partsel}, {-}Rb{.partsel}, {-}Rc{.partsel}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "IADD3" } -->
+
+  .dir     : { <b>.NS*</b>, <b>.LS</b>, <b>.RS</b> }
+             .NS : after adding A and B, the sum is added to C
+             .RS : after adding A and B, the sum is shifted right by 16 before being added to C
+             .LS : after adding A and B, the sum is shifted left by 16 before being added to C
+  .X       : when specified, both CF.OF & CF.CC are two separate carry inputs to the adder.
+  .CC:     : Write condition codes
+  .partsel : { <b>.32*</b>, <b>.H0</b>, <b>.H1</b> }
+
+<b>IADD3</b> allows the following combinations:
+    Sb(register)
+    Sb(#IMM20) (sign extended)
+    Sb(constant with immediate address)
+
+<b>IADD3</b> only supports {.dir} and {.partsel} specifiers when Sb is a register (i.e. "Rb", not "Sb").
+When {.dir} and {.partsel} are not (or cannot) be specified, the semantics are those
+of .NS and .32, respectively.
+
+<b>IADD3</b> only supports the following combinations of source negates:
+     Ra +  Sb +  Rc
+     Ra +  Sb + -Rc
+     Ra + -Sb +  Rc
+     Ra + -Sb + -Rc
+    -Ra +  Sb +  Rc
+    -Ra +  Sb + -Rc
+In short, all combinations are allowed except those negating both -Ra and -Sb at the same time.
+Note that (-Ra + -Sb + Rc) can be achieved by swapping the Ra and Rc arguments, which are fully
+symmetric for IADD3.NS, thus allowing all combinations of negates except the negation of all
+three inputs for normal 3-input adds.
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Add three sources ((A + B) + C), possibly shifting the result of A +B by 16 bits (either left or right) before adding C.
+Optionally produces (with <b>.CC</b>) and consumes (with <b>.X</b>) two carry bits, in CC.OF and CC.CF,
+compatible with the format of CC used by <b>XMAD</b>.
+Allows for optional negation of up to 2 of its three arguments.
+In the three register form, each input can be the 32-bit register, or the high or low (unsigned) 16-bit half of the register.
+So, for example, a three input (unsigned) 16-bit add is possible, producing an 18-bit result in Rd (i.e. IADD3 Rd, Ra.H0, Rb.H0, Rc.H0).
+</p>
+<p>
+An extended-precision add is performed by processing words in order from least-significant
+to most-significant, adding with carry-in for all but the initial IADD3.  The zero flag (CC.ZF)
+is accumulated when .X is used, so it provides an overall zero-detect.
+</p>
+<p>
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+Three input adds:
+<pre>
+<b>IADD3</b> Rd, R1, R2, R3;
+<b>IADD3</b> Rd, R1, c[0][0], R3;
+<b>IADD3</b> Rd, R1, 0x12345, R3;
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

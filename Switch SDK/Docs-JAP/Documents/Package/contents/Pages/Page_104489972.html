@@ -1,0 +1,309 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>パフォーマンス情報</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- パフォーマンス情報 -->
+<div class="pagetitle" id="PageId_104489972">パフォーマンス情報</div>
+<div class="text_separate">
+<p>オーディオレンダラにはパフォーマンス情報を取得する機能が提供されています。オーディオレンダラの処理におけるボトルネックの検出等、パフォーマンスチューニングに利用可能な情報が提供されます。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_104489972_h2_1">機能概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_104489972_h2_2">使用方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_104489972_h2_3">具体的な利用例</a>
+    </li>
+  </ul>
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本機能を用いて得られる負荷情報は、現在のリリースにおける値です。これらの処理負荷は今後のリリースで改善される可能性があります。</p>
+  </div>
+</div>
+<h2 id="Anchor_104489972_h2_1">機能概要</h2>
+<p>オーディオレンダラは各「<strong>オーディオフレーム</strong>」の「<strong>レンダリング処理</strong>」にかかった時間情報の取得する機能を提供しています。この時間情報のことを「<strong>パフォーマンス情報</strong>」と呼びます。&nbsp;ユーザーはこの情報を定期的に取得することで、レンダリング処理中のボトルネックを調査することができます。ここでの言葉はそれぞれ以下の意味を表します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>用語</th>
+      <th>意味</th>
+    </tr>
+    <tr>
+      <td>レンダリング処理</td>
+      <td>オーディオレンダラが波形の整形処理、複数の波形のミックス処理、エフェクト処理などを行いオーディオデバイスに出力する一連の処理。</td>
+    </tr>
+    <tr>
+      <td>オーディオフレーム</td>
+      <td>
+        <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html#a1c8b7223c7e2ce641691f4e4f93000dd">nn::audio::AudioRendererParameter.sampleCount</a> / <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html#a1e47a1581c947e7587b50b6213251c3d">nn::audio::AudioRendererParameter.sampleRate</a> によって決定される時間間隔。<br />NintendoSDK 付属の各サンプルでは 5 ミリ秒に設定されています。<p>オーディオレンダラはこの時間間隔を 1 フレームとしてレンダリング処理を繰り返し実行します。</p></td>
+    </tr>
+  </tbody>
+</table>
+<p>途切れない音声の再生を実現するには、各オーディオフレーム内にレンダリング処理が収まるようボイス数やエフェクト処理数など、レンダリング処理を調整する必要があります。</p>
+<p>パフォーマンス情報はオーディオフレーム毎に個別に保存されます。 1 オーディオフレーム分のパフォーマンス情報を「<strong>パフォーマンスフレーム</strong>」と呼びます。<br />パフォーマンスフレームは下図の様に <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_performance_frame_header.html">nn::audio::PerformanceFrameHeader</a> とそれに続く <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_performance_entry.html">nn::audio::PerformanceEntry</a> および <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_performance_detail.html">nn::audio::PerformanceDetail</a> の 3 つの構造体が準備されます。</p>
+<p>&nbsp;</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_104489972/124257868.png" width="200" class="embedded-image" />
+  </span>
+</p>
+<p>
+  <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_performance_entry.html">nn::audio::PerformanceEntry</a> は VoiceType,&nbsp;SubMixType, FinalMixType それぞれの単位で消費された処理時間を提供します。<a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_performance_frame_header.html">nn::audio::PerformanceFrameHeader</a> はこれらの個数やパフォーマンスフレーム内における平均値などのデータを提供します。パフォーマンスフレームは、オーディオレンダラが 1 オーディオフレームのレンダリング処理をするたびに、 1 フレームずつ生成・蓄積されます。ユーザーはこのフレームを継続的に取得することで、オーディオレンダラのパフォーマンス情報を観測することができます。</p>
+<h2 id="Anchor_104489972_h2_2">使用方法</h2>
+<p>パフォーマンス情報を取得するには、事前に以下の 2 種類の設定を行う必要があります。</p>
+<ul>
+  <li>パフォーマンスフレーム数を設定して、オーディオレンダラをオープンする</li>
+  <li>パフォーマンス情報をオーディオレンダラから受け取る</li>
+</ul>
+<p>また、得られたパフォーマンスフレームの利用のために <a href="../../../Api/HtmlNX/classnn_1_1audio_1_1_performance_info.html">nn::audio::PerformanceInfo</a> クラスが準備されています。以下ではこれらの手順を説明します。</p>
+<h3 id="Anchor_104489972_h3_1">パフォーマンスフレーム数を設定して、オーディオレンダラをオープンする</h3>
+<p>パフォーマンス情報はオーディオレンダラが自動的に収集蓄積します。まず蓄積にあたり何オーディオフレーム分の情報を蓄積するかを設定する必要があります。<br />これには <a href="../../../Api/HtmlNX/structnn_1_1audio_1_1_audio_renderer_parameter.html#adc0048497f26f959223bdffa24ac4a53">nn::audio::AudioRendererParameter.performanceFrameCount</a> に必要なフレーム数を指定して オーディオレンダラをオープンします。</p>
+<p>ここで指定する値はオーディオレンダラ内部で保持するパフォーマンスフレームの上限数です。パフォーマンスフレームは、オーディオレンダラが 1 オーディオフレームのレンダリング処理毎に、 1 フレームずつ生成・蓄積されます。この蓄積されたパフォーマンスフレームを後述する方法で定期的にオーディオレンダラから受け取ります。ユーザーはアプリケーションが何フレーム毎にパフォーマンスフレームを取得するかに応じて、この performaneFrameCount の数を調整する必要があります。 具体的な利用例は<a href="../../../Api/HtmlNX/_page_sample_audio_audio_performance_metrics.html"> AudioPerformanceMetrics のサンプルプログラム</a>をご覧ください。</p>
+<h3 id="Anchor_104489972_h3_2">パフォーマンス情報をオーディオレンダラから受け取る</h3>
+<p>オーディオレンダラからパフォーマンス情報を受け取るには <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a094e4214f396999468b22cbb258278ab">nn::audio::SetPerformanceFrameBuffer()</a> を利用します。この API は、パフォーマンス情報を取り出すためのバッファを指定し、前回指定したバッファのアドレスを返します。指定するバッファに必要なサイズは、 <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a2712b01e24d217bcb78852e30782d358">nn::audio::GetRequiredBufferSizeForPerformanceFrames()</a> で取得することができます。また指定したバッファへのパフォーマンスフレームの書き出しは <span class="ApiLink_nn__audio__RequestUpdateAudioRenderer">nn::audio::RequestUpdateAudioRenderer</span>() の呼び出し時に行われます。</p>
+<p>オーディオレンダラから返されたバッファにはパフォーマンスフレームが連続して書き込まれています。このバッファからパフォーマンス情報を取り出すために <a href="../../../Api/HtmlNX/classnn_1_1audio_1_1_performance_info.html">nn::audio::PerformanceInfo</a> クラスが準備されています。ユーザーは <a href="../../../Api/HtmlNX/namespacenn_1_1audio.html#a094e4214f396999468b22cbb258278ab">nn::audio::SetPerformanceFrameBuffer()</a> から返されたバッファを <a href="../../../Api/HtmlNX/classnn_1_1audio_1_1_performance_info.html#a95397ea99fec4a057799303029fc960a">nn::audio::PerformanceInfo::SetBuffer()</a> に指定して初期化することで、 <span class="ApiLink_nn__audio__PerformanceInfo__GetEntries">nn::audio::PerformanceInfo::GetEntries</span>(), <span class="ApiLink_nn__audio__PerformanceInfo__GetDetails">nn::audio::PerformanceInfo::GetDetails</span>() 等のメソッドでデータを取り出すことができます。</p>
+<h2 id="Anchor_104489972_h2_3">具体的な利用例</h2>
+<p>以下に単純な利用例を示します。これらのコードおよび<a href="../../../Api/HtmlNX/_page_sample_audio_audio_performance_metrics.html">サンプルコード</a>を参照してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35<br />
+36<br />
+37<br />
+38<br />
+39<br />
+40<br />
+41<br />
+42<br />
+43<br />
+44<br />
+45<br />
+46<br />
+47<br />
+48<br />
+49<br />
+50<br />
+51<br />
+52<br />
+53<br />
+54<br />
+55<br />
+56<br />
+57<br />
+58<br />
+59<br />
+60<br />
+61<br />
+62<br />
+63<br />
+64<br />
+65<br />
+66<br />
+67<br />
+68<br />
+69<br />
+70<br />
+71<br />
+72<br />
+73<br />
+74<br />
+75</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// nn::audio::SetPerformanceFrameBuffer() で得られるパフォーマンス情報には、前回の nn::audio::RequestUpdateAudioRenderer() の呼び出しから次の呼び出しまでの間に蓄積されたパフォーマンスフレームが保持されます。
+// アプリケーションの実装方針に応じて、ここで指定する performanceFrameCount を決定します。
+// 処理落ち等によるパフォーマンス情報のドロップを防ぐために、実際に必要な performanceCount よりも大きな値を設定しておくと安全です。
+// 例えば毎オーディオフレーム nn::audio::RequestUpdateAudioRenderer() を呼ぶケースにおいては、
+// (オーディオレンダラがデータを書き込むフレーム) ＋ （1 フレーム分過去の情報）= 2 を最低限指定する必要があります。
+// しかし仮に何らかの要因で nn::audio::RequestUpdateAudioRenderer() を呼ぶタイミングが遅れると、（1 フレーム分過去の情報）は取得する前に破棄されてしまいパフォーマンスフレームが欠落することになります。
+// どの程度フレームに余裕を持たせるかは、アプリケーションの実装に依存しますが、ここでは追加で 3 フレーム分の余裕を持たせ 5 を指定しています。
+// 後述する nn::audio::PerformaceInfo::MoveNext() の成功回数を記録することで、一度の更新に含まれるパフォーマンスフレームの数を取得することができるため、
+// はじめは大きな値を設定しておき必要に応じて減らすことを推奨します。
+</span><span class="nn">nn::audio::</span><span class="n">AudioRendererParameter</span> <span class="n">parameter</span><span class="p">;</span>
+<span class="n">parameter</span><span class="p">.</span><span class="n">performanceFrameCount</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+<span class="c1">// ...
+</span>
+<span class="c1">// performanceFrameCount に値を設定した上でオーディオレンダラをオープンします。
+</span><span class="nn">nn::audio::</span><span class="n">OpenAudioRenderer</span><span class="p">(</span> <span class="cm">/* ... */</span> <span class="p">);</span>
+
+<span class="c1">// ...
+</span>
+<span class="c1">// パフォーマンスフレームを格納するバッファを準備します。
+// オーディオレンダラのオープン時に指定したパラメータを指定してサイズを取得します。
+</span><span class="kt">size_t</span> <span class="n">bufferSize</span> <span class="o">=</span> <span class="nn">nn::audio::</span><span class="n">GetRequiredBufferSizeForPerformanceFrames</span><span class="p">(</span><span class="n">parameter</span><span class="p">);</span>
+<span class="c1">// nn::audio::SetPerformanceFrameBuffer() でバッファの受け渡しをするために 2 つのバッファを確保します。
+</span><span class="kt">void</span><span class="o">*</span> <span class="n">performanceDataBuffer</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="n">performanceDataBuffer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">BufferAllocator</span><span class="p">.</span><span class="n">Alloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">);</span>
+<span class="n">performanceDataBuffer</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">BufferAllocator</span><span class="p">.</span><span class="n">Alloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">bufferIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="c1">// 1 つ目のバッファを取得用バッファに指定します。
+</span><span class="nn">nn::audio::</span><span class="n">SetPerformanceFrameBuffer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">,</span> <span class="n">performanceDataBuffer</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">bufferSize</span><span class="p">);</span>
+
+<span class="c1">// ...
+</span>  
+<span class="c1">// 指定後の nn::audio::RequestUpdateAudioRenderer() で取得用バッファが反映されます。
+</span><span class="n">result</span> <span class="o">=</span> <span class="nn">nn::audio::</span><span class="n">RequestUpdateAudioRenderer</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<span class="n">NN_ABORT_UNLESS</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">());</span>
+
+<span class="c1">// ...
+</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">appRunning</span><span class="p">)</span> <span class="c1">// メインループ
+</span><span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 前回の nn::audio::RequestUpdateAudioRenderer() から現在までのパフォーマンス情報を取得し、次のパフォーマンス用バッファを渡します。
+</span>&nbsp;&nbsp;&nbsp; <span class="k">auto</span> <span class="n">lastBuffer</span> <span class="o">=</span> <span class="nn">nn::audio::</span><span class="n">SetPerformanceFrameBuffer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">,</span> <span class="n">performanceDataBuffer</span><span class="p">[</span><span class="n">bufferIndex</span><span class="p">],</span> <span class="n">bufferSize</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">bufferIndex</span> <span class="o">=</span> <span class="o">!</span><span class="n">bufferIndex</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::audio::SetPerformanceFrameBuffer() から返されたバッファには、パフォーマンス情報が埋め込まれています。
+</span> &nbsp; &nbsp;<span class="c1">// nn::audio::PerformanceInfo クラスを用いて、この中身を取り出します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::audio::</span><span class="n">PerformanceInfo</span> <span class="n">performanceInfo</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">performanceInfo</span><span class="p">.</span><span class="n">SetBuffer</span><span class="p">(</span><span class="n">lastBuffer</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">))</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(;;)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">entries</span> <span class="o">=</span> <span class="n">performanceInfo</span><span class="p">.</span><span class="n">GetEntries</span><span class="p">(</span><span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::audio::PerformanceEntry の読み出し処理        
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">pEntry</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="c1">// lastBuffer に複数のパフォーマンスフレームが含まれている場合、 performanceInfo を次フレームに進めます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// この成功回数をカウントすることで lastBuffer に含まれているパフォーマンスフレーム数を取得できます。    
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="n">performanceInfo</span><span class="p">.</span><span class="n">MoveNext</span><span class="p">()</span> <span class="o">==</span> <span class="nb">false</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ...
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__audio__RequestUpdateAudioRenderer', '../../../Api/HtmlNX/namespacenn_1_1audio.html#acf560fde488cb8a60016e2463031f51c' )
+SetUrl( 'ApiLink_nn__audio__PerformanceInfo__GetEntries', '../../../Api/HtmlNX/classnn_1_1audio_1_1_performance_info.html#a223feea74b97a7eae0da64666c5e07aa' )
+SetUrl( 'ApiLink_nn__audio__PerformanceInfo__GetDetails', '../../../Api/HtmlNX/classnn_1_1audio_1_1_performance_info.html#a85993257b564637be3bcaae530aa3d25' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

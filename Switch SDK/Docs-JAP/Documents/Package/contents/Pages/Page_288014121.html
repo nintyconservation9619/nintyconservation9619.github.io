@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>使用方法</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 使用方法 -->
+<div class="pagetitle" id="PageId_288014121">使用方法</div>
+<div class="text_separate">
+<h1 id="Anchor_288014121_h1_1">前提条件</h1>
+<h2 id="Anchor_288014121_h2_1">ネットワークインターフェース</h2>
+<p>SSL ライブラリ（およびソケットライブラリ）を使用する前に、システムのネットワークインターフェースをアクティブにする必要があります。詳細については <a href="../Pages/Page_104465190.html">NIFM ライブラリ</a>のドキュメントを参照してください。</p>
+<h2 id="Anchor_288014121_h2_2">ソケットライブラリ</h2>
+<p>SSL ライブラリでは TCP/IP ソケットが必要なので、Nintendo SDK に用意されているソケットライブラリを SSL ライブラリと共に使用して、TCP/IP ソケットを作成し、サーバとの接続を確立する必要があります。詳細については<a href="../Pages/Page_99782750.html">ソケットライブラリのドキュメント</a>を参照してください。</p>
+<h2 id="Anchor_288014121_h2_3">SSL ライブラリ</h2>
+<p>SSL ライブラリの各クラスに用意されているどの API やメソッドを使用する場合でも、SSL ライブラリを先に初期化する必要があります。まず、<a href="../../../Api/HtmlNX/namespacenn_1_1ssl.html#aaa943d1a4363d560d45d53dfa2182683">nn::ssl::Initialize()</a> を呼び出します。SSL が不要になった場合は、<a href="../../../Api/HtmlNX/namespacenn_1_1ssl.html#a56d990644d149228c45f0c5ece11a9d9">nn::ssl::Finalize()</a> を呼び出し、アプリケーションで SSL が不要になったことを SSL ライブラリに通知します。</p>
+<p>初期化と終了処理はメインスレッドからのみ実行してください。</p>
+<h1 id="Anchor_288014121_h1_2">プログラミング手順</h1>
+<h2 id="Anchor_288014121_h2_4">ソケットライブラリ</h2>
+<ol>
+  <li>
+    <span class="ApiLink_nn__socket__Initialize">nn::socket::Initialize</span>() を使用してソケットライブラリを初期化します。</li>
+  <li>
+    <span class="ApiLink_nn__socket__Socket">nn::socket::Socket</span>() を使用して TCP クライアントソケットを作成します。</li>
+  <li>必要に応じ、<span class="ApiLink_nn__socket__GetHostByName">nn::socket::GetHostByName</span>() を使用してホスト名を解決します。</li>
+  <li>
+    <span class="ApiLink_nn__socket__Connect">nn::socket::Connect</span>() を使用して、目的のポート上（例えば、通常の https サーバの場合は 443）でサーバとの TCP 接続を確立します。</li>
+</ol>
+<h2 id="Anchor_288014121_h2_5">SSL ライブラリ</h2>
+<ol>
+  <li>
+    <span class="ApiLink_nn__ssl__Initialize">nn::ssl::Initialize</span>() を使用して SSL ライブラリを初期化します。<ul><li>SSL ライブラリで初期化以外のどの API を呼び出す場合でも、SSL ライブラリを先に初期化する必要があります。</li></ul></li>
+  <li>SSL コンテキストオブジェクト（<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span>）を作成します。<ul><li><span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> のクラスオブジェクトをインスタンス化するだけでは、コンテキストが作成されたとは見なされません。<span class="ApiLink_nn__ssl__Context__Create">nn::ssl::Context::Create</span>() を明示的に呼び出してください。</li><li>SSL/TLS プロトコルのバージョンは、SSL コンテキストオブジェクトを作成するときに決まります。</li><li>DER フォーマットまたは PEM フォーマットの CA 証明書を SSL コンテキストオブジェクトにインポートできます。<ul><li>インポートした CA 証明書は、同じコンテキストの下で作成したすべての SSL 接続で使用されます。</li><li>インポートした CA 証明書は、同じコンテキストの下で作成した接続でのみ使用できます。</li><li>インポートした CA 証明書は、該当のコンテキストを <span class="ApiLink_nn__ssl__Context__Destroy">nn::ssl::Context::Destroy</span>() で破棄するか、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> のデストラクタを呼び出すまで利用可能です。</li></ul></li><li>PKCS12 フォーマットによるクライアントの PKI 情報を SSL コンテキストにインポートできます。この情報はクライアント認証で使用します。<ul><li>SSL コンテキストでインポートできるクライアント PKI は 1 つのみです。</li><li>インポートしたクライアント PKI 情報は、同じコンテキストの下で作成したすべての SSL 接続で使用されます。</li><li>インポートしたクライアント PKI 情報は、同じコンテキストの下で作成した接続でのみ使用できます。</li><li>インポートしたクライアント PKI 情報は、該当のコンテキストを <span class="ApiLink_nn__ssl__Context__Destroy">nn::ssl::Context::Destroy</span>() で破棄するか、<span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> のデストラクタを呼び出すまで利用可能です。</li></ul></li></ul></li>
+  <li>SSL 接続オブジェクト（<span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span>）を作成します。<ul><li><span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> のクラスオブジェクトをインスタンス化するだけでは、コンテキストが作成されたとは見なされません。<span class="ApiLink_nn__ssl__Connection__Create">nn::ssl::Connection::Create</span>() を明示的に呼び出してください。</li><li>上記で作成した SSL コンテキストオブジェクトの下で SSL 接続オブジェクトが作成されます。</li><li><span class="ApiLink_nn__ssl__Connection__SetSocketDescriptor">nn::ssl::Connection::SetSocketDescriptor</span>() を使用して、上記で作成した TCP ソケットのソケットディスクリプタを登録します。<ul><li>このソケットディスクリプタを渡した後は、<span class="ApiLink_nn__socket__Close">nn::socket::Close</span>() も含め、どのような API でもソケットディスクリプタを操作しないようにする必要があります。</li></ul></li><li><span class="ApiLink_nn__ssl__Connection__SetHostName">nn::ssl::Connection::SetHostName</span>() を使用して、ホスト名の検証で使用するホスト名を設定します。</li><li><span class="ApiLink_nn__ssl__Connection__SetVerifyOption">nn::ssl::Connection::SetVerifyOption</span>() を使用して検証オプションを設定します。</li><li>必要に応じ、<span class="ApiLink_nn__ssl__Connection__SetIoMode">nn::ssl::Connection::SetIoMode</span>() を使用して I/O API の I/O モードを設定します。</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__ssl__Connection__DoHandshake">nn::ssl::Connection::DoHandshake</span>() を使用して SSL ハンドシェイクを実行します。<ul><li><p>必要に応じ、<span class="ApiLink_nn__ssl__Connection__DoHandshake">nn::ssl::Connection::DoHandshake</span>() を呼び出す前に <span class="ApiLink_nn__ssl__Connection__SetServerCertBuffer">nn::ssl::Connection::SetServerCertBuffer</span>() を使用して、SSL ハンドシェイクの際にサーバの証明書を格納するバッファを設定できます。</p></li><li><span class="ApiLink_nn__ssl__Connection__Poll">nn::ssl::Connection::Poll</span>() を使用して、処理の対象となる適切なイベントを待機できます。</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__ssl__Connection__Read">nn::ssl::Connection::Read</span>() と <span class="ApiLink_nn__ssl__Connection__Write">nn::ssl::Connection::Write</span>() を使用して SSL 通信を実行します。<ul><li><span class="ApiLink_nn__ssl__Connection__Poll">nn::ssl::Connection::Poll</span>() を使用して、処理の対象となる適切なイベントを待機できます。</li><li>サーバによって接続が切断された場合は、<span class="ApiLink_nn__ssl__Connection__Read">nn::ssl::Connection::Read</span>() によって受信バイト数が 0 に設定されます。</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__ssl__Connection__Destroy">nn::ssl::Connection::Destroy</span>() を使用して <span class="ApiLink_nn__ssl__Connection">nn::ssl::Connection</span> を破棄します。<ul><li>SSL 接続オブジェクトを破棄すると、基本となる TCP 接続を始めとする SSL 接続が閉じます。</li><li>SSL コンテキストを破棄するには、先に SSL 接続オブジェクトを破棄する必要があります。</li></ul></li>
+  <li>
+    <span class="ApiLink_nn__ssl__Context__Destroy">nn::ssl::Context::Destroy</span>() を使用して <span class="ApiLink_nn__ssl__Context">nn::ssl::Context</span> を破棄します。<ul><li>SSL コンテキストを破棄すると、インポートした CA 証明書とクライアント PKI 情報が解放されます。</li><li>SSL コンテキストを破棄するには、そのコンテキストの下でインポートしたすべての SSL 接続オブジェクトを先に破棄する必要があります。</li></ul></li>
+  <li>SSL ライブラリの終了処理<ul><li>SSL ライブラリの終了処理を実行するには、すべての SSL 接続オブジェクトと SSL コンテキストを先に破棄する必要があります。<ul><li>リリースビルドでは、終了処理の時点で残っている SSL 接続オブジェクトと SSL コンテキストがすべて強制的に破棄されます。</li></ul></li></ul></li>
+  <li>ソケットライブラリの終了処理<ul><li>インポートしたソケットを <span class="ApiLink_nn__ssl__Connection__Destroy">nn::ssl::Connection::Destroy</span>() を使用して閉じるまで、ソケットライブラリを終了しないようにする必要があります。</li></ul></li>
+</ol>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__socket__Initialize', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a170b50fa1256bc0ed9d5176ecc2d9a09' )
+SetUrl( 'ApiLink_nn__socket__Socket', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a02d79b0ad360df5623268d140ba8b343' )
+SetUrl( 'ApiLink_nn__socket__GetHostByName', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a1e9d1531ba7ecd1f6d4438629540517a' )
+SetUrl( 'ApiLink_nn__socket__Connect', '../../../Api/HtmlNX/namespacenn_1_1socket.html#a3aded7f0c8c072c7beb68a670d03d36f' )
+SetUrl( 'ApiLink_nn__ssl__Initialize', '../../../Api/HtmlNX/namespacenn_1_1ssl.html#aaa943d1a4363d560d45d53dfa2182683' )
+SetUrl( 'ApiLink_nn__ssl__Context', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_context.html' )
+SetUrl( 'ApiLink_nn__ssl__Context__Create', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_context.html#aacdf74adeeff3469725d7ccc787eb36e' )
+SetUrl( 'ApiLink_nn__ssl__Context__Destroy', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_context.html#a99a0b8026a5495ad0ba2540010a6c533' )
+SetUrl( 'ApiLink_nn__ssl__Connection', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html' )
+SetUrl( 'ApiLink_nn__ssl__Connection__Create', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#acc7cd82b1baae8ae3d42104b21fa5282' )
+SetUrl( 'ApiLink_nn__ssl__Connection__SetSocketDescriptor', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a67ac05024d557a3e092c84b9c93ee121' )
+SetUrl( 'ApiLink_nn__socket__Close', '../../../Api/HtmlNX/namespacenn_1_1socket.html#ae01110d228e2148d830b1ecfb9aaa425' )
+SetUrl( 'ApiLink_nn__ssl__Connection__SetHostName', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#abb32d983ca5f49b73b22fb9b87dc6269' )
+SetUrl( 'ApiLink_nn__ssl__Connection__SetVerifyOption', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a41e963b74c54952cc679812f0e8fa7b8' )
+SetUrl( 'ApiLink_nn__ssl__Connection__SetIoMode', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a5c0d109fe1a6dd9cff4edba5a730c776' )
+SetUrl( 'ApiLink_nn__ssl__Connection__DoHandshake', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a4dc506ddcf83d1482b68109e8c2b7bed' )
+SetUrl( 'ApiLink_nn__ssl__Connection__SetServerCertBuffer', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a28eaf3a7e9b5bb9e3b8d33fe03fab534' )
+SetUrl( 'ApiLink_nn__ssl__Connection__Poll', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a092648cb7981810b99d53902854a49b7' )
+SetUrl( 'ApiLink_nn__ssl__Connection__Read', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#add764f463d92512f379438eb377fa982' )
+SetUrl( 'ApiLink_nn__ssl__Connection__Write', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a81456d725547bad0fadd42f4fe6e37de' )
+SetUrl( 'ApiLink_nn__ssl__Connection__Destroy', '../../../Api/HtmlNX/classnn_1_1ssl_1_1_connection.html#a3c99c604e624efa732a1a983b23e9393' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

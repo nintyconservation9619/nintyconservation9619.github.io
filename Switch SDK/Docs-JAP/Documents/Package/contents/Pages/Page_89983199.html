@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>HIDエミュレーション設定</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- HIDエミュレーション設定 -->
+<div class="pagetitle" id="PageId_89983199">HIDエミュレーション設定</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_89983199_h1_1">はじめに</a>
+    </li>
+    <li>
+      <a href="#Anchor_89983199_h1_2">DebugPad の HID エミュレーション設定</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_89983199_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_89983199_h2_2">Windows 環境におけるエミュレーション設定の解決</a>
+      </li>
+      <li>
+        <a href="#Anchor_89983199_h2_3">エミュレーション設定の操作方法</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_89983199_h1_3">Npad の HID エミュレーション設定</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_89983199_h2_4">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_89983199_h2_5">Windows 環境におけるエミュレーション設定の解決</a>
+      </li>
+      <li>
+        <a href="#Anchor_89983199_h2_6">エミュレーション設定の操作方法</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_89983199_h1_1">はじめに</h1>
+<p>ホスト環境上で HID API を使用した場合、その制御対象となる HID はホスト環境上の汎用ゲームパッドやキーボードなどでエミュレーションされます。</p>
+<p>HID エミュレーション設定は、こうした汎用ゲームパッドやキーボードをどの様に HID エミュレーションに割り当てるか指定するための機能です。</p>
+<p>ホスト環境以外において&nbsp;HID エミュレーション設定の設定値は効力を持ちません。</p>
+<h1 id="Anchor_89983199_h1_2">DebugPad の HID エミュレーション設定</h1>
+<h2 id="Anchor_89983199_h2_1">概要</h2>
+<p>
+  <a href="../Pages/Page_83955511.html">DebugPad</a> は HID エミュレーション設定の対象となるインターフェイスです。&nbsp;DebugPad のエミュレーションには下記のデバイスを使用することが可能です。</p>
+<ul style="list-style-type: square;">
+  <li>汎用ゲームパッド</li>
+  <li>キーボード</li>
+</ul>
+<p>汎用ゲームパッド自体、汎用ゲームパッドのデジタルボタン、汎用ゲームパッドの座標軸、キーボードのキーは、いずれも複数の設定に対して同時に割り当てることが可能です。</p>
+<p>汎用ゲームパッドのデジタルボタンやキーボードのキーが同一のデジタルボタンに対して複数割り当てられた場合は、それらの押下状態の論理和がデジタルボタンの論理和となります。</p>
+<p>汎用ゲームパッドに関しては、エミュレーション設定が明示されていない場合、割り当てはプラットフォームごとに規定された手順で内部的に自動で解決されます。</p>
+<p>また、エミュレーション設定の解決は、必要になった時点で初めて行われます。これには、下記のタイミングが該当します。</p>
+<ul style="list-style-type: square;">
+  <li>システム上で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a52f910e37e347a944be54f6860a8ed11">InitializeDebugPad()</a> の呼び出しが初めて行われた</li>
+  <li>システム上で <a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#afb2f573acae3ad99ca4d4ec2b1702b2b">GetDebugPadGenericPadMap()</a> の呼び出しが初めて行われた</li>
+</ul>
+<p>キーボードに関しては、エミュレーション設定が明示されていない場合は、単に割り当ては行われていないものとして扱われます。</p>
+<p>&nbsp;</p>
+<p>DebugPad にエミュレーション設定を指定する際には、<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a8e035fa2aa6f2fdd4d8462b4246c4f5f">SetDebugPadGenericPadMap()</a> や&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#ae9b76cefb57e6e7731aa9c433a725d68">SetDebugPadKeyboardMap()</a> を呼び出します。</p>
+<p>前者は DebugPad に対する汎用ゲームパッドの割り当てを、後者は&nbsp;DebugPad に対するキーボードの割り当てを設定する API です。</p>
+<p>割り当てを初期値に戻す際は、それぞれ&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#aa54e0f4a979a31d2ee804850a59b138b">ResetDebugPadGenericPadMap()</a> と&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#aea16146bcea60dcb59540672f5612cbd">ResetDebugPadKeyboardMap()</a> を呼び出します。</p>
+<p>エミュレーション設定の指定やリセットは API の呼び出しが完了した直後から反映されます。</p>
+<p>設定値を取得する場合は、それぞれ&nbsp;&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#afb2f573acae3ad99ca4d4ec2b1702b2b">GetDebugPadGenericPadMap()</a> と&nbsp;&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a1c86670409b8289e21443084ae4cbf83">GetDebugPadKeyboardMap()</a> を呼び出します。</p>
+<h2 id="Anchor_89983199_h2_2">Windows 環境におけるエミュレーション設定の解決</h2>
+<p>汎用ゲームパッドの割り当ては、識別子を&nbsp;<a href="../../../Api/HtmlNX/structnn_1_1settings_1_1_debug_pad_generic_pad_map.html#a63864e69bf381281356af2444eb98514">DebugPadGenericPadMap::genericPadId</a>&nbsp;に指定することで行います。</p>
+<p>XInput 互換コントローラのみを使用している限り、識別子はそのまま XInputGetState() の dwUserIndex に対応します。</p>
+<p>その他の HID 準拠ゲームコントローラも使用している場合は、コントローラの検出順 (0 オリジン) が汎用ゲームパッドの識別子として使用されます。 ただし、挿抜が発生した場合、小さい値から再利用されることになります。</p>
+<p>汎用ゲームパッドとその識別子との対応関係は共有メモリ上で管理されているため、異なる実行ファイル間で汎用ゲームパッドを排他的に利用する手段として、この識別子を利用することが可能です。</p>
+<p>明示的な割り当てを行わなかった場合、 いずれの HID エミュレーションにも割り当てられていない識別子のうち、最も値の小さいものが DebugPad に対して割り当てられます。</p>
+<p>HID 準拠ゲームコントローラを使用する場合、 デジタルボタンと座標軸の割り当ては、 ELECOM JC-W01UWH あるいは ELECOM JC-W02UWH を仮定して下記のように行われます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonA</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_4</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonB</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_3</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonX</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_2</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonY</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_1</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonL</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_5</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonR</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_6</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonZL</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_7</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonZR</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_8</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonStart</span>       <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_10</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonSelect</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_9</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonLeft</span>        <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Left</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonUp</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Up</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonRight</span>       <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Right</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">buttonDown</span>        <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Down</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">axisAnalogStickRX</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_Z</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">axisAnalogStickRY</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_R</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">axisAnalogStickLX</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_X</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">axisAnalogStickLY</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_Y</span><span class="p">;</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsXAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsYAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsZAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsRAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsUAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">DebugPadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsVAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_89983199_h2_3">エミュレーション設定の操作方法</h2>
+<p>汎用ゲームパッドの割り当ては下記のように操作します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/settings/settings_DebugPad.h&gt;
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">DebugPadGenericPadMap</span> <span class="n">map</span><span class="p">;</span>            <span class="c1">// 割り当てを保持するための変数
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">GetDebugPadGenericPadMap</span><span class="p">(</span><span class="o">&amp;</span><span class="n">map</span><span class="p">);</span>       <span class="c1">// 内部的に解決された値を取得
+</span>&nbsp;
+<span class="n">map</span><span class="p">.</span><span class="n">genericPadId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                               <span class="c1">// 最初に検出された汎用ゲームパッドを割り当てるよう指定
+</span><span class="n">map</span><span class="p">.</span><span class="n">buttonA</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_16</span><span class="p">;</span>    <span class="c1">// 汎用ゲームパッドが XInput 互換でなかった場合、 16 番目のボタンを DebugPad の A ボタンへ割り当て
+</span><span class="nn">nn::settings::</span><span class="n">SetDebugPadGenericPadMap</span><span class="p">(</span><span class="n">map</span><span class="p">);</span>        <span class="c1">// 割り当てを反映
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">ResetDebugPadGenericPadMap</span><span class="p">();</span>         <span class="c1">// 必要ならば初期値にリセット（DebugPadGenericPadMap::genericPadId 以外の値が初期値に）
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>キーボードの割り当ては下記のように操作します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_KeyboardKey.h&gt;
+#include &lt;nn/settings/settings_DebugPad.h&gt;
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">DebugPadKeyboardMap</span> <span class="n">map</span><span class="p">;</span>                  <span class="c1">// 割り当てを保持するための変数
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">GetDebugPadKeyboardMap</span><span class="p">(</span><span class="o">&amp;</span><span class="n">map</span><span class="p">);</span>             <span class="c1">// 内部的に解決された値を取得
+</span>&nbsp;
+<span class="n">map</span><span class="p">.</span><span class="n">buttonUp</span> <span class="o">=</span> <span class="nn">nn::hid::KeyboardKey::UpArrow::</span><span class="n">Index</span><span class="p">;</span>    <span class="c1">// キーボードの↑キーを DebugPad の十字ボタン上へ割り当て
+</span><span class="nn">nn::settings::</span><span class="n">SetDebugPadKeyboardMap</span><span class="p">(</span><span class="n">map</span><span class="p">);</span>              <span class="c1">// 割り当てを反映
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">ResetDebugPadKeyboardMap</span><span class="p">();</span>               <span class="c1">// 必要ならば初期値にリセット
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_89983199_h1_3">Npad&nbsp;の HID エミュレーション設定</h1>
+<h2 id="Anchor_89983199_h2_4">概要</h2>
+<p>
+  <a href="../Pages/Page_124018876.html">Npad</a> は HID エミュレーション設定の対象となるインターフェイスです。 Npad のエミュレーションには下記のデバイスを使用することが可能です。</p>
+<ul style="list-style-type: square;">
+  <li>汎用ゲームパッド</li>
+  <li>キーボード</li>
+</ul>
+<p>汎用ゲームパッド自体、汎用ゲームパッドのデジタルボタン、汎用ゲームパッドの座標軸、キーボードのキーは、いずれも複数の設定に対して同時に割り当てることが可能です。</p>
+<p>汎用ゲームパッドのデジタルボタンやキーボードのキーが同一のデジタルボタンに対して複数割り当てられた場合は、それらの押下状態の論理和がデジタルボタンの論理和となります。</p>
+<p>汎用ゲームパッドに関しては、エミュレーション設定が明示されていない場合、割り当てはプラットフォームごとに規定された手順で内部的に自動で解決されます。</p>
+<p>また、エミュレーション設定の解決は、必要になった時点で初めて行われます。これには、下記のタイミングが該当します。 解決が発生するのはいずれも指定された Xpad についてのみです。</p>
+<ul style="list-style-type: square;">
+  <li>システム上で <a href="../../../Api/HtmlNX/namespacenn_1_1hid.html#a54ad6953b9cef17b4d79171e819b0048">InitializeNpad()</a> の呼び出しが初めて行われた</li>
+  <li>システム上で <a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a8691e57a0426f7b74f1a03a38f75dfc8">GetXpadGenericPadMap()</a> の呼び出しが初めて行われた</li>
+</ul>
+<p>キーボードに関しては、エミュレーション設定が明示されていない場合は、単に割り当ては行われていないものとして扱われます。</p>
+<p>&nbsp;</p>
+<p>Xpad にエミュレーション設定を指定する際には、<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#aa14ff7c9b0516575a086613d485d57a0">SetXpadGenericPadMap()</a>&nbsp;や&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a28fb220f6ecc849e6acdb20c781a7736">SetXpadKeyboardMap()</a>&nbsp;を呼び出します。</p>
+<p>前者は Xpad に対する汎用ゲームパッドの割り当てを、後者は Xpad に対するキーボードの割り当てを設定する API です。</p>
+<p>割り当てを初期値に戻す際は、それぞれ&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a7303aafd3c412efdfded2544e3845d9a">ResetXpadGenericPadMap()</a>&nbsp;と&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a4bd687dd228928d77b7eae637abd1f40">ResetXpadKeyboardMap()</a>&nbsp;を呼び出します。</p>
+<p>エミュレーション設定の指定やリセットは API の呼び出しが完了した直後から反映されます。</p>
+<p>設定値を取得する場合は、それぞれ&nbsp;&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#a8691e57a0426f7b74f1a03a38f75dfc8">GetXpadGenericPadMap()</a>&nbsp;と&nbsp;&nbsp;<a href="../../../Api/HtmlNX/namespacenn_1_1settings.html#ab6b7ecd1ef64a968bd4ad58b91afa914">GetXpadKeyboardMap()</a>&nbsp;を呼び出します。</p>
+<h2 id="Anchor_89983199_h2_5">Windows 環境におけるエミュレーション設定の解決</h2>
+<p>汎用ゲームパッドの割り当ては、識別子を <a href="../../../Api/HtmlNX/structnn_1_1settings_1_1_basic_xpad_generic_pad_map.html#aa3dd322f1ef17eda341a77014c18bacb">BasicXpadGenericPadMap::genericPadId</a>&nbsp;に指定することで行います。</p>
+<p>XInput 互換コントローラのみを使用している限り、汎用ゲームパッドの識別子はそのまま XInputGetState() の dwUserIndex に対応します。</p>
+<p>その他の HID 準拠ゲームコントローラも使用している場合は、コントローラの検出順 (0 オリジン) が汎用ゲームパッドの識別子として使用されます。 ただし、挿抜が発生した場合、小さい値から再利用されることになります。</p>
+<p>汎用ゲームパッドとその識別子との対応関係は共有メモリ上で管理されているため、異なる実行ファイル間で汎用ゲームパッドを排他的に利用する手段として、この識別子を利用することが可能です。</p>
+<p>明示的な割り当てを行わなかった場合、 いずれの HID エミュレーションにも割り当てられていない識別子のうち、最も値の小さいものが Xpad&nbsp;に対して割り当てられます。</p>
+<p>HID 準拠ゲームコントローラを使用する場合、デジタルボタンと座標軸の割り当ては下記のように行われます。</p>
+<ul>
+  <li>NintendoSdk 3.2.0 以降</li>
+</ul>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonA</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_4</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonB</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_3</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonX</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_2</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonY</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_1</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonStickL</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_11</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonStickR</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_12</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonL</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_5</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonR</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_6</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonZL</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_7</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonZR</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_8</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonStart</span>       <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_10</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonSelect</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_9</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonLeft</span>        <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Left</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonUp</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Up</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonRight</span>       <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Right</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonDown</span>        <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Down</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickRX</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_Z</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickRY</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_R</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickLX</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_X</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickLY</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_Y</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsXAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsYAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsZAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsRAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsUAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsVAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li>NintendoSdk 3.1.0 以前</li>
+</ul>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonA</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_2</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonB</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_1</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonX</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_4</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonY</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_3</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonStickL</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_9</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonStickR</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_10</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonL</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_5</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonR</span>           <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_6</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonZL</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_TriggerL</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonZR</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_TriggerR</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonStart</span>       <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_8</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonSelect</span>      <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_7</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonLeft</span>        <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Left</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonUp</span>          <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Up</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonRight</span>       <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Right</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">buttonDown</span>        <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_Down</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickRX</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_U</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickRY</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_R</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickLX</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_X</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">axisAnalogStickLY</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadAxis_Y</span><span class="p">;</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsXAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsYAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsZAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsRAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsUAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="nn">BasicXpadGenericPadMap::</span><span class="n">attributes</span><span class="p">.</span><span class="n">Set</span><span class="o">&lt;</span><span class="nn">nn::settings::GenericPadAxisAttribute::</span><span class="n">IsVAxisInverted</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_89983199_h2_6">エミュレーション設定の操作方法</h2>
+<p>汎用ゲームパッドの割り当ては下記のように操作します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/settings/settings_Xpad.h&gt;
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">BasicXpadGenericPadMap</span> <span class="n">map</span><span class="p">;</span>           <span class="c1">// 割り当てを保持するための変数
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">GetXpadGenericPadMap</span><span class="p">(</span><span class="o">&amp;</span><span class="n">map</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>        <span class="c1">// プレイヤー番号 0 向けに内部的に解決された値を取得
+</span>&nbsp;
+<span class="n">map</span><span class="p">.</span><span class="n">genericPadId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                               <span class="c1">// 最初に検出された汎用ゲームパッドを割り当てるよう指定
+</span><span class="n">map</span><span class="p">.</span><span class="n">buttonA</span> <span class="o">=</span> <span class="nn">nn::settings::</span><span class="n">GenericPadButton_16</span><span class="p">;</span>    <span class="c1">// 汎用ゲームパッドが XInput 互換でなかった場合、 16 番目のボタンを DebugPad の A ボタンへ割り当て
+</span><span class="nn">nn::settings::</span><span class="n">SetXpadGenericPadMap</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>         <span class="c1">// プレイヤー番号 0 向けに割り当てを反映
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">ResetXpadGenericPadMap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>            <span class="c1">// 必要ならば初期値にリセット（BasicXpadGenericPadMap::genericPadId 以外の値が初期値に）
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>キーボードの割り当ては下記のように操作します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/hid/hid_KeyboardKey.h&gt;
+#include &lt;nn/settings/settings_Xpad.h&gt;
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">BasicXpadKeyboardMap</span> <span class="n">map</span><span class="p">;</span>                 <span class="c1">// 割り当てを保持するための変数
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">GetXpadKeyboardMap</span><span class="p">(</span><span class="o">&amp;</span><span class="n">map</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>              <span class="c1">// プレイヤー番号 0 向けに内部的に解決された値を取得
+</span>&nbsp;
+<span class="n">map</span><span class="p">.</span><span class="n">buttonUp</span> <span class="o">=</span> <span class="nn">nn::hid::KeyboardKey::UpArrow::</span><span class="n">Index</span><span class="p">;</span>    <span class="c1">// キーボードの↑キーを Xpad の十字ボタン上へ割り当て
+</span><span class="nn">nn::settings::</span><span class="n">SetXpadKeyboardMap</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>               <span class="c1">// プレイヤー番号 0 向けに割り当てを反映
+</span>&nbsp;
+<span class="nn">nn::settings::</span><span class="n">ResetXpadKeyboardMap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>                  <span class="c1">// 必要ならば初期値にリセット
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

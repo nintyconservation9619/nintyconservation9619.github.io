@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>TMML</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TMML : Texture MipMap Level<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture MipMap Level" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TMML", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>TMML</b>{.B}.LOD{.NDV}{.NODEP}{.phase}</code>   <code>Rd, Ra, {Rb}, #tsPtrIdxU13, #paramA{, #wmskU04}</code>       <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TMML" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>TMML</b>{.B}.LOD{.NDV}{.NODEP}{.phase}</code>   <code>Rd, Ra, {Rb}, #tidU08, #smpU05, #paramA{, #wmskU04}</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TMML" } -->
+
+  .B:      Bindless mode, where the texture header pointer and sampler pointer is packed into a 32 bit register as:
+           samplerPtr[31:20] | headerPtr[19:0]
+           Data is sent via register Rb.
+
+  .LOD     level-of-detail information
+
+  .NDV:    Forces the TEX to be considered non-divergent even though quad may be divergent.  
+                   This will not promote inactive threads, only force it to be treated as non-divergent despite the fact
+           that some threads might be inactive.  To activate disabled threads in a quad <a href="opSAM.htm">SAM</a> must be used.<br>           Only the active mask and shader type are used to determine if a quad of threads is divergent.<br><br>  .NODEP:  Indicates that there is no subsequent quad derivatives to be calculated.<br>           Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.<br><br>  .phase:  Allows control on the current warps texture hash, used for scheduling.<br>               &lt; NONE &gt;<br>               .T - postfix increment of the 3 bit texture component of the hash.<br>               .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. <br><br><br><br>Immediate Inputs:<br><br>  #tsPtrIdxU13:<br>     This immediate index (word address) is used to fetch the packed header+sampler pointer entry from constant cache.  The bank<br>     from which it is fetched is determined by bundle state. The constant bank entry is 32 bit structure of the form<br>     "samplerPtr[31:20] | headerPtr[19:0]".<br>     Note: Ignored if .B option is used.<br><br>  #tidU08, #smpU05:<br>     This is the "almost" Fermi-compatible specification of tsPtrIdxU13 which allows running of legacy apps/traces<br>     where sass will transform these into tsPtrIdxU13 as follows:<br>     #tsPtrIdxU13 = {#smpU05, #tidU08}<br><br></pre>
+
+<pre>#paramA: source coordinate description.<br></pre>
+<div style="margin-left: 2em; font-size: 100%;">
+<table border="1" cellpadding="5%">
+    <caption><em>Valid paramA specifiers for TMML </em></caption>
+    <tbody><tr><th>parameter</th><th>Coordinate Registers implied</th></tr>
+     <tr><td> 1D</td><td>s</td></tr>
+     <tr><td> 2D</td><td>s,t</td></tr>
+     <tr><td> 3D</td><td>s,t,r</td></tr>
+     <tr><td> CUBE</td><td>s,t,r</td></tr>
+     <tr><td> ARRAY_1D</td><td>a,s</td></tr>
+     <tr><td> ARRAY_2D</td><td>a,s,t</td></tr>
+     <tr><td> RESERVED</td><td>// for ARRAY_3D</td></tr>
+     <tr><td> ARRAY_CUBE</td><td>a,s,t,r</td></tr>
+</tbody></table>
+</div>
+<pre>           s,t,r are fp32, <br>           a is U16 integer<br></pre>
+
+<pre>     If the source coordinate description does not match the texture type of the texture header,<br>     zeroes will be returned.  The array specifiers can be freely used with non-array textures<br>     (and the opposite holds as well), provided the number of coordinates (1D,2D,3D,CUBE) matches.<br><br>  #wmskU04       destination write mask (decimated contiguous writes)<br>     Allows for write masking the returning data writes via a bit enable<br>     for each of R,G,B,A. A four-vector is always returned from TEX.<br>     #wmskU04 defaults to 0xf.<br><br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Texture fetch of mip-map level-of-detail (LOD) or axis-length information instead of RBGA using a texture 
+coordinate vector/parameters.</p>
+<p>
+The parameters are arranged in Ra/Rb registers as follows:
+</p><ol>
+<table border="1" cellpadding="5%">
+    <caption><em>Texture parameter packing in Ra and Rb </em></caption>
+    <tbody><tr><th>Reg</th><th>parameter</th><th>format</th></tr>
+    <tr><td>Ra+0</td><td>array[15:0]</td><td>u32</td></tr>
+    <tr><td>Ra+1</td><td>s</td><td>fp32</td></tr>
+    <tr><td>Ra+2</td><td>t</td><td>fp32</td></tr>
+    <tr><td>Ra+3</td><td>r</td><td>fp32</td></tr>
+    <tr><td>Rb+0</td><td>SamplerPtr[31:20] | HeaderPtr[19:0]</td><td>u32</td></tr>
+</tbody></table>
+</ol>
+<br> In the table above, "+0/1/2/3" represents the order of packing
+parameters in Ra/Rb. If a parameter is not specified, then the rest are
+compacted upwards <em>within</em> the same Ra or Rb register.
+<p>
+The texture parameter source registers Ra/Rb and the destination (result) register Rd
+have alignment restrictions based on the number of scalar registers being read/written. Specifically, 
+</p><ol> 
+	<li> Rd should be aligned to number of valid components being returned (as specified by wmask) </li>
+	<li> Ra/Rb should always be aligned to </li>
+	<ol style="list-style-type: lower-alpha;">
+		<li> 1 (scalar register) if the scalar count for that register (Ra or Rb) is 1 </li>
+		<li> 2 (vec2 register)   if the scalar count for that register (Ra or Rb) is 2 </li>
+		<li> 4 (vec4 register)   if the scalar count for that register (Ra or Rb) is 3 or 4 </li>
+	</ol>
+    <li>
+Rb should be specified as RZ if no parameters need to be packed in Rb.
+(However no error is generated if non-RZ register is specified)</li>
+	<li> Ra/Rb must not be specified as RZ if any parameters need to be packed in Ra/Rb.</li>
+</ol>
+
+<p>
+Some input texture values will be sanitized before being used.</p>
+
+<p>
+Returned data is a 4-vector of fp32 values, arranged as:</p>
+<pre>  if(.mode == .LOD) { <br>    R: non-clamped LOD (S8.8), ignores clamping resulting from sampler or texture header.  High bits are zero.<br>    G: clamped LOD (U8.8), actual LOD that would have been used.  High bits are zero<br>    B: {major_unit_vector.v (S2.6), major_unit_vector.u (S2.6)}, tightly packed in the register's low 16 bits.  High bits are zero.<br>       [0000 0000 0000 0000 vvvv vvvv uuuu uuuu]<br>    A: log2(minor_length/major_length) (S4.12).  High bits are zero.<br>  } <br></pre>
+
+<p>Use writemask to discard unwanted data.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+Corresponds to these DX ops:</p>
+<pre>   LOD       =  TMML.LOD  //R,G<br></pre>
+<p>
+The following operation is supported, but has been cut from DX11</p>
+<pre>   TMML.LOD  //B,A<br></pre>
+<p>
+
+
+</p></div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>TMML.LOD       R2, R6, 6, 2D, 0x3;<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

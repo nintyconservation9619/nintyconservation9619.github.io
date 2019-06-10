@@ -1,0 +1,270 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: NVN Texture Packager</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li class="current"><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="_page_graphics_for_n_x.html">グラフィックス for NX</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">NVN Texture Packager </div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="toc"><h3>目次</h3>
+<ul><li class="level1"><a href="#nvn_texpkg_guide_sec_1">1. Overview</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_2">2. NVN Image Library (NvnImage.dll)</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_3">3. Texture Packager Core Library (NvnTexpkg.dll)</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_4">4. Using Hardware Format Textures In NVN</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_5">5. Supported Formats</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_6">6. XTX format</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_7">7. Command Line Tool (NvnTexpkg.exe)</a></li>
+<li class="level1"><a href="#nvn_texpkg_guide_sec_8">8. Limitations</a></li>
+</ul>
+</div>
+<div class="textblock"><h1><a class="anchor" id="nvn_texpkg_guide_sec_1"></a>
+1. Overview</h1>
+<p>The NVN texture packager is an offline tool that allows users to convert texture images into a hardware dependent format. The tool is designed to be easily extended, to allow users the freedom to create their own conversion tools.</p>
+<div class="image">
+<img src="texbl.png" alt="texbl.png"/>
+</div>
+<p>The NX GPU fetches textures from a block-linear layout, improving cache locality. Textures are swizzled into blocks, somewhat similar to compressed format blocks. In order to convert from a pitch-linear image to a texture using the NVN driver API, the pitch-linear image must be stored in a NVNBuffer, nvnTextureWriteTexels or nvnCommandBufferCopyBufferToTexture must be used to blit into the texture using the GPU. NX hardware can directly use the textures swizzled by the NVN Texture Packager without using nvnTextureWriteTexels or nvnCommandBufferCopyBufferToTexture to write into the texture, saving GPU cycles and avoiding syncpoint waiting. This may help significantly reduce loading times or help with streaming.</p>
+<p>Texture processor is roughly divided into 3 parts: The image format loader, which manages loading of DDS / TGA files, the NVN image library, which manages operations such as format conversion and mipmap generation on generic pitch-linear images, and a hardware dependent texture converter.</p>
+<p>The texture packager tool is targeted at Windows platforms. It comes with support for DDS and TGA texture file formats, with support to easily add other formats. The tool is available as either a dynamic library (DLL) or a command line executable.</p>
+<p>High level diagram: </p><div class="image">
+<img src="nvntexpkg.png" alt="nvntexpkg.png"/>
+</div>
+<h1><a class="anchor" id="nvn_texpkg_guide_sec_2"></a>
+2. NVN Image Library (NvnImage.dll)</h1>
+<p>The image library is not hardware- or API-specific, and it manages operations on generic pitch-linear images. The image library is provided as an independent library.</p>
+<p>For format conversions that are lossy, Floyd-Steinberg dithering is supported. For mipmap generation, only box filter is supported.</p>
+<p>NVN Image Library Interface:</p><ul>
+<li><a class="el" href="nvn_tool___image_8h.html" title="This module defines classes to represent and operate on raw generic pitch-linear images used by the N...">nvnTool_Image.h</a></li>
+<li><a class="el" href="nvn_tool___image_combine_8h.html" title="This module is for stitching images into array images, and assembling images into mipmap chains used ...">nvnTool_ImageCombine.h</a></li>
+<li><a class="el" href="nvn_tool___image_convert_8h.html" title="This module supports format conversion between pitch-linear images in the NVN texture packager tool...">nvnTool_ImageConvert.h</a></li>
+<li><a class="el" href="nvn_tool___image_mipmap_8h.html" title="Definitions used for generating mipmap images in the NVN texture packager tool. ">nvnTool_ImageMipmap.h</a></li>
+<li><a class="el" href="nvn_tool___image_info_8h.html" title="Helper module for storing and finding format information for images used by the NVN texture packager ...">nvnTool_ImageInfo.h</a></li>
+<li><a class="el" href="nvn_tool___image_dll_8h.html" title="Helper for loading entry points for the NVN texture packager tool&#39;s image library. ">nvnTool_ImageDll.h</a></li>
+</ul>
+<p>Code example to load the DLL entry points: </p><div class="fragment"><div class="line"><span class="comment">// Load the NVN image library.</span></div>
+<div class="line"><span class="keywordtype">bool</span> ret = <a class="code" href="namespacenvn_tool_1_1texpkg.html#aecbd9be1166c09b6e0771986363bef28">LoadNVNImageLibrary</a>(&amp;nvnImageLib, NVN_IMAGE_DLL_FILENAME);</div>
+<div class="line">assert(ret);</div>
+</div><!-- fragment --><p>Code example to create an nvnImage: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> img = nvnImageLib.createRawImage();</div>
+<div class="line">img-&gt;Create(<a class="code" href="group__nvn__c__enum.html#gga7f247010f53480c7dd1f3b2ad638c431a856184892b54a04cd16ec7848108ec53">NVN_TEXTURE_TARGET_2D</a>, 128, 256, 1, <a class="code" href="group__nvn__c__enum.html#gga99463f5b9af6151e604b01dfdd5fecaba81514f73c168617e9819e91131e87426">NVN_FORMAT_RGBA8</a>, 1);</div>
+<div class="line">uint32_t *px = (uint32_t *)img-&gt;GetData();</div>
+<div class="line">nvnImageLib.releaseRawImage(img);</div>
+</div><!-- fragment --><h1><a class="anchor" id="nvn_texpkg_guide_sec_3"></a>
+3. Texture Packager Core Library (NvnTexpkg.dll)</h1>
+<p>The texture packager core library contains the the NVN Image Library along with helper classes for file input / output, and conversion to hardware texture formats.</p>
+<p>An NX formatted texture built with the texture packager may be used on Windows NVN via the nvnTextureBuilderSetPackagedTextureData method. Setting this will re-swizzle the NX-optimized texture into the native Windows GPU optimized format before downloading the texture into GPU memory, when nvnTextureInitialize is called.</p>
+<p>Texture Packager Core Library Interface:</p><ul>
+<li><a class="el" href="nvn_tool___image_loader_8h.html" title="This module provides a common interface for loading and saving images in formats supported by the NVN...">nvnTool_ImageLoader.h</a></li>
+<li><a class="el" href="nvn_tool___hw_texture_8h.html" title="Definitions of common structures used when loading and saving images in the hardware formats supporte...">nvnTool_HwTexture.h</a></li>
+<li><a class="el" href="nvn_tool___hw_texture_export_8h.html" title="Class for converting textures to and from the hardware formats supported by the NVN texture packager...">nvnTool_HwTextureExport.h</a></li>
+<li><a class="el" href="nvn_tool___fd_8h.html" title="Definitions of common structures used for loading and saving images using NVNFD (XTX) format archives...">nvnTool_Fd.h</a></li>
+<li><a class="el" href="nvn_tool___texpkg_core_8h.html" title="Helper class to wrap higher level functionality in the NVN texture packager tool. ...">nvnTool_TexpkgCore.h</a></li>
+<li><a class="el" href="nvn_tool___texpkg_dll_8h.html" title="Helper for loading entry points from the core NVN texture packager library. ">nvnTool_TexpkgDll.h</a></li>
+</ul>
+<p>Code example to load the DLL entry points: </p><div class="fragment"><div class="line"><span class="comment">// Load the texpkg library.</span></div>
+<div class="line">ret = <a class="code" href="namespacenvn_tool_1_1texpkg.html#ad78cc4ac1712b86d8c078b78532d5764">LoadTexpkgLibrary</a>(&amp;tpkgLib, NVN_TEXPKG_DLL_FILENAME);</div>
+<div class="line">assert(ret);</div>
+</div><!-- fragment --><p>Code example to export to a NVNHWTexture: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> hwexporter = tpkgLib.createRawImageHardwareTextureExporter(&amp;nvnImageLib);</div>
+<div class="line"><span class="keyword">auto</span> hwtex = make_unique&lt;NVNHWTexture&gt;();</div>
+<div class="line">hwexporter-&gt;Convert(img, hwtex.get());</div>
+</div><!-- fragment --><h1><a class="anchor" id="nvn_texpkg_guide_sec_4"></a>
+4. Using Hardware Format Textures In NVN</h1>
+<p>NX NVN Example code: </p><div class="fragment"><div class="line"><span class="comment">// Create a memory pool of the entire xtx archive.</span></div>
+<div class="line">memPool = device.CreateMemoryPool(data, sz, nvn::MemoryPoolType::GPU_ONLY);</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Set up a texture builder.</span></div>
+<div class="line">TextureBuilder textureBuilder = device.CreateTextureBuilder();</div>
+<div class="line">textureBuilder.SetTarget(tex-&gt;header.target)</div>
+<div class="line">              .SetFormat(tex-&gt;header.format)</div>
+<div class="line">              .SetLevels(tex-&gt;header.mipmapLevels)</div>
+<div class="line">              .SetSize3D(tex-&gt;header.width, tex-&gt;header.height, tex-&gt;header.depth)</div>
+<div class="line">              .SetPackagedTextureData(tex-&gt;data); <span class="comment">// Only needed on Windows NVN, no-op on NX.</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Now create the texture.</span></div>
+<div class="line">texture = textureBuilder.CreateTextureFromPool(memPool, texDataOffsetInMemPool);</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Draw using texture.</span></div>
+</div><!-- fragment --><p>Note that we avoid having to use <a class="el" href="group__nvn__c__functions.html#gaaa8c77d09aa827fbbced85deecec671e" title="Copy texture data from buffer memory into a region of a NVNtexture object. ">nvnCommandBufferCopyBufferToTexture()</a> here, and instead can directly use the image. <a class="el" href="group__nvn__c__functions.html#ga0e4a235dac08f14ecbaf8e566df8444e" title="Copy texture data from memory into a region of a NVNtexture object. ">nvnTextureWriteTexels()</a> provides similar CPU swizzling functionality online.</p>
+<h1><a class="anchor" id="nvn_texpkg_guide_sec_5"></a>
+5. Supported Formats</h1>
+<p>Supported conversion destination formats:</p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;r8, r8sn, r8ui, r8i, r16f, r16, r16sn, r16ui, r16i, r32f, r32ui, r32i, rg8,</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;rg8sn, rg8ui, rg8i, rg16f, rg16, rg16sn, rg16ui, rg16i, rg32f, rg32ui, rg32i,</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;rgb8, rgb8sn, rgb8ui, rgb8i, rgb32f, rgb32ui, rgb32i, rgba8, rgba8sn, rgba8ui,</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;rgba8i, rgba16f, rgba16, rgba16sn, rgba16ui, rgba16i, rgba32f, rgba32ui,</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;rgba32i, rgbx8_srgb, rgba8_srgb, rgba4, rgb5, rgb5a1, rgb565, rgb10a2,</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;rgb10a2ui, r11g11b10f, rgb9e5f, rgbx8, rgbx8sn, rgbx8ui, rgbx8i, rgbx16f,</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;rgbx16, rgbx16sn, rgbx16ui, rgbx16i, rgbx32f, rgbx32ui, rgbx32i</div>
+</div><!-- fragment --><p>Supported TGA loading formats (conversion supported): </p><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;32-bit, 24-bit, 16-bit, 8-bit and RLE TGA formats.</div>
+</div><!-- fragment --><p>Supported DDS loading formats (conversion supported):</p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;r16f, r32f, a2bgr10, a2rgb10, abgr16f, abgr32f, abgr8, argb8, gr16, gr16f,</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;gr32f, rgb565, rgb5a1, rgb8, rgba4, xbgr8, xrgb8, xrgb1555, xrgb4</div>
+</div><!-- fragment --><p>Supported source DDS formats (passthrough only, no conversion): </p><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;dxt1 --&gt; rgb_dxt1</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;dxt2 --&gt; rgba_dxt3</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;dxt3 --&gt; rgba_dxt3</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;dxt4 --&gt; rgba_dxt5</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;dxt5 --&gt; rgba_dxt5</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;bc4u --&gt; rgtc1_unorm</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;bc4s --&gt; rgtc1_snorm</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;bc5u --&gt; rgtc2_unorm</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;bc5s --&gt; rgtc2_snorm</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;bc6h_uf16 --&gt; bptc_ufloat</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;bc6h_sf16 --&gt; bptc_sfloat</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;bc7 --&gt; bptc_unorm</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;bc7_srgb --&gt; bptc_unorm_srgb</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;astc_4x4 --&gt; rgba_astc_4x4 or rgba_astc_4x4_srgb</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;astc_5x4 --&gt; rgba_astc_5x4 or rgba_astc_5x4_srgb</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;astc_5x5 --&gt; rgba_astc_5x5 or rgba_astc_5x5_srgb</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;astc_6x5 --&gt; rgba_astc_6x5 or rgba_astc_6x5_srgb</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;astc_6x6 --&gt; rgba_astc_6x6 or rgba_astc_6x6_srgb</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;astc_8x5 --&gt; rgba_astc_8x5 or rgba_astc_8x5_srgb</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;astc_8x6 --&gt; rgba_astc_8x6 or rgba_astc_8x6_srgb</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;astc_8x8 --&gt; rgba_astc_8x8 or rgba_astc_8x8_srgb</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;astc_10x5 --&gt; rgba_astc_10x5 or rgba_astc_10x5_srgb</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;astc_10x6 --&gt; rgba_astc_10x6 or rgba_astc_10x6_srgb</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;astc_10x8 --&gt; rgba_astc_10x8 or rgba_astc_10x8_srgb</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;astc_10x10 --&gt; rgba_astc_10x10 or rgba_astc_10x10_srgb</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;astc_12x10 --&gt; rgba_astc_12x10 or rgba_astc_12x10_srgb</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;astc_12x12 --&gt; rgba_astc_12x12 or rgba_astc_12x12_srgb</div>
+</div><!-- fragment --><p>ASTC formats are available through the DDS container format. ASTC is stored as a DDS10 extended format. NVASTC was used to generate ASTC formats DDS images for testing; see <a href="https://developer.nvidia.com/content/astc-compression-gets-cuda-boost">https://developer.nvidia.com/content/astc-compression-gets-cuda-boost</a>.</p>
+<h1><a class="anchor" id="nvn_texpkg_guide_sec_6"></a>
+6. XTX format</h1>
+<p>The XTX format is a minimalistic storage container format for packaged textures. Using this XTX format is entirely optional; developers are free to write out the data in the fully visible HWTexture structures using their own file format of choice. The XTX format is simple; a ArchiveHeader object is stored at the start of the archive, followed by a list of BlockHeader structures. The BlockHeader structures are stored in pairs of NVNFD_BLOCK_TEXTURE_HEADER and NVNFD_BLOCK_TEXTURE blocks; one NVNFD_BLOCK_TEXTURE_HEADER followed by the corresponding NVNFD_BLOCK_TEXTURE block. NVNFD_BLOCK_TEXTURE_HEADER block contains a NVNHWTextureHeader structure and a NVNFD_BLOCK_TEXTURE contains the data block in NVNHWTexture::data. A NVNFD_BLOCK_END block marks the end of the archive.</p>
+<blockquote class="doxtable">
+<p>Note: in the command line tool, the NTX extension is still available for legacy compatibility. NTX and XTX containers create the same file except for the extension. Support for NTX will be removed in a future update. </p>
+</blockquote>
+<p>See <a class="el" href="nvn_tool___fd_8h.html" title="Definitions of common structures used for loading and saving images using NVNFD (XTX) format archives...">nvnTool_Fd.h</a>.</p>
+<div class="image">
+<img src="nvnfd.png" alt="nvnfd.png"/>
+</div>
+<h1><a class="anchor" id="nvn_texpkg_guide_sec_7"></a>
+7. Command Line Tool (NvnTexpkg.exe)</h1>
+<p>The executable version of the texture packager is a simple command line app uses the library, writing the resulting hardware format textures to an xtx archive.</p>
+<p>Command line arguments: </p><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;Usage: NvnTexpkg.exe [OPTION]... [-i srcfile] [-o dstfile]</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;Example command line params (to .xtx):</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;    NvnTexpkg.exe -i texture1.dds -i texture2.dds -o out.xtx --stitch</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    --mip-filter box --minmip 1 -f rgba8</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;-i &lt;SrcFile&gt;           : Source image file. This can appear more than once on the</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;                         command line for texture arrays or when creating multiple</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;                         textures in one xtx file. Maximum source file count is 1024.</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;                         Supported file formats: dds, tga</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;-o &lt;DstFile&gt;           : Destination texture binary file (default: out.xtx)</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;                         Supported file formats: xtx, ntx, raw</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;--append               : Append textures to existing xtx archive file. Ignored when</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;                         not writing to xtx format.</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;--src-format &lt;SrcFmt&gt;  : Reinterpret source texture as given format (default:</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;                         if not specified, the source format is based on the src</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;                         texture contents, and no reinterpretation happens)</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;                         Note: the reinterpret format and the texture source format</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;                               must have the same bits-per-pixel.</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;--dst-format &lt;DstFmt&gt;  : Destination texture format (default: if not specified,</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;                         a destination format is chosen based on the source format)</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;-f &lt;DstFmt&gt;            : Same as --dst-format &lt;DstFmt&gt; above.</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;--reinterpret &lt;SFmt&gt;   : Same as --src-format &lt;SFmt&gt; above.</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;--dither               : Enable dithering on format conversion.</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;--mip-filter &lt;mode&gt;    : Mip filter for generating mips (only &quot;box&quot; supported now)</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;--minmip &lt;N&gt;           : Minimum mipmap size (ie, generate until dimensions &lt;= NxN)</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;--stitch               : Creates a texture array from the source textures.</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;                         Source textures should have the same dimensions.</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;--minimal-layout       : Enable minimal layout storage mode.</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;--assemble             : Creates mips from the source textures. The order of the</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                         source textures on the command line should be the desired</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                         order of the mip levels: src_1 = lvl_0, src_2 = lvl_1, etc.</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;                         Note: This option cannot be used with -stitch.</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;--printinfo            : Print out useful information about the resulting textures.</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;--supported            : List supported output texture formats.</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;-?                     : Show this usage message.</div>
+</div><!-- fragment --><h1><a class="anchor" id="nvn_texpkg_guide_sec_8"></a>
+8. Limitations</h1>
+<ul>
+<li>Convertion to / from compressed image formats is not supported.</li>
+<li>No support for DDS10 texture formats (except ASTC).</li>
+<li>Multisample and Buffer texture targets are not supported. </li>
+</ul>
+</div></div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

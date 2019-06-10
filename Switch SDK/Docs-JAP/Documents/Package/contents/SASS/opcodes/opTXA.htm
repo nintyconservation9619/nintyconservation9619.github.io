@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>TXA</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    TXA : Texture Virtual AA<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Texture Virtual AA" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Texture Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "TXA", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>TXA</b>{.NDV}{.NODEP}{.phase}</code>   <code>Rd, Ra, #tsPtrIdxU13 {, #wmskU04}</code>    <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TXA" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>TXA</b>{.NDV}{.NODEP}{.phase}</code>   <code>Rd, Ra, #tidU08, #smpU05, #wmskU04</code>   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("MIO_RD_WR_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("MIO_RD_WR_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "TXA" } -->
+
+  .NDV:    Forces the TEX to be considered non-divergent even though quad may be divergent.  
+                   This will not promote inactive threads, only force it to be treated as non-divergent despite the fact
+           that some threads might be inactive.  To activate disabled threads in a quad <a href="opSAM.htm">SAM</a> must be used.
+	   Only the active mask and shader type are used to determine if a quad of threads is divergent.
+
+  .NODEP:  Indicates that there is no subsequent quad derivatives to be calculated.
+	   Threads that have been "<a href="opKIL.htm">killed</a>" will be disabled to stop unnecessary texture fetches.
+
+  .phase:  Allows control on the current warps texture hash, used for scheduling.
+               &lt; NONE &gt;
+               .T - postfix increment of the 3 bit texture component of the hash.
+	       .P - postfix increment of the 5 bit phase component, and zero out the 3 bit texture component of the hash. 
+
+
+
+Immediate Inputs:
+
+  #tsPtrIdxU13:
+     This immediate index is used to fetch the packed header+sampler pointer entry from constant
+     cache.  The bank from which it is fetched is determined by bundle state.The constant bank
+     entry is 32 bit structure of the form "samplerPtr[31:20] | headerPtr[19:0]".
+     In SetSamplerBinding.ViaHeaderBinding (i.e. OGL) mode, the headerPtr would be used as the
+     samplerPtr as well. 
+     Any header pointer greater than one specified in SetTexHeaderPoolC.MaximumIndex will be regarded
+     as an "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in fermi).
+     Any sampler pointer greater than one specified in SetSamplerHeaderPoolC.MaximumIndex will be
+     regarded as an "invalid" texture (i.e. equivalent to BIND_GROUP_TEXTURE_HEADER_VALID_FALSE in
+     fermi).
+
+  #tidU08, #smpU05:
+     This is the "almost" Fermi-compatible specification of tsPtrIdxU13 which allows running of
+     legacy apps/traces where sass will transform these into tsPtrIdxU13 as follows:
+     #tsPtrIdxU13 = {#smpU05, #tidU08}
+
+  #wmskU04       destination write mask (decimated contiguous writes)
+     Allows for write masking the returning data writes via a bit enable
+     for each of R,G,B,A. A four-vector is always returned from TEX.
+     #wmskU04 defaults to 0xf.
+
+  Ra cannot be RZ.
+
+  TXA implies a 2D normalized texture lookup.
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Resolve the VCAA surface by applying a set of weights to the texture filter. The weights 
+are retrieved via a normal TEX op.</p>
+<p>
+The first texture fetch (TEX) returns the weights, packed as 8 weights of 4 bits each
+into a u32 value. This value is returned as the first scalar. The second texture fetch
+(TXA) supplies the (x,y) position and weights and returns the final filtered RGBA values.</p>
+<p>
+The parameters are as follows:
+</p>
+<ol>
+<TABLE border="1" cellpadding="5%">
+    <CAPTION><EM>Texture parameter packing in Ra </EM></CAPTION>
+    <TR><TH>Reg<TH>parameter<TH>format</TR>
+    <TR><TD>Ra+0<TD>s<TD>fp32</TR>
+    <TR><TD>Ra+1<TD>t<TD>fp32</TR>
+    <TR><TD>Ra+2<TD>r (weights)<TD>fp32</TR>
+</TABLE>
+</ol>
+
+<p>
+Registers Ra, and Rd have alignment restrictions based on amount of data. Specifically,
+</p>
+<ol> 
+	<li> Rd should be aligned to number of valid components being returned (as specified by wmask) </li>
+	<li> Ra should always be aligned  to 4 (vec4 register)</li>
+	<li> Ra cannot be RZ </li>
+</ol>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+# exmple of using TXA
+   IPA R4,f[x];           // x coord (no perspective correction needed)
+   IPA R5,f[y];           // y coord (no perspective correction needed)
+   TEX R6,R4,5,2D,0x1;    // texture fetch, returns weights packed into 32 bits
+   TXA R0,R4,8,0xf;       // texture fetch that resolves VCAA, returns RGBA
+END
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

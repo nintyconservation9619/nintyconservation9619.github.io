@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>処理時間の計測</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 処理時間の計測 -->
+<div class="pagetitle" id="PageId_165356762">処理時間の計測</div>
+<div class="text_separate">
+<h1 id="Anchor_165356762_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_165356762_h2_1">サウンドプロファイルを用いた処理時間の計測</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_165356762_h3_1">nn::atk::ProfileReader の登録</a>
+      </li>
+      <li>
+        <a href="#Anchor_165356762_h3_2">プロファイル結果の読み込み</a>
+      </li>
+      <li>
+        <a href="#Anchor_165356762_h3_3">nn::atk::ProfileReader の登録解除</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_165356762_h2_2">spy を用いた処理時間の計測</a>
+    </li>
+  </ul>
+</p>
+<h1 id="Anchor_165356762_h1_2">処理時間の計測</h1>
+<p>サウンドプロファイルを用いて、<span style="color: rgb(51,51,51);">サウンドスレッドの CPU 処理時間や、内部で使用する <span class="ApiLink_nn__audio">nn::audio</span> のオーディオレンダラの処理<span style="color: rgb(51,51,51);">時間</span>を計測する方法を説明します。</span></p>
+<h2 id="Anchor_165356762_h2_1">
+  <span style="color: rgb(51,51,51);">サウンドプロファイルを用いた処理時間の計測</span>
+</h2>
+<p>
+  <span style="color: rgb(51,51,51);">Atk ライブラリでは <a href="../Pages/Page_162560000.html">サウンドスレッド</a> やオーディオレンダラの処理<span style="color: rgb(51,51,51);">時間</span>を計測するためにサウンドプロファイルの機能を提供しています。<br />サウンドプロファイルを利用するためには、サウンドシステムに <span class="ApiLink_nn__atk__ProfileReader">nn::atk::ProfileReader</span>&nbsp;を登録し、アプリケーションのメインループでプロファイル結果の読み込み処理を行う必要があります。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">ここではサウンドプロファイルの使用方法の流れを説明します。<a href="../../../Api/HtmlNX/_page_sample_atk_profile.html">AtkProfile サンプル</a> <span style="color: rgb(51,51,51);">&nbsp;も参考にしてください。</span> </span>
+</p>
+<h3 id="Anchor_165356762_h3_1">
+  <span style="color: rgb(51,51,51);">nn::atk::ProfileReader の登録</span>
+</h3>
+<p>
+  <span style="color: rgb(51,51,51);">まずはサウンドシステムの初期化時に、初期化パラメータにサウンドプロファイラの有効化フラグを設定する必要があります。</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// SoundSystem の初期化
+nn::atk::SoundSystem::SoundSystemParam param;
+param.enableProfiler = true;
+...
+nn::atk::SoundSystem::Initialize( param, ... );</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(51,51,51);">その後、サウンドシステムに <span class="ApiLink_nn__atk__ProfileReader">nn::atk::ProfileReader</span>&nbsp;を登録します。</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::atk::ProfileReader profileReader;
+nn::atk::SoundSystem::RegisterProfileReader(profileReader);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_165356762_h3_2">
+  <span style="color: rgb(51,51,51);">プロファイル結果の読み込み</span>
+</h3>
+<p>
+  <span style="color: rgb(51,51,51);">登録が完了したら、アプリケーションのメインループで適宜プロファイル結果を読み込んでください。<br />プロファイル結果の読み込みには <span class="ApiLink_nn__atk__ProfileReader__Read">nn::atk::ProfileReader::Read</span> を使用します。&nbsp;</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">以下では、内部で使用する <span class="ApiLink_nn__audio">nn::audio</span> のオーディオレンダラの総処理時間をダンプしています。<br />個々の処理時間の詳細につきましては、<span class="ApiLink_nn__atk__SoundProfile">nn::atk::SoundProfile</span> の API リファレンスを参照ください。</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>int SoundProfileCountMax = 32;
+nn::atk::SoundProfile soundProfile[SoundProfileCountMax];
+ 
+int profileCount = profileReader.Read(soundProfile, SoundProfileCountMax);
+for ( auto i = 0; i &lt; profileCount; i++ )
+{
+&nbsp;&nbsp;&nbsp;&nbsp;nn::atk::SoundProfile profile = soundProfile[i];
+&nbsp;&nbsp;&nbsp;&nbsp;NN_LOG(&quot;%8lld\n&quot;, profile.rendererFrameProcess.GetSpan().GetMicroSeconds());
+}</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>プロファイル結果は、サウンドスレッド上でオーディオの更新周期につき１つずつ蓄積されていきます。</p>
+<p>
+  <span style="color: rgb(51,51,51);">&nbsp;</span>
+</p>
+<p>プラットフォームに依存しますが、オーディオの更新周期は 3msec ～ 5msec であるため、<br />60FPS (約 16msec) のアプリケーションにおいてはメインループ１回につき、3 ～ 6 つのプロファイル結果が格納されます。</p>
+<p>
+  <span style="color: rgb(51,51,51);">&nbsp;</span>
+</p>
+<p>
+  <span class="ApiLink_nn__atk__ProfileReader__Read">nn::atk::ProfileReader::Read</span> には引数に <span class="ApiLink_nn__atk__SoundProfile">nn::atk::SoundProfile</span> の配列を渡す必要がありますが、<br />アプリケーションのメインループの更新周期を考慮した上で、プロファイル結果の格納に十分な長さの配列を用意してください。<br />また <span class="ApiLink_nn__atk__ProfileReader__Read">nn::atk::ProfileReader::Read</span> は取得したプロファイル結果の個数を返しますので、こちらも配列の長さの参考にしてください。</p>
+<h3 id="Anchor_165356762_h3_3">
+  <span style="color: rgb(51,51,51);">nn::atk::ProfileReader の登録解除</span>
+</h3>
+<p>
+  <span style="color: rgb(51,51,51);">アプリケーションを終了するときは、サウンドシステムの終了処理の前に <span class="ApiLink_nn__atk__ProfileReader">nn::atk::ProfileReader</span> の登録を解除してください。</span>
+</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::atk::SoundSystem::UnregisterProfileReader(profileReader);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_165356762_h2_2">
+  <span style="color: rgb(51,51,51);">spy を用いた処理時間の計測</span>
+</h2>
+<p>
+  <span style="color: rgb(51,51,51);">
+    <span class="ApiLink_nn__spy__atk">nn::spy::atk</span> をアプリケーションに組み込むことで、<span style="color: rgb(51,51,51);">処理時間などの情報を GUI ツール(</span>Spy.exe) で確認することができるようになります。</span>
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">詳しくは&nbsp;<a href="../Pages/Page_159227283.html">Spy</a>&nbsp;のドキュメントを参照ください。</span>
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__audio', '../../../Api/HtmlNX/namespacenn_1_1audio.html' )
+SetUrl( 'ApiLink_nn__atk__ProfileReader', '../../../Api/HtmlNX/classnn_1_1atk_1_1_profile_reader.html' )
+SetUrl( 'ApiLink_nn__atk__ProfileReader__Read', '../../../Api/HtmlNX/classnn_1_1atk_1_1_profile_reader.html#a57ee3e0b1aab6781316b8cedc7559edb' )
+SetUrl( 'ApiLink_nn__atk__SoundProfile', '../../../Api/HtmlNX/structnn_1_1atk_1_1_sound_profile.html' )
+SetUrl( 'ApiLink_nn__spy__atk', '../../../Api/HtmlNX/namespacenn_1_1spy_1_1atk.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

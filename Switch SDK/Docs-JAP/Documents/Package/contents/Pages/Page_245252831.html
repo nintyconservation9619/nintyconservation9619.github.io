@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>利用可能な fmdb ファイルの制限</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 利用可能な fmdb ファイルの制限 -->
+<div class="pagetitle" id="PageId_245252831">利用可能な fmdb ファイルの制限</div>
+<div class="text_separate">
+<p>エフェクトでは、パーティクル形状「プリミティブ」として使用できないモデルファイル（ .fmdb）があります。<br />問題のあるモデルファイルを EffectMaker に読み込んださい、「 <span class="embedded-file-wrapper "><img src="../Attachments/Attach_83955555/93520160.png" width="32" class="embedded-image" /></span> ファイル指定」のコメント欄に「警告」が表示さます。<br />以下は各警告が表示される条件と解決方法です。</p>
+<h1 id="Anchor_245252831_h1_1">「ファイルバージョンが不正です。」</h1>
+<p>
+  <span class="status_macro_base status_macro_Red">表示条件</span> 古いバージョンの Maya プラグインでモデルファイルが作成されているときに表示される警告です。</p>
+<p>
+  <span class="status_macro_base status_macro_Green">解決方法 1</span> 新しいバージョンの Maya プラグインでモデルファイルを作り直してください。</p>
+<p>
+  <strong> <span class="status_macro_base status_macro_Green">解決方法 2</span> 「中間ファイルアップデーター」</strong>でファイルバージョンを最新にしてください。</p>
+<h1 id="Anchor_245252831_h1_2">「頂点フォーマットの名前が不正です。 (名前1, 名前2, &hellip;)」</h1>
+<p>
+  <span class="status_macro_base status_macro_Red">表示条件</span> モデルファイルで vtx_attrib 要素の name アトリビュートに不正な名前が使われているときに表示される警告です。</p>
+<p>
+  <span class="status_macro_base status_macro_Green">解決方法</span> DCC ツール（Maya 等）で名前を修正し、モデルファイルを出力しなおしてください。</p>
+<p>
+  <a name="Anchor_245252831_tools"></a>
+</p>
+<h1 id="Anchor_245252831_h1_3">「uv0とuv1のフォーマットが一致していません。」</h1>
+<p>
+  <span class="status_macro_base status_macro_Red">表示条件</span> uv0 と uv1 の量子化型（quantize_type アトリビュート）が一致していないときに表示される警告です。</p>
+<p>
+  <span class="status_macro_base status_macro_Green">解決方法 1</span> <strong>「中間ファイルフィルター」</strong>を利用して量子化型を書き換える解決方法です。</p>
+<p>モデルファイルの書き換えスクリプトを用意し、「中間ファイルフィルター」を利用して書き換え処理を行ってください。</p>
+<p>(1)  <strong>\Tools\Graphics\EffectMaker\VfxFileFilter </strong>フォルダを下記のいずれか存在する方に配置してください。</p>
+<p style="margin-left: 60.0px;">%NINTENDO_SDK_ROOT%\Samples\Sources\Tools\GraphicsTools\IntermediateFileFilter\<br />%NINTENDO_SDK_ROOT%\Samples\Sources\Tools\3dTools\3dIntermediateFileFilter\</p>
+<p>(2) VfxFmdbConv.bat に ディレクトリ または fmdbファイル をドラッグアンドドロップしてください。ファイルが上書きされます。</p>
+<p>
+  <span class="status_macro_base status_macro_Green">解決方法 2</span> 手動で量子化型を書き換える解決方法です。</p>
+<p>以下の手順でモデルファイルの量子化型書き換えを行ってください。</p>
+<ol>
+  <li>fmdb ファイルを<strong>「テキスト中間ファイルコンバーター」</strong>で fmda ファイルに変換します。</li>
+  <li>
+    <p>制限にかかる部分を書き換えます。</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre>_u0 , _u1 の quantize_type を見て、型サイズの大きい方に揃えます。
+
+&lt;vtx_attrib attrib_index=&quot;2&quot; name=&quot;_u0&quot; hint=&quot;uv0&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;type=&quot;float2&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;quantize_type=&quot;unorm_8_8&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;count=&quot;81&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;stream_index=&quot;2&quot;
+/&gt;
+&lt;vtx_attrib attrib_index=&quot;3&quot; name=&quot;_u1&quot; hint=&quot;uv1&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;type=&quot;float2&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;quantize_type=&quot;unorm_16_16&quot;　// 型サイズの大きいほうに揃える
+&nbsp;&nbsp;&nbsp;&nbsp;count=&quot;81&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;stream_index=&quot;2&quot;
+/&gt;</pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <strong>「バイナリー中間ファイルコンバーター」</strong>を利用して再度 fmdb ファイルに戻します。</li>
+</ol>
+<p>
+  <br />
+</p>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>   以下は関連ページへのリンクです。 </p>
+<table class="wrapped">
+  <colgroup> <col /> <col /> </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <a href="../Pages/Page_94754686.html">パーティクル形状「プリミティブ」</a>
+      </th>
+      <td>パーティクル形状「プリミティブ」について説明します。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83956125.html">中間ファイルアップデーター</a>
+      </th>
+      <td>中間ファイルのバージョンを最新にできる「中間ファイルアップデーター」について説明します。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955970.html">中間ファイルフィルター</a>
+      </th>
+      <td>中間ファイルをスクリプトで処理できる「中間ファイルフィルター」について説明します。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955699.html">テキスト中間ファイルコンバーター</a>
+      </th>
+      <td>バイナリー中間ファイル (.f??b) をテキスト中間ファイル (.f??a) に変換できる「テキスト中間ファイルコンバーター」について説明します。</td>
+    </tr>
+    <tr>
+      <th>
+        <a href="../Pages/Page_83955925.html">バイナリー中間ファイルコンバーター</a>
+      </th>
+      <td>テキスト中間ファイル (.f??a) をバイナリー中間ファイル (.f??b) に変換できる「バイナリー中間ファイルコンバーター」について説明します。</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<link href="../../css/template.css" rel="stylesheet" type="text/css" />
+		<title>&lt;render_state&gt;</title>
+	</head>
+	<body>
+		<h1 id="title">&lt;render_state&gt;</h1>
+		<h2>説明</h2>
+		<p id="summary">深度テスト、アルファテスト、ブレンドといったレンダーステートを定義する要素です。</p>
+		<p id="detail" />
+		<h2>親要素</h2>
+		<ul id="parent">
+			<li>
+				<a href="./material.html">&lt;material&gt;</a> : マテリアルを定義する要素です。</li>
+		</ul>
+		<h2>属性</h2>
+		<div id="attribute">
+			<table>
+				<thead>
+					<tr>
+						<th>名前</th>
+						<th>型と値</th>
+						<th>説明</th>
+						<th id="attribute_dcc">DCC</th>
+					</tr>
+				</thead>
+				<tbody id="attribute_table">
+					<tr id="mode">
+						<td class="nowrap_right">
+							<strong>mode</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>enum</strong>
+							<br />custom<br />opaque<br />mask<br />translucent</td>
+						<td class="description">レンダーステートのモードを指定します。<br />
+			DCC ツールからの出力時は、常に opaque を指定します。
+			<table><tbody><tr><td>custom		</td><td>既定のモードでない、カスタムモードです。</td></tr>
+			<tr><td>opaque		</td><td>不透明モードです。</td></tr>
+			<tr><td>mask			</td><td>抜きモードです。</td></tr>
+			<tr><td>translucent	</td><td>半透明モードです。</td></tr></tbody></table>
+			<br /></td>
+						<td class="nowrap_center">固定</td>
+					</tr>
+					<tr id="display_face">
+						<td class="nowrap_right">
+							<strong>display_face</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>enum</strong>
+							<br />both<br />front<br />back<br />none</td>
+						<td class="description">表示面を指定します。<br />
+			DCC ツールからの出力時は、常に front を指定します。
+			<table><tbody><tr><td>both	</td><td>両面を表示します。</td></tr>
+			<tr><td>front	</td><td>表面を表示します。</td></tr>
+			<tr><td>back	</td><td>裏面を表示します。</td></tr>
+			<tr><td>none	</td><td>頂点処理は行いますが、表示をしません。</td></tr></tbody></table>
+			<br /></td>
+						<td class="nowrap_center">固定</td>
+					</tr>
+					<tr id="blend_mode">
+						<td class="nowrap_right">
+							<strong>blend_mode</strong>
+						</td>
+						<td class="nowrap_center">
+							<strong>enum</strong>
+							<br />none<br />color<br />logic</td>
+						<td class="description">ブレンド制御のモードを指定します。<br />
+			DCC ツールからの出力時は、常に none を指定します。<br />
+			<a href="./render_state.html">&lt;render_state&gt;</a> mode が opaque か mask であれば none を、translucent であれば color を指定します。
+			<table><tbody><tr><td>none	</td><td>ブレンド処理をせず、シェーダー出力値をそのままフレームバッファに書き込みます。</td></tr>
+			<tr><td>color	</td><td>フレームバッファとカラーブレンドします。</td></tr>
+			<tr><td>logic	</td><td>フレームバッファと論理ブレンドします。</td></tr></tbody></table>
+			<br /></td>
+						<td class="nowrap_center">固定</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<h2>内容</h2>
+		<div id="content">
+			<p>以下の要素が順番に出現します。[] 内の数値は要素の出現回数です。</p>
+			<ul>
+				<li>
+					<a href="depth_test.html">&lt;depth_test&gt;</a> [1] : 深度テストを定義する要素です。</li>
+				<li>
+					<a href="alpha_test.html">&lt;alpha_test&gt;</a> [1] : アルファテストを定義する要素です。</li>
+				<li>
+					<a href="color_blend.html">&lt;color_blend&gt;</a> [1] : フレームバッファとのカラーブレンドを定義する要素です。</li>
+				<li>
+					<a href="logical_blend.html">&lt;logical_blend&gt;</a> [1] : フレームバッファとの論理ブレンドを定義する要素です。</li>
+			</ul>
+		</div>
+		<h2>出力例</h2>
+		<p id="sample_info">
+			<a href="../../sample/cube.fmda.html">cube.fmda</a>
+		</p>
+		<div class="code_block">
+			<pre class="comment">      ...
+  60│            visibility="true"
+  61│            mesh_adjacency="false"
+  62│            compress_enable="true"
+  63│        /&gt;
+</pre>
+			<pre class="code">  64│        &lt;render_state mode="opaque" display_face="front" blend_mode="logic"&gt;
+  65│            &lt;depth_test enable="false" write="true" func="lequal" /&gt;
+  66│            &lt;alpha_test enable="false" func="less" value="0" /&gt;
+  67│            &lt;color_blend
+  68│                rgb_src_func="src_alpha"
+  69│                rgb_dst_func="one_minus_src_alpha"
+  70│                rgb_op="add"
+  71│                alpha_src_func="one"
+  72│                alpha_dst_func="zero"
+  73│                alpha_op="add"
+  74│                const_color="0 0 0 0"
+  75│            /&gt;
+  76│            &lt;logical_blend op="copy" /&gt;
+  77│        &lt;/render_state&gt;
+  78│        &lt;sampler_array length="1"&gt;
+  79│            &lt;sampler sampler_index="0" name="_a0" hint="albedo0" tex_name="texture1"&gt;
+  80│                &lt;wrap u="repeat" v="repeat" w="repeat" /&gt;
+  81│                &lt;filter mag="point" min="point" mip="point" max_aniso="aniso_1" /&gt;
+  82│                &lt;lod min="0" max="13" bias="0" /&gt;
+  83│            &lt;/sampler&gt;
+      ...
+</pre>
+		</div>
+	</body>
+</html>

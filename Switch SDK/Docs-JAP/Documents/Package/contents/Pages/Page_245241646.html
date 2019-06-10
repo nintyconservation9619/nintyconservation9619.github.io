@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>サブミックス</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- サブミックス -->
+<div class="pagetitle" id="PageId_245241646">サブミックス</div>
+<div class="text_separate">
+<p>
+  <br />
+</p>
+<h1 id="Anchor_245241646_h1_1">目次</h1>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_245241646_h1_1">目次</a>
+    </li>
+    <li>
+      <a href="#Anchor_245241646_h1_2">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_245241646_h1_3">サブミックス</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_245241646_h2_1">サブミックスとは</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_245241646_h3_1">バス</a>
+        </li>
+        <li>
+          <a href="#Anchor_245241646_h3_2">サブミックス</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_245241646_h2_2">atk のデフォルトの構成</a>
+      </li>
+      <li>
+        <a href="#Anchor_245241646_h2_3">ユーザ定義のサブミックス構成</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_245241646_h3_3">ユーザ定義のサブミックス構成の利点</a>
+        </li>
+        <li>
+          <a href="#Anchor_245241646_h3_4">ユーザ定義のルール</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_245241646_h2_4">ユーザ定義のサブミックス構成の利用手順</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_245241646_h3_5">サブミックスの初期化</a>
+        </li>
+        <li>
+          <a href="#Anchor_245241646_h3_6">サブミックスでの再生</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_245241646_h2_5">注意点</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_245241646_h1_2">概要</h1>
+<p>atk における「サブミックス」とは、バスを管理するためのオブジェクトです。<br />通常、atk ではメイン、AuxBus_A, B, C の 4 つの 6ch バスを使うことができますが、<br />内部的にはこれらは 1 つのサブミックスにより管理されています。</p>
+<p>このサブミックスを、 atk では利用者がカスタマイズすることができます。<br />これにより、利用者がバスの構成をユースケースに応じて自由に変更できるようになり、<br />バスの数を増やす、バスのチャンネル数をカスタマイズするなど、より柔軟なバスルーティングを実現することができます。</p>
+<p>このページでは、サブミックスとは何か、サブミックスとバスの関係性を説明したのち、 atk が通常どのようなバスルーティングになっているかを説明します。<br />その後、サブミックスを使用したバスルーティングの設定方法について、説明を行います。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>サブミックスのカスタマイズに関する機能は、現在有用性を評価中です。予告なく破壊的な仕様変更が入る可能性がある点にご注意ください。</p>
+  </div>
+</div>
+<h1 id="Anchor_245241646_h1_3">サブミックス</h1>
+<p>atk で再生されたサウンドは、エフェクトによる信号処理の適用のためいくつかのバスに出力され<br />最終的にそれらがミックスされた状態で出力されます。</p>
+<p>そのような処理を実現する仕組みのサブミックスについて説明します。</p>
+<h2 id="Anchor_245241646_h2_1">サブミックスとは</h2>
+<p>ここでは、サブミックスに関連する用語について説明します。</p>
+<h3 id="Anchor_245241646_h3_1">バス</h3>
+<p>atk でエフェクトを設定する単位です。</p>
+<p>バスは１つ以上のチャンネルから構成されていて、エフェクトを設定する際は<br />エフェクトの各チャンネルの信号処理を、バスのどのチャンネルに適用するかを設定することができます。</p>
+<p>
+  <img src="../Attachments/Attach_245241646/245252066.png"></img>
+</p>
+<h3 id="Anchor_245241646_h3_2">サブミックス</h3>
+<p>atk でサウンドの再生要求先として指定される対象です。<br />初期状態では１つのサブミックスで構成されているため、再生時に明示的に指定する必要はありません。</p>
+<p>サブミックスは１つ以上のバスから構成されていて、接続先として他のサブミックスやファイナルミックスを持ちます。<br />接続先には、サブミックス内の全てのバスがミックスされた結果が出力されます。</p>
+<p>
+  <img src="../Attachments/Attach_245241646/245252139.png"></img>
+</p>
+<h2 id="Anchor_245241646_h2_2">atk のデフォルトの構成</h2>
+<p>atk は初期状態では、サブミックスは１つ、バスは MainBus と AuxBus A～C の３つで構成されています。<br />また各バスは、６つのチャンネルから構成されています。<br />(参考：SoundMaker マニュアル、<a href="../Pages/Page_83955848.html">ウェーブサウンド</a>のセンドMAINの説明図)</p>
+<p>
+  <img src="../Attachments/Attach_245241646/245243723.png"></img>
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>6 チャンネルの各チャンネルに音量を指定してサウンド再生する方法については、<br /><a href="../Pages/Page_162953246.html">ミックス</a>&nbsp;の「各チャンネルの音量の直接指定」を参照ください。</p>
+  </div>
+</div>
+<h2 id="Anchor_245241646_h2_3">ユーザ定義のサブミックス構成</h2>
+<p>atk は初期状態で前述のサブミックス構成になっていますが<br />ユーザ定義のサブミックス構成を利用する事で、サブミックスやバスの数を増減させることができます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>本機能は、現在有用性を評価中です。予告なく破壊的な仕様変更が入る可能性がある点にご注意ください。</p>
+  </div>
+</div>
+<h3 id="Anchor_245241646_h3_3">ユーザ定義のサブミックス構成の利点</h3>
+<p>サブミックス構成をユーザ定義する事には、以下のような利点があります。</p>
+<ul>
+  <li>エフェクトバスの追加<ul><li>サブミックス１つあたり、最大で 1ch x 24 バスまで追加することができるようになります。</li></ul></li>
+  <li>処理負荷の調整<br /><ul><li>追加とは逆に、不要なエフェクトバスやチャンネルを減らす事で<br />オーディオレンダラの処理負荷を減らし、発音数の増加などにつなげることができます。</li></ul></li>
+  <li>エフェクトや音量の処理フローの整理<ul><li>サブミックスやバス毎にまとめてエフェクトや音量を設定できるため、<br />ゲームのサウンド処理パイプラインを整理することが可能です。</li></ul></li>
+</ul>
+<h3 id="Anchor_245241646_h3_4">ユーザ定義のルール</h3>
+<p>サブミックス構成をユーザ定義することにより</p>
+<ul>
+  <li>サブミックスの数、接続先</li>
+  <li>各サブミックスのバス数</li>
+  <li>各バスのチャンネル数</li>
+</ul>
+<p>といった構成を変更することができます。<br />ここでは構成の変更のルールについて説明します。</p>
+<p>サブミックスは接続先として、他のサブミックスを指定する事が可能です。<br />ただし、最終的にサブミックスはファイナルミックスに接続されている必要があります。</p>
+<p>サブミックスが最終的にファイナルミックスに接続されていない場合、<br />そのサブミックスに対してサウンドの再生要求を行っても、そのサウンドの音声は出力されません。</p>
+<p>
+  <img src="../Attachments/Attach_245241646/245252309.png"></img>
+</p>
+<p>サブミックスは並列に配置する事も可能です。</p>
+<p>その場合、複数のサブミックスにまたがるサウンドの制御を１つのサウンドハンドルで行うことはできません。<br />複数のサブミックスにサウンドを指定する場合は、別々のサウンドハンドルを用意する必要があります。</p>
+<!--Remove-->
+<p>
+  <img src="../Attachments/Attach_245241646/245252314.png"></img>
+</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>１つのサブミックスに設定できるチャンネル数の合計の最大は 24 ch です。<br />例えば、6ch のバス５つを１つのサブミックスに設定する事はできません。</p>
+  </div>
+</div>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>１つのサブミックスにチャンネル数の異なるバスを設定することはできません。<br />例えば、１つのサブミックスに対して 6ch のバス２つ、2ch のバス２つのような設定を行うことはできません。</p>
+  </div>
+</div>
+<!--Remove-->
+<h2 id="Anchor_245241646_h2_4">ユーザ定義のサブミックス構成の利用手順</h2>
+<p>ここではサンプルコードを例に挙げながら、プログラム上でユーザ定義のサブミックス構成を利用する手順を説明します。</p>
+<h3 id="Anchor_245241646_h3_5">サブミックスの初期化</h3>
+<p>まずは SoundSystem の初期化時に、ユーザ定義のサブミックス構成の有効化フラグを設定します。<br />その際、サブミックスが使用するチャンネルの合計数を mixBufferCount に、サブミックスの合計数を subMixCount にそれぞれ設定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nn::atk::SoundSystem::SoundSystemParam param;
+param.enableCustomSubMix      = true;
+param.subMixTotalChannelCount = totalBusCount * SubMixChannelCount;
+param.subMixCount             = SubMixIndex_Count;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>次に構成したいサブミックスに合わせて、サブミックスのインスタンスを必要な数だけ準備して、初期化を行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::atk::</span><span class="n">SubMix</span> <span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_Count</span><span class="p">];</span>
+<span class="p">...</span>
+<span class="c1">// SubMix[A] の初期化
+</span><span class="nn">std::</span><span class="kt">size_t</span> <span class="n">memSizeForSubMixA</span> <span class="o">=</span> <span class="nn">nn::atk::SubMix::</span><span class="n">GetRequiredMemorySize</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixBusCount</span><span class="p">[</span><span class="n">SubMixIndex_A</span><span class="p">],</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixChannelCount</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixBusCount</span><span class="p">[</span><span class="n">SubMixIndex_B</span><span class="p">],</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixChannelCount</span>
+<span class="p">);</span>
+<span class="n">g_pMemoryForSubMix</span><span class="p">[</span><span class="n">SubMixIndex_A</span><span class="p">]</span> <span class="o">=</span> <span class="nn">nns::atk::</span><span class="n">Allocate</span><span class="p">(</span> <span class="n">memSizeForSubMixA</span> <span class="p">);</span>
+<span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_A</span><span class="p">].</span><span class="n">Initialize</span><span class="p">(</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixBusCount</span><span class="p">[</span><span class="n">SubMixIndex_A</span><span class="p">],</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixChannelCount</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixBusCount</span><span class="p">[</span><span class="n">SubMixIndex_B</span><span class="p">],</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">SubMixChannelCount</span><span class="p">,</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_pMemoryForSubMix</span><span class="p">[</span><span class="n">SubMixIndex_A</span><span class="p">],</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">memSizeForSubMixA</span>
+<span class="p">);</span>
+<span class="p">...</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>初期化を行ったサブミックスのインスタンスの接続先を設定します。各サブミックスの接続先は最終的にファイナルミックスに接続されるように設定してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="c1">// SubMix のそれぞれを接続
+</span><span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_A</span><span class="p">].</span><span class="n">SetDestination</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_B</span><span class="p">]</span> <span class="p">);</span>
+<span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_B</span><span class="p">].</span><span class="n">SetDestination</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">finalMix</span> <span class="p">);</span>
+<span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_C</span><span class="p">].</span><span class="n">SetDestination</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">finalMix</span> <span class="p">);</span>
+ 
+<span class="c1">//  SubMix[B] の各バスから FinalMix のバスへ接続
+// ( FinalMix は 1 つのバスしか持ちません )
+</span><span class="k">const</span> <span class="kt">int</span> <span class="n">FinalMixBusIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">busIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">busIndex</span> <span class="o">&lt;</span> <span class="n">SubMixBusCount</span><span class="p">[</span><span class="n">SubMixIndex_B</span><span class="p">];</span> <span class="n">busIndex</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">g_SubMix</span><span class="p">[</span><span class="n">SubMixIndex_B</span><span class="p">].</span><span class="n">SetSend</span><span class="p">(</span> <span class="n">busIndex</span><span class="p">,</span> <span class="n">FinalMixBusIndex</span><span class="p">,</span> <span class="mf">1.0f</span> <span class="p">);</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_245241646_h3_6">サブミックスでの再生</h3>
+<p>ユーザ定義のサブミックス構成を利用してサウンドを再生する際は、どのサブミックスに対して再生要求を行うかを、SoundStartable::StartInfo で指定する必要があります。</p>
+<p>StartInfo::enableFlag に EnableFlagBit_OutputReceiver を設定した上で、StartInfo::pOutputReceiver に再生要求先を指定してください。<br />OutputReceiver には SubMix か FinalMix を指定することができます。</p>
+<!--Remove-->
+<p>またエフェクトを設定したい場合は SoundSystem ではなく、追加したいサブミックスやファイナルミックスに対して、バスを指定してエフェクトの追加を行ってください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>// SubMix[B] の AppendEffectBusIndex バスにエフェクトを追加
+// バスのセンドの確認に用います。
+g_SubMix[SubMixIndex_B].AppendEffect( &amp;g_EffectReverb, AppendEffectBusIndex, g_pMemoryForEffectReverb, memSizeForEffectReverb );
+...
+// StartInfo に SubMix を指定して再生
+nn::atk::SoundArchivePlayer::StartInfo info;
+info.enableFlag |= nn::atk::SoundArchivePlayer::StartInfo::EnableFlagBit_OutputReceiver;
+info.pOutputReceiver = &amp;g_SubMix[g_TargetSubMixIndex];
+bool result = g_SoundArchivePlayer.StartSound( &amp;g_SoundHandle, soundId, &amp;info ).IsSuccess();</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!--Remove-->
+<h2 id="Anchor_245241646_h2_5">注意点</h2>
+<ul>
+  <li>サブミックスの数やチャンネル数が増えると、オーディオレンダラの処理負荷が増加します。<br />発音数やエフェクト処理に影響しますので、<a href="../Pages/Page_165356762.html">処理時間の計測</a>&nbsp;を参考に負荷を確認することをおすすめします。</li>
+</ul>
+<!--Remove-->
+<p>
+  <br />
+</p>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

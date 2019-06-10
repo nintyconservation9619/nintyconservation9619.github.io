@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>Mii データの取得</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- Mii データの取得 -->
+<div class="pagetitle" id="PageId_162939097">Mii データの取得</div>
+<div class="text_separate">
+<h1 id="Anchor_162939097_h1_1">Mii データの取得</h1>
+<p>
+  <span class="ApiLink_nn__mii__Database">nn::mii::Database</span> クラスを使用することで Mii が保存されているデータベースにアクセスし、<a href="../Pages/Page_165752534.html">Mii データ（CharInfo）</a>を取得することができます。</p>
+<h2 id="Anchor_162939097_h2_1">データソース</h2>
+<p>Mii のデータは複数のデータソースから取得することができます。</p>
+<p>データソースの種類は以下の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__mii__Source">nn::mii::Source</span> 列挙型</th>
+      <th>データソース名</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__Source_Database">nn::mii::Source_Database</span>
+      </td>
+      <td>似顔絵データベース</td>
+      <td>Mii 作成・編集アプレットを使用して登録された Mii が格納されたデータベースです。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__Source_Default">nn::mii::Source_Default</span>
+      </td>
+      <td>デフォルトデータベース</td>
+      <td>デフォルト Mii が格納されているデータベースです。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_162939097_h2_2">初期化と終了処理</h2>
+<p>データベースから Mii を取得するためには、まずデータベースの初期化を行う必要があります。</p>
+<p>データベースの初期化には <span class="ApiLink_nn__mii__Database__Initialize">nn::mii::Database::Initialize</span>() 関数を使用します。データベースの初期化に成功した場合には、<span class="ApiLink_nn__ResultSccess">nn::ResultSccess</span>() が返ります。</p>
+<p>データベースが不要になったら、<span class="ApiLink_nn__mii__Database__Finalize">nn::mii::Database::Finalize</span>() を使用してデータベースの終了処理を行ってください。</p>
+<h2 id="Anchor_162939097_h2_3">データベースの状態の取得</h2>
+<h3 id="Anchor_162939097_h3_1">データベースが利用可能か調べる</h3>
+<p>
+  <span class="ApiLink_nn__mii__Database__IsAvailable">nn::mii::Database::IsAvailable</span>() 関数でデータベースが利用可能が確認できます。</p>
+<h3 id="Anchor_162939097_h3_2">Mii が何体いるかを調べる</h3>
+<p>
+  <span class="ApiLink_nn__mii__Database__GetCount">nn::mii::Database::GetCount</span>() 関数で指定したデータソースに保存されている Mii の数を取得できます。</p>
+<h3 id="Anchor_162939097_h3_3">データベースが最大容量に達したか調べる</h3>
+<p>
+  <span class="ApiLink_nn__mii__Database__IsFullDatabase">nn::mii::Database::IsFullDatabase</span>() 関数で似顔絵データベースの容量が最大に達しているかを判定します。</p>
+<p>似顔絵データベースの容量が最大に達しているかはこの関数を使用して判定するようにしてください。<span class="ApiLink_nn__mii__Database__GetCount">nn::mii::Database::GetCount</span>() 関数のデータソースに似顔絵データベースを指定した結果が、 <span class="ApiLink_nn__mii__DatabaseCount">nn::mii::DatabaseCount</span> 未満の場合でも最大に達している場合があります。</p>
+<h3 id="Anchor_162939097_h3_4">データベースが更新されたかを調べる<a name="Anchor_162939097_IsUpdatedDatabase"></a></h3>
+<p>データベースが更新されたかは <span class="ApiLink_nn__mii__Database__IsUpdated">nn::mii::Database::IsUpdated</span>() を使用することで判定できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">bool</span> <span class="nn">nn::mii::Database::</span><span class="n">IsUpdated</span><span class="p">(</span><span class="kt">int</span> <span class="n">sourceFlags</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>上記関数を使用することで指定したデータソースに登録されている Mii に更新、追加、削除が発生したかを判定できます。別のアプリケーションやアプレットから戻ってきた時にこの関数が true を返す場合があります。</p>
+<p>このメソッドは 1 度呼び出すと状態がクリアされます。次にデータベースが更新されるまで true を返さないことに注意してください。</p>
+<h2 id="Anchor_162939097_h2_4">データベースから Mii データを取得する</h2>
+<h3 id="Anchor_162939097_h3_5">データソースを指定して Mii を取得する</h3>
+<p>
+  <span class="ApiLink_nn__mii__Database__Get">nn::mii::Database::Get</span>() 関数を使用して指定したデータソースから Mii データを取得できます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::</span><span class="n">Result</span> <span class="nn">nn::mii::Database::</span><span class="n">Get</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">pOutCount</span><span class="p">,</span><span class="n">CharInfoElement</span><span class="o">*</span> <span class="n">pElements</span><span class="p">,</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span><span class="kt">int</span> <span class="n">sourceFlags</span><span class="p">);</span>
+
+<span class="err">または</span>
+
+<span class="nn">nn::</span><span class="n">Result</span> <span class="nn">nn::mii::Database::</span><span class="n">Get</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">pOutCount</span><span class="p">,</span><span class="n">CharInfo</span><span class="o">*</span> <span class="n">pElements</span><span class="p">,</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span><span class="kt">int</span> <span class="n">sourceFlags</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Mii データを格納する配列の要素数は、 sourceFlags に指定するビットフラグを考慮して <span class="ApiLink_nn__mii__Database__DefaultMiiCount">nn::mii::Database::DefaultMiiCount</span> と <span class="ApiLink_nn__mii__DatabaseMiiCount">nn::mii::DatabaseMiiCount</span> の合計値を指定してください。指定したデータソースに含まれる Mii の数が count よりも多い場合、結果として <span class="ApiLink_nn__mii__ResultOverflow">nn::mii::ResultOverflow</span> を返します。</p>
+<p>
+  <span class="ApiLink_nn__mii__CharInfoElement">nn::mii::CharInfoElement</span> はどのデータソースに含まれていた Mii かの情報も合わせて取得します。</p>
+<p>取得した CharInfo の更新が不要なアプリケーションは一度取得した CharInfo を使い続けることができます。データベース上の該当する Mii の CharInfo の更新に合わせて、アプリケーション側で取得した CharInfo の更新が必要な場合は、その都度 CharInfo を読み直してください。詳しくは、&nbsp;<a href="#Anchor_162939097_IsUpdatedDatabase">データベースが更新されたかを調べる </a>と<a href="#Anchor_162939097_UpdateLatest">最新の Mii データの取得する</a>の項目を参照してください。</p>
+<h3 id="Anchor_162939097_h3_6">最新の Mii データを取得する<a name="Anchor_162939097_UpdateLatest"></a></h3>
+<p>アプリケーションのセーブデータに保存してある CharInfo を最新にしたい場合や、 Mii 作成・編集アプレット呼び出し後 CharInfo を最新に更新したい場合は、<span class="ApiLink_nn__mii__Database__UpdateLatest">nn::mii::Database::UpdateLatest</span>() 関数を使用してください。指定した CharInfo を最新の状態に更新することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::</span><span class="n">Result</span> <span class="nn">nn::mii::Database::</span><span class="n">UpdateLatest</span><span class="p">(</span><span class="n">CharInfo</span><span class="o">*</span> <span class="n">pInfo</span><span class="p">,</span><span class="kt">int</span> <span class="n">sourceFlags</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>更新対象の CharInfo とデータソースを渡す必要があります。UpdateLatest() 関数を呼び出した際の結果は <span class="ApiLink_nn__Result">nn::Result</span> で取得できます。</p>
+<p>取得できる結果は以下の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span class="ApiLink_nn__Result">nn::Result</span>
+      </th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__ResultSucces">nn::ResultSucces</span>
+      </td>
+      <td>指定した CharInfo が最新に更新されました。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__ResultNotUpdated">nn::mii::ResultNotUpdated</span>
+      </td>
+      <td>指定した CharInfo に更新はありませんでした。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__ResultNotFound">nn::mii::ResultNotFound</span>
+      </td>
+      <td>CharInfo が指定したデータソース上で見つかりませんでした。</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__mii__ResultBroken">nn::mii::ResultBroken</span>
+      </td>
+      <td>
+        <p>CharInfo が壊れています。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>amiibo に書き込んだ Mii は、元となった Mii とは別の Mii として扱われます。amiibo の Mii を再び同じ開発機で読み込んだ場合も、別の Mii として扱われます。元の Mii を更新し amiibo の Mii に UpdateLatest() 関数を適用しても、別の Mii のため更新されません。また、amiibo から読み込まれる Mii は読み込み毎に別の Mii として扱われます。</p>
+  </div>
+</div>
+<h3 id="Anchor_162939097_h3_7">デフォルト Mii を取得する</h3>
+<p>デフォルト Mii は、あらかじめ登録されている 6 種類の Mii です。Mii 作成・編集アプレットで Mii が作成されていなくてもデフォルト Mii の使用は可能です。</p>
+<p>デフォルト Mii のデータの取得には <span class="ApiLink_nn__mii__Database__BuildDefault">nn::mii::Database::BuildDefault</span>() 関数を使用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>&nbsp;<span class="kt">void</span> <span class="nn">nn::mii::Database::</span><span class="n">BuildDefault</span><span class="p">(</span><span class="n">CharInfo</span><span class="o">*</span> <span class="n">pInfo</span><span class="p">,</span><span class="kt">int</span> <span class="n">index</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>インデックス番号を指定して該当するインデックスのデフォルト Mii を取得することができます。インデックスには 0 から デフォルト Mii の最大数未満の数を指定してください。デフォルト Mii の最大数は <span class="ApiLink_nn__mii__Database__GetCount">nn::mii::Database::GetCount</span>() にデータソースにデフォルトを指定して取得してください。</p>
+<h3 id="Anchor_162939097_h3_8">ランダム Mii を生成する</h3>
+<p>ランダム Mii は似顔絵ライブラリによってランダムに作成された Mii です。性別や年齢、人種の条件を指定して作成することができます。</p>
+<p>ランダム Mii の作成には <span class="ApiLink_nn__mii__Database__BuildRandom">nn::mii::Database::BuildRandom</span>() 関数を使用します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="kt">void</span> <span class="nn">nn::mii::Database::</span><span class="n">BuildRandom</span><span class="p">(</span><span class="n">CharInfo</span><span class="o">*</span> <span class="n">pInfo</span><span class="p">,</span><span class="k">const</span> <span class="n">RandomDesc</span><span class="o">&amp;</span> <span class="n">desc</span><span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="ApiLink_nn__mii__BuildRandom">nn::mii::BuildRandom</span> は作成する ランダム Mii の条件を設定するデスクリプタです。渡したデスクリプタの設定に合わせてランダムに Mii が生成されます。</p>
+<p>
+  <span class="ApiLink_nn__mii__RandomDesc">nn::mii::RandomDesc</span> には以下の値を設定できます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>種類</th>
+      <th>設定関数</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>年齢</td>
+      <td>
+        <span class="ApiLink_nn__mii__RandomDesc__SetAge">nn::mii::RandomDesc::SetAge</span>()</td>
+      <td>Mii の年代です。子供、大人、老人を指定することができます。指定せずランダムにすることも可能です。</td>
+    </tr>
+    <tr>
+      <td>性別</td>
+      <td>
+        <span class="ApiLink_nn__mii__RandomDesc__SetGender">nn::mii::RandomDesc::SetGender</span>()</td>
+      <td>Mii の性別です。男性、女性を指定することができます。指定せずランダムにすることも可能です。</td>
+    </tr>
+    <tr>
+      <td>人種</td>
+      <td>
+        <span class="ApiLink_nn__mii__RandomDesc__SetRace">nn::mii::RandomDesc::SetRace</span>()</td>
+      <td>Mii の人種です。黒人、白人、アジア人を指定することができます。指定せずにランダムにすることも可能です。</td>
+    </tr>
+  </tbody>
+</table>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>アプリケーションで選択する生成条件は自由ですが、生成条件をユーザが選択できるようにする場合は、性別以外を選択可能にしないでください。これは、年齢や人種がアナログ的な区分けが行われいるため、選択してもユーザの意図通りに生成されるとは限らないからです。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__mii__Database', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html' )
+SetUrl( 'ApiLink_nn__mii__Source', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ab97c454db9ac99d969b229da48793bfb' )
+SetUrl( 'ApiLink_nn__mii__Source_Database', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ab97c454db9ac99d969b229da48793bfbab3c0119b454bbbced259e735949136e2' )
+SetUrl( 'ApiLink_nn__mii__Source_Default', '../../../Api/HtmlNX/namespacenn_1_1mii.html#ab97c454db9ac99d969b229da48793bfbad2a1d8a16ebfee10897ae094a0594014' )
+SetUrl( 'ApiLink_nn__mii__Database__Initialize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#a9792d285c47db50df8f6742ea2950fea' )
+// ApiLink_nn__ResultSccess
+SetUrl( 'ApiLink_nn__mii__Database__Finalize', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#ac6670ee6256eb2ce58269ab0c83e85aa' )
+SetUrl( 'ApiLink_nn__mii__Database__IsAvailable', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#a7e04015ff1ea2d2aac09ddaafffc4ff8' )
+SetUrl( 'ApiLink_nn__mii__Database__GetCount', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#a82d8407604b79658790a26c6892d566e' )
+SetUrl( 'ApiLink_nn__mii__Database__IsFullDatabase', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#ab12e098eb1b3ccfd1c542a55a6a704b7' )
+// ApiLink_nn__mii__DatabaseCount
+SetUrl( 'ApiLink_nn__mii__Database__IsUpdated', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#a4016d3201374c3514f4db074cf176ef5' )
+SetUrl( 'ApiLink_nn__mii__Database__Get', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#a90b9f676a7a30592a724953bafbccb6e' )
+// ApiLink_nn__mii__Database__DefaultMiiCount
+SetUrl( 'ApiLink_nn__mii__DatabaseMiiCount', '../../../Api/HtmlNX/namespacenn_1_1mii.html#a4bfb80be44bbbb16c77c4e6ade3a4aa4' )
+SetUrl( 'ApiLink_nn__mii__ResultOverflow', '../../../Api/HtmlNX/classnn_1_1mii_1_1_result_overflow.html' )
+SetUrl( 'ApiLink_nn__mii__CharInfoElement', '../../../Api/HtmlNX/structnn_1_1mii_1_1_char_info_element.html' )
+SetUrl( 'ApiLink_nn__mii__Database__UpdateLatest', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#adcc28b8823c23106ad6665651f7388bd' )
+SetUrl( 'ApiLink_nn__Result', '../../../Api/HtmlNX/classnn_1_1_result.html' )
+// ApiLink_nn__ResultSucces
+SetUrl( 'ApiLink_nn__mii__ResultNotUpdated', '../../../Api/HtmlNX/classnn_1_1mii_1_1_result_not_updated.html' )
+SetUrl( 'ApiLink_nn__mii__ResultNotFound', '../../../Api/HtmlNX/classnn_1_1mii_1_1_result_not_found.html' )
+SetUrl( 'ApiLink_nn__mii__ResultBroken', '../../../Api/HtmlNX/classnn_1_1mii_1_1_result_broken.html' )
+SetUrl( 'ApiLink_nn__mii__Database__BuildDefault', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#aa6344effc5108a009cc09676f6abe30a' )
+SetUrl( 'ApiLink_nn__mii__Database__BuildRandom', '../../../Api/HtmlNX/classnn_1_1mii_1_1_database.html#a0d717e2c07a7820a8572498fdfa3a2a6' )
+// ApiLink_nn__mii__BuildRandom
+SetUrl( 'ApiLink_nn__mii__RandomDesc', '../../../Api/HtmlNX/classnn_1_1mii_1_1_random_desc.html' )
+SetUrl( 'ApiLink_nn__mii__RandomDesc__SetAge', '../../../Api/HtmlNX/classnn_1_1mii_1_1_random_desc.html#a8c5c68050c6dc5022690553514997a54' )
+SetUrl( 'ApiLink_nn__mii__RandomDesc__SetGender', '../../../Api/HtmlNX/classnn_1_1mii_1_1_random_desc.html#a3f99e46ee7dfe2994cfc3fe6344a5c90' )
+SetUrl( 'ApiLink_nn__mii__RandomDesc__SetRace', '../../../Api/HtmlNX/classnn_1_1mii_1_1_random_desc.html#a5eb6466c4eed5da65a0b53479b1bad92' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

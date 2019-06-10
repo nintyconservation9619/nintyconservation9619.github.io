@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アカウント管理アプレット</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アカウント管理アプレット -->
+<div class="pagetitle" id="PageId_162184149">アカウント管理アプレット</div>
+<div class="text_separate">
+<p>アカウント管理アプレットは、NX上のアカウント管理に関連する機能のうち、UI表示を伴うものを総合的にサポートするライブラリアプレットです。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>このアプレットの仕様や想定している利用用途については、「アカウントガイド（3.0版以降）」の「アプリケーションのアカウント対応」＞「仕様検討のための前提」＞「<span class="sv-ti-title-text">機能群3 アカウント管理アプレット</span>」を参照してください。</p>
+  </div>
+</div>
+<p>アプレットの代表的な機能と API の対応は、次の表の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>
+        <span style="color: rgb(51,51,51);">機能</span>
+      </th>
+      <th>対応するAPI</th>
+    </tr>
+    <tr>
+      <td>ユーザーアカウント選択</td>
+      <td>
+        <span class="ApiLink_nn__account__ShowUserSelector">nn::account::ShowUserSelector</span>
+      </td>
+    </tr>
+    <tr>
+      <td>ユーザーアカウント新規作成</td>
+      <td>
+        <span class="ApiLink_nn__account__ShowUserCreator">nn::account::ShowUserCreator</span>
+      </td>
+    </tr>
+    <tr>
+      <td>ネットワークサービスアカウント有効化</td>
+      <td>
+        <span class="ApiLink_nn__account__EnsureNetworkServiceAccountAvailable">nn::account::EnsureNetworkServiceAccountAvailable</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184149_h1_1">利用にあたっての注意</h1>
+<h2 id="Anchor_162184149_h2_1">アプリケーションが行う処理のブラウザーのパフォーマンスへの影響</h2>
+<p>
+  <span style="color: rgb(51,51,51);">ネットワークサービスアカウントに関する処理（アカウント連携のためのログイン処理など）のために内部的に Web ブラウザーを使用しており、アプリケーションが使用している CPU コアを本体システム側からも使用することがあります。そのため、アカウント管理アプレットの表示中にアプリケーションがバックグラウンドで処理を<span style="color: rgb(51,51,51);">継続している</span>場合、本体システムでの UI 表示などのパフォーマンスが低下することがあります。</span>
+</p>
+<h1 id="Anchor_162184149_h1_2">
+  <span style="color: rgb(117,117,117);">ヘッダファイルのインクルード</span>
+</h1>
+<p>プログラム中に下記のコードを記述してください。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/account/account_Selector.h&gt;
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_162184149_h1_3">アカウント管理アプレットの起動</h1>
+<p>アカウント管理アプレットの各機能は対応した API を呼び出すことで利用できます。<br />アカウント管理アプレットを起動する API は、アプレットが終了するまで処理をブロックします。&nbsp;</p>
+<p>以下にユーザーアカウント選択 UI を呼び出すコードのサンプルを示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::account::</span><span class="n">Uid</span> <span class="n">uid</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::account::</span><span class="n">ShowUserSelector</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">uid</span> <span class="p">);</span>
+<span class="k">if</span><span class="p">(</span> <span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">()</span> <span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// uid (選択されたユーザーのID) を利用する処理...
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_162184149_h2_2">ユーザーアカウント選択 UI の起動パラメータ設定</h2>
+<p>ユーザーアカウント選択 API には <span class="ApiLink_nn__account__UserSelectionSettings">nn::account::UserSelectionSettings</span> 構造体を使用することで、UI の見た目や挙動のパターンを制御するためのパラメータを渡すことができます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>パラメータ</th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__account__Uid">nn::account::Uid</span> invalidUidList[ <span class="ApiLink_nn__account__UserCountMax">nn::account::UserCountMax</span> ]</td>
+      <td>指定されたユーザーアカウントは、グレーアウトした見た目で表示され、選択できなくなります。</td>
+    </tr>
+    <tr>
+      <td>bool isSkipEnabled</td>
+      <td>
+        <p>このオプションを有効にすると、ユーザーが「選択を省略する」設定をONとしているとき、アプレットのUI表示が自動スキップされます。<br /><strong>ユーザーが期待する動作になるよう、シーケンス上の不都合がない場合は「自動スキップ可能」を指定することを推奨します。</strong></p>
+        <p>isSkipEnabled == true のとき、以下のいずれかの条件を満たす場合に ShowUserSelector() 関数の呼び出しが失敗します。</p>
+        <ul>
+          <li>invalidUidList に 1 つ以上の有効な Uid が設定されている</li>
+          <li>additionalSelect == true</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>bool isNetworkServiceAccountRequired</td>
+      <td>このオプションを有効にすると、ネットワークサービスアカウントが利用可能なユーザーアカウントが選択されることが保証されます。</td>
+    </tr>
+    <tr>
+      <td>bool showSkipButton</td>
+      <td>
+        <p>このオプションを有効にすると、UIをスキップするためのボタンが追加表示されます。</p>
+        <p>スキップボタンが選択された場合、選択されたユーザー ID に InvalidUid を格納して <span class="ApiLink_nn__ResultSuccess">nn::ResultSuccess</span> を返します。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>bool additionalSelect </td>
+      <td>
+        <p>このオプションを有効にすると、メッセージと選択肢を、2人目以降のユーザーアカウントを選択させる場面に適した表示に変更します。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>起動パラメータを指定してのユーザーアカウント選択 UI の呼び出しの例を以下に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="nn">nn::account::</span><span class="n">UserSelectionSettings</span> <span class="n">settings</span> <span class="o">=</span> <span class="nn">nn::account::</span><span class="n">DefaultUserSelectionSettings</span><span class="p">;</span> <span class="c1">// デフォルト値で埋める
+</span><span class="n">settings</span><span class="p">.</span><span class="n">isSkipEnabled</span><span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+<span class="n">settings</span><span class="p">.</span><span class="n">isNetworkServiceAccountRequired</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+<span class="nn">nn::account::</span><span class="n">Uid</span> <span class="n">uid</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::account::</span><span class="n">ShowUserSelector</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">uid</span><span class="p">,</span> <span class="n">settings</span> <span class="p">);</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(117,117,117);">
+    <br />
+  </span>
+</p>
+<h1 id="Anchor_162184149_h1_4">
+  <span style="color: rgb(117,117,117);">セーブデータサムネイル画像の保存</span>
+</h1>
+<p>セーブデータを表現するサムネイル画像を1枚以上保存しておくと、ユーザーアカウント選択の UI にそのサムネイル画像が表示されます。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>機能</th>
+      <th>対応するAPI</th>
+    </tr>
+    <tr>
+      <td>
+        <p>サムネイル画像を保存する</p>
+      </td>
+      <td>
+        <span class="ApiLink_nn__account__StoreSaveDataThumbnailImage">nn::account::StoreSaveDataThumbnailImage</span>
+      </td>
+    </tr>
+    <tr>
+      <td>サムネイル画像をクリアする</td>
+      <td>nn::account::DeleteSaveDataThumbnailImage</td>
+    </tr>
+  </tbody>
+</table>
+<p>上記 API は、内部でアカウント管理アプレットを呼び出し、処理が完了するまでブロックします。</p>
+<p>保存できるサムネイル画像のフォーマットは次の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>ピクセルサイズ</th>
+      <td>256x144px</td>
+    </tr>
+    <tr>
+      <th>ピクセルフォーマット</th>
+      <td>RGBA8</td>
+    </tr>
+    <tr>
+      <th>タイリング</th>
+      <td>リニア</td>
+    </tr>
+    <tr>
+      <th>ガンマ</th>
+      <td>sRGB</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__account__ShowUserSelector', '../../../Api/HtmlNX/namespacenn_1_1account.html#a4361809245aa7ba31faebc3686f8aaea' )
+SetUrl( 'ApiLink_nn__account__ShowUserCreator', '../../../Api/HtmlNX/namespacenn_1_1account.html#a4ffe66d07e66590baff98b70b30722d7' )
+SetUrl( 'ApiLink_nn__account__EnsureNetworkServiceAccountAvailable', '../../../Api/HtmlNX/namespacenn_1_1account.html#a3f6aca5d7fd762684b1ee408a35d99f6' )
+SetUrl( 'ApiLink_nn__account__UserSelectionSettings', '../../../Api/HtmlNX/structnn_1_1account_1_1_user_selection_settings.html' )
+SetUrl( 'ApiLink_nn__account__Uid', '../../../Api/HtmlNX/structnn_1_1account_1_1_uid.html' )
+SetUrl( 'ApiLink_nn__account__UserCountMax', '../../../Api/HtmlNX/namespacenn_1_1account.html#a1e7ac3fae982d6a6825e8f242ee61d2b' )
+SetUrl( 'ApiLink_nn__ResultSuccess', '../../../Api/HtmlNX/classnn_1_1_result_success.html' )
+SetUrl( 'ApiLink_nn__account__StoreSaveDataThumbnailImage', '../../../Api/HtmlNX/namespacenn_1_1account.html#aca2f73beb9fe78af782a69c7a78b0050' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>アプリケーションの動作環境（Windows 環境）</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- アプリケーションの動作環境（Windows 環境） -->
+<div class="pagetitle" id="PageId_93357496">アプリケーションの動作環境（Windows 環境）</div>
+<div class="text_separate">
+<h1 id="Anchor_93357496_h1_1">アプリケーションの動作環境（Windows 環境）</h1>
+<h2 id="Anchor_93357496_h2_1">はじめに</h2>
+<p>ここでは、NintendoSDK のプログラムが動作・実行するプラットフォーム環境について説明します。</p>
+<p>ここで言うプラットフォームとは、NintendoSDK のビルド環境ではなく、NintendoSDK を使ってビルドしたプログラムが実際に動作実行する環境のことを意味しています。</p>
+<!--Remove-->
+<div class="platform_nx">
+  <p>ビルド作業を行なう PC 環境については「<a href="../Pages/Page_97640247.html">動作環境</a>」のページに別途記載しています。</p>
+</div>
+<h2 id="Anchor_93357496_h2_2">プラットフォーム種別</h2>
+<p>NintendoSDK は Windows 環境と開発機環境で動作実行させることができます。本章では Windows 環境について説明します。</p>
+<p>Windows 環境の場合、Visual Studio のソリューションプラットフォーム種別として <strong>Win32</strong> と <strong>x64</strong> のいずれかから選択することができます（「<a href="../Pages/Page_83956193.html">機能</a>」のページも合わせて参照してください）。</p>
+<p>&nbsp;</p>
+<h3 id="Anchor_93357496_h3_1">アドレス空間サイズの違い</h3>
+<p>ユーザランドで使用できるアドレス空間サイズは以下の通りです。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th style="text-align: center;">Win32</th>
+      <th>Win32 (WOW64)</th>
+      <th style="text-align: center;">x64</th>
+    </tr>
+    <tr>
+      <td>アドレス空間全体のサイズ（ビット幅）</td>
+      <td style="text-align: center;">32 bit</td>
+      <td style="text-align: center;">32 bit</td>
+      <td style="text-align: center;">48 bit</td>
+    </tr>
+    <tr>
+      <td>ユーザランドで利用可能な空間サイズ（ビット幅）</td>
+      <td style="text-align: center;">
+        <p>31 bit</p>
+      </td>
+      <td style="text-align: center;">32 bit</td>
+      <td style="text-align: center;">
+        <p>47 bit</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__os">nn::os</span> のメモリヒープ空間サイズ</td>
+      <td style="text-align: center;">
+        <p>1.0 GB</p>
+      </td>
+      <td style="text-align: center;">約 2.0 GB</td>
+      <td style="text-align: center;">
+        <p>&nbsp;32.0 GB</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>Win32</strong> 環境の場合、31 bit 空間のうち最大 1 GB 分（30 bit）の空間をメモリヒープ用の空間として予約します。<br /><strong>Win32 (WOW64)</strong> 環境の場合、32 bit 空間のうち約 2 GB 分（31 bit）の空間をメモリヒープ用の空間として予約します。<br /> <strong>x64</strong> 環境の場合、47 bit 空間のうち最大 32 GB 分（35 bit）の空間をメモリヒープ用の空間として予約します。<br />アプリケーションが他の用途で利用できる空間は、ユーザランドで利用可能な空間サイズから上記メモリヒープ空間を除いたサイズになります。</p>
+<p>ただし、アプリケーションがアドレス値を扱う場合には、空間サイズに依存した記述を行なうのではなく、<strong>Win32</strong> 環境なら常に 32bit、<strong>x64</strong> 環境なら常に 64bit のビット幅でアドレス値を扱うようにしてください。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>Win32 ビルドしたものを WOW64 環境で動作させる場合に、上記表のようにメモリヒープ空間サイズを 2.0GB 相当に変更するためには、<a href="../Pages/Page_96564664.html">ビルド条件のカスタマイズ</a> を参照してください。</p>
+  </div>
+</div>
+<p>&nbsp;</p>
+<h3 id="Anchor_93357496_h3_2">利用可能メモリサイズ</h3>
+<p>
+  <strong>Win32</strong> および <strong>x64</strong> 環境共に Windows の仕様に従います。</p>
+<p>Windows では OS のページング機能によって PC に搭載されている実メモリ容量よりも多くの仮想メモリを利用できてしまいます。ただし、<strong>Win32</strong> 環境の場合にはアドレス空間が 2 GB までしか利用できないため、実質的にそれを超えるメモリを利用することはできません。</p>
+<p>逆に <strong>x64</strong> 環境の場合には非常に多くのメモリを利用することができますが、開発機環境以上のメモリを使用するようなプログラムは開発機環境との乖離が大きくなってしまい、x64 環境でしか動作しないプログラムになってしまいますのでご注意ください。</p>
+<p>開発機環境への移植を前提としたプログラムでは、メモリヒープサイズを厳格に設定し、そこからメモリを獲得して利用するようなプログラムを作成する必要があります。OS のメモリ管理機能については <a href="../Pages/Page_83956147.html">こちら</a> を参照してください。</p>
+<p>&nbsp;</p>
+<h3 id="Anchor_93357496_h3_3">データ型モデル</h3>
+<p>
+  <strong>Win32</strong> 環境では <strong>ilp32</strong>、<strong>x64</strong> 環境では <strong>llp64</strong> のデータ型モデルとなります。以下に代表的な型サイズの一覧を示します。</p>
+<p>単位は ビット です。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>型</th>
+      <th style="text-align: center;">ilp32</th>
+      <th style="text-align: center;">llp64</th>
+      <th style="text-align: center;">lp64</th>
+      <th style="text-align: center;">ilp64</th>
+    </tr>
+    <tr>
+      <td class="highlight-blue">char</td>
+      <td style="text-align: right;">8</td>
+      <td style="text-align: right;">8</td>
+      <td style="text-align: right;">8</td>
+      <td style="text-align: right;">8</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">short</td>
+      <td style="text-align: right;">16</td>
+      <td style="text-align: right;">16</td>
+      <td style="text-align: right;">16</td>
+      <td style="text-align: right;">16</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">int</td>
+      <td style="text-align: right;">32</td>
+      <td style="text-align: right;">32</td>
+      <td style="text-align: right;">32</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">long</td>
+      <td style="text-align: right;">32</td>
+      <td style="text-align: right;">32</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+    </tr>
+    <tr>
+      <td class="highlight-blue">ポインタ</td>
+      <td style="text-align: right;">32</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+      <td class="highlight-yellow" style="text-align: right;">64</td>
+    </tr>
+    <tr>
+      <td class="highlight-red">環境</td>
+      <td class="highlight-red">
+        <p style="text-align: center;">
+          <strong>&uarr;</strong>
+        </p>
+        <p style="text-align: center;">
+          <strong>Win32</strong>
+        </p>
+      </td>
+      <td class="highlight-red">
+        <p style="text-align: center;">
+          <strong>&uarr;</strong>
+        </p>
+        <p style="text-align: center;">
+          <strong>x64</strong>
+        </p>
+      </td>
+      <td class="highlight-red">&nbsp;</td>
+      <td class="highlight-red">&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<p>上記に示す通り、データ型モデルによってそれぞれの型で扱えるデータ幅が異なります。<strong>Win32</strong> と <strong>x64</strong> の両方に対応するコードを記述する際には、使用するデータ型に注意しなければなりません。</p>
+<p>&nbsp;</p>
+<h2 id="Anchor_93357496_h2_3">Win32 から x64 環境移行時の注意事項</h2>
+<p>
+  <a href="../Pages/Page_93357758.html">環境移行時の注意事項</a> を参考にしてください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os', '../../../Api/HtmlNX/namespacenn_1_1os.html' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

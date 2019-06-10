@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>CSETP</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    CSETP : Test Condition Code and Set Predicate<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Test Condition Code and Set Predicate" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Predicate/CC Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "CSETP", subsection => 4 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>CSETP</b>.test</code>       <code>Pu,     <b>CC</b></code>          <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CSETP" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>CSETP</b>.test.bop</code>   <code>Pu, Pv, <b>CC</b>, {!}Pp</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CSETP" } -->
+
+  .test:  { <b>.F,      .LT,     .EQ,     .LE,      .GT,      .NE,      .GE,   .NUM, </b>    Signed numeric tests
+            <b>.NAN,    .LTU,    .EQU,    .LEU,     .GTU,     .NEU,     .GEU,  .T,   </b>    Signed or Unordered tests 
+            <b>.OFF,    .LO,     .SFF,    .LS,      .HI,      .SFT,     .HS,   .OFT, </b>    Unsigned integer tests
+            <b>.CSM_TA, .CSM_TR, .CSM_MX, .FCSM_TA, .FCSM_TR, .FCSM_MX, .RLE,  .RGT  </b>}   Clip State Machine tests
+
+  .bop:   { <b>.AND, .OR, .XOR </b>} 
+
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+<b>CSETP</b>.test.bop tests Condition Code register <b>CC</b> with <b>CC.</b>test, combines the Boolean result with predicate 
+operand {!}Pp using Boolean operation .bop, and sets two predicate registers Pu and Pv to Boolean values 
+based on the test.  The Boolean operation .bop may be <b>.AND, .OR</b>, or <b>.XOR</b>, corresponding to C Boolean 
+operations <b>&amp;, |</b>, and <b>^</b>.</p>
+<pre>
+    Pu =  CC.test  .bop {!}Pp;     
+    Pv =(!CC.test) .bop {!}Pp; 
+</pre>
+
+<p>
+The simple instruction format without .bop {!}Pp assembles as <b>.AND
+PT</b>, and Pv is PT, resulting in the effective operation:</p>
+<pre>
+    Pu =  CC.test;
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>CSETP.LT</b>      P1,     CC;            // P1 = CC.LT;
+<b>CSETP.LT.AND</b>  PT, P2, CC,  PT;       // P2 = !CC.LT;
+<b>CSETP.NEU.AND</b> P1, P4, CC, !P3;       // P1 = CC.NEU &amp; !P3;  P4 = !CC.NEU &amp; !P3;  
+</pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,600 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: StatTracker.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">StatTracker.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_stat_tracker_8cpp.html" title="This file defines a helper class that sets up command buffers to report GPU statistic counters and re...">StatTracker.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nvn___func_ptr_inline_8h.html">nvn/nvn_FuncPtrInline.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_stat_tracker_8h.html">nvntutorial/StatTracker.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_memory_pool_8h.html">nvntutorial/MemoryPool.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_tutorial_util_8h.html">nvntutorial/TutorialUtil.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> g_CommandMemorySize = 1024;</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> g_ControlMemorySize = 1024;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker Constructor</span></div>
+<div class="line"><span class="comment"> * -----------------------</span></div>
+<div class="line"><span class="comment"> * Setup some default values for the tracker.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">StatTracker::StatTracker() : m_pDevice(NULL),</div>
+<div class="line">                             m_CounterAlignment(0),</div>
+<div class="line">                             m_CounterFlags(CounterFlags_All_Counters),</div>
+<div class="line">                             m_pManagedCommandBuffer(NULL),</div>
+<div class="line">                             m_pResetControlMemoryPool(NULL),</div>
+<div class="line">                             m_pStatCounterManager(NULL)</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker::Init</span></div>
+<div class="line"><span class="comment"> * -----------------</span></div>
+<div class="line"><span class="comment"> * Allocates memory the command buffers that report and reset</span></div>
+<div class="line"><span class="comment"> * counter data.  A StatCounterManager is used to manage the</span></div>
+<div class="line"><span class="comment"> * counter buffers through multi buffering.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> StatTracker::Init(<a name="_a0"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice, <span class="keywordtype">int</span> flags, FrameBufferedSyncManager* pSyncManager, <span class="keywordtype">unsigned</span> numCounters <span class="comment">/* = 2 */</span>)</div>
+<div class="line">{</div>
+<div class="line">    m_pDevice = pDevice;</div>
+<div class="line">    m_CounterFlags = flags;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Query the device for the command and control memory alignment. */</span></div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferCommandAlignment = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferControlAlignment = 0;</div>
+<div class="line">    <a name="a1"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a2"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ada72f2b5ef4df11606b61aaa86f6f22c">NVN_DEVICE_INFO_COMMAND_BUFFER_COMMAND_ALIGNMENT</a>, &amp;commandBufferCommandAlignment);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a3"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a743ea42e337a76b9d8ed34181a0d802e">NVN_DEVICE_INFO_COMMAND_BUFFER_CONTROL_ALIGNMENT</a>, &amp;commandBufferControlAlignment);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a name="a4"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a17852f8ea9a95fc08cce83cbd2886bb1">NVN_DEVICE_INFO_COUNTER_ALIGNMENT</a>, &amp;m_CounterAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Allocate the command and control memory. */</span></div>
+<div class="line">    m_MemoryPool.Init(NULL,</div>
+<div class="line">                      Align(g_CommandMemorySize, commandBufferCommandAlignment),</div>
+<div class="line">                      <a name="a5"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a name="a6"></a><a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">                      m_pDevice);</div>
+<div class="line"></div>
+<div class="line">    m_pResetControlMemoryPool = AlignedAllocate(g_ControlMemorySize, commandBufferControlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * If more than one chunk is requested, then the stat counter manager is</span></div>
+<div class="line"><span class="comment">         * initialized with 2 sync counters and registered with the sync manager</span></div>
+<div class="line"><span class="comment">         * which handles properly swapping the counters.  Otherwise, only one</span></div>
+<div class="line"><span class="comment">         * counter is used and no swapping occurs; a sync is used to ensure that</span></div>
+<div class="line"><span class="comment">         * the counter data is reported properly and ready for use instead of</span></div>
+<div class="line"><span class="comment">         * sampling them in the middle.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (numCounters == 1)</div>
+<div class="line">    {</div>
+<div class="line">        m_pStatCounterManager = <span class="keyword">new</span> StatCounterManager(pDevice, 1);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Initialize the sync object. */</span></div>
+<div class="line">        <a name="a7"></a><a class="code" href="group__nvn__c__functions.html#gad8eeff0f19eaa7bb9b57ea8134411baa">nvnSyncInitialize</a>(&amp;m_CommandBufferSync, m_pDevice);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        m_pStatCounterManager = <span class="keyword">new</span> StatCounterManager(pDevice);</div>
+<div class="line"></div>
+<div class="line">        pSyncManager-&gt;RegisterMemoryManager(m_pStatCounterManager);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize the command buffers. */</span></div>
+<div class="line">    <a name="a8"></a><a class="code" href="group__nvn__c__functions.html#gab146b70a699dfee69d0724e430d5694e">nvnCommandBufferInitialize</a>(&amp;m_ResetCommandBuffer, m_pDevice);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Add the command and control memory to the command buffers. */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> offset = m_MemoryPool.GetNewMemoryChunkOffset(g_CommandMemorySize, commandBufferCommandAlignment);</div>
+<div class="line"></div>
+<div class="line">    offset = m_MemoryPool.GetNewMemoryChunkOffset(g_CommandMemorySize, commandBufferCommandAlignment);</div>
+<div class="line">    <a name="a9"></a><a class="code" href="group__nvn__c__functions.html#ga2c0d758cfa73c25f2a34486353f46d92">nvnCommandBufferAddCommandMemory</a>(&amp;m_ResetCommandBuffer, m_MemoryPool.GetMemoryPool(), offset, g_CommandMemorySize);</div>
+<div class="line">    <a name="a10"></a><a class="code" href="group__nvn__c__functions.html#ga8de6ce290ee0180d9bcd700c1d08d0bf">nvnCommandBufferAddControlMemory</a>(&amp;m_ResetCommandBuffer, m_pResetControlMemoryPool, g_ControlMemorySize);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Setup an NVNbuffer for the counters to be reported into. */</span></div>
+<div class="line">    m_pManagedCommandBuffer = <span class="keyword">new</span> ManagedCommandBuffer(m_pDevice, g_CommandMemorySize, g_ControlMemorySize);</div>
+<div class="line">    pSyncManager-&gt;RegisterMemoryManager(m_pManagedCommandBuffer);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Record the counter reset command buffer. */</span></div>
+<div class="line">    <a name="a11"></a><a class="code" href="group__nvn__c__functions.html#gaeb763d2bdad2c058c75802190fef4748">nvnCommandBufferBeginRecording</a>(&amp;m_ResetCommandBuffer);</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">unsigned</span> end = <a name="a12"></a><a class="code" href="group__nvn__c__enum.html#gga280033bdac9f8e19de62817c8d200773a34ca26d134eb9105662995305fab25c3">NVN_COUNTER_TYPE_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN</a>;</div>
+<div class="line">        <span class="keywordtype">unsigned</span> flagChecker = CounterFlags_Samples_Passed;</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Check for each potential counter and reset it if needed. */</span></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 1; i &lt;= end; ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span> (m_CounterFlags &amp; flagChecker)</div>
+<div class="line">            {</div>
+<div class="line">                <a name="a13"></a><a class="code" href="group__nvn__c__functions.html#ga49ee8eb6d0cecd901d9de38d983ceb1a">nvnCommandBufferResetCounter</a>(&amp;m_ResetCommandBuffer, (<a class="code" href="group__nvn__c__enum.html#ga280033bdac9f8e19de62817c8d200773">NVNcounterType</a>)i);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            flagChecker &lt;&lt;= 1;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    m_ResetHandle = <a name="a14"></a><a class="code" href="group__nvn__c__functions.html#ga7d97d4cbf72259b6e867f3080f223b95">nvnCommandBufferEndRecording</a>(&amp;m_ResetCommandBuffer);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker::GetCounters</span></div>
+<div class="line"><span class="comment"> * ------------------------</span></div>
+<div class="line"><span class="comment"> * Uses a multi-buffered StatCounter to grab counter data</span></div>
+<div class="line"><span class="comment"> * without using a sync</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> StatTracker::GetCounters(<a name="_a15"></a><a class="code" href="struct_n_v_nqueue.html">NVNqueue</a>* pQueue)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span> (m_pStatCounterManager-&gt;GetNumChunks() == 1)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a16"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pQueue != NULL);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Wait for the counters to be reported. */</span></div>
+<div class="line">        <a name="a17"></a><a class="code" href="group__nvn__c__functions.html#gae646129720b27503c239a22db9653fa0">nvnQueueFenceSync</a>(pQueue, &amp;m_CommandBufferSync, <a name="a18"></a><a class="code" href="group__nvn__c__enum.html#gga6ab26a343b68da722799167ea97ec69da81ae43677cd72903d494e5c37e061294">NVN_SYNC_CONDITION_ALL_GPU_COMMANDS_COMPLETE</a>, <a name="a19"></a><a class="code" href="group__nvn__c__enum.html#gga5aa7e7ddcb3ce72c5b38ab55edc9f199a36d9e8813d8ffed4ac4b89f795bbb3d7">NVN_SYNC_FLAG_FLUSH_FOR_CPU_BIT</a>);</div>
+<div class="line">        <a name="a20"></a><a class="code" href="group__nvn__c__functions.html#ga98feac9fc906eb1a9a5eb19ef4381b46">nvnQueueFlush</a>(pQueue);</div>
+<div class="line">        <a class="code" href="group__nvn__c__enum.html#ga52ff133a79fc03ef1f60a3e7946332a1">NVNsyncWaitResult</a> waitRes = <a name="a21"></a><a class="code" href="group__nvn__c__functions.html#ga2e9deb5d068866fe0c32929a3f82baf3">nvnSyncWait</a>(&amp;m_CommandBufferSync, <a name="a22"></a><a class="code" href="group__nvn__c__defines.html#ga6c3444e501307a094f1d57abf1059aed">NVN_WAIT_TIMEOUT_MAXIMUM</a>);</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(waitRes != <a name="a23"></a><a class="code" href="group__nvn__c__enum.html#gga52ff133a79fc03ef1f60a3e7946332a1ae71de5158617cec0d2a29aeebf4367b3">NVNsyncWaitResult::NVN_SYNC_WAIT_RESULT_FAILED</a> || waitRes != <a class="code" href="group__nvn__c__enum.html#gga52ff133a79fc03ef1f60a3e7946332a1ae71de5158617cec0d2a29aeebf4367b3">NVNsyncWaitResult::NVN_SYNC_WAIT_RESULT_FAILED</a>,</div>
+<div class="line">            <span class="stringliteral">&quot;Failed to wait on StatTracker sync\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">unsigned</span> end = <a class="code" href="group__nvn__c__enum.html#gga280033bdac9f8e19de62817c8d200773a34ca26d134eb9105662995305fab25c3">NVN_COUNTER_TYPE_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN</a>;</div>
+<div class="line">    StatCounters* pStatCounters = m_pStatCounterManager-&gt;GetCurrentStatCounter();</div>
+<div class="line">    uint64_t* counterArray = <span class="keyword">reinterpret_cast&lt;</span>uint64_t*<span class="keyword">&gt;</span>(pStatCounters);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a24"></a><a class="code" href="struct_n_v_ncounter_data.html">NVNcounterData</a>* mappedBuffer = <span class="keyword">reinterpret_cast&lt;</span><a class="code" href="struct_n_v_ncounter_data.html">NVNcounterData</a>*<span class="keyword">&gt;</span>(m_pStatCounterManager-&gt;GetCounterBufferPointer());</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab the timestamp from the bottom of the frame first. */</span></div>
+<div class="line">    <a class="code" href="struct_n_v_ncounter_data.html">NVNcounterData</a>* counterData = mappedBuffer;</div>
+<div class="line">    counterArray[0] = counterData-&gt;<a name="a25"></a><a class="code" href="struct_n_v_ncounter_data.html#addfb3f37e870415f2c3fdbe0e3ff49ea">timestamp</a>;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Write the rest of the counters into the output struct. */</span></div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">unsigned</span> i = 1; i &lt;= end; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        counterData = mappedBuffer + i;</div>
+<div class="line">        counterArray[i] = counterData-&gt;<a name="a26"></a><a class="code" href="struct_n_v_ncounter_data.html#ad0817bffce3c4ca5c9f3a4b4dd89e7b6">counter</a>;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker::ReportCounters</span></div>
+<div class="line"><span class="comment"> * ---------------------------</span></div>
+<div class="line"><span class="comment"> * Starts recording a command buffer to report the</span></div>
+<div class="line"><span class="comment"> * counters.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> StatTracker::ReportCounters(<a class="code" href="struct_n_v_nqueue.html">NVNqueue</a>* pQueue)</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Record the counter reporting command buffer. */</span></div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#gaeb763d2bdad2c058c75802190fef4748">nvnCommandBufferBeginRecording</a>(m_pManagedCommandBuffer-&gt;GetCommandBuffer());</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordtype">unsigned</span> end = <a class="code" href="group__nvn__c__enum.html#gga280033bdac9f8e19de62817c8d200773a34ca26d134eb9105662995305fab25c3">NVN_COUNTER_TYPE_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN</a>;</div>
+<div class="line">        <span class="keywordtype">unsigned</span> commandOffset = 0;</div>
+<div class="line">        <span class="keywordtype">unsigned</span> flagChecker = CounterFlags_Timestamp;</div>
+<div class="line">        <a class="code" href="group__nvn__c__handle.html#ga067da3a838f115226c89fad655278f80">NVNbufferAddress</a> address = m_pStatCounterManager-&gt;GetCounterBufferAddress();</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Check for each potential counter and report it if needed. */</span></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt;= end; ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span> (m_CounterFlags &amp; flagChecker)</div>
+<div class="line">            {</div>
+<div class="line">                <a name="a27"></a><a class="code" href="group__nvn__c__functions.html#gade6b81268dfab6d9e22de06bbd170951">nvnCommandBufferReportCounter</a>(m_pManagedCommandBuffer-&gt;GetCommandBuffer(), (<a name="a28"></a><a class="code" href="group__nvn__c__enum.html#ga280033bdac9f8e19de62817c8d200773">NVNcounterType</a>)i, address + commandOffset);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            flagChecker &lt;&lt;= 1;</div>
+<div class="line">            commandOffset += m_CounterAlignment;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    m_ReportHandle = <a class="code" href="group__nvn__c__functions.html#ga7d97d4cbf72259b6e867f3080f223b95">nvnCommandBufferEndRecording</a>(m_pManagedCommandBuffer-&gt;GetCommandBuffer());</div>
+<div class="line"></div>
+<div class="line">    <a name="a29"></a><a class="code" href="group__nvn__c__functions.html#ga095fabdb4c81459bbe496ba45528211b">nvnQueueSubmitCommands</a>(pQueue, 1, &amp;m_ReportHandle);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker::ResetCounters</span></div>
+<div class="line"><span class="comment"> * --------------------------</span></div>
+<div class="line"><span class="comment"> * Submit the previously recorded command buffer</span></div>
+<div class="line"><span class="comment"> * to reset the counter values.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> StatTracker::ResetCounters(<a class="code" href="struct_n_v_nqueue.html">NVNqueue</a>* pQueue)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga095fabdb4c81459bbe496ba45528211b">nvnQueueSubmitCommands</a>(pQueue, 1, &amp;m_ResetHandle);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker::PrintCounters</span></div>
+<div class="line"><span class="comment"> * --------------------------</span></div>
+<div class="line"><span class="comment"> * Print out the previously queried counters on</span></div>
+<div class="line"><span class="comment"> * the screen using the provided debug text renderer.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> StatTracker::PrintCounters(DebugTextRenderer* textRenderer, <span class="keywordtype">float</span> column, <span class="keywordtype">float</span> startingLine)</div>
+<div class="line">{</div>
+<div class="line">    StatCounters* pCounters = m_pStatCounterManager-&gt;GetCounterForPrint();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">unsigned</span> flagChecker = CounterFlags_Timestamp;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;Timestamp:                %llu&quot;</span>, pCounters-&gt;m_Timestamp);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;SamplesPassed:            %llu&quot;</span>, pCounters-&gt;m_SamplesPassed);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;Input Vertices:           %llu&quot;</span>, pCounters-&gt;m_InputVertices);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;InputPrimitives:          %llu&quot;</span>, pCounters-&gt;m_InputPrimitives);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;VertexShader Invocations: %llu&quot;</span>, pCounters-&gt;m_VertexShaderInvocations);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;TesCntrlShdr Invocations: %llu&quot;</span>, pCounters-&gt;m_TessControlShaderInvocations);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;TesEvalShdr Invocations:  %llu&quot;</span>, pCounters-&gt;m_TessEvalShaderInvocations);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;GeomShdr Invocations:     %llu&quot;</span>, pCounters-&gt;m_GeometryShaderInvocations);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;FragShader Invocations:   %llu&quot;</span>, pCounters-&gt;m_FragmentShaderInvocations);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;TesEvalShdr Primitives :  %llu&quot;</span>, pCounters-&gt;m_TessEvaluationShaderPrimitives);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;GeomShdr Primitives:      %llu&quot;</span>, pCounters-&gt;m_GeometryShaderPrimitives);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;ClipperInput Primitives:  %llu&quot;</span>, pCounters-&gt;m_ClipperInputPrimitives);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;ClipperOutput Primitives: %llu&quot;</span>, pCounters-&gt;m_ClipperOutputPrimitives);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;Primitives Generated:     %llu&quot;</span>, pCounters-&gt;m_PrimitivesGenerated);</div>
+<div class="line">    }</div>
+<div class="line">    flagChecker &lt;&lt;= 1;</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_CounterFlags &amp; flagChecker)</div>
+<div class="line">    {</div>
+<div class="line">        textRenderer-&gt;Printf(column, startingLine++, <span class="stringliteral">&quot;TrnsfFeedback Prims Wrtn: %llu&quot;</span>, pCounters-&gt;m_TransformFeedbackPrimitivesWritten);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker::Shutdown</span></div>
+<div class="line"><span class="comment"> * ---------------------</span></div>
+<div class="line"><span class="comment"> * Clean up allocated memory and NVN data.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> <a name="a30"></a><a class="code" href="namespacenn_1_1htcs.html#af2da72858626203b882be6742eeb5993">StatTracker::Shutdown</a>()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span> (m_pManagedCommandBuffer)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">delete</span> m_pManagedCommandBuffer;</div>
+<div class="line">        m_pManagedCommandBuffer = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_pStatCounterManager-&gt;GetNumChunks() == 1)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a31"></a><a class="code" href="group__nvn__c__functions.html#ga918f1f02b17ba89d048372ead736a929">nvnSyncFinalize</a>(&amp;m_CommandBufferSync);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_pResetControlMemoryPool)</div>
+<div class="line">    {</div>
+<div class="line">        AlignedDeallocate(m_pResetControlMemoryPool);</div>
+<div class="line">        m_pResetControlMemoryPool = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a32"></a><a class="code" href="group__nvn__c__functions.html#ga014c41d2335d4d9ff6c776c99bc70bfb">nvnCommandBufferFinalize</a>(&amp;m_ResetCommandBuffer);</div>
+<div class="line"></div>
+<div class="line">    m_MemoryPool.Shutdown();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (m_pStatCounterManager)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">delete</span> m_pStatCounterManager;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatTracker Destructor</span></div>
+<div class="line"><span class="comment"> * ----------------------</span></div>
+<div class="line"><span class="comment"> * Empty destructor.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">StatTracker::~StatTracker()</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager Constructor</span></div>
+<div class="line"><span class="comment"> * ------------------------------</span></div>
+<div class="line"><span class="comment"> * Initializes array of Stat counters and multi</span></div>
+<div class="line"><span class="comment"> * buffers the NVN buffers that receive counter</span></div>
+<div class="line"><span class="comment"> * data</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">StatCounterManager::StatCounterManager(<a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice, <span class="keywordtype">int</span> numChunks <span class="comment">/* = 2 */</span>) :</div>
+<div class="line">    m_pDevice(pDevice),</div>
+<div class="line">    m_pStatCounters(NULL),</div>
+<div class="line">    m_NumChunks(numChunks),</div>
+<div class="line">    m_CurrentChunk(0),</div>
+<div class="line">    m_PreviousChunk(numChunks - 1)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(numChunks &gt; 0);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Query the device for the counter alignment. */</span></div>
+<div class="line">    <span class="keywordtype">int</span> counterAlignment;</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(m_pDevice, <a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a17852f8ea9a95fc08cce83cbd2886bb1">NVN_DEVICE_INFO_COUNTER_ALIGNMENT</a>, &amp;counterAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Each individual counter is a struct of two 64-bit integers, one is a timestamp and</span></div>
+<div class="line"><span class="comment">         * the other is the value of the counter.  As a result, the size of the buffer that</span></div>
+<div class="line"><span class="comment">         * is needed is essentially double that of the StatCounters struct that is used to</span></div>
+<div class="line"><span class="comment">         * hold the sampled counter data.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordtype">size_t</span> counterSize = (<span class="keyword">sizeof</span>(StatCounters) / <span class="keyword">sizeof</span>(uint64_t)) * <span class="keyword">sizeof</span>(<a class="code" href="struct_n_v_ncounter_data.html">NVNcounterData</a>);</div>
+<div class="line"></div>
+<div class="line">    m_pStatCounters = <span class="keyword">new</span> StatCounters[numChunks];</div>
+<div class="line">    memset(m_pStatCounters, 0, <span class="keyword">sizeof</span>(StatCounters) * numChunks);</div>
+<div class="line"></div>
+<div class="line">    m_BufferMemoryPool.Init(</div>
+<div class="line">        NULL,</div>
+<div class="line">        <a name="a33"></a><a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>,</div>
+<div class="line">        <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a93f5342f52f301cfdca9901586b9b8e1">NVN_MEMORY_POOL_FLAGS_CPU_UNCACHED_BIT</a> | <a class="code" href="group__nvn__c__enum.html#ggaa7df4970255609d7a317631bcb37d654a81b40bf9e82d33f8c546a95fc5ce5f7e">NVN_MEMORY_POOL_FLAGS_GPU_CACHED_BIT</a>,</div>
+<div class="line">        m_pDevice);</div>
+<div class="line"></div>
+<div class="line">    <a name="_a34"></a><a class="code" href="struct_n_v_nbuffer_builder.html">NVNbufferBuilder</a> bufferBuilder;</div>
+<div class="line"></div>
+<div class="line">    <a name="a35"></a><a class="code" href="group__nvn__c__functions.html#ga7f1e5a40cc9b049892a527b95ac9b9fc">nvnBufferBuilderSetDevice</a>(&amp;bufferBuilder, m_pDevice);</div>
+<div class="line">    <a name="a36"></a><a class="code" href="group__nvn__c__functions.html#ga17550ab21d8136e4f5c48c91c21716f2">nvnBufferBuilderSetDefaults</a>(&amp;bufferBuilder);</div>
+<div class="line">    <a name="a37"></a><a class="code" href="group__nvn__c__functions.html#gaaaa4fd698902c746debccb3fa967e324">nvnBufferBuilderSetStorage</a>(&amp;bufferBuilder, m_BufferMemoryPool.GetMemoryPool(), 0, <a class="code" href="group__nvn__c__defines.html#gadfd69601d2d9f953c55808127ba60853">NVN_MEMORY_POOL_STORAGE_GRANULARITY</a>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span> (!<a name="a38"></a><a class="code" href="group__nvn__c__functions.html#ga862eafc1a9c42ce08a7c40ba004d7b57">nvnBufferInitialize</a>(&amp;m_Buffer, &amp;bufferBuilder))</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(0, <span class="stringliteral">&quot;Failed to initialize counter&#39;s uniform buffer&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    ptrdiff_t offset = 0;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; m_NumChunks; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        m_Offsets.push_back(offset);</div>
+<div class="line"></div>
+<div class="line">        offset += counterSize;</div>
+<div class="line">        offset = Align(static_cast&lt;size_t&gt;(offset), counterAlignment);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager Destructor</span></div>
+<div class="line"><span class="comment"> * -----------------------------</span></div>
+<div class="line"><span class="comment"> * Cleans up stat counter manager</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">StatCounterManager::~StatCounterManager()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span> (m_pStatCounters)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">delete</span> [] m_pStatCounters;</div>
+<div class="line">        m_pStatCounters = NULL;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a39"></a><a class="code" href="group__nvn__c__functions.html#ga3e56941d8153c1e1b2ba861189ea993d">nvnBufferFinalize</a>(&amp;m_Buffer);</div>
+<div class="line"></div>
+<div class="line">    m_BufferMemoryPool.Shutdown();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager::SwapPools</span></div>
+<div class="line"><span class="comment"> * -----------------------------</span></div>
+<div class="line"><span class="comment"> * Moves to next StatCounter struct so the</span></div>
+<div class="line"><span class="comment"> * next one we use is clear and not using</span></div>
+<div class="line"><span class="comment"> * old values</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> StatCounterManager::SwapPools()</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* If there is only undivided chunk in the memory pool, then there is nothing to swap */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (m_NumChunks == 1)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span>;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_CurrentChunk = (m_CurrentChunk + 1) % m_NumChunks;</div>
+<div class="line">    m_PreviousChunk = (m_PreviousChunk + 1) % m_NumChunks;</div>
+<div class="line">    memset(&amp;m_pStatCounters[m_CurrentChunk], 0, <span class="keyword">sizeof</span>(StatCounters));</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager::GetNumChunks</span></div>
+<div class="line"><span class="comment"> * --------------------------------</span></div>
+<div class="line"><span class="comment"> * Returns number of StatCounters in array.</span></div>
+<div class="line"><span class="comment"> * If a SyncManager manager is used then</span></div>
+<div class="line"><span class="comment"> * the number of chunks must equal the</span></div>
+<div class="line"><span class="comment"> * number of syncs in the manager.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">int</span> StatCounterManager::GetNumChunks()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> m_NumChunks;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager::GetCounterBufferPointer</span></div>
+<div class="line"><span class="comment"> * -------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Gets pointer to the mapped NVN buffer</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">char</span>* StatCounterManager::GetCounterBufferPointer()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">char</span>* ptr = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(<a name="a40"></a><a class="code" href="group__nvn__c__functions.html#gaa3a80a57023737b594e83a9fa04282c6">nvnBufferMap</a>(&amp;m_Buffer));</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> ptr + m_Offsets[m_CurrentChunk];</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager::GetCounterBufferAddress</span></div>
+<div class="line"><span class="comment"> * -------------------------------------------</span></div>
+<div class="line"><span class="comment"> * Gets device address of the NVN buffer</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><a class="code" href="group__nvn__c__handle.html#ga067da3a838f115226c89fad655278f80">NVNbufferAddress</a> StatCounterManager::GetCounterBufferAddress()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="group__nvn__c__handle.html#ga067da3a838f115226c89fad655278f80">NVNbufferAddress</a> addr = <a name="a41"></a><a class="code" href="group__nvn__c__functions.html#gac38c964075df642306d6490b8b50ace3">nvnBufferGetAddress</a>(&amp;m_Buffer);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> addr + m_Offsets[m_CurrentChunk];</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager::GetCurrentStatCounter</span></div>
+<div class="line"><span class="comment"> * -----------------------------------------</span></div>
+<div class="line"><span class="comment"> * Returns current StatCounter to be used this</span></div>
+<div class="line"><span class="comment"> * frame to receive counter data</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">StatCounters* StatCounterManager::GetCurrentStatCounter()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">return</span> &amp;m_pStatCounters[m_CurrentChunk];</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * StatCounterManager::GetCounterForPrint</span></div>
+<div class="line"><span class="comment"> * --------------------------------------</span></div>
+<div class="line"><span class="comment"> * Gets a stat counter that has been properly filled</span></div>
+<div class="line"><span class="comment"> * with counter data.  If more than two counters</span></div>
+<div class="line"><span class="comment"> * are available, the one that was filled last</span></div>
+<div class="line"><span class="comment"> * frame is used to print to guarantee that the</span></div>
+<div class="line"><span class="comment"> * report has gone through the command buffer</span></div>
+<div class="line"><span class="comment"> * properly.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">StatCounters* StatCounterManager::GetCounterForPrint()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span> (m_NumChunks == 1)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> &amp;m_pStatCounters[0];</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">return</span> &amp;m_pStatCounters[m_PreviousChunk];</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

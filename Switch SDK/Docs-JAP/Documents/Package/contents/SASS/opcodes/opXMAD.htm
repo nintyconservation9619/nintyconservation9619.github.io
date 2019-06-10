@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>XMAD</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    XMAD : Integer Short Multiply Add<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Integer Short Multiply Add" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Integer Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "XMAD", subsection => 2 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code>{@{!}Pg}</code>   <code><b>XMAD</b>{.sasign.sbsign}{.PSL}{.cop}{.MRG}{.X}</code>   <code>Rd{.CC}, Ra{.halfselA}, Sb{.halfselB}, Sc</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "XMAD" } -->
+
+    .sasign   : { <b>.U16*, .S16</b> } <br>    .sbsign   : { <b>.U16*, .S16</b> } <br>                Source formats<br><br>    .PSL      : the product is shifted left 16 bits before being presented to<br>                the adder (used for IMUL.LO emulation)<br><br>    .cop      : { <b>.C32*, .CLO, .CHI, .CBCC, .CSFU</b> }<br>                Controls the selection of the "C" input to the adder<br>                .C32:  All 32-bits of the Sc value are presented to the adder<br>                .CLO:  Bits [15:0] of the Sc value are presented to the adder<br>                       (zero extended)<br>                .CHI:  Bits [31:16] of the Sc value are presented to the adder<br>                       (Sc &gt;&gt; 16, zero extended).<br>                .CBCC: (Sb[15:0]&lt;&lt;16 + Sc) is presented to the adder (used<br>                       for IMUL.LO emulation). .CBCC with Sb(#IMM16) is <br>                       discouraged.<br>                .CSFU: Sc + signed-fix-ups is presented to the adder (see <br>                       below). Useful for S32 * S32 -&gt; S64 kinds of emulation.<br>                       .CSFU with Sb(#IMM16) is discouraged.<br><br>    .MRG      : Merge Sb[15:0] into high 16-bits of the result (used for<br>                IMUL.LO emulation). .MRG with Sb(#IMM16) is discouraged.<br><br>    .X        : use CC.CF and CC.OF as two separate carry inputs to the adder.<br><br>    .CC       : Write CC<br><br>    .halfselA : { <b>.H0*, .H1</b> }<br>    .halfselB : { <b>.H0*, .H1</b> }<br><br><b>XMAD</b> allows the following source combinations for Sb &amp; Sc:<br>    Sb(register)                         Sc(register)<br>    Sb(#IMM16)                           Sc(register)<br>    Sb(constant with immediate address)  Sc(register)<br>    Sb(register)                         Sc(constant with immediate address)<br><br><br>Note: Although the following combinations are legal, they are unlikely to <br>give the desired results because they expect Sb to be a full 32-bit number:<br>    *.CBCC with Sb(#IMM16)<br>    *.CSFU with Sb(#IMM16)<br>    *.MRG  with Sb(#IMM16)<br><br>Note: The following combinations are illegal:<br>    Sb.{H0,H1} with Sb(#IMM16) -- when using #IMM16 as Sb, there is no need (and no ability) to select something else.<br>        The #IMM16 provides the value for Sb[15:0], and SB.H0 is implicitly selected.<br>    *.CBCC with Sb(constant with immediate address)<br>    *.CBCC with Sc(constant with immediate address)<br>    *.PSL  with Sc(constant with immediate address)<br>    *.MRG  with Sc(constant with immediate address)<br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+Multiply two 16 bit sources, and add one more.
+</p>
+<p>
+XMAD executes on both FXU and FMAI, so XMAD has high throughput characteristics.
+</p>
+<h3>Basic math operation:</h3>
+<p>
+The basic operation theory of operation is:
+Result1 = op1(A * B)<br>
+Result2 = Result1 + cop(C)<br>
+D = op2(Result2)<br>
+</p>
+<p>
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<ul>
+<li>
+<b>IMAD.LO</b> emulation (with register inputs):<br>
+<code></code><pre>    // D0 = (A0 * B0)[31:0] + C0<br>    //<br>    <code><a href="opXMAD.htm">XMAD</a></code>           D0, A0.H0, B0.H0, C0 ?WAIT1;    <br>    <code><a href="opXMAD.htm">XMAD.MRG</a></code>       T1, A0.H0, B0.H1, RZ ?WAIT6;    <br>    <code><a href="opXMAD.htm">XMAD.PSL.CBCC</a></code>  D0, A0.H1, T1.H1, D0;<br></pre>
+</li>
+<li>
+<b>IMAD.HI</b> emulation (with register inputs):<br>
+<code></code><pre>    // D1 = (A0 * B0)[63:32] + C1<br>    // A0 is U32, B0 is U32<br>    //<br>    <code><a href="opXMAD.htm">XMAD</a></code>       T0, A0.H0, B0.H0, RZ ?WAIT1;    <br>    <code><a href="opXMAD.htm">XMAD</a></code>       T1, A0.H0, B0.H1, RZ ?WAIT1;    <br>    <code><a href="opXMAD.htm">XMAD</a></code>       D1, A0.H1, B0.H1, C1 ?WAIT4;    <br>    <code><a href="opXMAD.htm">XMAD.CHI</a></code>   T0, A0.H1, B0.H0, T0 ?WAIT6;    <br>    <code><a href="opIADD3.htm">IADD3.RS</a></code>   D1, T0, T1, D1;<br></pre>
+</li>
+<ul>
+
+</ul></ul></div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

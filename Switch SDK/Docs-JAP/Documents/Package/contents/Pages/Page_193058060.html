@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NW4C Effect からの NintendoSDK 移行ガイド</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NW4C Effect からの NintendoSDK 移行ガイド -->
+<div class="pagetitle" id="PageId_193058060">NW4C Effect からの NintendoSDK 移行ガイド</div>
+<div class="text_separate">
+<h1 id="Anchor_193058060_h1_1">NW4C Effect からの NintendoSDK 移行ガイド</h1>
+<p>このページでは、NW4C (NintendoWare for CTR) の Effect から&nbsp;NintendoSDK NintendoWare の Effect への移行について説明します。</p>
+<h2 id="Anchor_193058060_h2_1">互換性について</h2>
+<p>NW4C 旧モジュールのEffect(gfx) については移行ができません。</p>
+<p>NW4C Effect (eft) についてはファイルの移行ができます。<br />但し NW4C のEffect と NintendoSDK Effect は互換性が完全ではありません。</p>
+<h3 id="Anchor_193058060_h3_1">既知の互換性のない設定内容と対処方法</h3>
+<p>以下は、NW4C の Effect と NintendoSDK の Effect で互換性のない設定内容とその対処方法です。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th class="highlight-blue" style="text-align: center;">内容</th>
+      <th class="highlight-blue" style="text-align: center;">対処方法</th>
+    </tr>
+    <tr>
+      <th>連結式ストライプのカラーが反映されない</th>
+      <td>「グローバル乗算カラー・アルファ」を利用してカラーを設定します。<br /> <span class="status_macro_base status_macro_Blue">関連リンク</span> 「グローバル乗算カラー・アルファ」については <strong> <a href="../Pages/Page_96051002.html">こちら</a> </strong> を参照してください。</td>
+    </tr>
+    <tr>
+      <th>カラーがアニメーションしている</th>
+      <td>
+        <p>NW4C Effect で、カラー 0 、1 どちらかアニメーションがない側のカラー挙動タイプを「固定」に変更します。<br /> NW4C Effect ではエミッタのアニメーションはカラー 0 、1 どちらか片側しか反映されない仕様でした。<br />但し、設定がデータ内に残っているとき、NintendoSDK の Effect でそのアニメーションが反映されてしまいます。</p>
+      </td>
+    </tr>
+    <tr>
+      <th>パーティクルタイプがディレクショナルポリゴンで上下反転する</th>
+      <td>パーティクルの向きが異なる為、エミッタトランスフォームで X 軸または Z 軸を 180 度回転します。</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_193058060_h2_2">Effect 関連ファイルの移行について</h2>
+<p>Effect ファイルと Effect データで使用するファイルの移行について説明します。</p>
+<h3 id="Anchor_193058060_h3_2">.eset ファイルの移行について</h3>
+<p>エフェクトファイルの移行方法について説明します。<br />EffectMaker を利用して .eset ファイルを NintendoSDK 用のファイルにコンバートします。<br />eset ファイル内の記述 xxx.tga は xxx.ftxb に、yyy.cmdl は yyy.fmdb に置き換わります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>EffectMaker.exe  --update-nw4c-to-nx ConvertList.xml</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span> ConvertList.xml の書式については<strong> <a href="../Pages/Page_83955581.html"> 「バイナリコンバータ」</a> </strong> を参照してください。</p>
+<h3 id="Anchor_193058060_h3_3">.cmdl ファイルの移行について</h3>
+<p>プリミティブパーティクルなどで利用するモデルファイルの移行方法について説明します。<br />cmdl コンバータを利用して .cmdl ファイルを NintendoSDK 用の中間ファイル (.fmdb) ファイルにコンバートします。</p>
+<p>
+  <strong> <span class="status_macro_base status_macro_Blue">関連リンク</span> </strong> cmdl コンバータについては <strong> <a href="../Pages/Page_191450707.html">「NW4C グラフィックスからの NintendoSDK 移行ガイド」</a> </strong> を参照してください。</p>
+<h3 id="Anchor_193058060_h3_4">.tga ファイルの移行について</h3>
+<p>テクスチャーファイルの移行方法について説明します。<br />3D テクスチャーコンバーターを利用して .tga ファイルを NintendoSDK 用のテクスチャー中間ファイル (.ftxb、.ftxa) にコンバートします。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>3dTextureConverter.exe image.tga -o image.ftxb</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span class="status_macro_base status_macro_Blue">関連リンク</span>&nbsp;3D テクスチャーコンバーターの詳細については <strong> <a href="../Pages/Page_239574379.html">「3D テクスチャーコンバーター」</a> </strong> を参照してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

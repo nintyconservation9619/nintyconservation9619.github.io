@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>NX でグラフィックス機能を利用する際の注意事項</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- NX でグラフィックス機能を利用する際の注意事項 -->
+<div class="pagetitle" id="PageId_292510463">NX でグラフィックス機能を利用する際の注意事項</div>
+<div class="text_separate">
+<p>このページでは、NX でグラフィックス機能を利用するにあたって注意すべき事柄についてまとめます。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_292510463_h1_1">グラフィックス機能の初期化</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_292510463_h2_1">初期化方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_292510463_h2_2">グラフィックスアロケータ</a>
+      </li>
+      <li>
+        <a href="#Anchor_292510463_h2_3">グラフィックスファームウェアが使用するメモリ</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_292510463_h1_2">ディスプレイに出力する色フォーマット</a>
+    </li>
+    <li>
+      <a href="#Anchor_292510463_h1_3">1 回のドローコールにかけることのできる時間の制限</a>
+    </li>
+    <li>
+      <a href="#Anchor_292510463_h1_4">GPU エラーに関する注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_292510463_h2_4">製品環境において、GPU エラーを発生させたアプリケーションはシステムによって強制的に終了されます</a>
+      </li>
+    </ul>
+    <li>
+      <a href="#Anchor_292510463_h1_5">GPU 同期処理に関する注意事項</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_292510463_h2_5">GPU処理のブロックが解除されないうちにテクスチャをディスプレイに提出しないようにしてください</a>
+      </li>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_292510463_h1_1">グラフィックス機能の初期化</h1>
+<p>SDEV、EDEV および製品環境において GPU やディスプレイ、マルチメディアなどの機能を利用するためにはグラフィックス機能の初期化を行っておく必要があります。 PC 環境においてはこの初期化は必要ありません。</p>
+<h2 id="Anchor_292510463_h2_1">初期化方法</h2>
+<p>グラフィックス機能の初期化は nv 名前空間に定義されている関数を用いて行います。初期化は以下のコードのようにして行います。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="gutter">1<br />
+2<br />
+3<br />
+4<br />
+5<br />
+6<br />
+7<br />
+8<br />
+9<br />
+10<br />
+11<br />
+12<br />
+13<br />
+14<br />
+15<br />
+16<br />
+17<br />
+18<br />
+19<br />
+20<br />
+21<br />
+22<br />
+23<br />
+24<br />
+25<br />
+26<br />
+27<br />
+28<br />
+29<br />
+30<br />
+31<br />
+32<br />
+33<br />
+34<br />
+35<br />
+36</td>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nv/nv_MemoryManagement.h&gt;
+</span> 
+<span class="c1">// グラフィックスアロケータとして設定する関数。このサンプルでは標準関数を使用しています。
+</span><span class="kt">void</span><span class="o">*</span> <span class="nf">GraphicsAllocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">alignment</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="cm">/*pUserData*/</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">aligned_alloc</span><span class="p">(</span><span class="n">alignment</span><span class="p">,</span> <span class="nn">nn::util::</span><span class="n">align_up</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">alignment</span><span class="p">));</span>
+<span class="p">}</span>
+ 
+<span class="kt">void</span> <span class="nf">GraphicsFree</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="cm">/*pUserData*/</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
+ 
+<span class="kt">void</span> <span class="nf">GraphicsReallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">newSize</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="cm">/*pUserData*/</span><span class="p">)</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="n">realloc</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">newSize</span><span class="p">);</span>
+<span class="p">}</span>
+ 
+<span class="c1">// グラフィックスファームウェアが使用するメモリブロック。このサンプルではグローバル変数として確保しています。
+</span><span class="n">NN_ALIGNAS</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span> <span class="kt">char</span> <span class="n">g_GraphicsFirmwareMemory</span><span class="p">[</span><span class="mi">8</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">];</span>
+ 
+<span class="c1">// グラフィックス機能を初期化する関数
+</span><span class="kt">void</span> <span class="nf">InitializeGraphics</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// グラフィックスアロケータの各関数の pUserData に渡されるポインタです。このサンプルでは pUserData の値を使用しないため nullptr にしています。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kt">void</span><span class="o">*</span> <span class="n">pUserData</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// グラフィックス機能が使用するメモリアロケータを設定します
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nv::</span><span class="n">SetGraphicsAllocator</span><span class="p">(</span><span class="n">GraphicsAllocate</span><span class="p">,</span> <span class="n">GraphicsFree</span><span class="p">,</span> <span class="n">GraphicsReallocate</span><span class="p">,</span> <span class="n">pUserData</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// グラフィックスの開発ツール（ GraphicsDebugger など）が使用するメモリアロケータを設定します
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nv::</span><span class="n">SetGraphicsDevtoolsAllocator</span><span class="p">(</span><span class="n">GraphicsAllocate</span><span class="p">,</span> <span class="n">GraphicsFree</span><span class="p">,</span> <span class="n">GraphicsReallocate</span><span class="p">,</span> <span class="n">pUserData</span><span class="p">);</span>
+ 
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// グラフィックス機能の初期化を行います
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nv::</span><span class="n">InitializeGraphics</span><span class="p">(</span><span class="n">g_GraphicsFirmwareMemory</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_GraphicsFirmwareMemory</span><span class="p">));</span>
+<span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<pre>nv::SetGraphicsAllocator, nv::SetGraphicsDevtoolsAllocator, nv::InitializeGraphics の呼び出し順序は入れ替わっても問題ありません。</pre>
+<h2 id="Anchor_292510463_h2_2">グラフィックスアロケータ</h2>
+<p>グラフィックス機能を使用する際、 nv::SetGraphicsAllocator により設定された関数によって必要なメモリが取得されます。</p>
+<p>グラフィックス機能の開発ツール用のアロケータは nv::SetGraphicsDevtoolsAllocator を使用して設定します。</p>
+<p>アロケータから取得されるメモリは各グラフィックス機能によって管理されます。確保されたメモリの一部はアプリケーション終了時まで解放されない場合があります。</p>
+<h2 id="Anchor_292510463_h2_3">グラフィックスファームウェアが使用するメモリ</h2>
+<p>nv::InitializeGraphics の呼び出し時に渡したメモリブロックはファームウェアによって使用されます。</p>
+<p>ファームウェアに渡したメモリブロックはアプリケーション終了時まで返却されることはありません。<br />メモリブロックのサイズを変更することができないため、アプリケーションの実行に必要な量のメモリを初期化時に設定しておく必要があります。必要なメモリ量は以下の情報から見積もることができます。</p>
+<ul>
+  <li>nv::GetGraphicsMemoryInfo によりファームウェアによる使用状況を取得できます。</li>
+  <li>NVN Programming Guide&nbsp;の&nbsp;22.3.&nbsp;Memory Usage に各 NVN オブジェクトに必要なメモリサイズが記載されています。</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>以下は NX Addon 4.0.0 以降の仕様です。</p>
+  </div>
+</div>
+<p>開発機ではデフォルトでグラフィックスファームウェアメモリにマージンを約 160KB 設けており、使用できるグラフィックスファームウェアメモリサイズは nv::InitializeGraphics() で渡したサイズより小さくなります。開発環境においては、本機能の有効／無効を DevMenu および DevMenuCommand から設定することができます。詳細は&nbsp;<a href="../Pages/Page_107328771.html">DevMenu</a>&nbsp;の「Graphics Firmware Memory Margin」または&nbsp;<a href="../Pages/Page_107328760.html">DevMenuCommand</a>&nbsp;の「グラフィックスファームウェアメモリマージン設定」をご参照ください。製品環境では無効化されます。<br /></p>
+<h1 id="Anchor_292510463_h1_2">ディスプレイに出力する色フォーマット</h1>
+<p>ディスプレイに出力する画像バッファの色フォーマットは各チャンネルが符号なし 8bit 整数で表された&nbsp;RGBA&nbsp;または RGBX 画像のみです。画素値は sRGB の値として扱われます。ファームウェアは色調整を行いません。バッファに書き込まれている値がそのままディスプレイの信号として出力されます。</p>
+<p>画像バッファの色フォーマットの指定方法は使用するグラフィックス API により異なります。&nbsp;<a href="../Pages/Page_83956134.html">GFX ライブラリ</a>&nbsp;を使用する場合は <span class="ApiLink_nn__gfx__SwapChain">nn::gfx::SwapChain</span> の色フォーマットにより指定します。&nbsp;<a href="../Pages/Page_87937845.html">NVN ライブラリ </a>を使用する場合は NVNwindow に設定するテクスチャの色フォーマットにより指定します。アプリケーションは最終的な出力画像をディスプレイのサポートする色フォーマットで作成する必要があります。</p>
+<p>グラフィックス API で定義される色フォーマットではリニア RGB と&nbsp;sRGB の区別がある場合がありますが、ディスプレイではいずれの場合も値は sRGB として扱われます。画素値に適切なガンマ補正がかかっているか注意してください。</p>
+<h1 id="Anchor_292510463_h1_3">1 回のドローコールにかけることのできる時間の制限</h1>
+<p>NX では、1 回のドローコールに対する処理を GPU が完了させるまで、その他の GPU 処理を割り込ませることができません。よって、非常に時間のかかるドローコールをアプリケーションが発行すると、そのドローコールが完了するまでの間、システムの描画をブロックしてしまうことになります。</p>
+<p>このため、アプリケーションが 1 回のドローコールにかけることのできる時間に制限を設けています。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <p>NX Addon</p>
+      </th>
+      <th>
+        <p>時間制限</p>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>3.x 以前の SDK でビルドしたアプリケーション</td>
+      <td>8 秒</td>
+    </tr>
+    <tr>
+      <td>4.0.0 以降の SDK でビルドしたアプリケーション</td>
+      <td>1 秒</td>
+    </tr>
+  </tbody>
+</table>
+<p>これよりも長い時間のかかるドローコールを発行した場合、GPU エラーとして処理されます。</p>
+<p>この時間制限は、アプリケーションがフレーム落ちする場合を考慮して、若干の猶予を与える値として設定しています。アプリケーションは、<a href="../Pages/Page_175850533.html">GPU のリソース制限</a>で説明する GPU 時間内に描画を完了するようにしてください。初期化処理などで長時間 GPU を占有する場合は1つのドローコールが 1 フレームを超えないように分割してください。</p>
+<p>開発環境において、本制限は DevMenu および DevMenuCommand から有効・無効を操作することができます。詳細は、<a href="../Pages/Page_310879077.html">DevMenu</a>&nbsp;の「<span style="color: rgb(51,51,51);">GPU Timeout</span>」および &nbsp;<a href="../Pages/Page_107328760.html#Anchor_107328760_開発機の制御／DevMenuCommand-GPUエラー発生時におけるアプリ強制終了の設定">DevMenuCommand</a>&nbsp;の&nbsp;<span style="color: rgb(51,51,51);">「GPU タイムアウト設定」を参照してください。</span></p>
+<h1 id="Anchor_292510463_h1_4">GPU エラーに関する注意事項</h1>
+<h2 id="Anchor_292510463_h2_4">製品環境において、GPU エラーを発生させたアプリケーションはシステムによって強制的に終了されます</h2>
+<p>製品環境において、GPU エラーを発生させたアプリケーションはシステムによって強制的に終了されます。このため、アプリケーションは明示的に GPU エラーをハンドルする必要はありません。</p>
+<p>アプリケーションが終了させられるタイミングは、アプリに対して通知されません。このため、製品環境においては、<a href="../../../Api/HtmlNX/group__nvn__c__functions.html">nvnQueueGetError()</a>&nbsp;といった関数を用いて、GPU エラーを契機として動作する機能を実装しないように注意してください。処理が完了するまえにアプリケーションが終了させられる可能性があり、正しく機能しません。</p>
+<p>開発環境においては、本機能の有効／無効を DevMenu および DevMenuCommand から設定することができます。詳細は、<a href="../Pages/Page_310879077.html">DevMenu</a>&nbsp;の「<span style="color: rgb(51,51,51);">Terminate application on GPU error</span>」および &nbsp;<a href="../Pages/Page_107328760.html#Anchor_107328760_開発機の制御／DevMenuCommand-GPUエラー発生時におけるアプリ強制終了の設定">DevMenuCommand</a>&nbsp;の&nbsp;<span style="color: rgb(51,51,51);">「GPUエラー発生時におけるアプリ強制終了の設定」を参照してください。</span></p>
+<h1 id="Anchor_292510463_h1_5">
+  <span style="color: rgb(51,51,51);">GPU 同期処理に関する注意事項</span>
+</h1>
+<h2 id="Anchor_292510463_h2_5">
+  <span style="color: rgb(51,51,51);">GPU処理のブロックが解除されないうちにテクスチャをディスプレイに提出しないようにしてください</span>
+</h2>
+<p>以下の手順を行うと、システムが不正な状態になる場合があります。</p>
+<p>アプリが GPU 処理をブロックした状態で、テクスチャをディスプレイに提出する<br />提出後、GPU 処理をブロックした状態が解除されないうちに、HOME メニュー遷移、本体スリープ等のアプリの実行を停止させる操作が行われる<br />「システムが不正な状態」とは、具体的には以下のような状態になります。</p>
+<p>HOME メニュー遷移が正しく行われない<br />本体スリープに正しく入ることができない<br />本症状は、現在リリース中のすべてのバージョンで発生する可能性があります。</p>
+<p>一例として以下のような実装にした場合に発生することがあります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nvnCommandBufferBeginRecording(&amp;m_CommandBuffer);
+{
+&nbsp;&nbsp;&nbsp;&nbsp;・・省略・・
+&nbsp;&nbsp;&nbsp;&nbsp;// イベント待ちを行う
+&nbsp;&nbsp;&nbsp;&nbsp;nvnCommandBufferWaitEvent(&amp;m_CommandBuffer, &amp;m_Event, NVN_EVENT_WAIT_MODE_GEQUAL_WRAP, nvnEventGetValue(&amp;m_Event) + 1);
+&nbsp;&nbsp;&nbsp;&nbsp;・・省略・・
+}
+m_CommandHandle = nvnCommandBufferEndRecording(&amp;m_CommandBuffer);
+// コマンドを提出する
+nvnQueueSubmitCommands(&amp;m_Queue, 1, &amp;m_CommandHandle);
+// 提出したコマンドをフラッシュし、GPU での実行が開始される
+nvnQueueFlush();
+// テクスチャを提出する
+nvnQueuePresentTexture(&amp;m_Queue, m_pWindow, index);
+// コマンドバッファにて待っているイベントをシグナルする
+nvnEventSignal(&amp;m_Event, NVN_EVENT_SIGNAL_MODE_WRITE, nvnEventGetValue(&amp;m_Event) + 1);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>この例では、nvnQueuePresentTexture の呼び出し後に nvnEventSignal によって GPU のブロックを解除しています。<br />そのため、もし nvnQueuePresentTexture 呼び出し直後に HOME メニュー遷移、本体スリープ等が発生すると不正な状態になる可能性があります。<br />これ以外にも NVNsync を用いて複数の NVNqueue 間でGPU 処理をブロックしている場合等に同様の状況を作り出す可能性があります。</p>
+<p>このような問題が発生するため、GPU 処理をブロックした状態が解除されないうちに、テクスチャをディスプレイに提出するような実装にはしないでください。</p>
+<p>以下のような実装を行うことで回避することができます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>nvnCommandBufferBeginRecording(&amp;m_CommandBuffer);
+{
+&nbsp;&nbsp;&nbsp;&nbsp;・・省略・・
+&nbsp;&nbsp;&nbsp;&nbsp;// イベント待ちを行う
+&nbsp;&nbsp;&nbsp;&nbsp;nvnCommandBufferWaitEvent(&amp;m_CommandBuffer, &amp;m_Event, NVN_EVENT_WAIT_MODE_GEQUAL_WRAP, nvnEventGetValue(&amp;m_Event) + 1);
+&nbsp;&nbsp;&nbsp;&nbsp;・・省略・・
+}
+m_CommandHandle = nvnCommandBufferEndRecording(&amp;m_CommandBuffer);
+// コマンドを提出する
+nvnQueueSubmitCommands(&amp;m_Queue, 1, &amp;m_CommandHandle);
+// 提出したコマンドをフラッシュし、GPU での実行開始を保証する
+nvnQueueFlush();
+// テクスチャを提出する前に、コマンドバッファにて待っているイベントをシグナルし、GPU のブロックを解除する
+nvnEventSignal(&amp;m_Event, NVN_EVENT_SIGNAL_MODE_WRITE, nvnEventGetValue(&amp;m_Event) + 1);
+// テクスチャを提出する
+nvnQueuePresentTexture(&amp;m_Queue, m_pWindow, index);</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>nvnEventSignal を nvnQueuePresentTexture の呼び出し前に持ってくることにより、GPU 処理のブロックが確実に解除された状態で、テクスチャが提出されます。</p>
+<p>「GPU 処理をブロックした状態」を作り出す API としては、NVN では以下の 3 種類があります。</p>
+<ul>
+  <li>nvnCommandBufferWaitSync</li>
+  <li>nvnCommandBufferWaitEvent</li>
+  <li>nvnQueueWaitSync</li>
+</ul>
+<p>NVN 以外のグラフィックス API を利用する場合も同様に GPU 処理をブロックした状態が解除されないうちに、テクスチャをディスプレイに提出するような実装にはしないでください。</p>
+<p>本症状は仕様となりますので、修正予定はありません。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__gfx__SwapChain', '../../../Api/HtmlNX/namespacenn_1_1gfx.html#a13a46837d4eba26c355c3f22de4e75f0' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

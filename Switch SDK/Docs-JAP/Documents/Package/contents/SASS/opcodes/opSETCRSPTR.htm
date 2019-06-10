@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>SETCRSPTR</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    SETCRSPTR : Set Call Return Stack Pointer<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Set Call Return Stack Pointer" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Miscellaneous Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "SETCRSPTR", subsection => 15 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>SPA 5.0:<br><code>        <code><b>SETCRSPTR</b></code>   <code>Ra</code>   <code><!-- OPEX_COUNT_3 --><!-- BEGIN &opex("MIO_RD_SCBD") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{?sched&gt;=?WAIT5}<!-- END &opex("MIO_RD_SCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "SETCRSPTR" } -->
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>Control flow operations use a per-warp hardware managed stack of
+   call/return tokens. <b>SETCRSPTR</b> overwrites the state of the current
+   warp's stack pointer with the value in Ra.
+</p>
+<p>Any cached stack entries in SM will not be written back before the
+   stack pointer state is updated. The stack cache should first be flushed
+   using the&nbsp;<a href="opCCTL.htm">CCTLL.CRS.WBALL</a> instruction.
+</p>
+<p>The warp's stack pointer is state among all threads of the warp: if 
+   multiple threads execute <b>SETCRSPTR</b> within a warp, HW arbitrarily
+   selects one thread to execute the instruction.
+</p>
+<p>The value of Ra must have the following format:
+</p>
+<pre>    bits  field<br>    --------------------------<br>   16: 0  curPhysStackDepth<br>   22:17  reserved<br>   30:23  curApiCallDepth<br>   31:31  KillFutureBranch<br></pre>
+
+<p>'curPhysStackDepth' is the number of tokens currently on the stack,
+   rounded up to the next multiple of 4. For example, if the instruction
+   stream consisted solely of 125 <b><a href="opSSY.htm">SSY</a></b>
+   instructions, then <b>SETCRSPTR</b> should use a value of
+   'curPhysStackDepth' of 128. The value of 'curPhysStackDepth' is
+   independent of the state of the physical stack cache that the SM may
+   implement. If the value of 'curPhysStackDepth' does not correspond
+   to the correct number of entries on the CRS, then future
+   UnwindStack()
+   may not be performed correctly. Moreover, 'curPhysStackDepth' may be
+   clamped, as described below.
+</p>
+<p>'curApiCallDepth' is the current depth of the API-visible call-stack,
+   in entries. 'curApiCallDepth' is updated by the non-.NOINC variants 
+   of <b><a href="opCAL.htm">CAL</a></b>, <b><a href="opCAL.htm">JCAL</a></b>,
+   and <b><a href="opRET.htm">PRET</a></b>. If the value of
+   'curApiCallDepth' does not correspond to the correct number of entries
+   on the CRS, then future incrementing stack operations may fail or future
+   UnwindStack()
+   may not be performed correctly.
+</p>
+<p>'KillFutureBranch' is the state of the result of the limit check
+   performed by the non-.NOINC variant of
+   <b><a href="opRET.htm">PRET</a></b>. This state is only used to 
+   control subsequent <b><a href="opBRA.htm">BRA</a>.LMT</b>
+   or <b><a href="opBRA.htm">JMP</a>.LMT</b> instructions.
+   If the value of 'KillFutureBranch' does not correspond to the correct
+   state of the CRS, then future API-limited branches may fail or future
+   UnwindStack()
+   may not be performed correctly.
+</p>
+
+<p>In general, the value provided to <b>SETCRSPTR</b> should be the same as
+   the one returned by <b><a href="opGETCRSPTR.htm">GETCRSPTR</a></b>. 
+   Using a different value should be done with care, and the stack content
+   in memory should be adjusted to reflect the new values.
+</p>
+
+<p><b>SETCRSPTR</b> should not be used when no backing CRS was allocated in
+   local memory. The behavior in such situations is
+   UNPREDICTABLE.
+</p>
+
+<p>If <b>SETCRSPTR</b> is used within the trap handler, the value of
+   'curPhysStackDepth' is clamped to the CRS allocation size.
+   If <b>SETCRSPTR</b> is executed within user mode, the value of
+   'curPhysStackDepth' is clamped into the trap handler reserved
+   space, 16 entries from the end of the allocation. Clamping into
+   the reserved space guarantees space for a subsequent trap.
+</p>
+
+</div>
+
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+<b>SOFTWARE NOTES</b>: 
+</p><ul>
+<li>If writing back dirty stack entries is necessary, use <a href="opCCTL.htm">CCTLL.CRS.WBALL</a> prior to <b>SETCRSPTR</b>. 
+To guarantee that the SM top of stack cache is empty (e.g. to guarantee coherence with a changing local memory backing store), 
+set the stack pointer to RZ prior to setting it to the desired value. 
+</li>
+</ul>
+
+
+
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><b>SETCRSPTR</b> R0;<br></pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>

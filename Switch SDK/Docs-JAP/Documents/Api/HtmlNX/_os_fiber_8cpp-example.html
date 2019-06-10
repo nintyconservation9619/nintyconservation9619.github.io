@@ -1,0 +1,234 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: OsFiber.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">OsFiber.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_os_fiber.html">Fiber</a> および <a class="el" href="_os_fiber_8cpp.html" title="ファイバ機能のサンプルプログラム ">OsFiber.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nn_Common.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___abort_8h.html">nn/nn_Abort.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> FiberStackSize = 16 * 1024;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// スタックガードなしの場合は NN_OS_ALIGNAS_FIBER_STACK でアライメントし、</span></div>
+<div class="line"><span class="comment">// サイズは nn::os::FiberStackAlignment でアライメントしておきます。</span></div>
+<div class="line"><a name="a0"></a><a class="code" href="os___fiber_common_8h.html#ac4ffcdb3ab27cd7d8fc48370d0beb468">NN_OS_ALIGNAS_FIBER_STACK</a>   uint8_t  g_FiberStack1[ FiberStackSize ];</div>
+<div class="line">static_assert( FiberStackSize % <a name="a1"></a><a class="code" href="namespacenn_1_1os.html#ab8818e7de49601e4f83bd6d3ee822449">nn::os::FiberStackAlignment</a> == 0, <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// スタックガードありの場合は NN_OS_ALIGNAS_GUARDED_STACK でアライメントし、</span></div>
+<div class="line"><span class="comment">// サイズは nn::os::GuardedStackAlignment でアライメントしておきます。</span></div>
+<div class="line"><a name="a2"></a><a class="code" href="os___thread_common_8h.html#a1d1338c3a95cbbcc05db3cc89e62759a">NN_OS_ALIGNAS_GUARDED_STACK</a> uint8_t  g_FiberStack2[ FiberStackSize ];</div>
+<div class="line">static_assert( FiberStackSize % <a name="a3"></a><a class="code" href="namespacenn_1_1os.html#a09b2d95cc4315e16021578c2ba43208d">nn::os::GuardedStackAlignment</a> == 0, <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"></div>
+<div class="line"><a name="_a4"></a><a class="code" href="structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a>  g_Fiber1;</div>
+<div class="line"><a class="code" href="structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a>  g_Fiber2;</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">int</span> g_Step;</div>
+<div class="line"></div>
+<div class="line">}   <span class="comment">// namespace</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  実行順序 と カレントファイバのチェック</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> CheckCurrentFiber(<span class="keywordtype">int</span> expectStep, <a class="code" href="structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a>* myFiber)</div>
+<div class="line">{</div>
+<div class="line">    ++g_Step;</div>
+<div class="line">    <a name="a5"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( g_Step == expectStep );</div>
+<div class="line"></div>
+<div class="line">    <a name="a6"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Step%d: nn::os::GetCurrentFiber()= &quot;</span>, expectStep);</div>
+<div class="line">    <span class="keywordflow">if</span> (myFiber == NULL)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;NULL\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (myFiber == &amp;g_Fiber1)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;&amp;g_Fiber1\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (myFiber == &amp;g_Fiber2)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;&amp;g_Fiber2\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;UNKNOWN FIBER\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">auto</span>* currentFiber = <a name="a7"></a><a class="code" href="namespacenn_1_1os.html#a5bacafa4afccd548bb410d0f2fb3762e">nn::os::GetCurrentFiber</a>();</div>
+<div class="line">    <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>( currentFiber == myFiber );</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  ファイバ 1</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><a class="code" href="structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a>* FiberFunction1(<span class="keywordtype">void</span> *arg)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">auto</span> argNum = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(arg);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;FiberFunction1: arg=%zu\n&quot;</span>, argNum);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カレントファイバのチェック</span></div>
+<div class="line">    CheckCurrentFiber( 2, &amp;g_Fiber1 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SwtichToFiber() を使ってファイバ 2 に遷移する</span></div>
+<div class="line">    <a name="a8"></a><a class="code" href="namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">nn::os::SwitchToFiber</a>( &amp;g_Fiber2 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カレントファイバのチェック</span></div>
+<div class="line">    CheckCurrentFiber( 4, &amp;g_Fiber1 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// return でファイバ 2 の続きから再実行</span></div>
+<div class="line">    <span class="keywordflow">return</span> &amp;g_Fiber2;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  ファイバ 2</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><a class="code" href="structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a>* FiberFunction2(<span class="keywordtype">void</span> *arg)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">auto</span> argNum = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(arg);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;FiberFunction2: arg=%zu\n&quot;</span>, argNum);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カレントファイバのチェック</span></div>
+<div class="line">    CheckCurrentFiber( 3, &amp;g_Fiber2 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// SwtichToFiber() を使ってファイバ 1 の続きから再実行</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">nn::os::SwitchToFiber</a>( &amp;g_Fiber1 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カレントファイバのチェック</span></div>
+<div class="line">    CheckCurrentFiber( 5, &amp;g_Fiber2 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// return で元々のスレッドの続きから再実行</span></div>
+<div class="line">    <span class="keywordflow">return</span> NULL;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  メイン関数です。</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keywordtype">void</span> <a name="a9"></a><a class="code" href="_socket_resolver_8cpp.html#ae79180f8ae90e05743b47a872f305a52">nnMain</a>()</div>
+<div class="line">{</div>
+<div class="line">    g_Step = 0;</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ファイバ 1 を初期化（スタックガードなし）</span></div>
+<div class="line">    <a name="a10"></a><a class="code" href="namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">nn::os::InitializeFiber</a>( &amp;g_Fiber1, FiberFunction1, reinterpret_cast&lt;void*&gt;(1), g_FiberStack1, FiberStackSize, <a name="a11"></a><a class="code" href="namespacenn_1_1os.html#a39b515dc6753642a34364d91b5813104ac2bbce12f37e3e01eb6a244e2ada14c7">nn::os::FiberFlag_NoStackGuard</a> );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ファイバ 2 を初期化（スタックガードあり）</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a9f0b5787e55da6b3b0e089d6b3ee6816">nn::os::InitializeFiber</a>( &amp;g_Fiber2, FiberFunction2, reinterpret_cast&lt;void*&gt;(2), g_FiberStack2, FiberStackSize, 0 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カレントファイバのチェック</span></div>
+<div class="line">    CheckCurrentFiber( 1, NULL );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ファイバ 1 に遷移する</span></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a3ba39dbca8b416903a5e2947927ed3e0">nn::os::SwitchToFiber</a>( &amp;g_Fiber1 );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// カレントファイバのチェック</span></div>
+<div class="line">    CheckCurrentFiber( 6, NULL );</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// ファイバを破棄する</span></div>
+<div class="line">    <a name="a12"></a><a class="code" href="namespacenn_1_1os.html#af54bbd489d9e733f72e8555d7ff940cf">nn::os::FinalizeFiber</a>( &amp;g_Fiber1 );</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#af54bbd489d9e733f72e8555d7ff940cf">nn::os::FinalizeFiber</a>( &amp;g_Fiber2 );</div>
+<div class="line">}</div>
+<div class="line"></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

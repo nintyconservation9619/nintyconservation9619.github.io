@@ -1,0 +1,522 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: OsUserExceptionHandlerSample.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">OsUserExceptionHandlerSample.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ユーザ例外ハンドラ機能のサンプルプログラムにおけるハンドラの実装です。 ハンドラ実装の詳細な説明は省略します。<br />
+ サンプルの説明は <a class="el" href="_page_sample_os_user_exception_handler.html">UserExceptionHandler</a> を参照して下さい。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;array&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdlib&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstring&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/nn_Common.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___log_8h.html">nn/nn_Log.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="util___bit_util_8h.html">nn/util/util_BitUtil.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="util___scope_exit_8h.html">nn/util/util_ScopeExit.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/diag.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;nn/os.h&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">using namespace </span><a class="code" href="namespacenn.html">nn</a>;</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NN_BUILD_TARGET_PLATFORM_OS_NN)</span></div>
+<div class="line"><span class="preprocessor">    #if defined(NN_BUILD_TARGET_PLATFORM_ADDRESS_32)</span></div>
+<div class="line"><span class="preprocessor">        #define NNS_OS_BUILD_NX32</span></div>
+<div class="line"><span class="preprocessor">    #elif defined(NN_BUILD_TARGET_PLATFORM_ADDRESS_64)</span></div>
+<div class="line"><span class="preprocessor">        #define NNS_OS_BUILD_NX64</span></div>
+<div class="line"><span class="preprocessor">    #endif</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NNS_OS_BUILD_NX32) || defined(NNS_OS_BUILD_NX64)</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">namespace </span>{</div>
+<div class="line"></div>
+<div class="line"><a name="a0"></a><a class="code" href="nn___macro_8h.html#a6ce9d4b07ab8bec971ac8875873615b5">NN_ALIGNAS</a>(32) <span class="keywordtype">char</span> UserExceptionHandlerStack[0x4000];</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">size_t</span> StackGuardHintSize = <a name="a1"></a><a class="code" href="namespacenn_1_1os.html#ac880b46610757e748d5bd79211af4236">os::MemoryPageSize</a> * 4;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">const</span> std::pair&lt;nn::os::UserExceptionType, const char*&gt; g_exceptionTypeString[] = {</div>
+<div class="line">    std::make_pair( <a name="a2"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460ad563258d2c5fdbb3034dfab01d83759c">nn::os::UserExceptionType_InvalidInstructionAccess</a>,    <span class="stringliteral">&quot;Invalid Instruction Access&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a3"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460ac0086e1b87acfa1b2009247bc8fda2cb">nn::os::UserExceptionType_InvalidDataAccess</a>,           <span class="stringliteral">&quot;Invalid Data Access&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a4"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460ad8cd36398e52f181e3f42c17344b374d">nn::os::UserExceptionType_UnalignedInstructionAccess</a>,  <span class="stringliteral">&quot;Unaligned Instruction Access&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a5"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460a422b59612c02820b465514da0cd55418">nn::os::UserExceptionType_UnalignedDataAccess</a>,         <span class="stringliteral">&quot;Unaligned Data Access&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a6"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460acda61d04ba9081139baade0f28796133">nn::os::UserExceptionType_UndefinedInstruction</a>,        <span class="stringliteral">&quot;Undefined Instruction&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a7"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460af92e12c9f4fb7359a207ca3a800fd050">nn::os::UserExceptionType_ExceptionalInstruction</a>,      <span class="stringliteral">&quot;Exceptional Instruction&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a8"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460af78513bf294c682e7096df4862c16d2e">nn::os::UserExceptionType_MemorySystemError</a>,           <span class="stringliteral">&quot;Memory System Error&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a9"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460a6bcda4d1a1563579a851bef2515b5bee">nn::os::UserExceptionType_FloatingPointException</a>,      <span class="stringliteral">&quot;Floating Point Exception&quot;</span>),</div>
+<div class="line">    std::make_pair( <a name="a10"></a><a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460af85b93bd5f06784cc5ed23911c288d69">nn::os::UserExceptionType_InvalidSystemCall</a>,           <span class="stringliteral">&quot;Invalid System Call&quot;</span>),</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#if defined(NNS_OS_BUILD_NX32)</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* registerName[16]={</div>
+<div class="line">    <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;    &quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;    &quot;</span>, <span class="stringliteral">&quot;(sb)&quot;</span>, <span class="stringliteral">&quot;(sl)&quot;</span>, <span class="stringliteral">&quot;(fp)&quot;</span>, <span class="stringliteral">&quot;(ip)&quot;</span>, <span class="stringliteral">&quot;(sp)&quot;</span>, <span class="stringliteral">&quot;(lr)&quot;</span>, <span class="stringliteral">&quot;(pc)&quot;</span></div>
+<div class="line">};</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">// pos:   取り出す最下位ビットの位置</span></div>
+<div class="line"><span class="comment">// width: 取り出すビット幅（32 は指定不可）</span></div>
+<div class="line"><span class="keyword">inline</span> Bit32 GetBits( Bit32 bits, <span class="keywordtype">int</span> pos, <span class="keywordtype">int</span> width )</div>
+<div class="line">{</div>
+<div class="line">    Bit32 mask = (1u &lt;&lt; width) - 1;</div>
+<div class="line">    <span class="keywordflow">return</span> (bits &gt;&gt; pos) &amp; mask;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  例外種別の表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintExceptionType(<a name="_a11"></a><a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info) <a name="a12"></a><a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>* exceptionTypeString = <span class="stringliteral">&quot;Unknown ExceptionType&quot;</span>;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp;&amp; e : g_exceptionTypeString)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (info-&gt;<a name="a13"></a><a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a84161e708b2a3e98fb361fa61b458755">exceptionType</a> == e.first)</div>
+<div class="line">        {</div>
+<div class="line">            exceptionTypeString = e.second;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a name="a14"></a><a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;UserException handler is called.\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;==============================================================================\n&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">if</span> (info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a84161e708b2a3e98fb361fa61b458755">exceptionType</a> == <a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460af85b93bd5f06784cc5ed23911c288d69">nn::os::UserExceptionType_InvalidSystemCall</a>)</div>
+<div class="line">    {</div>
+<div class="line">        Bit32 esrISS = GetBits(info-&gt;<a name="a15"></a><a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.esr, 0, 25);</div>
+<div class="line">        <a name="a16"></a><a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(esrISS);</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  Invalid System Call(No=%u) (ExceptionType=0x%04X)\n&quot;</span>, esrISS, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a84161e708b2a3e98fb361fa61b458755">exceptionType</a>);</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(esrISS);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  %s  (ExceptionType=0x%04X)\n&quot;</span>, exceptionTypeString, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a84161e708b2a3e98fb361fa61b458755">exceptionType</a>);</div>
+<div class="line">        <span class="keywordflow">if</span> (info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a84161e708b2a3e98fb361fa61b458755">exceptionType</a> == <a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460ac0086e1b87acfa1b2009247bc8fda2cb">nn::os::UserExceptionType_InvalidDataAccess</a>)</div>
+<div class="line">        {</div>
+<div class="line">            Bit32 esrIssDfsc = GetBits(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.esr, 0, 6);</div>
+<div class="line">            <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(esrIssDfsc);</div>
+<div class="line"></div>
+<div class="line">            <span class="keyword">const</span> <span class="keywordtype">char</span>* p;</div>
+<div class="line">            <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(p);</div>
+<div class="line">            <span class="keywordflow">switch</span> (esrIssDfsc)</div>
+<div class="line">            {</div>
+<div class="line">            <span class="keywordflow">case</span> 0x00 ... 0x07:</div>
+<div class="line">                    p = <span class="stringliteral">&quot;Accessed to unmapped memory space.&quot;</span>;</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">case</span> 0x0d ... 0x0f:</div>
+<div class="line">                    p = <span class="stringliteral">&quot;Memory permission violation&quot;</span>;</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">case</span> 0x21:</div>
+<div class="line">                    p = <span class="stringliteral">&quot;Misaligned memory access&quot;</span>;</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">            <span class="keywordflow">default</span>:</div>
+<div class="line">                    p = <span class="stringliteral">&quot;Unexpected internal error&quot;</span>;</div>
+<div class="line">                    <span class="keywordflow">break</span>;</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  %s (DFSC=0x%02X)\n&quot;</span>, p, esrIssDfsc);</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  Accessed to: 0x%P\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.far);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;==============================================================================\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(exceptionTypeString);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  スレッド/ファイバー及びスタック情報の表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintThreadInformation(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info, uintptr_t* outStackTop, uintptr_t* outStackBottom) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    uintptr_t stackTop;</div>
+<div class="line">    uintptr_t stackBottom;</div>
+<div class="line">    <a name="_a17"></a><a class="code" href="structnn_1_1os_1_1_fiber_type.html">nn::os::FiberType</a>* fiber = <a name="a18"></a><a class="code" href="namespacenn_1_1os.html#a5bacafa4afccd548bb410d0f2fb3762e">nn::os::GetCurrentFiber</a>();</div>
+<div class="line">    <span class="keywordflow">if</span> (fiber == NULL)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// スレッド実行中だった場合</span></div>
+<div class="line">        <a name="_a19"></a><a class="code" href="structnn_1_1os_1_1_thread_type.html">nn::os::ThreadType</a>* thread = <a name="a20"></a><a class="code" href="namespacenn_1_1os.html#ad106866a5b13bc3d430104333966b479">nn::os::GetCurrentThread</a>();</div>
+<div class="line">        <span class="keyword">const</span> <span class="keywordtype">char</span>* threadName     = <a name="a21"></a><a class="code" href="namespacenn_1_1os.html#a2941b0122ed1f1af2d7007af285d83b5">nn::os::GetThreadNamePointer</a>(thread);</div>
+<div class="line">        stackTop    = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(thread-&gt;<a name="a22"></a>_stack);</div>
+<div class="line">        stackBottom = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(thread-&gt;_stack) + thread-&gt;<a name="a23"></a>_stackSize;</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Thread         : 0x%P (%s)\n&quot;</span>, thread, threadName ? threadName : <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(threadName);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// ファイバー実行中だった場合</span></div>
+<div class="line">        stackTop    = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(fiber-&gt;<a name="a24"></a>_stack);</div>
+<div class="line">        stackBottom = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t<span class="keyword">&gt;</span>(fiber-&gt;_stack) + fiber-&gt;<a name="a25"></a>_stackSize;</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Fiber          : 0x%P\n&quot;</span>, fiber);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// スタックオーバーフローの可能性が高い場合の処理</span></div>
+<div class="line">    <span class="keywordflow">if</span> (info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a84161e708b2a3e98fb361fa61b458755">exceptionType</a> == <a class="code" href="namespacenn_1_1os.html#a02aa5878802b6b43d6f12dacb05a5460ac0086e1b87acfa1b2009247bc8fda2cb">nn::os::UserExceptionType_InvalidDataAccess</a>)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">auto</span> accessedAddress = info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.far;</div>
+<div class="line">        <span class="keywordflow">if</span> ((accessedAddress &gt;= stackTop - StackGuardHintSize) &amp;&amp;</div>
+<div class="line">            (accessedAddress &lt; stackTop))</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  Accessed to  : 0x%P (Detect stack overflow on guard pages)\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.far);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((accessedAddress &gt;= stackTop - 1 * 1024 * 1024 <span class="comment">/* 1MB */</span>) &amp;&amp;</div>
+<div class="line">                 (accessedAddress &lt; stackTop))</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  Accessed to  : 0x%P (Perhaps stack overflow ?)\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.far);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  Stack Top    : 0x%P\n&quot;</span>, stackTop);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  Stack Bottom : 0x%P (size=0x%zx)\n&quot;</span>, stackBottom, stackBottom - stackTop);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    *outStackTop    = stackTop;</div>
+<div class="line">    *outStackBottom = stackBottom;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  汎用レジスタ等の表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintGeneralPurposeRegisters(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line"><span class="preprocessor">#if defined(NNS_OS_BUILD_NX32)</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;16; i++)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;r%-2d%s = 0x%08X (%11d)\n&quot;</span>, i, registerName[i], info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.r[i], info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.r[i]);</div>
+<div class="line">        <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(registerName);</div>
+<div class="line">    }</div>
+<div class="line"><span class="preprocessor">#elif defined(NNS_OS_BUILD_NX64)</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;30; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;r%-2d     = 0x%016llX (%21lld)\n&quot;</span>, i, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.r[i], info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.r[i]);</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;r30(lr) = 0x%016llX (%21lld)\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.lr, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.lr);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;sp      = 0x%016llX (%21lld)\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.sp, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.sp);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;pc      = 0x%016llX (%21lld)\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.pc, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.pc);</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  特別なレジスタの表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintSpecialRegisters(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    Bit32 psr = info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.pstate;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span>* psrName = <span class="stringliteral">&quot;pstate&quot;</span>;</div>
+<div class="line">    Bit32 psrN  = GetBits(psr, 31, 1);</div>
+<div class="line">    Bit32 psrZ  = GetBits(psr, 30, 1);</div>
+<div class="line">    Bit32 psrC  = GetBits(psr, 29, 1);</div>
+<div class="line">    Bit32 psrV  = GetBits(psr, 28, 1);</div>
+<div class="line">    Bit32 psrQ  = GetBits(psr, 27, 1);</div>
+<div class="line">    Bit32 psrJ  = GetBits(psr, 24, 1);</div>
+<div class="line">    Bit32 psrE  = GetBits(psr,  9, 1);</div>
+<div class="line">    Bit32 psrT  = GetBits(psr,  5, 1);</div>
+<div class="line">    Bit32 psrIT = GetBits(psr, 25, 2) | (GetBits(psr, 10, 6) &lt;&lt; 2);</div>
+<div class="line">    Bit32 psrGE = GetBits(psr, 16, 4);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%-7s = 0x%08X (N=%d Z=%d C=%d V=%d Q=%d J=%d E=%d T=%d IT=0x%02X GE=0x%X)\n&quot;</span>,</div>
+<div class="line">            psrName, psr, psrN, psrZ, psrC, psrV, psrQ, psrJ, psrE, psrT, psrIT, psrGE);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrN);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrZ);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrC);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrV);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrQ);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrJ);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrE);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrT);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrIT);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrGE);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(psrName);</div>
+<div class="line"></div>
+<div class="line">    Bit32 esrEC  = GetBits(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.esr, 26, 6);</div>
+<div class="line">    Bit32 esrIL  = GetBits(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.esr, 25, 1);</div>
+<div class="line">    Bit32 esrISS = GetBits(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.esr, 0, 25);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;afsr0   = 0x%08X\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.afsr0);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;afsr1   = 0x%08X\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.afsr1);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;esr     = 0x%08X (EC=0x%02X IL=%d ISS=0x%06X)\n&quot;</span>, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.esr, esrEC, esrIL, esrISS);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;far     = 0x%P\n&quot;</span>,   info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.far);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(esrEC);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(esrIL);</div>
+<div class="line">    <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(esrISS);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  浮動小数点レジスタの表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintFloatingPointRegisters(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line"><span class="preprocessor">#if defined(NNS_OS_BUILD_NX32)</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;NN_BUILD_CONFIG_FPU_NUM_DOUBLE_REGISTERS; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;D%-2d = 0x%016llX (%E)\n&quot;</span>, i, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.D[i], info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.D[i]);</div>
+<div class="line">    }</div>
+<div class="line"><span class="preprocessor">#elif defined(NNS_OS_BUILD_NX64)</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;32; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;V%-2d = 0x%016llX%016llX (%LE)\n&quot;</span>, i, static_cast&lt;nn::Bit64&gt;(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.V[i] &gt;&gt; 64), static_cast&lt;nn::Bit64&gt;(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.V[i]), info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.V[i]);</div>
+<div class="line">    }</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  モジュール一覧の表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintModuleList() <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> bufferSize = <a name="a26"></a><a class="code" href="namespacenn_1_1diag.html#a302e8399cc94c1cf8e19532d9b4c19d6">nn::diag::GetRequiredBufferSizeForGetAllModuleInfo</a>();</div>
+<div class="line">    <span class="keyword">auto</span> buffer = <span class="keyword">reinterpret_cast&lt;</span>nn::Bit8*<span class="keyword">&gt;</span>(std::malloc(bufferSize));</div>
+<div class="line">    <a name="a27"></a><a class="code" href="util___scope_exit_8h.html#a674e2d673758265abe6e8e17426489ea">NN_UTIL_SCOPE_EXIT</a> { std::free(buffer); };</div>
+<div class="line"></div>
+<div class="line">    <a name="_a28"></a><a class="code" href="structnn_1_1diag_1_1_module_info.html">nn::diag::ModuleInfo</a>* modules;</div>
+<div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> moduleCount = <a name="a29"></a><a class="code" href="namespacenn_1_1diag.html#a1796e18112f2799bf9890697c4e17250">nn::diag::GetAllModuleInfo</a>(&amp;modules, buffer, bufferSize);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Modules:\n&quot;</span>);</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  %-*s   %-*s   path\n&quot;</span>, <span class="keyword">sizeof</span>(uintptr_t) * 2, <span class="stringliteral">&quot;base&quot;</span>, <span class="keyword">sizeof</span>(uintptr_t) * 2, <span class="stringliteral">&quot;size&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keyword">auto</span> i = 0; i &lt; moduleCount; i++)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span>&amp; module = modules[i];</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  0x%P 0x%P %s\n&quot;</span>, module.baseAddress, module.size, module.path);</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  スタックトレースの表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line">T GetAddressValue(uintptr_t address)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span> (!address)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> 0;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">if</span> (address &amp; (<span class="keyword">sizeof</span>(T) - 1))</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">return</span> 0;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">return</span> *<span class="keyword">reinterpret_cast&lt;</span>T*<span class="keyword">&gt;</span>(address);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> PrintAddressAndSymbol(uintptr_t address)</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">char</span> symbolName[64];</div>
+<div class="line">    <span class="keyword">const</span> <span class="keyword">auto</span> ret = address ? <a name="a30"></a><a class="code" href="namespacenn_1_1diag.html#a31d8138e18547e55274febb0b7447b57">nn::diag::GetSymbolName</a>(symbolName, <span class="keyword">sizeof</span>(symbolName), address) : 0;</div>
+<div class="line">    <span class="keywordflow">if</span> (ret == 0)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  0x%P (unknown)\n&quot;</span>, address);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span> symbolSize = <a name="a31"></a><a class="code" href="namespacenn_1_1diag.html#a22fa19a391395e74d43f6674317e6f85">nn::diag::GetSymbolSize</a>(ret);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">// noreturn 関数の場合は、関数末尾の bl 命令の直後に、次の関数の先頭が来るため、</span></div>
+<div class="line">        <span class="comment">// 次の関数の先頭アドレスまでは関数内とみなす。</span></div>
+<div class="line">        <span class="keyword">const</span> <span class="keyword">auto</span> isOutOfFunction = address &gt; ret + symbolSize;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  0x%P %s + 0x%P%s\n&quot;</span>, address, symbolName, address - ret, isOutOfFunction ? <span class="stringliteral">&quot; (too far)&quot;</span> : <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> PrintStackTrace(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> addressCountMax = 32;</div>
+<div class="line">    <span class="keyword">auto</span> addresses = <span class="keyword">reinterpret_cast&lt;</span>uintptr_t*<span class="keyword">&gt;</span>(std::malloc(<span class="keyword">sizeof</span>(uintptr_t) * addressCountMax));</div>
+<div class="line">    <a class="code" href="util___scope_exit_8h.html#a674e2d673758265abe6e8e17426489ea">NN_UTIL_SCOPE_EXIT</a> { std::free(addresses); };</div>
+<div class="line"></div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> addressCount = <a name="a32"></a><a class="code" href="namespacenn_1_1diag.html#a20e6a6c4855e4c13bdad1691b4be8139">nn::diag::GetBacktrace</a>(addresses, addressCountMax, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.fp, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.sp, info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.pc);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Stack trace:\n&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; addressCount; i++)</div>
+<div class="line">    {</div>
+<div class="line">        PrintAddressAndSymbol(addresses[i]);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">if</span> (addressCount &gt;= addressCountMax)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;  : Maybe more than addresses are containing...\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  スタックダンプの表示</span></div>
+<div class="line"><span class="comment">//</span></div>
+<div class="line"><span class="keywordtype">void</span> PrintStackDump(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info, uintptr_t stackTop, uintptr_t stackBottom) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    uintptr_t dumpTop    = std::max(static_cast&lt;uintptr_t&gt;(<a name="a33"></a><a class="code" href="namespacenn_1_1util.html#a8a8aac07f25fdd659091e1065b8c89a5">nn::util::align_down</a>(info-&gt;<a class="code" href="structnn_1_1os_1_1_user_exception_info.html#a62cc4b15ade4c485f5967fd2da557e52">detail</a>.sp, 16)), stackTop);</div>
+<div class="line">    uintptr_t dumpBottom = std::min(dumpTop + 16 * 16, stackBottom);</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;Stack dump:\n&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">for</span> (uintptr_t ptr=dumpTop; ptr &lt; dumpBottom; ++ptr)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">if</span> (ptr % 16 == 0)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;0x%P: &quot;</span>, ptr);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (ptr &lt; info-&gt;detail.sp)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;   &quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span></div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%02X &quot;</span>, *reinterpret_cast&lt;uint8_t*&gt;(ptr));</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (ptr % 4 == 3)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot; &quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">if</span> (ptr % 16 == 15)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=-15; i&lt;=0; i++)</div>
+<div class="line">            {</div>
+<div class="line">                uint8_t c = *<span class="keyword">reinterpret_cast&lt;</span>uint8_t*<span class="keyword">&gt;</span>(ptr + i);</div>
+<div class="line">                <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;%c&quot;</span>, (c &gt;= 0x20 &amp;&amp; c &lt;= 0x7e)? c : <span class="charliteral">&#39;.&#39;</span>);</div>
+<div class="line">                <a class="code" href="nn___macro_8h.html#af2d1673769927c5eae977d8dde3ce106">NN_UNUSED</a>(c);</div>
+<div class="line">            }</div>
+<div class="line">            <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  ユーザー例外ハンドラの実装サンプル</span></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> UserExceptionHandlerSample(<a class="code" href="structnn_1_1os_1_1_user_exception_info.html">nn::os::UserExceptionInfo</a>* info) <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line">    uintptr_t stackTop;</div>
+<div class="line">    uintptr_t stackBottom;</div>
+<div class="line"></div>
+<div class="line">    PrintExceptionType(info);</div>
+<div class="line">    PrintThreadInformation(info, &amp;stackTop, &amp;stackBottom);</div>
+<div class="line">    PrintGeneralPurposeRegisters(info);</div>
+<div class="line">    PrintSpecialRegisters(info);</div>
+<div class="line">    PrintFloatingPointRegisters(info);</div>
+<div class="line">    PrintStackDump(info, stackTop, stackBottom);</div>
+<div class="line">    PrintStackTrace(info);</div>
+<div class="line">    PrintModuleList();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line">}   <span class="comment">// namespace anonymous</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#endif // defined(NNS_OS_BUILD_NX32) || definde(NNS_OS_BUILD_NX64)</span></div>
+<div class="line"></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"><span class="comment">//  ユーザー例外ハンドラを登録する</span></div>
+<div class="line"><span class="comment">//-----------------------------------------------------------------------------</span></div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> SetOriginalUserExceptionHandler() <a class="code" href="nn___macro_8h.html#a0e31cc4dc24d85253a31e48b1a85ab33">NN_NOEXCEPT</a></div>
+<div class="line">{</div>
+<div class="line"><span class="preprocessor">#if defined(NNS_OS_BUILD_NX32) || defined(NNS_OS_BUILD_NX64)</span></div>
+<div class="line">    <a name="a34"></a><a class="code" href="namespacenn_1_1os.html#a80a1e659aaba155ff9552f48604aec54">nn::os::SetUserExceptionHandler</a>( UserExceptionHandlerSample, UserExceptionHandlerStack, <span class="keyword">sizeof</span>(UserExceptionHandlerStack), <a name="a35"></a><a class="code" href="namespacenn_1_1os.html#a74b6dc109705a61e232eb0087fbb8720">nn::os::UserExceptionInfoUsesHandlerStack</a> );</div>
+<div class="line"><span class="preprocessor">#else</span></div>
+<div class="line">    <a class="code" href="nn___log_8h.html#aa8c0b58247a2078e37f2fe0974b98a61">NN_LOG</a>(<span class="stringliteral">&quot;User exception handler is not supported on windows.\n&quot;</span>);</div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line">}</div>
+<div class="line"></div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

@@ -1,0 +1,377 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>性能選択</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 性能選択 -->
+<div class="pagetitle" id="PageId_107339250">性能選択</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_107339250_h1_1">性能選択機能</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_107339250_h2_1">機能概要</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_107339250_h3_1">性能</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_2">性能モード</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_3">性能とクロックレート</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_4">性能モードと性能</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_5">性能モードの固定</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_6">性能選択のタイミング</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_107339250_h2_2">性能選択機能の使用方法</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339250_h2_3">性能選択機能の具体的な使用例</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339250_h2_4">性能選択機能の型のリファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339250_h2_5">性能選択機能の関数リファレンス</a>
+      </li>
+      <li>
+        <a href="#Anchor_107339250_h2_6">スロットリング</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_107339250_h3_7">スロットリング発動中のクロックレート</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_8">スロットリング発動時の処理</a>
+        </li>
+        <li>
+          <a href="#Anchor_107339250_h3_9">開発機におけるスロットリング</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_107339250_h1_1">性能選択機能</h1>
+<h2 id="Anchor_107339250_h2_1">機能概要</h2>
+<p>プラットフォームの動作にかかわる処理速度などの要素の組み合わせを以降「性能」と呼びます。</p>
+<p>OE ライブラリはアプリケーションに性能を選択するためのインタフェースを提供します。</p>
+<p>アプリケーション開発者は複数の性能の中からアプリケーションが使用する性能を選択することができます。<br />また、プラットフォームの内部状態に応じて性能が自動的に切り替わるように設定することができます。</p>
+<h3 id="Anchor_107339250_h3_1">性能</h3>
+<p>NX では CPU/GPU/メモリのクロックレートのセットを性能とします。</p>
+<p>アプリケーション開発者は <span class="ApiLink_nn__oe__PerformanceConfiguration">nn::oe::PerformanceConfiguration</span> 型の値を使用して性能を選択できます。</p>
+<h3 id="Anchor_107339250_h3_2">性能モード</h3>
+<p>性能モードは <span class="ApiLink_nn__oe__PerformanceMode">nn::oe::PerformanceMode</span> 型の値で表されるプラットフォームの内部状態で NX では機器の接続状態や電池残量に応じて自動的に遷移します。</p>
+<p>アプリケーション開発者は性能モード毎に対応する性能を設定できます。&nbsp;&nbsp;</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>アプリケーション開発者が現在の性能モードを変更することはできません。</p>
+  </div>
+</div>
+<p>NX では性能モードは&nbsp;ノーマルモードとブーストモードの二種類が存在し、ブーストモードではより高い性能が使用できます。<br />ドックに接続されており、十分な電池残量がある場合のみブーストモードに遷移します。</p>
+<p>基本的には NX を携帯機として使用する場合はノーマルモードになり、据置機として使用する場合はブーストモードになります。<br />ただし、ブーストモードに遷移する為には電池残量の条件も満たす必要がありますので、据置機として使用する場合も電池が極めて少ない場合はノーマルモードになります。</p>
+<p>
+  <a href="../Pages/Page_158270821.html">動作モード</a>&nbsp;の「動作モードと性能モードの関係」も参照してください。</p>
+<h3 id="Anchor_107339250_h3_3">性能とクロックレート</h3>
+<p>NX における性能と具体的なクロックレートの関係は以下の表のとおりです。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <tbody>
+    <tr>
+      <th>性能 (<span class="ApiLink_nn__oe__PerformanceConfiguration">nn::oe::PerformanceConfiguration</span>)</th>
+      <th>CPU</th>
+      <th>GPU</th>
+      <th>EMC(メモリ)</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td>PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1331Mhz</td>
+      <td>1020.0 MHz</td>
+      <td>307.2 MHz</td>
+      <td>1331.2 MHz</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>PerformanceConfiguration_Cpu1020MhzGpu768MhzEmc1600Mhz</td>
+      <td>1020.0 MHz</td>
+      <td>768.0 MHz</td>
+      <td>1600.0 MHz</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>PerformanceConfiguration_Cpu1020MhzGpu384MhzEmc1331Mhz</td>
+      <td>1020.0 MHz</td>
+      <td>384.0 MHz</td>
+      <td>1331.2 MHz</td>
+      <td>
+        <span style="color: rgb(51,51,51);">NX Addon 0.12.11 から使用可能になりました。</span>
+      </td>
+    </tr>
+    <tr>
+      <td class="highlight-red">PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1600Mhz</td>
+      <td class="highlight-red">1020.0 MHz</td>
+      <td class="highlight-red">307.2 MHz</td>
+      <td class="highlight-red">1600.0 MHz</td>
+      <td class="highlight-red">
+        <p>NX Addon 0.12.17 および NX Addon 1.2.0 で廃止しました。</p>
+      </td>
+    </tr>
+    <tr>
+      <td class="highlight-red">PerformanceConfiguration_Cpu1020MhzGpu384MhzEmc1600Mhz</td>
+      <td class="highlight-red">1020.0 MHz</td>
+      <td class="highlight-red">384.0 MHz</td>
+      <td class="highlight-red">1600.0 MHz</td>
+      <td class="highlight-red">NX Addon 0.12.17 および NX Addon 1.2.0 で廃止しました。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339250_h3_4">性能モードと性能</h3>
+<p>NX における性能モードと性能の関係は以下の表のとおりです。<br />性能名は <span class="ApiLink_nn__oe__PerformanceConfiguration">nn::oe::PerformanceConfiguration</span> 型で表します。</p>
+<p>表中のスロットリングについては後述します。&nbsp;</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>性能モード (<span class="ApiLink_nn__oe__PerformanceMode">nn::oe::PerformanceMode</span>)</th>
+      <th>設定可能な性能</th>
+      <th>デフォルトの性能</th>
+    </tr>
+    <tr>
+      <td>ノーマルモード (PerformanceMode_Normal)</td>
+      <td>PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1331Mhz<br />PerformanceConfiguration_Cpu1020MhzGpu384MhzEmc1331Mhz<br />PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1600Mhz（廃止）<br />PerformanceConfiguration_Cpu1020MhzGpu384MhzEmc1600Mhz（廃止）<br /></td>
+      <td>PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1331Mhz</td>
+    </tr>
+    <tr>
+      <td>ブーストモード (PerformanceMode_Boost)</td>
+      <td>
+        <p>PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1331Mhz<br />PerformanceConfiguration_Cpu1020MhzGpu768MhzEmc1600Mhz（スロットリング有効）</p>
+        <p>PerformanceConfiguration_Cpu1020MhzGpu384MhzEmc1331Mhz<br />PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1600Mhz（廃止）</p>
+        <p>PerformanceConfiguration_Cpu1020MhzGpu384MhzEmc1600Mhz（廃止）<br /></p>
+      </td>
+      <td>PerformanceConfiguration_Cpu1020MhzGpu768MhzEmc1600Mhz</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339250_h3_5">性能モードの固定</h3>
+<p>ドック等の接続状態に関わらず性能モードを固定できる、開発環境専用の設定を提供しています。</p>
+<p>設定の種類や変更方法については<a href="../Pages/Page_107328760.html"> 開発機の制御／DevMenuCommand</a> の「性能モードの制御」の節を参照してください。</p>
+<p>NX Addon 3.2.0 以降では&nbsp;<a href="../Pages/Page_107328771.html">開発機の制御／DevMenu</a>&nbsp;の開発支援機能（Debug）に性能モードの制御ポリシーの設定機能（Performance Mode Policy）が追加されました。</p>
+<h3 id="Anchor_107339250_h3_6">性能選択のタイミング</h3>
+<p>任意のタイミングで任意の性能モードに性能を設定することができます。&nbsp;</p>
+<p>設定した性能はアプリケーション終了時に破棄され、各性能モードに対応する性能はデフォルトに戻ります。</p>
+<h2 id="Anchor_107339250_h2_2">性能選択機能の使用方法</h2>
+<p>以下の手順で使用してください。</p>
+<ol>
+  <li>
+    <p>OE ライブラリヘッダを include してください。<br /></p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="cp">#include &lt;nn/oe.h&gt;
+#include &lt;nn/oe_BatteryDrainingPerformance.h&gt; </span><span class="c1">// 開発時のみ使用可能な性能を使用する場合
+</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>OE ライブラリの性能選択機能の関数に、望む性能の値を渡してください。&nbsp;</p>
+    <table class="codeblock">
+      <tbody>
+        <tr>
+          <td class="code">
+            <div class="codeblock"><pre><span class="nn">nn::oe::</span><span class="n">SetPerformanceConfiguration</span><span class="p">(</span><span class="nn">nn::oe::</span><span class="n">PerformanceMode_Normal</span><span class="p">,</span> <span class="nn">nn::oe::</span><span class="n">PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1331Mhz</span><span class="p">);</span></pre></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+<h2 id="Anchor_107339250_h2_3">性能選択機能の具体的な使用例</h2>
+<p>具体的な使用例は、<a href="../../../Api/HtmlNX/_page_sample_oe.html">&nbsp;OE ライブラリのサンプルプログラム</a>&nbsp;の性能選択サンプルプログラムを参照して下さい。<br />なお、Windows 用には性能選択サンプルプログラムは提供されておりません。&nbsp;</p>
+<h2 id="Anchor_107339250_h2_4">性能選択機能の型のリファレンス</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__PerformanceMode">nn::oe::PerformanceMode</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__oe__PerformanceConfiguration">nn::oe::PerformanceConfiguration</span>
+  </li>
+</ul>
+<h2 id="Anchor_107339250_h2_5">性能選択機能の関数リファレンス</h2>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__GetPerformanceMode">nn::oe::GetPerformanceMode</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__oe__SetPerformanceConfiguration">nn::oe::SetPerformanceConfiguration</span>
+  </li>
+  <li>
+    <span class="ApiLink_nn__oe__GetPerformanceConfiguration">nn::oe::GetPerformanceConfiguration</span>&nbsp;</li>
+</ul>
+<h2 id="Anchor_107339250_h2_6">スロットリング</h2>
+<p>ブーストモードで消費電力の高い性能を使用している場合、本体をドックから抜去するなどして外部からの電力供給が止まると瞬間的に電力が不足します。<br />このような場合、NX は安定動作の為にハードウェアの機能を用いて一時的に CPU, GPU のクロックレートを大きく引き下げます。</p>
+<p>これをスロットリングといいます。</p>
+<p>スロットリング発動後 NX は自動的にノーマルモードに遷移して性能を変更し、スロットリングを解除します。<br />スロットリングが発動する性能は「性能モードと性能」の表をご確認ください。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>アプリケーションの動作確認の際にはドックからの抜去でスロットリングが発動することについてご留意願います。</p>
+  </div>
+</div>
+<h3 id="Anchor_107339250_h3_7">スロットリング発動中のクロックレート</h3>
+<p>CPU, GPU のクロックレートが以下の倍率で低下します。</p>
+<table style="margin-left: 1.5em;" class="table">
+  <thead>
+    <tr>
+      <th>
+        <div class="tablesorter-header-inner">CPU クロックレート</div>
+      </th>
+      <th>
+        <div class="tablesorter-header-inner">GPU クロックレート</div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1/4</td>
+      <td>1/4</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_107339250_h3_8">スロットリング発動時の処理</h3>
+<p>
+  <span style="color: rgb(51,51,51);">ブーストモードで&nbsp;PerformanceConfiguration_Cpu1020MhzGpu768MhzEmc1600Mhz、ノーマルモードで PerformanceConfiguration_Cpu1020MhzGpu307MhzEmc1331Mhz&nbsp;を使用している場合のスロットリング発動前後の処理と実クロックレートの関係を下表に表します。</span>
+</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>処理</th>
+      <th>CPU 実クロックレート</th>
+      <th>GPU 実クロックレート</th>
+    </tr>
+    <tr>
+      <td>外部からの電力供給が断たれる</td>
+      <td>1020.0 MHz</td>
+      <td>768.0 MHz</td>
+    </tr>
+    <tr>
+      <td>スロットリング発動</td>
+      <td>255.0 MHz</td>
+      <td>192.0 MHz</td>
+    </tr>
+    <tr>
+      <td>ノーマルモードへの遷移</td>
+      <td>255.0 MHz</td>
+      <td>76.8 MHz</td>
+    </tr>
+    <tr>
+      <td>スロットリング解除</td>
+      <td>1020.0 MHz</td>
+      <td>307.2 MHz</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <span style="color: rgb(51,51,51);">これらの処理の総時間は通常数 ms で完了します。</span>
+  <br />
+  <span style="color: rgb(51,51,51);">処理時間はシステムの負荷に依存して変動します。</span>
+</p>
+<h3 id="Anchor_107339250_h3_9">開発機におけるスロットリング</h3>
+<p>SDEV では NintendoSDK NX Addon 0.10.0 までスロットリングが発動しない設定でしたが、NintendoSDK NX Addon 0.11.x から SDEV でもスロットリングが発動する仕様になりました。</p>
+<p>SDEV でのスロットリングは一度ソフトウェアの処理を介する為、発動タイミングと持続時間が EDEV、製品と異なります。</p>
+<p>製品のスロットリング持続時間以上の環境で開発を行っていただくため、SDEV では少し長めにスロットリング状態が続くように調整しています。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe__PerformanceConfiguration', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a096139fd9b2ff830679916e5dc7af4ad' )
+SetUrl( 'ApiLink_nn__oe__PerformanceMode', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a62764c814fcc2dc88ea4b89e096e7f84' )
+SetUrl( 'ApiLink_nn__oe__GetPerformanceMode', '../../../Api/HtmlNX/namespacenn_1_1oe.html#aa709a0d485f39a8867b8725c257f140d' )
+SetUrl( 'ApiLink_nn__oe__SetPerformanceConfiguration', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a96857d895190ae992969542cb28b0399' )
+SetUrl( 'ApiLink_nn__oe__GetPerformanceConfiguration', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a688e365f58e35411a1d837d79980d2da' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>ビルド済プログラムをデバッグする</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- ビルド済プログラムをデバッグする -->
+<div class="pagetitle" id="PageId_126569850">ビルド済プログラムをデバッグする</div>
+<div class="text_separate">
+<p>はじめに</p>
+<p>
+  <a href="../Pages/Page_107779263.html">NX アプリケーションのプロジェクトを作成する</a>&nbsp;に記した手順では、プログラムを Visual Studio でデバッグする直前に必ずビルドも行います。これは、最もオーソドックスなデバッガの使い方です。一方で、既にビルドを行ったアプリケーションをデバッグしたいケースもあります。例えば、CI マシンでビルドしたアプリケーションをデバッグする場合や、プログラマがビルドしたプログラムをテスターの手元でデバッグする場合です。</p>
+<p>このページでは、既にビルド済のプログラムを NX VSI でデバッグする手順について説明します。</p>
+<h1 id="Anchor_126569850_h1_1">手順</h1>
+<h2 id="Anchor_126569850_h2_1">準備（ビルド）</h2>
+<p>ビルド済プログラムをデバッグする機能を利用するには、あらかじめプログラムを Raw 形式、nsp 形式のいずれかでビルドする必要があります。</p>
+<p>プログラムをこれらの形式でビルドするには、「プロジェクトの構成プロパティ &gt; 全般 &gt; アプリケーションプログラムフォーマット」から設定します。</p>
+<p>
+  <span class="embedded-file-wrapper ">
+    <img src="../Attachments/Attach_126569850/125193156.png" width="300" class="embedded-image" />
+  </span>
+</p>
+<p>また、ビルド時に nspd ディレクトリまたは nsp ファイルと同じディレクトリに生成される nss ファイルを保存してください。nss ファイルにはデバッグ情報が格納されています。プログラムの実行に必要なデータはすべて nspd ディレクトリや nsp ファイルに含まれているので、これらのみでも実行は可能ですが、デバッグには nss ファイルが必要です。</p>
+<h2 id="Anchor_126569850_h2_2">デバッグ</h2>
+<h3 id="Anchor_126569850_h3_1">アプリの実行と同時にデバッグを開始する</h3>
+<p>NX VSI に nspd_root ファイルまたは nsp ファイルをドラッグ＆ドロップすると、開発機上でプログラムを実行できます。</p>
+<ol>
+  <li>nspd_root ファイルもしくは nsp ファイルと同じディレクトリに、対応する nss ファイルが置かれていることを確認します。</li>
+  <li>NX VSI をインストールした後、Visual Studio に nspd_root ファイルもしくは&nbsp;nsp ファイルをドラッグ＆ドロップします。<ul><li>または、VS 実行時の引数にこれらのパスを指定します。<br />例: &quot;D:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\devenv.exe&quot; D:\HelloWorld.nsp</li></ul></li>
+  <li>nspd_root ファイルもしくは&nbsp;nsp ファイルの置かれているディレクトリにファイル名の vcxproj ファイルが作成され、以下のような画面が表示されます。<ul><li><span class="embedded-file-wrapper "><img src="../Attachments/Attach_126569850/161442020.png" width="500" class="embedded-image" /></span></li></ul></li>
+  <li>コマンドライン引数を指定する場合は、「プロジェクトの構成プロパティ &gt; デバッグ &gt; リモートコマンド引数」の欄に記入します。<br /><ul><li>ここで渡したコマンドライン引数の情報は &lt;nn/os/os_Argument.h&gt; で定義されている <span class="ApiLink_nn__os__GetHostArgc">nn::os::GetHostArgc</span>() / <span class="ApiLink_nn__os__GetHostArgv">nn::os::GetHostArgv</span>() で取得できます。</li></ul></li>
+  <li>デバッグ開始ボタン（または F5 キー）を押すとデバッグ実行を開始します。<ul><li>うまく実行できない場合は以下を確認してみてください。<br /><ul><li>実行するファイルのプロジェクトがスタートアップ プロジェクトに設定されているか。</li><li>アクティブ ソリューション構成には NXDebugOnly という構成が指定されているか。</li><li>アクティブ ソリューションプラットフォームには、実行するファイルをビルドした際のプラットフォームが指定されているか。</li></ul></li></ul></li>
+  <li>Visual Studio のツールバーにある一時停止ボタンを押すと、プログラムが停止します。ここで、変数のウォッチなどのデバッガ機能を利用することができます。</li>
+</ol>
+<p>
+  <a name="Anchor_126569850_AttachAfterLaunch"></a>
+</p>
+<h3 id="Anchor_126569850_h3_2">既に起動しているアプリをデバッグする</h3>
+<p>RunOnTarget や Target Manager からアプリをすでに起動している場合でも、あとから VSI でデバッグを開始することが可能です。</p>
+<ol>
+  <li>プラットフォームが NX32 または NX64 であるプロジェクトを用意します。<ul><li>一般的には、該当アプリの開発に使用しているプロジェクトで問題ありません。</li></ul></li>
+  <li>「デバッグ &gt; プロセスにアタッチ」メニューを選択し、トランスポートに NX Devices を、修飾子に対象の開発機のシリアルナンバーを指定します。<br /><span class="embedded-file-wrapper "><img src="../Attachments/Attach_126569850/178640334.png" height="250" class="embedded-image" /></span></li>
+  <li>アタッチ対象が見つからない場合は更新ボタンを押して最新の状態を取得します。</li>
+  <li>プロセスを選択し、アタッチボタンを押します。</li>
+</ol>
+<h3 id="Anchor_126569850_h3_3">nss の検索パス</h3>
+<p>ビルド済みのアプリをデバッグする際には、対象の実行バイナリに対応する nss ファイル（デバッグ情報を含んだファイル）が必要となります。<br />上記どちらの手順でデバッグを開始した場合であっても、VSI は、以下の検索パスに従って nss ファイルを検索して読み込みます。</p>
+<ul>
+  <li>ビルド時に生成した nss ファイルのパス</li>
+  <li>nspd_root, nsp ファイルと同じディレクトリ</li>
+  <li>nspd_root, nsp のプロジェクトの「プロジェクトの構成プロパティ &gt; デバッグ &gt;ライブラリディレクトリ」に指定したディレクトリ</li>
+  <li>「ツール &gt; オプション &gt; デバッグ &gt; シンボル」に登録されているディレクトリ</li>
+</ul>
+<p>これらのディレクトリに実行バイナリに対応する nss ファイルが見つからなかった場合、Target Manager 上に以下のログが出力されます。<br />検索は一階層しか行わないため、nss が存在するディレクトリそのものを指定する必要があります。</p>
+<p>Unable to find debug data for （モジュール名）.<br />Find and add the directory containing this file to the Symbol Paths in Visual Studio.</p>
+<p>後からデバッグ情報を読み込む方法については、<a href="../Pages/Page_172911316.html#Anchor_172911316_デバッグ情報の読み込み">ダンプ機能の使用方法</a>&nbsp;を参照してください。</p>
+<p>正しく設定されているにもかかわらず上記ログが出力される場合は、nss ファイルと実行中のバイナリのタイムスタンプを比較するなどして、同一のビルドで生成された nspd_root, nsp と nss であることを確認してください。</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__os__GetHostArgc', '../../../Api/HtmlNX/namespacenn_1_1os.html#acf2fa6b7b7074a51d0b2de1664cc7bb5' )
+SetUrl( 'ApiLink_nn__os__GetHostArgv', '../../../Api/HtmlNX/namespacenn_1_1os.html#abd77e6bf19be140867869cc759fa492c' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

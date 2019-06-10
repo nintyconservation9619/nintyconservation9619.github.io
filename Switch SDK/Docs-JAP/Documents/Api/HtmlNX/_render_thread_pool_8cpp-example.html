@@ -1,0 +1,522 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.10"/>
+<title>NintendoSDK API Reference: RenderThreadPool.cpp</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="openclose.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { init_search(); });
+</script>
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">NintendoSDK API Reference
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 構築: Doxygen 1.8.10 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'検索');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>総合概要</span></a></li>
+      <li><a href="pages.html"><span>諸情報</span></a></li>
+      <li><a href="modules.html"><span>モジュール</span></a></li>
+      <li><a href="namespaces.html"><span>名前空間</span></a></li>
+      <li><a href="annotated.html"><span>クラス</span></a></li>
+      <li><a href="files.html"><span>ファイル</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="検索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">RenderThreadPool.cpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<p>ソースコードの説明は、<a class="el" href="_page_sample_nvn_tutorial_library.html">NVN Tutorial Library</a> および <a class="el" href="_render_thread_pool_8cpp.html" title="This file defines a class that handles running multiple threads in parallel that create command buffe...">RenderThreadPool.cpp</a> を参照してください。</p>
+<div class="fragment"><div class="line"><span class="comment">/*--------------------------------------------------------------------------------*</span></div>
+<div class="line"><span class="comment">  Copyright (C)Nintendo All rights reserved.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  These coded instructions, statements, and computer programs contain proprietary</span></div>
+<div class="line"><span class="comment">  information of Nintendo and/or its licensed developers and are protected by</span></div>
+<div class="line"><span class="comment">  national and international copyright laws. They may not be disclosed to third</span></div>
+<div class="line"><span class="comment">  parties or copied or duplicated in any form, in whole or in part, without the</span></div>
+<div class="line"><span class="comment">  prior written consent of Nintendo.</span></div>
+<div class="line"><span class="comment"></span></div>
+<div class="line"><span class="comment">  The content herein is highly confidential and should be handled accordingly.</span></div>
+<div class="line"><span class="comment"> *--------------------------------------------------------------------------------*/</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="nn___assert_8h.html">nn/nn_Assert.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_render_thread_pool_8h.html">nvntutorial/RenderThreadPool.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_graphics_object_8h.html">nvntutorial/GraphicsObject.h</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="_tutorial_util_8h.html">nvntutorial/TutorialUtil.h</a>&gt;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> g_NumChunks = 2;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> g_CommandMemoryChunkSize = 64 * 1024;</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> g_ControlMemoryChunkSize = 4 * 1024;</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> g_ThreadStackSize = 64 * 1024;</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">size_t</span> g_ThreadStackAlignment = 4096;</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">void</span> RenderThread(<span class="keywordtype">void</span>* pParam);</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool Constructor</span></div>
+<div class="line"><span class="comment"> * ----------------------------</span></div>
+<div class="line"><span class="comment"> * Sets up the mutexes for getting work and writing</span></div>
+<div class="line"><span class="comment"> * output. Sets other members to initial values.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">RenderThreadPool::RenderThreadPool() :</div>
+<div class="line">    m_pWorkQueue(NULL),</div>
+<div class="line">    m_pOutput(NULL),</div>
+<div class="line">    m_pFrameBufferSyncManager(NULL),</div>
+<div class="line">    m_WorkIndex(0),</div>
+<div class="line">    m_pThreadStackMemory(NULL),</div>
+<div class="line">    m_Running(false)</div>
+<div class="line">{</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool Destructor</span></div>
+<div class="line"><span class="comment"> * ---------------------------</span></div>
+<div class="line"><span class="comment"> * Cleans up the mutexes and all data created</span></div>
+<div class="line"><span class="comment"> * for the threads.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">RenderThreadPool::~RenderThreadPool()</div>
+<div class="line">{</div>
+<div class="line">    <a name="a0"></a><a class="code" href="namespacenn_1_1os.html#a8ce43d38754bf3049ab8d60b9d9e0046">nn::os::FinalizeMutex</a>(&amp;m_WorkMutex);</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8ce43d38754bf3049ab8d60b9d9e0046">nn::os::FinalizeMutex</a>(&amp;m_WriteMutex);</div>
+<div class="line"></div>
+<div class="line">    Stop();</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadStateMutex.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#a8ce43d38754bf3049ab8d60b9d9e0046">nn::os::FinalizeMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    Clean();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::Clean</span></div>
+<div class="line"><span class="comment"> * -----------------------</span></div>
+<div class="line"><span class="comment"> * Cleans up the per thread command buffer data</span></div>
+<div class="line"><span class="comment"> * and thread stack memory.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::Clean()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordflow">if</span>(m_CommandBuffers.size() &gt; 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; m_CommandBuffers.size(); ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keyword">delete</span> m_CommandBuffers[i];</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        m_CommandBuffers.clear();</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">if</span>(m_pThreadStackMemory != NULL)</div>
+<div class="line">    {</div>
+<div class="line">        AlignedDeallocate(m_pThreadStackMemory);</div>
+<div class="line">        m_pThreadStackMemory = NULL;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::Init</span></div>
+<div class="line"><span class="comment"> * ----------------------</span></div>
+<div class="line"><span class="comment"> * Sets up the per thread command buffer data and</span></div>
+<div class="line"><span class="comment"> * allocates memory for the per thread stacks.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::Init(<span class="keywordtype">int</span> numThreads, <a name="_a1"></a><a class="code" href="struct_n_v_ndevice.html">NVNdevice</a>* pDevice, <a name="_a2"></a><a class="code" href="struct_n_v_nqueue.html">NVNqueue</a>* pQueue)</div>
+<div class="line">{</div>
+<div class="line">    Clean();</div>
+<div class="line"></div>
+<div class="line">    m_CommandBuffers.reserve(numThreads);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grabs the command and control memory alignment. */</span></div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferCommandAlignment = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> commandBufferControlAlignment = 0;</div>
+<div class="line">    <a name="a3"></a><a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(pDevice, <a name="a4"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50ada72f2b5ef4df11606b61aaa86f6f22c">NVN_DEVICE_INFO_COMMAND_BUFFER_COMMAND_ALIGNMENT</a>, &amp;commandBufferCommandAlignment);</div>
+<div class="line">    <a class="code" href="group__nvn__c__functions.html#ga6f739de39c3818a65b190be3a82cf891">nvnDeviceGetInteger</a>(pDevice, <a name="a5"></a><a class="code" href="group__nvn__c__enum.html#ggac887e20e2474bb76b87943b0f0be7a50a743ea42e337a76b9d8ed34181a0d802e">NVN_DEVICE_INFO_COMMAND_BUFFER_CONTROL_ALIGNMENT</a>, &amp;commandBufferControlAlignment);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Create sync manager to protect command memory */</span></div>
+<div class="line">    m_pFrameBufferSyncManager = <span class="keyword">new</span> FrameBufferedSyncManager(pDevice, pQueue, g_NumChunks);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Creates a command buffer per worker thread. Each</span></div>
+<div class="line"><span class="comment">         * command buffer will be used to generate multiple</span></div>
+<div class="line"><span class="comment">         * sets of commands to draw individual objects from</span></div>
+<div class="line"><span class="comment">         * the work queue.</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i = 0; i &lt; numThreads; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        ManagedCommandBuffer* managedCommandBuffer = <span class="keyword">new</span> ManagedCommandBuffer(pDevice,</div>
+<div class="line">                                                                              g_CommandMemoryChunkSize,</div>
+<div class="line">                                                                              g_ControlMemoryChunkSize,</div>
+<div class="line">                                                                              g_NumChunks);</div>
+<div class="line">        m_CommandBuffers.push_back(managedCommandBuffer);</div>
+<div class="line"></div>
+<div class="line">        m_pFrameBufferSyncManager-&gt;RegisterMemoryManager(managedCommandBuffer);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Allocate memory for the per thread stacks. */</span></div>
+<div class="line">    m_ThreadHandles.resize(numThreads);</div>
+<div class="line">    <span class="keywordflow">if</span>(m_pThreadStackMemory == NULL)</div>
+<div class="line">    {</div>
+<div class="line">        m_pThreadStackMemory = <span class="keyword">reinterpret_cast&lt;</span><span class="keywordtype">char</span>*<span class="keyword">&gt;</span>(AlignedAllocate(g_ThreadStackSize * numThreads, g_ThreadStackAlignment));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">         * Initialize mutexes for grabbing new work items and writing</span></div>
+<div class="line"><span class="comment">         * command handle outputs</span></div>
+<div class="line"><span class="comment">         */</span></div>
+<div class="line">    <a name="a6"></a><a class="code" href="namespacenn_1_1os.html#a8d0a550df15490a884932a062dc26533">nn::os::InitializeMutex</a>(&amp;m_WorkMutex, <span class="keyword">false</span>, 0);</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8d0a550df15490a884932a062dc26533">nn::os::InitializeMutex</a>(&amp;m_WriteMutex, <span class="keyword">false</span>, 0);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Initialize thread data and mutexes for checking thread state */</span></div>
+<div class="line">    m_ThreadData.resize(numThreads);</div>
+<div class="line">    m_ThreadStateMutex.resize(numThreads);</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; numThreads; ++i)</div>
+<div class="line">    {</div>
+<div class="line">        ThreadData&amp; threadData = m_ThreadData[i];</div>
+<div class="line">        threadData.m_pParentPool = <span class="keyword">this</span>;</div>
+<div class="line">        threadData.m_pManagedCommandBuffer = m_CommandBuffers[i];</div>
+<div class="line">        threadData.m_ThreadState = TUTORIAL_THREAD_STATE_NUM_STATES;</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#a8d0a550df15490a884932a062dc26533">nn::os::InitializeMutex</a>(&amp;m_ThreadStateMutex[i], <span class="keyword">false</span>, 0);</div>
+<div class="line">        threadData.m_ThreadStateCheckMutex = &amp;m_ThreadStateMutex[i];</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::Run</span></div>
+<div class="line"><span class="comment"> * ---------------------</span></div>
+<div class="line"><span class="comment"> * Runs the worker threads with the given work to be done</span></div>
+<div class="line"><span class="comment"> * and saves the command handles in the given output buffer.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::Run(std::vector&lt;NVNcommandHandle&gt;* pOutput, std::vector&lt;GraphicsObject*&gt;* pWork)</div>
+<div class="line">{</div>
+<div class="line">    <a name="a7"></a><a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(pWork != NULL || pOutput != NULL, <span class="stringliteral">&quot;Work and/or output not provided to thread pool.&quot;</span>);</div>
+<div class="line"></div>
+<div class="line">    m_WorkIndex = 0;</div>
+<div class="line">    m_pWorkQueue = pWork;</div>
+<div class="line">    m_pOutput = pOutput;</div>
+<div class="line"></div>
+<div class="line">    m_pOutput-&gt;clear();</div>
+<div class="line">    m_pOutput-&gt;resize(m_pWorkQueue-&gt;size());</div>
+<div class="line">    <a name="_a8"></a><a class="code" href="classnn_1_1_result.html">nn::Result</a> result;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set thread data to indicate the threads should run */</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadStateMutex.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a9"></a><a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">        m_ThreadData[i].m_ThreadState = TUTORIAL_THREAD_STATE_RUN;</div>
+<div class="line">        <a name="a10"></a><a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Set threads to actually start if this is the first run */</span></div>
+<div class="line">    <span class="keywordflow">if</span> (m_Running == <span class="keyword">false</span>)</div>
+<div class="line">    {</div>
+<div class="line">            <span class="comment">/* Determine available cores that a thread can be run on */</span></div>
+<div class="line">        nn::Bit64 availableCoresMask = <a name="a11"></a><a class="code" href="namespacenn_1_1os.html#a91345e6e4543ab561f49480b89ae9a65">nn::os::GetThreadAvailableCoreMask</a>();</div>
+<div class="line">        nn::Bit64 checkCoreMask = 1;</div>
+<div class="line">        std::vector&lt;int&gt; availableCores;</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 16; ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <span class="keywordflow">if</span> (checkCoreMask &amp; availableCoresMask)</div>
+<div class="line">            {</div>
+<div class="line">                availableCores.push_back(i);</div>
+<div class="line">            }</div>
+<div class="line"></div>
+<div class="line">            checkCoreMask &lt;&lt;= 1;</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Create and run threads with the command buffer data from Init. */</span></div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadHandles.size(); ++i)</div>
+<div class="line">        {</div>
+<div class="line">            result = <a name="a12"></a><a class="code" href="namespacenn_1_1os.html#a75f43e1d3c194c0d2173ef5d95785933">nn::os::CreateThread</a>(&amp;m_ThreadHandles[i],                          <span class="comment">/* Address of ThreadType */</span></div>
+<div class="line">                                          RenderThread,                                 <span class="comment">/* Function pointer to call */</span></div>
+<div class="line">                                          &amp;m_ThreadData[i],                             <span class="comment">/* Data to pass */</span></div>
+<div class="line">                                          m_pThreadStackMemory + i * g_ThreadStackSize, <span class="comment">/* Stack memory for thread to use */</span></div>
+<div class="line">                                          g_ThreadStackSize,                            <span class="comment">/* Size of stack */</span></div>
+<div class="line">                                          <a name="a13"></a><a class="code" href="namespacenn_1_1os.html#a5985811d04e64c0823ed758fd420591d">nn::os::DefaultThreadPriority</a>,                <span class="comment">/* Priority */</span></div>
+<div class="line">                                          availableCores[i % availableCores.size()]);   <span class="comment">/* Core to place thread (has no effect on Windows) */</span></div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(result.<a name="a14"></a><a class="code" href="classnn_1_1_result.html#a80792d8ec8b6b9e9b34025100baa67ec">IsSuccess</a>());</div>
+<div class="line">            <a name="a15"></a><a class="code" href="namespacenn_1_1os.html#a18eec7c4c4c298f7abaa9ef41d6de76b">nn::os::StartThread</a>(&amp;m_ThreadHandles[i]);</div>
+<div class="line">        }</div>
+<div class="line"></div>
+<div class="line">        m_Running = <span class="keyword">true</span>;</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment">* RenderThreadPool::Wait</span></div>
+<div class="line"><span class="comment">* ----------------------</span></div>
+<div class="line"><span class="comment">* Wait for current frame of rendering to finish, must be called</span></div>
+<div class="line"><span class="comment">* after Run</span></div>
+<div class="line"><span class="comment">*/</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::Wait()</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">bool</span> running = <span class="keyword">true</span>;</div>
+<div class="line">    <span class="keywordflow">while</span> (running)</div>
+<div class="line">    {</div>
+<div class="line">        running = <span class="keyword">false</span>;</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadStateMutex.size(); ++i)</div>
+<div class="line">        {</div>
+<div class="line">            <a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">            TutorialThreadState state = m_ThreadData[i].m_ThreadState;</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">/*</span></div>
+<div class="line"><span class="comment">                 * Check if thread is still running, continue waiting</span></div>
+<div class="line"><span class="comment">                 * if a thread is still running</span></div>
+<div class="line"><span class="comment">                 */</span></div>
+<div class="line">            <span class="keywordflow">if</span> (state == TUTORIAL_THREAD_STATE_RUN)</div>
+<div class="line">            {</div>
+<div class="line">                running = <span class="keyword">true</span>;</div>
+<div class="line">                <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line"></div>
+<div class="line">                <span class="comment">/*</span></div>
+<div class="line"><span class="comment">                 *  NOTE: Since threads are run to completion on NX, a call to YieldThread</span></div>
+<div class="line"><span class="comment">                 *        is necessary in order to allow other threads on the same core to run</span></div>
+<div class="line"><span class="comment">                 */</span></div>
+<div class="line">                <a name="a16"></a><a class="code" href="namespacenn_1_1os.html#a8bd5e5e72c058eb7d1b5f0ebfbb2cf6f">nn::os::YieldThread</a>();</div>
+<div class="line">                <span class="keywordflow">break</span>;</div>
+<div class="line">            }</div>
+<div class="line">            <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_pFrameBufferSyncManager-&gt;InsertFence();</div>
+<div class="line">}</div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::SwapCommandMemory</span></div>
+<div class="line"><span class="comment"> * ----------------------</span></div>
+<div class="line"><span class="comment"> * Swap the command memory of the command buffers being used after a render pass</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::SwapCommandMemory()</div>
+<div class="line">{</div>
+<div class="line">    m_pFrameBufferSyncManager-&gt;SwapPools();</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::Stop</span></div>
+<div class="line"><span class="comment"> * ----------------------</span></div>
+<div class="line"><span class="comment"> * Stop render thread pool from running and destroy threads</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::Stop()</div>
+<div class="line">{</div>
+<div class="line">        <span class="comment">/* Set thread data to indicate the threads should stop if they are running */</span></div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadStateMutex.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">        m_ThreadData[i].m_ThreadState = TUTORIAL_THREAD_STATE_STOP;</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_ThreadStateMutex[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Wait for the threads to be done running. */</span></div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadHandles.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a17"></a><a class="code" href="namespacenn_1_1os.html#a8070c91be85c5ccb36b56e9ff3a75b26">nn::os::WaitThread</a>(&amp;m_ThreadHandles[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Destroy the threads. */</span></div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; m_ThreadHandles.size(); ++i)</div>
+<div class="line">    {</div>
+<div class="line">        <a name="a18"></a><a class="code" href="namespacenn_1_1os.html#a9dbfcfb82583a9e34431e8c11d2411dd">nn::os::DestroyThread</a>(&amp;m_ThreadHandles[i]);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    m_Running = <span class="keyword">false</span>;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::GetNextWorkItem</span></div>
+<div class="line"><span class="comment"> * ---------------------------------</span></div>
+<div class="line"><span class="comment"> * Atomically grabs the next available work item</span></div>
+<div class="line"><span class="comment"> * from the work queue.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line">std::pair&lt;int, GraphicsObject*&gt; RenderThreadPool::GetNextWorkItem()</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(&amp;m_WorkMutex);</div>
+<div class="line"></div>
+<div class="line">    std::pair&lt;int, GraphicsObject*&gt; res;</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* If there&#39;s no work left, return null data. */</span></div>
+<div class="line">    <span class="keywordflow">if</span>(static_cast&lt;size_t&gt;(m_WorkIndex) &gt;= m_pWorkQueue-&gt;size())</div>
+<div class="line">    {</div>
+<div class="line">        res.first = m_WorkIndex;</div>
+<div class="line">        res.second = NULL;</div>
+<div class="line"></div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_WorkMutex);</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">return</span> res;</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Get the work item at the current index. */</span></div>
+<div class="line">    res.first = m_WorkIndex;</div>
+<div class="line">    res.second = (*m_pWorkQueue)[m_WorkIndex];</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Increment the current work index. */</span></div>
+<div class="line">    ++m_WorkIndex;</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_WorkMutex);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Return the data to be processed. */</span></div>
+<div class="line">    <span class="keywordflow">return</span> res;</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThreadPool::WriteThreadOutput</span></div>
+<div class="line"><span class="comment"> * -----------------------------------</span></div>
+<div class="line"><span class="comment"> * Atomically write the resulting command handle from</span></div>
+<div class="line"><span class="comment"> * from a work item at the given index.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThreadPool::WriteThreadOutput(<span class="keywordtype">int</span> index, <span class="keyword">const</span> <a class="code" href="group__nvn__c__handle.html#gab7f10945ffe1f6161c87238c75ae411d">NVNcommandHandle</a>&amp; handle)</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(&amp;m_WriteMutex);</div>
+<div class="line"></div>
+<div class="line">    (*m_pOutput)[index] = handle;</div>
+<div class="line"></div>
+<div class="line">    <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(&amp;m_WriteMutex);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><span class="comment">/*</span></div>
+<div class="line"><span class="comment"> * RenderThread</span></div>
+<div class="line"><span class="comment"> * ------------</span></div>
+<div class="line"><span class="comment"> * This is the funstion that each work thread runs.</span></div>
+<div class="line"><span class="comment"> * The function runs until there are no more work</span></div>
+<div class="line"><span class="comment"> * items left in the queue to process.</span></div>
+<div class="line"><span class="comment"> */</span></div>
+<div class="line"><span class="keywordtype">void</span> RenderThread(<span class="keywordtype">void</span>* pParam)</div>
+<div class="line">{</div>
+<div class="line">    ThreadData* data = <span class="keyword">reinterpret_cast&lt;</span>ThreadData*<span class="keyword">&gt;</span>(pParam);</div>
+<div class="line"></div>
+<div class="line">        <span class="comment">/* Grab the command buffer data. */</span></div>
+<div class="line">    ManagedCommandBuffer* managedCommandBuffer = data-&gt;m_pManagedCommandBuffer;</div>
+<div class="line">    <a name="_a19"></a><a class="code" href="struct_n_v_ncommand_buffer.html">NVNcommandBuffer</a>* commandBuffer = managedCommandBuffer-&gt;GetCommandBuffer();</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordtype">bool</span> run = <span class="keyword">true</span>;</div>
+<div class="line">    <span class="keywordflow">while</span>(run)</div>
+<div class="line">    {</div>
+<div class="line">            <span class="comment">/* Check if thread&#39;s state has changed */</span></div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(data-&gt;m_ThreadStateCheckMutex);</div>
+<div class="line">        TutorialThreadState state = data-&gt;m_ThreadState;</div>
+<div class="line">        <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(data-&gt;m_ThreadStateCheckMutex);</div>
+<div class="line"></div>
+<div class="line">            <span class="comment">/* Determine thread behavior based on state */</span></div>
+<div class="line">        <span class="keywordflow">switch</span> (state)</div>
+<div class="line">        {</div>
+<div class="line">        <span class="keywordflow">case</span> TUTORIAL_THREAD_STATE_RUN:</div>
+<div class="line">            {</div>
+<div class="line">                    <span class="comment">/* Get the first work item. */</span></div>
+<div class="line">                std::pair&lt;int, GraphicsObject*&gt; currentWorkItem = data-&gt;m_pParentPool-&gt;GetNextWorkItem();</div>
+<div class="line"></div>
+<div class="line">                    <span class="comment">/* Run while there is still work to be done. */</span></div>
+<div class="line">                <span class="keywordflow">while</span> (currentWorkItem.second != NULL)</div>
+<div class="line">                {</div>
+<div class="line">                        <span class="comment">/* Update the object&#39;s uniform buffers. */</span></div>
+<div class="line">                    currentWorkItem.second-&gt;UpdateUniforms();</div>
+<div class="line"></div>
+<div class="line">                        <span class="comment">/* Start recording commands to draw the object. */</span></div>
+<div class="line">                    <a name="a20"></a><a class="code" href="group__nvn__c__functions.html#gaeb763d2bdad2c058c75802190fef4748">nvnCommandBufferBeginRecording</a>(commandBuffer);</div>
+<div class="line"></div>
+<div class="line">                        <span class="comment">/* Bind the render states for the object. */</span></div>
+<div class="line">                    currentWorkItem.second-&gt;BindState(commandBuffer);</div>
+<div class="line"></div>
+<div class="line">                        <span class="comment">/* Draw the object. */</span></div>
+<div class="line">                    currentWorkItem.second-&gt;Draw(commandBuffer);</div>
+<div class="line"></div>
+<div class="line">                        <span class="comment">/*</span></div>
+<div class="line"><span class="comment">                        * Grab the command handle for the newly recorded</span></div>
+<div class="line"><span class="comment">                        * commands and write it to the output list at the</span></div>
+<div class="line"><span class="comment">                        * same index as the work item.</span></div>
+<div class="line"><span class="comment">                        */</span></div>
+<div class="line">                    <a class="code" href="group__nvn__c__handle.html#gab7f10945ffe1f6161c87238c75ae411d">NVNcommandHandle</a> result = <a name="a21"></a><a class="code" href="group__nvn__c__functions.html#ga7d97d4cbf72259b6e867f3080f223b95">nvnCommandBufferEndRecording</a>(commandBuffer);</div>
+<div class="line">                    data-&gt;m_pParentPool-&gt;WriteThreadOutput(currentWorkItem.first, result);</div>
+<div class="line"></div>
+<div class="line">                        <span class="comment">/* Grab the next available work item. */</span></div>
+<div class="line">                    currentWorkItem = data-&gt;m_pParentPool-&gt;GetNextWorkItem();</div>
+<div class="line">                }</div>
+<div class="line"></div>
+<div class="line">                    <span class="comment">/* Put thread to Wait state */</span></div>
+<div class="line">                <a class="code" href="namespacenn_1_1os.html#a8d4678856d87c3faea21f47ced342bb6">nn::os::LockMutex</a>(data-&gt;m_ThreadStateCheckMutex);</div>
+<div class="line">                TutorialThreadState&amp; currentState = data-&gt;m_ThreadState;</div>
+<div class="line">                <span class="keywordflow">if</span> (currentState == TUTORIAL_THREAD_STATE_RUN)</div>
+<div class="line">                {</div>
+<div class="line">                    currentState = TUTORIAL_THREAD_STATE_WAIT;</div>
+<div class="line">                }</div>
+<div class="line">                <a class="code" href="namespacenn_1_1os.html#aa661a7036a18c378a694ad67941cd75e">nn::os::UnlockMutex</a>(data-&gt;m_ThreadStateCheckMutex);</div>
+<div class="line">            }</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">case</span> TUTORIAL_THREAD_STATE_WAIT:</div>
+<div class="line">                <span class="comment">/*</span></div>
+<div class="line"><span class="comment">                 * Nothing to do so yield and wait until state changes</span></div>
+<div class="line"><span class="comment">                 */</span></div>
+<div class="line">            <a class="code" href="namespacenn_1_1os.html#a8bd5e5e72c058eb7d1b5f0ebfbb2cf6f">nn::os::YieldThread</a>();</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">case</span> TUTORIAL_THREAD_STATE_STOP:</div>
+<div class="line">                <span class="comment">/* Rendering is stopped; break out of loop and clean up */</span></div>
+<div class="line">            run = <span class="keyword">false</span>;</div>
+<div class="line">            <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">        <span class="keywordflow">default</span>:</div>
+<div class="line">            <a class="code" href="nn___assert_8h.html#ade59d1d911907a16c0241f8fe3b31542">NN_ASSERT</a>(<span class="keyword">false</span>, <span class="stringliteral">&quot;Unknown thread state encountered in render thread pool\n&quot;</span>);</div>
+<div class="line">        }</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</body>
+</html>

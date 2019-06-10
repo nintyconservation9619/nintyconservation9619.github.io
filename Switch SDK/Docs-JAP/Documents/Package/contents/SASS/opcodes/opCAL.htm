@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>CAL/JCAL</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    CAL : Relative Call<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "CAL", description => "Relative Call" } -->
+    JCAL : Absolute Call<br>
+    <!-- SUMMARY_TABLE_INFO { opcode => "JCAL", description => "Absolute Call" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Control Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "JCAL", subsection => 10 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "CAL", subsection => 10 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+   Relative calls:
+<code>        <code></code>   <code><b>CAL</b>{.NOINC}</code>    <code>#OffsetS24</code>              <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CAL" } -->
+<code>        <code></code>   <code><b>CAL</b>{.NOINC}</code>    <code>c[#BankU05][#AddrU16]</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   <code><b>// This form is not patchable and is deprecated</b></code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "CAL" } -->
+
+   Absolute calls:
+<code>        <code></code>   <code><b>JCAL</b>{.NOINC}</code>   <code>#TargetU32</code>              <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "JCAL" } -->
+<code>        <code></code>   <code><b>JCAL</b>{.NOINC}</code>   <code>c[#BankU05][#AddrU16]</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MIO_NOSCBD") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT5}<!-- END &opex("MIO_NOSCBD") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "JCAL" } -->
+
+ .NOINC:    push is not counted against the ApiCallLimit
+</pre>
+<p>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+
+<p>
+Control is transferred to the address specified by the <b>CAL/JCAL</b> instruction. Prior
+to the control transfer, the address of the next sequential instruction (the return address)
+and the <em>current</em> active mask are pushed onto the CRS stack.  Execution
+will resume at this stack address, using the saved active mask, after all threads exit
+the subroutine via a <b>RET</b>.  Thus all currently active threads in a warps that call a subroutine 
+are automatically synchronized upon return.</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Additional Information      # -->
+<!-- ############################### -->
+<h2>Additional Information:</h2>
+<div class="AdditionalInformation">
+
+<p>
+To perform a conditional subroutine call, the program can either use a conditional branch to jump
+over the <b>CAL</b> instruction, or alternately emulate the <b>CAL</b> with a <b>PRET</b> followed by a
+conditional <b>BRA</b> or <b>JMP</b>.  Indirect subroutine calls can be emulated with <b>PRET</b> followed by a <b>BRX</b> or 
+<b>JMX</b> instruction.  Further details can be found on the respective opcode pages for these instructions.</p>
+<p>
+The <b>.NOINC</b> modifier controls whether or not the <b>CAL/JCAL</b> subroutine call is counted towards 
+the ApiCallLimit.  By default, the call increments the depth counter, but the <b>.NOINC</b> modifier 
+will supress this update.  Calls that count towards the ApiCallLimit will be silently ignored 
+(treated as <b>NOP</b> instructions) once the maximum depth is reached.</p>
+<p>
+The target address must be 32bit aligned.  There is no special protection against a target address
+that is in the middle of a 64b instruction. The instruction set supports 32b and 64b instructions.</p>
+</div>
+</div>
+
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>CAL</b>   0x128;
+<b>CAL</b>   c[2][0x48];
+<b>JCAL</b>  0x128000;
+<b>JCAL</b>  c[2][0x48];
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

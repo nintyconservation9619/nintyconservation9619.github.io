@@ -1,0 +1,481 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>振動コンバータ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 振動コンバータ -->
+<div class="pagetitle" id="PageId_104490352">振動コンバータ</div>
+<div class="text_separate">
+<h1 id="Anchor_104490352_h1_1">振動コンバータ</h1>
+<p>振動コンバータの使用方法と注意事項を説明します。</p>
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_104490352_h1_1">振動コンバータ</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_104490352_h2_1">概要</a>
+      </li>
+      <li>
+        <a href="#Anchor_104490352_h2_2">コマンドラインオプション</a>
+      </li>
+      <li>
+        <a href="#Anchor_104490352_h2_3">パラメータファイル (nvibcp ファイル)</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_104490352_h3_1">ルートオブジェクト</a>
+        </li>
+        <li>
+          <a href="#Anchor_104490352_h3_2">Extractor オブジェクト</a>
+        </li>
+        <li>
+          <a href="#Anchor_104490352_h3_3">AmpExtractor オブジェクト</a>
+        </li>
+        <li>
+          <a href="#Anchor_104490352_h3_4">FreqExtractor オブジェクト</a>
+        </li>
+        <li>
+          <a href="#Anchor_104490352_h3_5">Bpf オブジェクト</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_104490352_h2_4">中間ファイル (nvib ファイル)</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_104490352_h3_6">nvib File's Format</a>
+        </li>
+        <li>
+          <a href="#Anchor_104490352_h3_7">利用方法</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_104490352_h4_1">bnvib ファイルから nvib ファイルへの出力方法</a>
+          </li>
+          <li>
+            <a href="#Anchor_104490352_h4_2">nvib ファイルから bnvib ファイルへの変換方法</a>
+          </li>
+        </ul>
+      </ul>
+      <li>
+        <a href="#Anchor_104490352_h2_5">利用例</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_104490352_h3_8">最も単純な利用例</a>
+        </li>
+        <li>
+          <a href="#Anchor_104490352_h3_9">出力ファイル名や変換時のパラメータを明示的に指定する例</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_104490352_h2_1">概要</h2>
+<p>音声ファイル (WAV ファイルまたは&nbsp;AIFF ファイル) を元にして、<a href="../Pages/Page_104489011.html">振動バイナリファイル (bnvib ファイル)</a> を生成します。</p>
+<p>音声ファイルがループ情報 (ループ開始位置／ループ終了位置) を持っている場合には、その情報も抽出されて振動バイナリファイルに埋め込まれます。</p>
+<p>生成された振動バイナリファイルは、 VibrationFileParser や VibrationPlayer を使ってプログラム実行に再生することができます。</p>
+<p>
+  <br />
+</p>
+<p>内部的には、以下の手順で処理を実行しています。</p>
+<ol>
+  <li>入力された音声ファイルのデータを読み出し、ダウンサンプリング処理をします。（ダウンサンプリング後の波形を、波形 DS とします。）</li>
+  <li>波形 DS に低帯域の振幅抽出用バンドパスフィルタをかけて、低帯域の振幅値列を抽出します。</li>
+  <li>波形 DS に低帯域の周波数抽出用バンドパスフィルタをかけて、低帯域の周波数値列を抽出します。</li>
+  <li>波形 DS に高帯域の振幅抽出用バンドパスフィルタをかけて、高帯域の振幅値列を抽出します。</li>
+  <li>波形 DS に高帯域の周波数抽出用バンドパスフィルタをかけて、高帯域の周波数値列を抽出します。</li>
+  <li>低帯域と高帯域の振幅値を加算した値が 1.0 を超えない範囲で最大になるよう、それぞれの振幅値列をスケーリングします。</li>
+  <li>上記の手順で得られた、低帯域・高帯域それぞれの振幅と周波数の列を元にして振動バイナリファイルを生成します。</li>
+</ol>
+<p>
+  <br />
+</p>
+<p>ダウンサンプリングやバンドパスフィルタの設定値は、振動コンバータ用パラメータファイル (nvibcp ファイル) を引数に指定することで変更することができます。</p>
+<p>また、変換処理の際に利用した設定値を記録した nvibcp ファイルが、変換処理の副産物として入力ファイルと同じフォルダに自動的に出力されます。</p>
+<p>
+  <br />
+</p>
+<p>
+  <span style="color: rgb(51,51,51);">振動の制御の最小単位が 5 msec のため、元の音声ファイルの長さにかかわらず、振動バイナリファイルの長さは 5 msec の倍数になります。</span>
+</p>
+<h2 id="Anchor_104490352_h2_2">コマンドラインオプション</h2>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>VibrationConverterConsole.exe &lt;Input&gt; [-o&lt;Output&gt;] [-v] [--in-param=&lt;arg&gt;] [--out-param=&lt;arg&gt;] [--out-wav=&lt;arg&gt;] [-n] [-e] [-d] </pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <strong>&lt;Input&gt;</strong>
+</p>
+<p>入力ファイルのファイルパスを指定します。</p>
+<p>標準的な wav フォーマットの音声ファイルを指定することができます。</p>
+<p>音声チャンネルが 2 以上の場合には、前処理段階で自動的にモノラル信号に変換されます。</p>
+<p>
+  <strong>-o, --output &lt;Output&gt;</strong>
+</p>
+<p>出力される振動バイナリファイル (bnvib ファイル) のファイルパスを指定します。</p>
+<p>省略された場合には、入力ファイル名の拡張子を .bnvib に変えたファイル名が利用されます。</p>
+<p>
+  <strong>-v, --verbose</strong>
+</p>
+<p>変換処理中の詳細なログを表示します。</p>
+<p>
+  <strong>--in-param &lt;arg&gt;</strong>
+</p>
+<p>変換処理に用いる設定値を指定するための、振動コンバータ用パラメータファイル (nvibcp ファイル) のファイルパスを指定します。</p>
+<p>省略された場合には、デフォルトの設定値が利用されます。</p>
+<p>
+  <strong>--out-param &lt;arg&gt;</strong>
+</p>
+<p>変換処理に用いた設定値を記録した、振動コンバータ用パラメータファイル (nvibcp ファイル) の出力先ファイルパスを指定します。</p>
+<p>省略された場合には、入力ファイル名の拡張子を .nvibcp に変えたファイル名が利用されます。</p>
+<p>-n オプションが指定された場合には、 nvibcp ファイルは出力されません。</p>
+<p>
+  <strong>--out-wav &lt;arg&gt;</strong>
+</p>
+<p>出力用 wav ファイルのファイルパスを指定します。</p>
+<p>変換処理の結果として得られる振動バイナリファイルを再生する際に振動子で実際に発生する振動波形に相当する wav ファイルが、指定されたファイルパスに出力されます。</p>
+<p>--out-wav オプションが省略された場合には、 wav ファイルは出力されません。</p>
+<p>なお、出力される wav ファイルは理想的な振動波形を想定したものです。実際には内部的なエンコード／デコード処理などにより、振動波形が劣化する場合があることに注意してください。</p>
+<p>
+  <strong>-n, --no-out-param</strong>
+</p>
+<p>変換処理に用いた設定値を記録した、振動コンバータ用パラメータファイル (nvibcp ファイル) を出力しないようにします。</p>
+<p>
+  <strong>-e, --enable-auto-amp</strong>
+</p>
+<p>振幅値を自動的にスケーリングして最大化する機能を有効化します。（-e オプションの指定は --in-param オプションで指定されたパラメータファイル内の指定よりも優先されます）</p>
+<p>
+  <strong>-d, --disable-auto-amp</strong>
+</p>
+<p>振幅値を自動的にスケーリングして最大化する機能を無効化します。（-d オプションの指定は --in-param オプションで指定されたパラメータファイル内の指定よりも優先されます）</p>
+<h2 id="Anchor_104490352_h2_3">パラメータファイル (nvibcp ファイル)</h2>
+<p>振動コンバータ用パラメータファイル (nvibcp ファイル) の中身は、 JSON フォーマットで記述されたテキストファイルです。</p>
+<p>各パラメータの意味は以下の通りです。</p>
+<h3 id="Anchor_104490352_h3_1">ルートオブジェクト</h3>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>メンバー名</th>
+      <th>説明</th>
+      <th>デフォルト値&nbsp;</th>
+    </tr>
+    <tr>
+      <td>downSamplingRate</td>
+      <td>ダウンサンプリング時のサンプリングレートを指定します。（単位は Hz）</td>
+      <td>8000</td>
+    </tr>
+    <tr>
+      <td>isAmpCoeffAutoAdjusted</td>
+      <td>
+        <p>振幅値を自動的にスケーリングして最大化する機能を有効化するか指定します。</p>
+        <p>true&nbsp;ならば有効、 false ならば無効です。</p>
+      </td>
+      <td>true&nbsp;</td>
+    </tr>
+    <tr>
+      <td>extractorLow&nbsp;</td>
+      <td>
+        <p>低帯域の振幅・周波数を抽出する際のパラメータを表す Extractor オブジェクト。&nbsp;</p>
+      </td>
+      <td>Extractor オブジェクトの項目を参照。</td>
+    </tr>
+    <tr>
+      <td>extractorHigh&nbsp;</td>
+      <td>高帯域の振幅・周波数を抽出する際のパラメータを表す Extractor オブジェクト。&nbsp;</td>
+      <td>Extractor オブジェクトの項目を参照。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_104490352_h3_2">Extractor オブジェクト</h3>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>メンバー名</th>
+      <th>説明</th>
+      <th>デフォルト値</th>
+    </tr>
+    <tr>
+      <td>amfmUpdateFrequency</td>
+      <td>
+        <p>振動値の更新頻度を指定します。（単位は Hz）</p>
+        <p>この値はデフォルト値から変更しないでください。</p>
+      </td>
+      <td>200&nbsp;</td>
+    </tr>
+    <tr>
+      <td>isSameBpfUsedForFm</td>
+      <td>
+        <p>周波数抽出用のフィルタとして、振幅抽出用のフィルタと同じものをそのまま流用するか指定します。</p>
+        <p>true ならば同じフィルタを流用します。&nbsp;</p>
+      </td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>ampExtractor</td>
+      <td>振幅を抽出する際のパラメータを表す AmpExtractor オブジェクト。&nbsp;</td>
+      <td>AmpExtractor オブジェクトの項目を参照。&nbsp;</td>
+    </tr>
+    <tr>
+      <td>freqExtractor</td>
+      <td>周波数を抽出する際のパラメータを表す&nbsp;FreqExtractor オブジェクト。</td>
+      <td>FreqExtractor オブジェクトの項目を参照。</td>
+    </tr>
+    <tr>
+      <td>bpfForAm</td>
+      <td>振幅抽出用のバンドパスフィルタのパラメータを表す Bpf オブジェクト。&nbsp;</td>
+      <td>Bpf オブジェクトの項目を参照。&nbsp;</td>
+    </tr>
+    <tr>
+      <td>bpfForFm</td>
+      <td>周波数抽出用のバンドパスフィルタのパラメータを表す Bpf オブジェクト。&nbsp;</td>
+      <td>Bpf オブジェクトの項目を参照。</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_104490352_h3_3">AmpExtractor オブジェクト</h3>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>メンバー名</th>
+      <th>説明&nbsp;</th>
+      <th>デフォルト値</th>
+    </tr>
+    <tr>
+      <td>amplitudeCoeff</td>
+      <td>
+        <p>抽出された振幅値に乗算する係数を指定します。</p>
+        <p>振幅値を自動的にスケーリングして最大化する機能が有効化されている場合には、</p>
+        <p>さらにスケーリング係数を乗算した値が自動的に格納されます。</p>
+      </td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_104490352_h3_4">FreqExtractor オブジェクト</h3>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>メンバー名</th>
+      <th>説明</th>
+      <th>デフォルト値（低帯域）</th>
+      <th>デフォルト値（高帯域）&nbsp;</th>
+    </tr>
+    <tr>
+      <td>baseFrequency</td>
+      <td>
+        <p>基準となる周波数を指定します。（単位は Hz）</p>
+        <p>この値はデフォルト値から変更しないでください。&nbsp;</p>
+      </td>
+      <td>160&nbsp;</td>
+      <td>320&nbsp;</td>
+    </tr>
+    <tr>
+      <td>lowerCutoff</td>
+      <td>抽出する周波数の下限を指定します。（単位は Hz）&nbsp;</td>
+      <td>128&nbsp;</td>
+      <td>256&nbsp;</td>
+    </tr>
+    <tr>
+      <td>higherCutoff</td>
+      <td>抽出する周波数の上限を指定します。（単位は Hz）</td>
+      <td>200&nbsp;</td>
+      <td>400&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_104490352_h3_5">Bpf オブジェクト</h3>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th>メンバー名</th>
+      <th>説明</th>
+      <th>
+        <p>デフォルト値</p>
+        <p>（低帯域の振幅抽出用）</p>
+      </th>
+      <th>
+        <p>デフォルト値</p>
+        <p>（低帯域の周波数抽出用）&nbsp;</p>
+      </th>
+      <th>
+        <p>デフォルト値</p>
+        <p>（高帯域の振幅抽出用）&nbsp;</p>
+      </th>
+      <th>
+        <p>デフォルト値</p>
+        <p>（高帯域の周波数抽出用）&nbsp;</p>
+      </th>
+    </tr>
+    <tr>
+      <td>filterFamily</td>
+      <td>
+        <p>フィルタの種類を指定します。</p>
+        <p>0 ならば Butterworth フィルタ、 1 ならば Chebyshev フィルタを利用します。&nbsp;</p>
+      </td>
+      <td>0 (Butterworth)&nbsp;</td>
+      <td>0 (Butterworth)&nbsp;&nbsp;</td>
+      <td>0 (Butterworth)&nbsp;&nbsp;</td>
+      <td>0 (Butterworth)&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td>order</td>
+      <td>
+        <p>フィルタの次数を指定します。正の偶数を指定してください。</p>
+        <p>次数が高いほどカットオフ周波数外の成分を明瞭にカットできるようになりますが、&nbsp;</p>
+        <p>一方で時間軸方向の遅れが発生しやすくなります。</p>
+      </td>
+      <td>6&nbsp;</td>
+      <td>6&nbsp;</td>
+      <td>6&nbsp;</td>
+      <td>6&nbsp;</td>
+    </tr>
+    <tr>
+      <td>lowerCutoff</td>
+      <td>フィルタの下側カットオフ周波数を指定します。（単位は Hz）&nbsp;</td>
+      <td>80&nbsp;</td>
+      <td>128&nbsp;</td>
+      <td>284&nbsp;</td>
+      <td>256&nbsp;</td>
+    </tr>
+    <tr>
+      <td>higherCutoff</td>
+      <td>フィルタの上側カットオフ周波数を指定します。（単位は Hz）</td>
+      <td>180&nbsp;</td>
+      <td>200&nbsp;</td>
+      <td>400&nbsp;</td>
+      <td>400&nbsp;</td>
+    </tr>
+    <tr>
+      <td>epsilon</td>
+      <td>
+        <p>Chebyshev フィルタを利用する際の epsilon 値を指定します。</p>
+        <p>epsilon 値が大きいほどカットオフ周波数外の成分を明瞭にカットできるようになりますが、</p>
+        <p>一方でカットオフ周波数内での歪みが大きくなります。&nbsp;</p>
+      </td>
+      <td>1&nbsp;</td>
+      <td>1&nbsp;</td>
+      <td>1&nbsp;</td>
+      <td>1&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_104490352_h2_4">中間ファイル (nvib ファイル)</h2>
+<p>振動バイナリファイルは、 nvib ファイルと呼ばれるテキスト形式の中間ファイルに相互に変換可能です。</p>
+<p>この中間ファイルでは、時系列の振動値をエディタ等で直接編集可能です。</p>
+<h3 style="margin-left: 0.6em;" id="Anchor_104490352_h3_6">nvib File's Format</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre># Comment                    // '#' is comment
+$LoopStart=&lt;any integer number&gt;      // option
+$LoopEnd=&lt;any integer number&gt;        // option
+$LoopInterval=&lt;any integer number&gt;   // option
+&lt;AmplitudeLow[0]&gt;, &lt;FrequencyLow[0]&gt;, &lt;AmplitudeHigh[0]&gt;, &lt;FrequencyHigh[0]&gt;
+&lt;AmplitudeLow[1]&gt;, &lt;FrequencyLow[1]&gt;, &lt;AmplitudeHigh[1]&gt;, &lt;FrequencyHigh[1]&gt;
+&lt;AmplitudeLow[2]&gt;, &lt;FrequencyLow[2]&gt;, &lt;AmplitudeHigh[2]&gt;, &lt;FrequencyHigh[2]&gt;
+...</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_104490352_h3_7">利用方法</h3>
+<h4 id="Anchor_104490352_h4_1">bnvib ファイルから nvib ファイルへの出力方法</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>VibrationConverterConsole.exe &lt;srcFileName&gt;.bnvib --out-nvib &lt;dstFileName&gt;.nvib</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_104490352_h4_2">nvib ファイルから bnvib ファイルへの変換方法</h4>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>VibrationConverterConsole.exe &lt;srcFileName&gt;.nvib
+VibrationConverterConsole.exe &lt;srcFileName&gt;.nvib -o &lt;dstFileName&gt;.bnvib</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_104490352_h2_5">利用例</h2>
+<h3 id="Anchor_104490352_h3_8">最も単純な利用例</h3>
+<p>sample.wav を元にして sample.bnvib を生成します。副産物として sample.nvibcp が出力されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>VibrationConverterConsole.exe sample.wav</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_104490352_h3_9">出力ファイル名や変換時のパラメータを明示的に指定する例</h3>
+<p>sample.wav を元にして output.bnvib を生成します。変換時のパラメータは config.nvibcp に記載されている設定値を利用します。</p>
+<p>副産物として sample.nvibcp が出力されます。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>VibrationConverterConsole.exe sample.wav -o output.bnvib --in-param config.nvibcp</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

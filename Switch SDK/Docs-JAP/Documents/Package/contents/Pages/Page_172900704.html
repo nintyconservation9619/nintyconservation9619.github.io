@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダー</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダー -->
+<div class="pagetitle" id="PageId_172900704">シェーダー</div>
+<div class="text_separate">
+<h1 id="Anchor_172900704_h1_1">概要</h1>
+<p>g3d のシェーダーシステムには、ユーザーが記述したシェーダーソースに対して付加するコメント形式の<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>や、シェーダー中間ファイル、<a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>といった仕組みが用意されています。これらの仕組みを適切に利用することで、<a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>等のユースケースに合わせたシェーダー構造の構築や、&nbsp;g3d ライブラリーや <a href="../Pages/Page_83955978.html">3DEditor</a> 等のツール、g3d モデルとの連携を可能にします。なお、g3d ライブラリーは特定のシェーダーシステムに依存しないよう設計されているため、g3d のシェーダーシステム以外の任意のシェーダーシステムと組み合わせて使用できます。</p>
+<h2 id="Anchor_172900704_h2_1">シェーダードキュメント目次</h2>
+<p>シェーダーのドキュメント構成は以下のようになっています。g3d のシェーダーシステムの大まかな内容をつかみたい場合は、このページや「<a href="../Pages/Page_106333222.html">シェーダーリソースフロー</a>」「<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>」を確認して下さい。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <p>ページ</p>
+      </th>
+      <th>内容</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>シェーダー (本ページ)</td>
+      <td>g3d のシェーダー概要</td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          <a href="../Pages/Page_106333222.html">シェーダーリソースフロー</a>
+        </p>
+      </td>
+      <td>シェーダーコードをランタイムで扱うバイナリーに変換するまでのフローや、g3d シェーダーシステムで扱うファイルの説明</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>
+      </td>
+      <td>ランタイムでシェーダーバイナリーをロードしてモデルの描画を行うフローの説明</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>
+      </td>
+      <td>シェーダーコードに記述するアノテーションの書き方や仕様の説明</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_286721565.html">シェーダーバリエーション</a>
+      </td>
+      <td>バリエーションの生成方法と仕様の説明</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="../Pages/Page_106332818.html">ユニフォームブロック</a>
+      </td>
+      <td>g3d がサポートするユニフォームブロック (シェイプ・スケルトン・マテリアル・オプション) の説明</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="Anchor_172900704_h1_2">シェーダー構造</h1>
+<h2 id="Anchor_172900704_h2_2">リソースファイル</h2>
+<p>g3d のシェーダーで取り扱うリソースファイルは、<strong>シェーダーソース</strong>と複数の<strong>中間ファイル</strong>、ランタイムで扱うための<strong>バイナリーファイル</strong>です。<strong>シェーダーソース</strong>はユーザーがシェーダーの処理を記述するテキストファイルですが、g3d ランタイムやツール等との連携をするためにソースコード内に<strong>シェーダーアノテーション</strong>という付加情報を記述する必要があります。アノテーションはバリエーションの設定や識別子情報の付加、3dEditor 上のUI 表示の設定等を行います。<strong>中間ファイル</strong>は「<strong>シェーダー設定ファイル(.fsca, .fscb)</strong>」「<strong>シェーダー定義ファイル(.fsdb)</strong>」「<strong>シェーダーバリエーションファイル(.fsva, .fsvb)</strong>」の 3 種類があります。中間ファイルを利用することで、主にシェーディングモデルの定義やシェーダーバリエーションの設定、3dEditor によるマテリアルの編集、モデル中間ファイルへのシェーダーの割り当て等をすることができます。ランタイムで扱う<strong>バイナリーファイル</strong>は「<strong>シェーダーアーカイブファイル(.bfsha)</strong>」の 1種類です。<a href="../Pages/Page_83956037.html">3D シェーダーコンバーター</a>を使用して中間ファイルをコンバートすることで、最終的シェーダーアーカイブファイルを作成することができます。リソースの詳細は<a href="../Pages/Page_106333222.html">シェーダーリソースフロー</a>を確認して下さい。</p>
+<p style="text-align: center;">
+  <br />
+</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_172900704/flowchart_1.svg" />
+</div>
+<h2 id="Anchor_172900704_h2_3">ランタイム</h2>
+<p>ランタイムでシェーダーを扱う場合は、シェーダーのバイナリーファイル (シェーダーアーカイブファイル) をロードして扱います。<strong>シェーダーアーカイブファイル</strong>は&nbsp;<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_archive.html" rel="nofollow">nn::g3d::ResShaderArchive</a>&nbsp;として扱われ、1 つまたは複数の<strong>シェーディングモデル</strong>&nbsp;(<a class="external-link" href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shading_model.html" rel="nofollow">nn::g3d::ResShadingModel</a>) を保持します。シェーディングモデルは描画に使用するシェーディングの種類を表す g3d の概念で、シェーダーソースや定義されるマクロの違いを表現します。シェーディングモデルは複数の<strong>シェーダープログラム</strong>&nbsp;(<a href="../../../Api/HtmlNX/classnn_1_1g3d_1_1_res_shader_program.html">nn::g3d::ResShaderProgram</a>) を保持します。シェーダープログラムは 1 つの<strong><a href="../Pages/Page_286721565.html">シェーダーバリエーション</a></strong>に対応する概念で、１つの <a href="../../../Api/HtmlNX/classnn_1_1gfx_1_1_res_shader_variation.html">nn::gfx::ResShaderVariation</a> を保持します。ランタイムでの処理の詳細は<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>を確認して下さい。</p>
+<p style="text-align: center;">
+  <br />
+</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_172900704/flowchart_2.svg" />
+</div>
+<h1 id="Anchor_172900704_h1_3">モデルとの関わり</h1>
+<p>g3d ではモデルのマテリアル情報とシェーダーを関連付けて取り扱う仕組みがあります。ここでは g3d のモデルとシェーダーの関係の概要を説明します。</p>
+<h2 id="Anchor_172900704_h2_4">中間ファイル</h2>
+<p>
+  <a href="../Pages/Page_83956043.html">アサインユーティリティー</a>を使用してシェーダー定義ファイル(.fsdb) をモデル中間ファイル(.fmda, .fmdb) に関連付けて、<a href="../Pages/Page_84052806.html">シェーダーアノテーション</a>の記述に応じた一部のシェーダー情報をモデル中間ファイルに追加します。詳しくは<a href="../Pages/Page_106333222.html">シェーダーリソースフロー</a>を確認して下さい。</p>
+<ul>
+  <li>シェーダーの描画情報、オプション変数、サンプラー変数、マテリアルユニフォームブロック変数、頂点属性の情報がモデル中間ファイルの &lt;shader_assign&gt; に追加される</li>
+  <li>シェーダーアノテーションで設定された頂点インターリーブ情報に基づいてモデル中間ファイルの頂点バッファーの定義が更新される</li>
+</ul>
+<h3 style="margin-left: 0.5em;" id="Anchor_172900704_h3_1">3dEditor</h3>
+<p>デザイナーは <a href="../Pages/Page_83955978.html">3DEditor</a> を使用してシェーダー定義ファイル(.fsdb) とモデル中間ファイル(.fmda, .fmdb) を開き、モデルのマテリアルに関連する値やオプション変数値の編集を行います。シェーダーに関する要素としては、モデル中間ファイル &lt;shader_assign&gt; のマテリアルユニフォームブロック変数やオプション変数、サンプラー等の値の編集が可能です。この際、3DEditor は、シェーダー定義ファイル内のシェーダーアノテーションによる UI 設定 (名前・編集可能な要素かどうか・変更可能な値の範囲 等) を参照し、デザイナーが編集をするための UI を構築します。詳しくは&nbsp;<a href="../Pages/Page_83955978.html">3dEditor</a>&nbsp;を確認して下さい。</p>
+<p style="text-align: center;">
+  <br />
+</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_172900704/flowchart_3.svg" />
+</div>
+<h2 id="Anchor_172900704_h2_5">ランタイム</h2>
+<p>ランタイムでは、モデルが保持するオプション変数の値を元に描画に使用するシェーダープログラム(バリエーション)を決定します。さらに、モデルが保持するシェイプ・スケルトン(ボーン行列)・マテリアル・オプションのユニフォームブロック情報を、シェーダーにロードして描画を行います。また、詳しくは<a href="../Pages/Page_286721547.html">シェーダーランタイムフロー</a>を確認して下さい。</p>
+<p style="text-align: center;">
+  <br />
+</p>
+<div class="flowchart-svg-inline">
+  <img src="../Attachments/Attach_172900704/flowchart_4.svg" />
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

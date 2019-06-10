@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>同期の種類</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- 同期の種類 -->
+<div class="pagetitle" id="PageId_193955468">同期の種類</div>
+<div class="text_separate">
+<h1 id="Anchor_193955468_h1_1">同期の種類</h1>
+<p>BCATデータ配信では、2種類の同期方法を提供しています。</p>
+<h1 id="Anchor_193955468_h1_2">即時同期</h1>
+<p>アプリケーションを起動しているとき、任意のタイミングでサーバーからデータをダウンロードする仕組みとして、「即時同期」を提供しています。<br />即時同期を行うときは <span class="ApiLink_nn__bcat__RequestSyncDeliveryCache">nn::bcat::RequestSyncDeliveryCache</span>() を呼び出してください。<br />即時同期の進行状況は <span class="ApiLink_nn__bcat__DeliveryCacheProgress">nn::bcat::DeliveryCacheProgress</span> クラスを使うことで取得できます。<br />アプリケーションには即時同期を実装することを推奨します。</p>
+<h1 id="Anchor_193955468_h1_3">バックグラウンド同期</h1>
+<p>アプリケーションを起動していないとき、あらかじめサーバーからデータをダウンロードしておく仕組みとして、「バックグラウンド同期」を提供しています。<br />バックグラウンド同期は以下の手順で行われます。</p>
+<ol>
+  <li>アプリケーションが初めて <span class="ApiLink_nn__bcat__Initialize">nn::bcat::Initialize</span>()&nbsp;を呼び出したとき、本体システムによってサーバーに本体が登録される。</li>
+  <li>アプリケーションを終了する。</li>
+  <li>データの配信が開始されたとき、サーバーは登録されているすべての本体に一斉に通知を送信する。</li>
+  <li>本体システムが通知を受信する。</li>
+  <li>本体システムは通知の受信をトリガーにして、データのダウンロードを試みる。</li>
+</ol>
+<p>本体のインターネット接続がオフラインの間に送信された通知は、本体がオンラインになったタイミングで受信されます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>バックグラウンド同期では、<strong>本体がすべての通知を受信できることを保証していません</strong>。<br />本体が通知を受信できなかった場合は、本体のデータは更新されません。<br />必要に応じてアプリケーションに即時同期を実装して、同期に成功したことを確認してください。</p>
+  </div>
+</div>
+<h2 id="Anchor_193955468_h2_1">
+  <span style="color: rgb(117,117,117);">制限</span>
+</h2>
+<p style="margin-left: 44.0px;">バックグラウンド同期は本体のネットワーク環境の影響を受けるため、サーバーから配信されている最新のデータと本体のデータが常に一致しているとは限りません。</p>
+<p style="margin-left: 44.0px;">例えば、本体の移動によりデータのダウンロードが中断される場合があり得ます。</p>
+<h2 id="Anchor_193955468_h2_2">リトライ</h2>
+<p>データのダウンロードは、成功するまで定期的にリトライされます。ただし、正当な理由で失敗した場合はリトライされません。</p>
+<p>正当な理由の例は、以下のとおりです。</p>
+<ul>
+  <li>ニンテンドーアカウントと連携しているユーザーアカウントが存在しなくなった。</li>
+  <li>データ配信キャッシュストレージの容量が不足していた。</li>
+  <li>データの配信が終了していた。</li>
+</ul>
+<h2 id="Anchor_193955468_h2_3">有効期限</h2>
+<p>本体システムは直近で起動されたデータ配信キャッシュストレージを持つアプリケーションを 16 個まで記録して管理しています。バックグラウンド同期は、それらのアプリケーションを対象に行われます。</p>
+<p>管理から除外されたアプリケーションは、バックグラウンド同期の対象になりません。アプリケーションが再び起動されて <span class="ApiLink_nn__bcat__Initialize">nn::bcat::Initialize</span>() が呼び出されたとき、本体システムは改めてそれを管理対象に加えます。</p>
+<p>管理から除外されている間、データ配信キャッシュストレージは削除されずにそのまま残ります。</p>
+<h2 id="Anchor_193955468_h2_4">アプリケーションのネットワークの利用との競合</h2>
+<p>アプリケーションが起動している場合、システムは以下のように振る舞います。</p>
+<h3 id="Anchor_193955468_h3_1">アプリケーションがネットワークの接続要求を提出しているとき</h3>
+<p>アプリケーションが <span class="ApiLink_nn__nifm__SubmitNetworkRequest">nn::nifm::SubmitNetworkRequest</span>() を呼び出したあとは、バックグラウンド同期は行われません。</p>
+<h3 id="Anchor_193955468_h3_2">アプリケーションがネットワークの接続要求を未提出のとき、または接続要求を取り下げているとき</h3>
+<ul>
+  <li>起動中のアプリケーションを対象にしたバックグラウンド同期<ul><li><span class="ApiLink_nn__bcat__Initialize">nn::bcat::Initialize</span>() を呼び出すことで、バックグラウンド同期は停止します。また、アプリケーションを終了するまでバックグラウンド同期は行われなくなります。</li><li>アプリケーションの意図しないタイミングでデータ配信キャッシュストレージがロックされることを防ぐための仕様です。</li></ul></li>
+  <li>起動中ではない他のアプリケーションを対象にしたバックグラウンド同期<ul><li>行われます。</li></ul></li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>本体に対して特定の操作を行うと、ネットワークの接続要求が提出されているとみなされてバックグラウンド同期が行われなくなります。</p>
+    <p>バックグラウンド同期の挙動を確認する場合には、以下の条件を参考にして、必要に応じて本体を再起動してください。</p>
+    <table class="wrapped">
+      <colgroup>
+        <col />
+        <col />
+      </colgroup>
+      <tbody>
+        <tr>
+          <th style="text-align: center;">条件</th>
+          <th style="text-align: center;">バックグラウンド同期は行われるか?</th>
+        </tr>
+        <tr>
+          <td>DevMenu (NX Addon 3.0.0 以降) を起動して、Network タブで「Submit network request」を実行する。</td>
+          <td>YES</td>
+        </tr>
+        <tr>
+          <td>DevMenuApp.nsp を起動して、Network タブで「Submit network request」を実行する。</td>
+          <td>NO</td>
+        </tr>
+        <tr>
+          <td>
+            <p>HOMEメニューを起動して、「<span style="color: rgb(51,51,51);">本体の設定</span>」の「インターネット設定」の「接続テスト」を実行する。</p>
+          </td>
+          <td>YES</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__bcat__RequestSyncDeliveryCache', '../../../Api/HtmlNX/namespacenn_1_1bcat.html#adcf35d4d16cb9421c2e9877f9feeb06a' )
+SetUrl( 'ApiLink_nn__bcat__DeliveryCacheProgress', '../../../Api/HtmlNX/classnn_1_1bcat_1_1_delivery_cache_progress.html' )
+SetUrl( 'ApiLink_nn__bcat__Initialize', '../../../Api/HtmlNX/namespacenn_1_1bcat.html#a65f8528327b457c8927b691ba6bee806' )
+SetUrl( 'ApiLink_nn__nifm__SubmitNetworkRequest', '../../../Api/HtmlNX/namespacenn_1_1nifm.html#a96f83210fc74e61335caf9308a357fff' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

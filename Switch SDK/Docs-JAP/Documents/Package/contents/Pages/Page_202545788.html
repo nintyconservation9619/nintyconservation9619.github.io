@@ -1,0 +1,614 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>シェーダモデル 5.0 への対応</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- シェーダモデル 5.0 への対応 -->
+<div class="pagetitle" id="PageId_202545788">シェーダモデル 5.0 への対応</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_202545788_h1_1">シェーダモデル 5.0 への対応 </a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_202545788_h2_1">Intrinsic function</a>
+      </li>
+      <li>
+        <a href="#Anchor_202545788_h2_2">Interlocked intrinsics</a>
+      </li>
+      <li>
+        <a href="#Anchor_202545788_h2_3">StructuredBuffer, RWStructuredBuffer</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_202545788_h3_1">宣言</a>
+        </li>
+        <li>
+          <a href="#Anchor_202545788_h3_2">アクセス</a>
+        </li>
+        <li>
+          <a href="#Anchor_202545788_h3_3">ユーザ定義の構造体の宣言とアクセス</a>
+        </li>
+      </ul>
+      <li>
+        <a href="#Anchor_202545788_h2_4">ByteAddressBuffer, RWByteAddressBuffer</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_202545788_h3_4">メンバ関数</a>
+        </li>
+        <ul>
+          <li>
+            <a href="#Anchor_202545788_h4_1">ByteAddressBuffer</a>
+          </li>
+          <li>
+            <a href="#Anchor_202545788_h4_2">RWByteAddressBuffer</a>
+          </li>
+        </ul>
+      </ul>
+      <li>
+        <a href="#Anchor_202545788_h2_5">注意事項</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_202545788_h3_5">ByteAddressBuffer のアドレスに関数の戻り値は現在、使用することが出来ません。</a>
+        </li>
+        <li>
+          <a href="#Anchor_202545788_h3_6">型変換と演算子順位が複雑な場合、正しくコンバート出来ないことがあります。</a>
+        </li>
+        <li>
+          <a href="#Anchor_202545788_h3_7">AppendStructuredBuffer には未対応です。</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_202545788_h1_1">シェーダモデル 5.0 への対応&nbsp;</h1>
+<p>SLConverter はシェーダモデル 5.0 の命令に一部対応しています。</p>
+<p>対応状況については以下を確認してください。</p>
+<h2 id="Anchor_202545788_h2_1">Intrinsic function</h2>
+<p>SLConverter は以下の Intrinsic function に対応しています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>asint</td>
+      <td>floatBitsToInt</td>
+    </tr>
+    <tr>
+      <td>asuint</td>
+      <td>floatBitsToUInt</td>
+    </tr>
+    <tr>
+      <td>ddx_coarse</td>
+      <td>dFdxCoarse</td>
+    </tr>
+    <tr>
+      <td>ddx_fine</td>
+      <td>dFdxFine</td>
+    </tr>
+    <tr>
+      <td>countbits</td>
+      <td>bitCount</td>
+    </tr>
+    <tr>
+      <td>fma</td>
+      <td>fma</td>
+    </tr>
+    <tr>
+      <td>mad</td>
+      <td>fma</td>
+    </tr>
+    <tr>
+      <td>reversebits</td>
+      <td>bitfieldReverse</td>
+    </tr>
+    <tr>
+      <td>f16tof32</td>
+      <td>unpackHalf2x16</td>
+    </tr>
+  </tbody>
+</table>
+<p>以下の HLSL 命令に対応する GLSL 命令が存在しないため未対応となっています。</p>
+<ul style="list-style-type: square;">
+  <li>dst</li>
+  <li>firstbithigh</li>
+  <li>firstbitlow</li>
+  <li>f32tof16</li>
+  <li>msad4</li>
+  <li>rcp</li>
+</ul>
+<h2 id="Anchor_202545788_h2_2">Interlocked intrinsics</h2>
+<p>SLConverter は以下の Interlocked intrinsics&nbsp;に対応しています。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedAdd</p>
+      </td>
+      <td>
+        <p>AtomicAdd</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedAnd</p>
+      </td>
+      <td>
+        <p>AtomicAnd</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedCompareExchange</p>
+      </td>
+      <td>
+        <p>AtomicCompSwap</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedExchange</p>
+      </td>
+      <td>
+        <p>AtomicExchange</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedMax</p>
+      </td>
+      <td>
+        <p>AtomicMax</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedMin</p>
+      </td>
+      <td>
+        <p>AtomicMin</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedOr</p>
+      </td>
+      <td>
+        <p>AtomicOr</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>InterlockedXor</p>
+      </td>
+      <td>
+        <p>AtomicXor</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>以下の HLSL 命令に対応する GLSL 命令が存在しないため未対応となっています。</p>
+<ul style="list-style-type: square;">
+  <li>InterlockedCompareStore</li>
+</ul>
+<p>&nbsp;</p>
+<div>
+  <h2 id="Anchor_202545788_h2_3">StructuredBuffer, RWStructuredBuffer</h2>
+</div>
+<p>StructuredBuffer/RWStructuredBuffer を以下のように&nbsp;ARB_shader_structured_buffer_object (SSBO) へ変換します。</p>
+<ul style="list-style-type: square;">
+  <li>SSBO 生成時にオブジェクトの型名を命名する必要があるため、変数名 + _dec として定義されます。</li>
+  <li>データ部に data[] を生成します。</li>
+</ul>
+<h3 id="Anchor_202545788_h3_1">宣言</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>StructuredBuffer&lt;float&gt; mySB:reg;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>layout(binding=reg, std430) buffer mySB_dec {
+&nbsp;&nbsp;&nbsp;&nbsp;float data[];
+}mySB;</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_202545788_h3_2">アクセス</h3>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>mySB[index]</td>
+      <td>mySB.data[index]</td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_202545788_h3_3">ユーザ定義の構造体の宣言とアクセス</h3>
+<p>ユーザが以下のように定義した構造体を使用する場合、宣言とアクセスは以下のようになります。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>struct MyStruct{
+&nbsp;&nbsp;&nbsp;&nbsp;float fValue;
+&nbsp;&nbsp;&nbsp;&nbsp;matrix mat;
+};</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>宣言</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>StructuredBuffer&lt;MyStruct&gt; mySB;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>layout(binding=reg, std430) buffer mySB_dec {
+&nbsp;&nbsp;&nbsp;&nbsp;MyStruct data[];
+}mySB;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>アクセス</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>mySB[index].fValue;
+mySB[index].mat;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>mySB.data[index].fValue;
+mySB.data[index].mat;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>メンバ関数</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>mySB.GetDimensions(numStruct, stride);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>numStruct = mySB.data.length();</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>GLSL ではデータ型のバイトサイズが取得できないため、stride に代入しません。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<h2 id="Anchor_202545788_h2_4">ByteAddressBuffer, RWByteAddressBuffer</h2>
+<p>ByteAddressBuffer / RWByteAddressBuffer は StructuredBuffer と同様に SSBO へ変換します。</p>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>&nbsp;</th>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>宣言</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>RWByteAddresBuffer myBAB;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>layout(binding=reg, std430) buffer myBAB_dec {
+&nbsp;&nbsp;&nbsp;&nbsp;uint data[];
+}myBAB;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>アクセス</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>uint index = xxxx * 4;
+myBAB[index];</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>uint index = xxxx * 4;
+myBAB.data[index/4];</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ul style="list-style-type: square;">
+          <li>HLSL の ByteAddressBuffer へのアクセスは Byte 型であるため、インデックス指定子が 4 の整数倍であることを前提としているため、GLSL 側では 4で除算されます。</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_202545788_h3_4">メンバ関数</h3>
+<h4 id="Anchor_202545788_h4_1">ByteAddressBuffer</h4>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>関数名</th>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>
+        <p>GetDimensions</p>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>myBAB.GetDimensions( uint numStruct );</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>numStruct = myBAB.data.length();</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;Load-Load4</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>uint ret = myBAB.Load( uint address );</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>uint ret = myBAB.data[uint address/4];</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 id="Anchor_202545788_h4_2">RWByteAddressBuffer</h4>
+<table class="table">
+  <tbody>
+    <tr>
+      <th>関数名</th>
+      <th>HLSL</th>
+      <th>GLSL</th>
+    </tr>
+    <tr>
+      <td>
+        <p>Interlocked 系命令</p>
+        <p>(<a href="#Anchor_202545788_h2_2">こちら</a>で列挙されている命令に対応しています。)</p>
+        <p>&nbsp;</p>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>myBAB.InterlockedXXX( uint dest, uint value, uint original_value);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>uint original_value = AtomicXXX( myBAB.data[dest],value);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>Store-Store4</td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>myBAB.Store( uint address, value);</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="codeblock">
+          <tbody>
+            <tr>
+              <td class="code">
+                <div class="codeblock"><pre>myBAB.data[address] = value;</pre></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="Anchor_202545788_h2_5">注意事項</h2>
+<h3 id="Anchor_202545788_h3_5">ByteAddressBuffer のアドレスに関数の戻り値は現在、使用することが出来ません。</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>ByteAddressBuffer.Load( hoge(x) );            // NG
+ByteAddressBuffer.Load( uint address );        // OK</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_202545788_h3_6">
+  <br />型変換と演算子順位が複雑な場合、正しくコンバート出来ないことがあります。</h3>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre>uint2 value;
+float4(f16tof32(value),f16tof32(value &gt;&gt; 16));     // NG
+ 
+uint2 rshift = uint2(16);
+float4(f16tof32(value),f16tof32(value &gt;&gt; rshift)); // OK</pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 id="Anchor_202545788_h3_7">
+  <br />AppendStructuredBuffer には未対応です。</h3>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

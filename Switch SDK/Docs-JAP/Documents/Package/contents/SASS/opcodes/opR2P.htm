@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>R2P</title>
+<link rel="StyleSheet" href="../style.css" type="text/css" title="general">
+</head>
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    R2P : Move Register To Predicate/CC Register<br>
+    <!-- SUMMARY_TABLE_INFO { description => "Move Register To Predicate/CC Register" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Predicate/CC Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "R2P", subsection => 4.1 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format</h2>
+<div class="Format">
+
+<pre>
+SPA 5.0:
+<code>        <code>{@{!}Pg}</code>   <code><b>R2P</b></code>   <code>PR, Ra{.extract} {, SbMask}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "R2P" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>R2P</b></code>   <code>CC, Ra{.extract} {, SbMask}</code>   <code><!-- OPEX_COUNT_2 --><!-- BEGIN &opex("MATH") -->{&amp;req_6}</code>   <code>{?sched>=?WAIT1}<!-- END &opex("MATH") --></code>   <code>;</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "R2P" } -->
+
+ .extract  : {<b>.B0*,.B1, B2, B3</b>}
+             .B0 selects Ra[ 7: 0] for the source of new CC/PR bits  
+             .B1 selects Ra[15: 8] for the source of new CC/PR bits
+             .B2 selects Ra[23:16] for the source of new CC/PR bits   
+             .B3 selects Ra[31:24] for the source of new CC/PR bits
+
+Source operand SbMask may have one of these forms:
+    Rb                          32-bit register
+    c[ImmU05][ImmU16]           32-bit constant with immediate byte address
+    ImmS20                      32-bit sign-extended 20-bit immediate
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description</h2>
+<div class="Description">
+
+<p>
+<b>R2P</b> writes selected bits of Predicate Register <b>PR</b> or Condition Code register <b>CC</b>with register Ra bits.  
+Bits 7:0 of source operand SbMask select which <b>PR</b> or <b>CC</b> bits are written with Ra bits. 
+Operand SbMask defaults to 0xFF when omitted, thus writing all bits of PR/CC.</p>
+<p>
+
+Predicate Register <b>PR</b> holds the predicates P0 - P6 for each thread arranged in the 16-bit layout below.</p>
+<pre>
+         <b>Predicate Register PR</b>
+     7    6    5    4    3    2    1    0 
+  +----+----+----+----+----+----+----+----+
+  |  0 | P6 | P5 | P4 | P3 | P2 | P1 | P0 |
+  +----+----+----+----+----+----+----+----+
+</pre>
+
+Condition code  Register <b>CC</b> holds the condition code CC flags ZF, SF, CF, and OF for each thread, 
+arranged in the 16-bit layout below.</p>
+<pre>
+        <b>Condition Code Register CC</b>
+   7    6    5    4    3    2    1    0 
+  +----+----+----+----+----+----+----+----+
+  |  0 |  0 |  0 |  0 | OF | CF | SF | ZF |
+  +----+----+----+----+----+----+----+----+
+</pre>
+
+<p>
+The .extract modifier specifies which byte (byte 3/2/1/0)  is used to write the CC or PR state.
+If not specified, byte 0 of source Sa is used. 
+</p>
+<p>
+SbMask bits 7:0 specify which <b>PR</b> or <b>CC</b> bits are written; SbMask bits 31:8 are ignored.
+A SbMask bit of 1 specifies that corresponding <b>PR/CC</b> bit is written with a bit from register Ra; 
+a SbMask bit of 0 leaves that <b>PR</b> bit unchanged. 
+</p>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre>
+<b>R2P</b>   PR, R5;               // PR = R5.B0;
+<b>R2P</b>   PR, R5.B0, 0xFF;      // PR = R5.B0;
+<b>R2P</b>   PR, R5.B0, 0xFF;      // PR = R5.B0;
+<b>R2P</b>   PR, R5.B2, 0xFF;      // PR = R5.B2;
+
+<b>R2P</b>   CC, R5.B1, 0x0F;      // CC = R5[11:8];
+<b>R2P</b>   CC, R5, (1&lt;&lt;3); // CC.OF = R5[bit 3];
+
+</pre>
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body>
+</html>

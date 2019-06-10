@@ -1,0 +1,843 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="../template/js/jquery/jquery.js"></script>
+<script type="text/javascript" src="../template/js/common/manualLib.js"></script>
+<script type="text/javascript" src="../tocData.js"></script>
+<link rel="stylesheet" type="text/css" href="../template/css/template.css" />
+<title>プログラムへの通知メッセージ</title>
+</head>
+<body data-reassemble="autoindex=no,forceNoLabel=yes">
+<div id="autoindex_content">
+<div class="body_content">
+<noscript>
+<div style="border: 4px double black; margin: 4px; padding: 2px; font-weight: bold; background-color: #FFFFCC;">
+<p>お使いのブラウザは JavaScript が使用できないため、本ドキュメントの一部機能が無効になっています。</p><p>JavaScript が無効の環境では目次を使用することができません。<br />JavaScriptの実行が許可された状態で閲覧してください。<br /><br /></p>
+</div>
+</noscript>
+<div class="page_navigation_top">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+</table>
+</div>
+<div class="breadcrumb"></div>
+
+<!-- プログラムへの通知メッセージ -->
+<div class="pagetitle" id="PageId_166065886">プログラムへの通知メッセージ</div>
+<div class="text_separate">
+<p>
+  <ul class="macro_toc">
+    <li>
+      <a href="#Anchor_166065886_h1_1">概要</a>
+    </li>
+    <li>
+      <a href="#Anchor_166065886_h1_2">対象ターゲット環境</a>
+    </li>
+    <li>
+      <a href="#Anchor_166065886_h1_3">通知メッセージの取得方法</a>
+    </li>
+    <li>
+      <a href="#Anchor_166065886_h1_4">プログラムのフォーカス状態とハンドリング方法</a>
+    </li>
+    <ul>
+      <li>
+        <a href="#Anchor_166065886_h2_1">フォーカス状態種別</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_2">フォーカス状態変更のハンドリング</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_3">フォーカス状態の変更通知</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_4">プログラムの自動中断からの再開通知</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_5">BG フォーカス状態における実装例</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_6">動作モードの変更通知</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_7">性能モードの変更通知</a>
+      </li>
+      <li>
+        <a href="#Anchor_166065886_h2_8">終了要求の通知</a>
+      </li>
+      <ul>
+        <li>
+          <a href="#Anchor_166065886_h3_1">終了要求が通知されるケースとそうでないケース</a>
+        </li>
+      </ul>
+    </ul>
+  </ul>
+</p>
+<h1 id="Anchor_166065886_h1_1">概要</h1>
+<p>アプリケーションプログラムは、システムの状態変化や、アプリケーション自身のフォーカス状態変化に合わせてゲームの進行や演出などの処理を行ないます。アプリケーションはこれらの状態変更通知をメッセージとして受信することによって、以下のようなことを行うことができます。</p>
+<ul style="list-style-type: square;">
+  <li>フォーカス状態の変更通知によって、ゲームの進行の停止・再開などを制御できる</li>
+  <li>動作モードの変更通知によって、本体の動作モードによるゲーム演出の変更を行うことができる</li>
+  <li>性能モードの変更通知によって、本体の性能モードに応じたより豪華なゲーム演出に切り替えることができる</li>
+</ul>
+<p>以上のようなことを行う必要がない場合には、通知メッセージを受信する必要はありません。デフォルトでは、全てのメッセージが通知されない状態となっています。</p>
+<h1 id="Anchor_166065886_h1_2">対象ターゲット環境</h1>
+<p>本章に記載の機能は、NX32 および NX64 ビルド環境でのみ利用可能です。</p>
+<h1 id="Anchor_166065886_h1_3">通知メッセージの取得方法</h1>
+<p>プログラムは、システムの状態変化を通知メッセージとして受け取ることができます。これによって、アプリケーションの動作を変更することができます。</p>
+<p>ただし、デフォルトでは全てのメッセージが通知されない設定になっており、アプリケーションは必要に応じて所望の通知メッセージが通知されるように設定しなければなりません。どのような通知メッセージが使用可能なのかは次節以降で説明します。</p>
+<p>通知メッセージは <span class="ApiLink_nn__oe__Message">nn::oe::Message</span> 型（符号なし 32bit 整数の typedef）の定数値として定義されています。通知メッセージの取得に関わる関数には以下があります。</p>
+<ul style="list-style-type: square;">
+  <li>通知メッセージのポーリング <span class="ApiLink_nn__oe__TryPopNotificationMessage">nn::oe::TryPopNotificationMessage</span>()</li>
+  <li>通知メッセージの待機用イベント取得 <span class="ApiLink_nn__oe__GetNotificationMessageEvent">nn::oe::GetNotificationMessageEvent</span>()</li>
+  <li>通知メッセージの待機＋取得 <span class="ApiLink_nn__oe__PopNotificationMessage">nn::oe::PopNotificationMessage</span>()</li>
+</ul>
+<p>これらは以下のように使い分けることが推奨されます。</p>
+<ul style="list-style-type: square;">
+  <li>通知メッセージを専用のスレッド上のループで待ち受ける場合<ul style="list-style-type: square;"><li>ループ内で <span class="ApiLink_nn__oe__PopNotificationMessage">nn::oe::PopNotificationMessage</span>() を呼んでメッセージを待機・取得し、メッセージに対する処理を行ってください</li></ul></li>
+  <li>描画ループなどで通知メッセージを待ち受ける場合<ul style="list-style-type: square;"><li>ループ内で&nbsp;<span class="ApiLink_nn__oe__TryPopNotificationMessage">nn::oe::TryPopNotificationMessage</span>() を呼んで、メッセージを取得できた場合に、メッセージに対する処理を行ってください</li><li>メッセージに対する処理が重い場合に、そのまま描画ループ内で処理を行うと、描画ループが回るのを阻害するため、注意してください</li></ul></li>
+  <li>(上級者向け) メッセージのハンドリングタイミングなどを細かく制御したい場合<ul style="list-style-type: square;"><li>適宜 <span class="ApiLink_nn__oe__GetNotificationMessageEvent">nn::oe::GetNotificationMessageEvent</span>() で取得できる <span class="ApiLink_nn__os__SystemEvent">nn::os::SystemEvent</span> がシグナルされるのを待機し&nbsp;<span class="ApiLink_nn__oe__TryPopNotificationMessage">nn::oe::TryPopNotificationMessage</span>() でメッセージを取得してください</li><li><span class="ApiLink_nn__os__WaitAny">nn::os::WaitAny</span>() などを使用することで、別のイベントなどと同時に一つのスレッドで待機することも可能です</li></ul></li>
+</ul>
+<p>
+  <span class="ApiLink_nn__oe__TryPopNotificationMessage">nn::oe::TryPopNotificationMessage</span>() を空転させるような通知メッセージの待機を行わないでください。<span class="ApiLink_nn__oe__TryPopNotificationMessage">nn::oe::TryPopNotificationMessage</span>() を使用する場合には、描画ループのように定期的に動作するループ中で呼び出すようにしてください。</p>
+<p>通知メッセージを専用のスレッド上のループで待ち受ける場合のコード例を以下に示します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/nn_Macro.h&gt;
+#include &lt;nn/os.h&gt;
+#include &lt;nn/oe.h&gt;
+#include &lt;nn/nn_Log.h&gt;
+#include &lt;nn/nn_Assert.h&gt;
+</span>
+<span class="n">NN_OS_ALIGNAS_THREAD_STACK</span> <span class="kt">char</span> <span class="n">g_MessageThreadStack</span><span class="p">[</span><span class="mh">0x4000</span><span class="p">];</span>
+<span class="kt">void</span> <span class="nf">HandleMessageAutoLoop</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">arg</span><span class="p">)</span> <span class="n">NN_NOEXCEPT</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_UNUSED</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp; <span class="k">for</span> <span class="p">(;;)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">message</span> <span class="o">=</span> <span class="nn">nn::oe::</span><span class="n">PopNotificationMessage</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">switch</span> <span class="p">(</span><span class="n">message</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">MessageFocusStateChanged</span><span class="p">:</span>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// プログラムのフォーカス状態に変更があった際に通知されます。
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// nn::oe::SetFocusHandlingMode() の指定によっては通知されません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">state</span> <span class="o">=</span> <span class="nn">nn::oe::</span><span class="n">GetCurrentFocusState</span><span class="p">();</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">switch</span> <span class="p">(</span><span class="n">state</span><span class="p">)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">FocusState_InFocus</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// インフォーカス状態
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">FocusState_OutOfFocus</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アウトフォーカス状態
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">FocusState_Background</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// BG フォーカス状態
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">MessageResume</span><span class="p">:</span>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// アプリケーションが一時中断状態から復帰した際に通知されます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::oe::SetResumeNotificationEnabled() の指定によっては通知されません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">MessageOperationModeChanged</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 動作モード（携帯／据置）が変更されたことを示す通知です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::oe::GetOperationMode() により現在の動作モードを取得することができます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::oe::SetOperationModeChangedNotificationEnabled() の指定によっては通知されません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">MessagePerformanceModeChanged</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 性能モード（ノーマル／ブースト）が変更されたことを示す通知です。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::oe::GetPerformanceMode() により現在の性能モードを取得することができます。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// nn::oe::SetPerformanceModeChangedNotificationEnabled() の指定によっては通知されません。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">case</span> <span class="nn">nn::oe::</span><span class="nl">MessageExitRequest</span><span class="p">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 自プログラムへの終了要求を示す通知です。
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// このメッセージは事前に nn::oe::EnterExitRequestHandlingSection() を
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// 発行していた場合にのみ通知されます。速やかに終了前の処理を行ない、最終的に、
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="c1">// nn::oe::LeaveExitRequestHandlingSection() を発行するとアプリが終了します。
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">default</span><span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// 未知のメッセージは無視するようにします
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_LOG</span><span class="p">(</span><span class="s">&quot;Unhandled message = 0x%08x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">break</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">void</span> <span class="n">nnMain</span><span class="p">()</span>
+<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">ThreadType</span>  <span class="n">messageThread</span><span class="p">;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="nn">nn::os::</span><span class="n">CreateThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">messageThread</span><span class="p">,</span> <span class="n">HandleMessageAutoLoop</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">g_MessageThreadStack</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g_MessageThreadStack</span><span class="p">),</span> <span class="nn">nn::os::</span><span class="n">HighestThreadPriority</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n">NN_ASSERT</span><span class="p">(</span> <span class="n">result</span><span class="p">.</span><span class="n">IsSuccess</span><span class="p">(),</span> <span class="s">&quot;Cannot create message handling thread.&quot;</span> <span class="p">);</span>
+ &nbsp; &nbsp;<span class="nn">nn::os::</span><span class="n">StartThread</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">messageThread</span> <span class="p">);</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// アプリケーションの処理
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">//         ：
+</span><span class="p">}</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <ul>
+      <li>全てのメッセージはデフォルトでは通知されません。それぞれ専用の API によってメッセージが通知されるように設定する必要があります。</li>
+      <li>受信したメッセージが不要であった場合には、そのメッセージを無視するようにしてください。</li>
+      <li>通知メッセージは１フレームに１通知であるとは限りません。複数のメッセージが連続で通知されることもあります。そのため、どの API を使ってメッセージ通知を受け取る場合でも、受け取り可能なものは全て受け取ってから次のフレームの処理に移るようにして下さい。</li>
+    </ul>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <ul>
+      <li>可能であれば、メッセージ通知を処理するスレッドは、それ専用の独立したスレッドとして用意することを推奨しています。理由は以下の通りです。</li>
+      <li>例えば、メッセージ処理スレッドの中で他モジュールの API を呼び出した場合、そこでスレッドが長くブロッキングされてしまうことがあります（エラービューア起動時など）。そのような状況下で、HOME メニューからユーザ操作によるアプリケーション終了を行うと、アプリケーションは <span class="ApiLink_nn__oe__MessageExitRequest">nn::oe::MessageExitRequest</span> の終了要求メッセージを処理することができず、最終的に一定時間経過後にユーザに対してアプリケーション異常終了が通知されてしまい印象が良くありません。</li>
+      <li>終了要求だけでなく、スレッドがブロッキングされている間は全てのメッセージをハンドリングできない状態が続きます。</li>
+      <li>このような事態を避けるため、メッセージ処理スレッドを独立させ、システムからのメッセージ通知を受け取ったら、その事象をアプリケーション自身のステート管理に通知するなどの設計とすることで上記のような問題の多くは解消することができます。</li>
+    </ul>
+  </div>
+</div>
+<h1 id="Anchor_166065886_h1_4">プログラムのフォーカス状態とハンドリング方法</h1>
+<h2 id="Anchor_166065886_h2_1">フォーカス状態種別</h2>
+<p>
+  <span style="color: rgb(51,51,51);">プログラムには以下に示す３つのフォーカス状態とスリープ状態があります（厳密にはスリープ状態はフォーカス状態種別ではありませんが便宜上ここで説明します）。プログラムはこれらの状態に応じてゲームなどの進行を制御して下さい。</span>
+</p>
+<table class="wrapped" style="margin-left: 20.0px;">
+  <tbody>
+    <tr>
+      <th>フォーカス状態種別</th>
+      <th style="text-align: center;">説明</th>
+    </tr>
+    <tr>
+      <td>
+        <p>インフォーカス状態<br />(初期状態)&nbsp;</p>
+      </td>
+      <td>
+        <p>自プログラムにフォーカスがある状態です。</p>
+        <p>この状態は、HOME メニューなどからプログラムを起動した直後など、</p>
+        <p>自プログラムが直接ユーザ操作の対象になっている状態を示します。</p>
+        <p>プログラム内の全てのスレッドが動作可能です。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>アウトフォーカス状態</p>
+      </td>
+      <td>
+        <p>自プログラムにフォーカスがない状態で、ライブラリアプレットが起動している時の状態です。</p>
+        <p>プログラム内の全てのスレッドが動作可能ですが、ライブラリアプレットを呼び出したスレッドは</p>
+        <p>当該 API によりブロックされています（ただし一部例外もあります）。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>BG フォーカス状態</p>
+        <p>（バックグラウンド<br />　フォーカス状態）</p>
+      </td>
+      <td>
+        <p>自プログラムにフォーカスがない状態で、DevMenu や HOME メニューが前面にいる状態です。</p>
+        <p>スリープ状態から復帰した直後のエントランス画面などもこの状態になっています。</p>
+        <p>この状態におけるプログラムの振舞いは、後述のフォーカスハンドリングモードによって異なります。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>スリープ状態</td>
+      <td>
+        <p>システム全体がスリープし、自プログラムの動作が一時中断している状態です。</p>
+        <p>プログラムはこの状態を検知することはできません。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p style="text-align: left;">アプリケーションの各フォーカス状態種別を図にすると以下のようなイメージになります。</p>
+<p style="text-align: center;">
+  <img src="../Attachments/Attach_166065886/188809926.png"></img>
+</p>
+<p>アプリケーションプログラムが&nbsp;nninitStartup() に到達する時点では、アプリケーションは既にインフォーカス状態にあります。</p>
+<p>
+  <strong>Figure-1</strong> はアプリケーションが「インフォーカス状態」の場合を表しています。インフォーカス状態では、最前面での画面出画や描画処理、音声出力、ユーザからの HID 入力を受け取るといったことができます。各種リソースを優先的に使用しながらゲーム等の進行を処理することができます。</p>
+<p>
+  <strong>Figure-2</strong> はアプリケーションが「アウトフォーカス状態」の場合を表しています。アウトフォーカス状態では、ライブラリアプレットが前面で動作しているため、自プログラムの画面出画や描画処理は制限され、HID 入力は無入力を受け取る状態になっています。また、音声は出力されているものの、動作中のライブラリアプレットによって音量が絞られている可能性があります（音量が 0 の場合もあります）。この状態でも各スレッドの動作は可能ですが、ライブラリアプレットを起動したスレッドはその起動 API でブロックされています（ただし一部例外もあるため、詳細は各ライブラリアプレットの API リファレンスを参照して下さい）。</p>
+<p>
+  <strong>Figure-3</strong> はアプリケーションが「BG フォーカス状態」の場合を表しています。BG フォーカス状態におけるプログラムの振舞いは、後述のフォーカスハンドリングモードによって異なりますが、どのモードであっても以下のような状態であるため、基本的にはゲームの処理を進行させずに自身が「インフォーカス状態」もしくは「アウトフォーカス状態」となるまで待機することを推奨します。ただし、ネットワークのオンライン状態を維持したりする必要がある場合は裏で動作し続けることが可能です。</p>
+<ul>
+  <li>自プログラムの画面出画は行われず、描画処理は制限されています（GPU をフルで利用できない状態です）。</li>
+  <li>HID 入力は無入力を受け取ります。</li>
+  <li>音声は出音されません。</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>アプリケーションが「BG フォーカス状態」時に、HOME メニューからライブラリアプレットが起動した場合でも、アプリケーションは「アウトフォーカス状態」ではなく、あくまで「BG フォーカス状態」です。「アウトフォーカス状態」は、アプリケーション自身にとってのライブラリアプレットを起動した時の状態を示しています。</p>
+  </div>
+</div>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>「アウトフォーカス状態」はライブラリアプレットの起動によって自プログラムの出画が隠れてしまった状態です。ライブラリアプレットの種類や、どのモジュール呼出しによってそれらが起動するのかについては「<a href="../Pages/Page_178488679.html">機能＞ライブラリアプレット</a>」の章をご参照下さい。</p>
+  </div>
+</div>
+<p>
+  <br />
+</p>
+<h2 id="Anchor_166065886_h2_2">フォーカス状態変更のハンドリング</h2>
+<p>アプリケーションはフォーカス状態に応じてゲームの進行を制御しますが、アプリケーションの特性によって以下のようなバリエーションが想定されます。</p>
+<ul>
+  <li>プログラムでゲームの進行を制御するが、BG フォーカス状態の時には自動的に動作を停止して欲しい</li>
+  <li>プログラムでゲームの進行を制御しつつ、BG フォーカス状態でも以下のような理由でプログラムの実行を継続したい<ul><li>ネットワーク対戦中などで通信のセッションを維持したい</li><li>CPU や GPGPU などで演算処理を継続して行いたい</li></ul></li>
+</ul>
+<p>それぞれのケースに合わせて、アプリケーションは以下の API を使ってフォーカス状態のハンドリング方法を指定して下さい。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__SetFocusHandlingMode">nn::oe::SetFocusHandlingMode</span>(<span class="ApiLink_nn__oe__FocusHandlingMode">nn::oe::FocusHandlingMode</span> mode);</li>
+</ul>
+<p>mode には以下に示すフォーカスハンドリングモードのいずれかを指定します。デフォルトは「サスペンドモード」となっています。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th>
+        <p>フォーカスハンドリングモード</p>
+        <p>（mode に指定すべき値）</p>
+      </th>
+      <th>説明</th>
+    </tr>
+    <tr>
+      <td>
+        <p>インフォーカス単独モード</p>
+        <p>（<span class="ApiLink_nn__oe__FocusHandlingMode_InFocusOnly">nn::oe::FocusHandlingMode_InFocusOnly</span>）</p>
+      </td>
+      <td>
+        <p>インフォーカス状態以外の時にはプログラムが自動的に一時中断するモードです。</p>また、フォーカス状態に変更が発生しても nn::oe::MessageFocusStateChanged は通知されません。</td>
+    </tr>
+    <tr>
+      <td>
+        <p>サスペンドモード</p>
+        <p>（<span class="ApiLink_nn__oe__FocusHandlingMode_Suspend">nn::oe::FocusHandlingMode_Suspend</span>）</p>
+      </td>
+      <td>
+        <p>BG フォーカス状態の時にプログラムが自動的に一時中断するモードです。</p>
+        <p>また、フォーカス状態に変更が発生しても <span class="ApiLink_nn__oe__MessageFocusStateChanged">nn::oe::MessageFocusStateChanged</span> は通知されません。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>サスペンド通知モード</p>
+        <p>（<span class="ApiLink_nn__oe__FocusHandlingMode_SuspendAndNotify">nn::oe::FocusHandlingMode_SuspendAndNotify</span>）</p>
+      </td>
+      <td>
+        <p>BG フォーカス状態時にプログラムが自動的に一時中断し、かつ、フォーカス状態に変更が発生した時には <span class="ApiLink_nn__oe__MessageFocusStateChanged">nn::oe::MessageFocusStateChanged</span> が通知されるモードです。</p>
+        <p>ただし、本モードはアプリケーションに BG フォーカス状態を意識させないためのものであるため、BG フォーカス状態への遷移復帰に伴うフォーカス状態変更は通知されません。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>通知モード</p>
+        <p>（<span class="ApiLink_nn__oe__FocusHandlingMode_Notify">nn::oe::FocusHandlingMode_Notify</span>）</p>
+      </td>
+      <td>
+        <p>BG フォーカス状態の時でもプログラムが動作し続けるモードです。</p>
+        <p>また、フォーカス状態に変更が発生した時には <span class="ApiLink_nn__oe__MessageFocusStateChanged">nn::oe::MessageFocusStateChanged</span> が通知されます。</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>プログラムの各フォーカス状態におけるプログラムの動作状態およびフォーカス変更時の通知有無をまとめると、上記の各モードは以下の表のようになります。</p>
+<table class="wrapped">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">項目</th>
+      <th style="text-align: center;">
+        <p>インフォーカス単独</p>
+        <p>モード</p>
+      </th>
+      <th style="text-align: center;">
+        <p>サスペンドモード</p>
+      </th>
+      <th style="text-align: center;">
+        <p>サスペンド通知モード</p>
+      </th>
+      <th style="text-align: center;">&nbsp;&nbsp; 通知モード&nbsp;&nbsp;&nbsp;</th>
+    </tr>
+    <tr>
+      <td style="text-align: center;">インフォーカス状態</td>
+      <td class="highlight-green" style="text-align: center;">動作継続</td>
+      <td class="highlight-green" style="text-align: center;">
+        <p>動作継続</p>
+      </td>
+      <td class="highlight-green" style="text-align: center;">
+        <p>動作継続</p>
+      </td>
+      <td class="highlight-green" style="text-align: center;">
+        <p>動作継続</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">アウトフォーカス状態</td>
+      <td class="highlight-red" style="text-align: center;">
+        <p>自動中断</p>
+      </td>
+      <td class="highlight-green" style="text-align: center;">
+        <p>動作継続</p>
+      </td>
+      <td class="highlight-green" style="text-align: center;">
+        <p>動作継続</p>
+      </td>
+      <td class="highlight-green" style="text-align: center;">
+        <p>動作継続</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">BG フォーカス状態</td>
+      <td class="highlight-red" style="text-align: center;">自動中断</td>
+      <td class="highlight-red" style="text-align: center;">自動中断</td>
+      <td class="highlight-red" style="text-align: center;">自動中断</td>
+      <td class="highlight-green" style="text-align: center;">動作継続</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">フォーカス状態変更時の通知</td>
+      <td colspan="2" style="text-align: center;">通知なし</td>
+      <td class="highlight-yellow" colspan="2" style="text-align: center;">通知あり</td>
+    </tr>
+  </tbody>
+</table>
+<p>各モードにおいて、フォーカス状態が遷移した場合の「変更通知」の有無、および、 遷移後の状態における「自動中断」の開始・継続・解除は以下の通りです。</p>
+<table class="wrapped">
+  <colgroup>
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+    <col />
+  </colgroup>
+  <tbody>
+    <tr>
+      <th style="text-align: center;">フォーカス状態の変化</th>
+      <th colspan="2" style="text-align: center;">
+        <p>インフォーカス単独</p>
+        <p>モード</p>
+      </th>
+      <th colspan="2" style="text-align: center;">
+        <p>サスペンドモード</p>
+      </th>
+      <th colspan="2" style="text-align: center;">
+        <p>サスペンド通知</p>
+        <p>モード</p>
+      </th>
+      <th colspan="2" style="text-align: center;">通知モード</th>
+    </tr>
+    <tr>
+      <td class="highlight-grey" style="text-align: center;">遷移前&nbsp; &rarr;&nbsp; 遷移後</td>
+      <td class="highlight-grey" style="text-align: center;">変更通知</td>
+      <td class="highlight-grey" style="text-align: center;">自動中断</td>
+      <td class="highlight-grey" style="text-align: center;">変更通知</td>
+      <td class="highlight-grey" style="text-align: center;">自動中断</td>
+      <td class="highlight-grey" style="text-align: center;">変更通知</td>
+      <td class="highlight-grey" style="text-align: center;">自動中断</td>
+      <td class="highlight-grey" style="text-align: center;">変更通知</td>
+      <td class="highlight-grey" style="text-align: center;">自動中断</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp; インフォーカス状態 &rarr; アウトフォーカス状態</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">開始</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp; インフォーカス状態 &rarr;&nbsp;&nbsp;&nbsp;&nbsp; BG フォーカス状態</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">開始</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">開始</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">開始</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+    </tr>
+    <tr>
+      <td>アウトフォーカス状態 &rarr;&nbsp;&nbsp;&nbsp; インフォーカス状態</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">解除</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+    </tr>
+    <tr>
+      <td>アウトフォーカス状態 &rarr;&nbsp;&nbsp;&nbsp;&nbsp; BG フォーカス状態</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">継続</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">開始</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">開始</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp; BG フォーカス状態 &rarr;&nbsp;&nbsp;&nbsp; インフォーカス状態</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">解除</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">解除</td>
+      <td style="text-align: center;">★１</td>
+      <td style="text-align: center;">解除</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp; BG フォーカス状態 &rarr; アウトフォーカス状態</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">継続</td>
+      <td style="text-align: center;">----</td>
+      <td style="text-align: center;">解除</td>
+      <td style="text-align: center;">★１</td>
+      <td style="text-align: center;">解除</td>
+      <td style="text-align: center;">あり</td>
+      <td style="text-align: center;">----</td>
+    </tr>
+  </tbody>
+</table>
+<p>★１での変更通知は特定の条件化でしか行なわれません。具体的には、BG フォーカス状態に入る前のフォーカス状態が、BG フォーカス状態を出た後のフォーカス状態と異なる場合にのみ、変更通知が行なわれます。変更通知が行われるケースと行われないケースを以下に示します。</p>
+<ul>
+  <li>
+    <strong>変更通知が行なわれるケース</strong>
+    <br />
+    <ul>
+      <li>インフォーカス状態 &rarr; BG フォーカス状態 &rarr; アウトフォーカス状態</li>
+      <li>アウトフォーカス状態 &rarr; BG フォーカス状態 &rarr; インフォーカス状態</li>
+    </ul>
+  </li>
+  <li>
+    <strong>変更通知が行なわれないケース</strong>
+    <ul>
+      <li>インフォーカス状態 &rarr; BG フォーカス状態 &rarr; インフォーカス状態</li>
+      <li>アウトフォーカス状態 &rarr; BG フォーカス状態 &rarr; アウトフォーカス状態</li>
+    </ul>
+  </li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>プログラムが <span class="ApiLink_nn__oe__SetFocusHandlingMode">nn::oe::SetFocusHandlingMode</span>() を使って自動中断に入るモードに変更した場合、プログラムの状態によってはそのタイミングで自動中断が発動します。ただし、プログラムの自動中断処理は <span class="ApiLink_nn__oe__SetFocusHandlingMode">nn::oe::SetFocusHandlingMode</span>() の発行とは非同期に行われるため、この関数から抜けて後続のプログラム命令を幾分か実行している最中に中断処理が行われる可能性があるため注意して下さい。</p>
+    <p>また、動的に他のモードから「サスペンドモード」や「インフォーカス単独モード」に設定を変更した場合、一時中断から復帰したときの「フォーカス状態変更通知」（次章を参照）が通知されないことがあります。通知が必要な場合には「通知モード」もしくは「サスペンド通知モード」を使用するか、後述の「プログラムの一時中断からの再開通知」を利用してください。</p>
+  </div>
+</div>
+<h2 id="Anchor_166065886_h2_3">フォーカス状態の変更通知</h2>
+<p>フォーカスハンドリングモードが「通知モード」もしくは「サスペンド通知モード」の場合、アプリケーションのフォーカス状態に変更が発生した場合に以下のメッセージが通知されるようになります。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__MessageFocusStateChanged">nn::oe::MessageFocusStateChanged</span>：フォーカス状態に変更が発生した</li>
+</ul>
+<p>このメッセージを受けたら、<span class="ApiLink_nn__oe__GetCurrentFocusState">nn::oe::GetCurrentFocusState</span>() を使って現在のフォーカス状態種別を取得し、各フォーカス状態に応じた処理を行なって下さい。</p>
+<p>一般的に、ユーザとのインタラクティブ性の高いゲーム場面においては、</p>
+<ul style="list-style-type: square;">
+  <li>返値が BG フォーカス状態（<span class="ApiLink_nn__oe__FocusState_Background">nn::oe::FocusState_Background</span>）ならゲームの進行を停止する（必要に応じて動作再開時にユーザの確認を取る）</li>
+  <li>返値が アウトフォーカス状態（<span class="ApiLink_nn__oe__FocusState_OutOfFocus">nn::oe::FocusState_OutOfFocus</span>）ならゲームの進行を停止する</li>
+  <li>返値が インフォーカス状態（<span class="ApiLink_nn__oe__FocusState_InFocus">nn::oe::FocusState_InFocus</span>）ならゲームの進行を再開する</li>
+</ul>
+<p>とすることで、ユーザの見えないところでゲームが進行してしまうといったユーザにとっての不利益を防ぐことができます。</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span class="ApiLink_nn__oe__MessageFocusStateChanged">nn::oe::MessageFocusStateChanged</span> が通知された後に <span class="ApiLink_nn__oe__GetCurrentFocusState">nn::oe::GetCurrentFocusState</span>() で最新のフォーカス状態種別を取得した際に、アプリケーションから見て前回のフォーカス状態種別と同じ状態種別を取得する（つまり、変更がなかったかのように観測される）場合があります。このような場合には、アプリケーションは現在の動作をそのまま継続するような実装を行って下さい。</p>
+    <p>この現象は、実際にフォーカス状態が変更された時に、アプリケーションが <span class="ApiLink_nn__oe__GetCurrentFocusState">nn::oe::GetCurrentFocusState</span>() を発行できずに、その時のフォーカス状態を取得しなかった場合に発生します。</p>
+  </div>
+</div>
+<h2 id="Anchor_166065886_h2_4">プログラムの自動中断からの再開通知</h2>
+<p>アプリケーションプログラムは、以下のようなケースにおいて、システムによって自動的にプログラムの実行が一時中断されます。</p>
+<ul>
+  <li>サスペンドモード時、サスペンド通知モード時に、プログラムが「BG フォーカス状態」に遷移した場合</li>
+  <li>インフォーカス単独モード時に、プログラムが「インフォーカス状態」以外の状態に遷移した場合</li>
+  <li>システムがスリープに入り、プログラムが「スリープ状態」に遷移した場合</li>
+</ul>
+<p>上記のいずれかの状態から復旧するとプログラムは一時中断が解除され動作を再開しますが、以下の API を事前に発行しておくことで一時中断からの復帰を意味する <span class="ApiLink_nn__oe__MessageResume">nn::oe::MessageResume</span> というメッセージ通知を受け取ることができます。このメッセージ通知は、前述の「フォーカス状態の変更通知」に依存しない機能であり、如何なるフォーカスハンドリングモードの場合でも上記の要件を満たした際に通知されます。デフォルトではこの通知は無効になっています。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__SetResumeNotificationEnabled">nn::oe::SetResumeNotificationEnabled</span>(true);</li>
+</ul>
+<p>アプリケーションは以下のような処理を行いたい場合に、このメッセージを利用することができます。</p>
+<ul>
+  <li>音楽系のゲームにおいて、一時中断解除時に映像再生と音声再生を再同期させたい</li>
+  <li>アクション系のゲームにおいて、一時中断解除時に自動的に一時ポーズ状態にさせたい</li>
+</ul>
+<p>
+  <br />
+</p>
+<div class="info_new">
+  <div class="info_new_left">参考：</div>
+  <div class="info_new_right">
+    <p>
+      <span class="ApiLink_nn__oe__MessageResume">nn::oe::MessageResume</span> による再開通知は「システムによってアプリケーションが自動的に一時中断されたこと」を検知するために用意されています。そのため、「スリープ状態」からの復帰だけでなく、「BG フォーカス状態での自動中断」や「アウトフォーカス状態での自動中断」からの動作再開でも通知されます。</p>
+    <p>また、フォーカスハンドリングモードが「通知モード」の場合は、アプリケーションが「BG フォーカス状態」でも動作し続けますが、その間にシステムがスリープすると、アプリケーションは「スリープ状態」となり自動中断されます。その後、スリープから復帰するとアプリケーションは「スリープ状態」から「BG フォーカス状態」へと変化し、この時に再開通知が有効であれば即座に <span class="ApiLink_nn__oe__MessageResume">nn::oe::MessageResume</span> が通知されます。</p>
+  </div>
+</div>
+<div class="warn_new">
+  <div class="warn_new_left">警告：</div>
+  <div class="warn_new_right">
+    <p>プログラムが一時中断される条件は、上記のほかにも、今後のシステムアップデートで変更される可能性があります。<br />上記の目的以外で <span class="ApiLink_nn__oe__MessageResume">nn::oe::MessageResume</span> メッセージを使用しないでください。特に、<strong>システムがスリープされたことを検知するために <span class="ApiLink_nn__oe__MessageResume">nn::oe::MessageResume</span> メッセージを使用しないようにしてください</strong>。</p>
+  </div>
+</div>
+<h2 id="Anchor_166065886_h2_5">BG フォーカス状態における実装例</h2>
+<p>通知モード（<span class="ApiLink_nn__oe__FocusHandlingMode_Notify">nn::oe::FocusHandlingMode_Notify</span>）では、BG フォーカス状態時もプログラムは HOME メニュー画面の裏で動作を継続します。この状態においては、プログラムは以下のような動作を行うことを推奨します。</p>
+<ul>
+  <li>ネットワークなどのセッションを維持するために必要な処理を行って下さい。</li>
+  <li>上記以外の CPU 処理は極力行わないようにして下さい。<ul><li>BG フォーカス状態を抜けるまでブロッキングするような実装にすることで、無駄なバッテリー消費を抑えることができます。</li></ul></li>
+</ul>
+<p>また、GPU およびオーディオに関しては以下のような状態です。</p>
+<ul>
+  <li>GPU の処理はバックグラウンドでも処理が可能です。<ul><li>ただし、アプリケーションの画面は出画されません。</li><li>利用可能な GPU 処理能力は、インフォーカス状態の場合に比べて半分程度に制限されています。</li></ul></li>
+  <li>オーディオの処理はバックグラウンドでも処理が可能です。<br /><ul><li>ただし、出音はされません。</li></ul></li>
+</ul>
+<p>
+  <br />
+</p>
+<p>通知モードでは、フォーカス状態の変更通知（<span class="ApiLink_nn__oe__MessageFocusStateChanged">nn::oe::MessageFocusStateChanged</span>）を受け取るため、BG フォーカス状態から抜けるタイミングを知ることができます。そのため、アプリケーション内で <span class="ApiLink_nn__os__Event">nn::os::Event</span> などの同期機構を利用することで以下のようなロジックを形成しておくことで無駄な CPU 処理を行わないように実装できます。</p>
+<ul>
+  <li>BG フォーカス状態なら Clear、それ以外なら Signal するような <span class="ApiLink_nn__os__Event">nn::os::Event</span> を１つ用意する</li>
+  <li>アプリケーションが作成した各スレッドのループ部分で上記 <span class="ApiLink_nn__os__Event">nn::os::Event</span> を Wait するようにする<ul><li>後述の終了要求もハンドリングするような場合には、アプリケーション内で終了要求を行う <span class="ApiLink_nn__os__Event">nn::os::Event</span> をもう１つ用意し、各スレッドで <span class="ApiLink_nn__os__WaitAny">nn::os::WaitAny</span>() するような実装も可能です。</li></ul></li>
+</ul>
+<p>各スレッドがブロッキングで待機している状態であれば、サスペンドモード等でアプリケーションが中断されている状態と同じでプログラムは CPU を消費しません。そのため、通知モードでも十分にバッテリー消費を抑えた実装が可能です。</p>
+<h2 id="Anchor_166065886_h2_6">動作モードの変更通知</h2>
+<p>
+  <span class="ApiLink_nn__oe__MessageOperationModeChanged">nn::oe::MessageOperationModeChanged</span> は、本体の動作モードが変更されたことを示す通知メッセージです。現在の動作モードは <span class="ApiLink_nn__oe__GetOperationMode">nn::oe::GetOperationMode</span>() で取得することが可能で、動作モードには以下のものがあります。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th>動作モード</th>
+      <th>説明</th>
+      <th>映像出力先</th>
+      <th>音声出力先</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__OperationMode_Handheld">nn::oe::OperationMode_Handheld</span>
+      </td>
+      <td>携帯モード</td>
+      <td>本体の液晶画面</td>
+      <td>本体の内蔵スピーカ</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__OperationMode_Console">nn::oe::OperationMode_Console</span>
+      </td>
+      <td>据置モード</td>
+      <td>HDMI 接続先（TV など）</td>
+      <td>HDMI 接続先（TV など）</td>
+    </tr>
+  </tbody>
+</table>
+<p>アプリケーションは必要に応じて、動作モードによって演出を変えるなどの処理を行なうことができます。</p>
+<p>動作モードは NX 本体の状態であるため、アプリケーションの起動直後における状態は一定ではありません。このため、必要に応じて、起動時の動作モードを&nbsp;<span class="ApiLink_nn__oe__GetOperationMode">nn::oe::GetOperationMode</span>() で取得してください。</p>
+<p>なお、<span class="ApiLink_nn__oe__MessageOperationModeChanged">nn::oe::MessageOperationModeChanged</span> は以下の API で通知を有効にしたときから通知されるようになります（デフォルトでは無効になっています）。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__SetOperationModeChangedNotificationEnabled">nn::oe::SetOperationModeChangedNotificationEnabled</span>(true);</li>
+</ul>
+<h2 id="Anchor_166065886_h2_7">性能モードの変更通知</h2>
+<p>
+  <span class="ApiLink_nn__oe__MessagePerformanceModeChanged">nn::oe::MessagePerformanceModeChanged</span> は、本体の性能モードが変更されたことを示す通知メッセージです。現在の性能モードは <span class="ApiLink_nn__oe__GetPerformanceMode">nn::oe::GetPerformanceMode</span>() で取得することが可能で、性能モードには以下のものがあります。</p>
+<table class="wrapped" style="margin-left: 1.5em;">
+  <tbody>
+    <tr>
+      <th>性能モード</th>
+      <th>説明</th>
+      <th>具体的な性能値</th>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__PerformanceMode_Normal">nn::oe::PerformanceMode_Normal</span>
+      </td>
+      <td>ノーマルモード</td>
+      <td rowspan="2">
+        <p>
+          <a href="../Pages/Page_107339250.html">性能選択</a> の</p>
+        <p>ページを参照して下さい。</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="ApiLink_nn__oe__PerformanceMode_Boost">nn::oe::PerformanceMode_Boost</span>
+      </td>
+      <td>ブーストモード</td>
+    </tr>
+  </tbody>
+</table>
+<p>アプリケーションは必要に応じて、性能モードによって演出を変えるなどの処理を行なうことができます。</p>
+<p>性能モードは NX 本体の状態であるため、アプリケーションの起動直後における状態は一定ではありません。このため、必要に応じて、起動時の性能モードを <span class="ApiLink_nn__oe__GetPerformanceMode">nn::oe::GetPerformanceMode</span>() で取得してください。</p>
+<p>なお、<span class="ApiLink_nn__oe__MessagePerformanceModeChanged">nn::oe::MessagePerformanceModeChanged</span> は以下の API で通知を有効にしたときから通知されるようになります（デフォルトでは無効になっています）。</p>
+<ul>
+  <li>
+    <span class="ApiLink_nn__oe__SetPerformanceModeChangedNotificationEnabled">nn::oe::SetPerformanceModeChangedNotificationEnabled</span>(true);</li>
+</ul>
+<p>また、各性能モードの具体的な性能パラメータ値は <span class="ApiLink_nn__oe__PerformanceConfiguration">nn::oe::PerformanceConfiguration</span> の設定によって変わります。詳細は&nbsp;<a href="../Pages/Page_107339250.html">性能選択</a>&nbsp;のページを参照して下さい。</p>
+<h2 id="Anchor_166065886_h2_8">終了要求の通知</h2>
+<p>メニュー画面からアプリケーションを終了させる場合などには、アプリケーションに対してプログラムの終了要求が発生します。デフォルトでは、プログラムの終了要求が発生すると、プログラムはどのような状況であっても強制的に終了させられます。</p>
+<p>ただし、アプリケーションは事前に <span class="ApiLink_nn__oe__EnterExitRequestHandlingSection">nn::oe::EnterExitRequestHandlingSection</span>() を発行しておくことで、プログラムの終了要求をハンドリングする区間に入ることができます。この区間中にプログラムの終了要求が発生すると、自プログラムに <span class="ApiLink_nn__oe__MessageExitRequest">nn::oe::MessageExitRequest</span> メッセージが通知されます。プログラムはこの通知を受けた際、セーブデータの保存や、ネットワークセッションの切断など、終了前に実施すべき処理を速やかに完了させ、最終的に <span class="ApiLink_nn__oe__LeaveExitRequestHandlingSection">nn::oe::LeaveExitRequestHandlingSection</span>() を発行してプログラムを終了させて下さい。プログラムの終了は非同期に行われるため、この API 発行後にリターンで戻ってきても問題にならないように実装して下さい。通常は以下のように何もせずに終了させられるのを待機し続けることを推奨します。</p>
+<table class="codeblock">
+  <tbody>
+    <tr>
+      <td class="code">
+        <div class="codeblock"><pre><span class="cp">#include &lt;nn/os.h&gt;
+#include &lt;nn/oe.h&gt;
+</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::oe::</span><span class="n">LeaveExitRequestHandlingSection</span><span class="p">()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> <span class="p">(;;)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nn">nn::os::</span><span class="n">SleepThread</span><span class="p">(</span> <span class="nn">nn::TimeSpan::</span><span class="n">FromDays</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">}</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// ここには到達しない
+</span></pre></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>プログラムの終了要求ハンドリング区間中に <span class="ApiLink_nn__oe__MessageExitRequest">nn::oe::MessageExitRequest</span> メッセージが一度も通知されずに <span class="ApiLink_nn__oe__LeaveExitRequestHandlingSection">nn::oe::LeaveExitRequestHandlingSection</span>() を発行すると、プログラムの終了要求ハンドリング区間を終了することができます（この場合はプログラムは終了しません）。その後、ハンドリング区間外でプログラムの終了要求が発生した場合には、プログラムの動作状態に関係なく、やはりプログラムは自動的に終了させられます。</p>
+<div class="note_new">
+  <div class="note_new_left">注意：</div>
+  <div class="note_new_right">
+    <p>
+      <span class="ApiLink_nn__oe__MessageExitRequest">nn::oe::MessageExitRequest</span> のメッセージ通知に対して、不具合等でプログラムがいつまでも終了しない状況を回避するため、HOME メニュー使用時はこのメッセージを通知後、一定時間でプログラムを強制終了するようになっています（FW4.0.1 時点では 15 秒）。この場合、ユーザに対して「エラーが発生したので、ソフトが終了しました。」という異常終了を示すメッセージが表示されます。</p>
+    <p>ユーザ操作によってプログラムを終了しようとする状況において、プログラムがなかなか終了しない状況はユーザ体験上好ましいことではありません。上記タイムアウト時間は最悪の状況を回避するために用意されているものであり、アプリケーションが自由に使ってよい時間ではありません。このような状況に陥ることのないよう、プログラムは終了処理を速やかに完了するようにして下さい。</p>
+  </div>
+</div>
+<h3 id="Anchor_166065886_h3_1">終了要求が通知されるケースとそうでないケース</h3>
+<p>プログラムの終了要求は以下のようなケースで通知されます。</p>
+<ul>
+  <li>HOME メニューから他のアプリケーションを起動する場合</li>
+  <li>HOME メニュー上でユーザが明示的にアプリケーションを終了した場合</li>
+  <li>電源メニューから「電源オプション」内の再起動や電源 OFF を選択した場合</li>
+  <li>プレイタイマーが切れて割込みシーンが起動し、そこでアプリケーション終了を選択した場合</li>
+</ul>
+<p>以下のような状況ではプログラムの終了要求は通知されずにプログラムは強制的に終了します。そのため、プログラムの終了要求をハンドリングすることはできません。</p>
+<ul>
+  <li>電池が特定容量以下になって強制的にスリープに入り、さらにそこから電池が完全に消耗して強制的にシャットダウンされた場合</li>
+  <li>ユーザが POWER ボタンを7 秒押し続け、強制的なシャットダウンが行なわれた場合</li>
+  <li>ユーザが POWER ボタンを 12 秒押し続け、強制的なシャットダウンが行なわれた場合</li>
+</ul>
+<p>
+  <br />
+</p>
+</div>
+<div class="breadcrumb_bottom"></div>
+<div class="page_navigation">
+<table class="page_navi_root">
+<tr>
+<td class="page_navi_left"></td>
+<td class="page_navi_right"></td>
+</tr>
+<tr><td colspan="2" class="page_navi_bottom"></td></tr>
+</table>
+</div>
+</div>
+</div>
+<!--AddLink-->
+<script>
+var NintendoSdkApiRefernce = {
+    idMap: {},
+    linkRewrite: function ()
+    {
+        var idMap = NintendoSdkApiRefernce.idMap;
+        function rewrite(el)
+        {
+            var e = idMap[el.className];
+            if (e === undefined)
+            {
+                return;
+            }
+            var html = '';
+            html += '<a href=';
+            html += e.url;
+            html += ' target="_blank">';
+            html += el.innerHTML;
+            html += '</a>';
+            el.innerHTML = html;
+        }
+        var apiLinkElems = document.querySelectorAll('span[class*="ApiLink_"]');
+        for (var i = 0, n = apiLinkElems.length; i< n; ++i) {
+            rewrite(apiLinkElems[i]);
+        }
+    }
+};
+function SetUrl( id, url )
+{
+    NintendoSdkApiRefernce.idMap[id] = { url: url };
+}
+SetUrl( 'ApiLink_nn__oe__Message', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ac67e18c07e043f16c104858669a635e7' )
+SetUrl( 'ApiLink_nn__oe__TryPopNotificationMessage', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a9faa774fd40d37a007e0ba967e8b1788' )
+SetUrl( 'ApiLink_nn__oe__GetNotificationMessageEvent', '../../../Api/HtmlNX/namespacenn_1_1oe.html#afef8c76a5d56c2f9457a90cc0bad5dda' )
+SetUrl( 'ApiLink_nn__oe__PopNotificationMessage', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a312f487c9d48472d900d6ba36db0a0d0' )
+SetUrl( 'ApiLink_nn__os__SystemEvent', '../../../Api/HtmlNX/classnn_1_1os_1_1_system_event.html' )
+SetUrl( 'ApiLink_nn__os__WaitAny', '../../../Api/HtmlNX/namespacenn_1_1os.html#a547f598078ce4b3fd6d25f8cf2339631' )
+SetUrl( 'ApiLink_nn__oe__MessageExitRequest', '../../../Api/HtmlNX/namespacenn_1_1oe.html#aa7fc5515ea49f1dbc2cdbefccebe0fb5' )
+SetUrl( 'ApiLink_nn__oe__SetFocusHandlingMode', '../../../Api/HtmlNX/namespacenn_1_1oe.html#af6a0179cd2166aac102f520d39a33f0d' )
+SetUrl( 'ApiLink_nn__oe__FocusHandlingMode', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a936b09d580883d7c6b9981fd7d552692' )
+SetUrl( 'ApiLink_nn__oe__FocusHandlingMode_InFocusOnly', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a936b09d580883d7c6b9981fd7d552692a7d5f27530bf26c541e2f4b48064aea65' )
+SetUrl( 'ApiLink_nn__oe__FocusHandlingMode_Suspend', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a936b09d580883d7c6b9981fd7d552692ac7ddbbe8d615a0b0f8c80098212532db' )
+SetUrl( 'ApiLink_nn__oe__MessageFocusStateChanged', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a731f0fdd6844ba0ec03d62e40e4023a1' )
+SetUrl( 'ApiLink_nn__oe__FocusHandlingMode_SuspendAndNotify', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a936b09d580883d7c6b9981fd7d552692a6d4aeb7fc957b25eae7d5e9843eae801' )
+SetUrl( 'ApiLink_nn__oe__FocusHandlingMode_Notify', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a936b09d580883d7c6b9981fd7d552692a620f8849062b752ad6b454da6bb804eb' )
+SetUrl( 'ApiLink_nn__oe__GetCurrentFocusState', '../../../Api/HtmlNX/namespacenn_1_1oe.html#adafd3c9e326c25f6b212a5a141f94f43' )
+SetUrl( 'ApiLink_nn__oe__FocusState_Background', '../../../Api/HtmlNX/namespacenn_1_1oe.html#adb1de1670f290d1ee4af0cdbe9ea2effa7fe24d5845b8682eee47322c498dfb09' )
+SetUrl( 'ApiLink_nn__oe__FocusState_OutOfFocus', '../../../Api/HtmlNX/namespacenn_1_1oe.html#adb1de1670f290d1ee4af0cdbe9ea2effabf05f4f790fbdc3cdbb3bf5de3a3c71c' )
+SetUrl( 'ApiLink_nn__oe__FocusState_InFocus', '../../../Api/HtmlNX/namespacenn_1_1oe.html#adb1de1670f290d1ee4af0cdbe9ea2effa6568ef060bae975fde787c5fd9eff375' )
+SetUrl( 'ApiLink_nn__oe__MessageResume', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a2b4a0282927ba16a2a8e6e3e390c0203' )
+SetUrl( 'ApiLink_nn__oe__SetResumeNotificationEnabled', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a5af737bc29bedc1c7d55152b77a07e23' )
+SetUrl( 'ApiLink_nn__os__Event', '../../../Api/HtmlNX/classnn_1_1os_1_1_event.html' )
+SetUrl( 'ApiLink_nn__oe__MessageOperationModeChanged', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ac95d8f7712a09e591e806fe2d29c66ee' )
+SetUrl( 'ApiLink_nn__oe__GetOperationMode', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ab500f9a7dfae3fbe8d44e7fb1c961cf7' )
+SetUrl( 'ApiLink_nn__oe__OperationMode_Handheld', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ac5025778e5c531c83351aecf4d10dc32aae78025cfe8e21913aa83446139408e2' )
+SetUrl( 'ApiLink_nn__oe__OperationMode_Console', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ac5025778e5c531c83351aecf4d10dc32aef88d67822ab38d48d48e92b9aaf8994' )
+SetUrl( 'ApiLink_nn__oe__SetOperationModeChangedNotificationEnabled', '../../../Api/HtmlNX/namespacenn_1_1oe.html#aded257a3cfea501f76418b16f174a7fe' )
+SetUrl( 'ApiLink_nn__oe__MessagePerformanceModeChanged', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ae5e266ca9329a70d1adca187fcddd32e' )
+SetUrl( 'ApiLink_nn__oe__GetPerformanceMode', '../../../Api/HtmlNX/namespacenn_1_1oe.html#aa709a0d485f39a8867b8725c257f140d' )
+SetUrl( 'ApiLink_nn__oe__PerformanceMode_Normal', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a62764c814fcc2dc88ea4b89e096e7f84a5e1c0cc0a1c61538ce6c93165d17864e' )
+SetUrl( 'ApiLink_nn__oe__PerformanceMode_Boost', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a62764c814fcc2dc88ea4b89e096e7f84a98206f2aff5c73b8c83f9c55aa99fe4e' )
+SetUrl( 'ApiLink_nn__oe__SetPerformanceModeChangedNotificationEnabled', '../../../Api/HtmlNX/namespacenn_1_1oe.html#ab40157a66111c6ce5491e7111ae0ff2c' )
+SetUrl( 'ApiLink_nn__oe__PerformanceConfiguration', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a096139fd9b2ff830679916e5dc7af4ad' )
+SetUrl( 'ApiLink_nn__oe__EnterExitRequestHandlingSection', '../../../Api/HtmlNX/namespacenn_1_1oe.html#a5855d2bd5c04501a767e5553cb18443b' )
+SetUrl( 'ApiLink_nn__oe__LeaveExitRequestHandlingSection', '../../../Api/HtmlNX/namespacenn_1_1oe.html#abb6fcf4883ebba904f69b3df97d09ea4' )
+
+NintendoSdkApiRefernce.linkRewrite();
+</script>
+<!--AddLink-->
+</body>
+</html>

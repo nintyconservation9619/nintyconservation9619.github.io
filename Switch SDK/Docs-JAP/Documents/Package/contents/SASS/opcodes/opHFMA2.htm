@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<title>HFMA2</title><link rel="StyleSheet" href="../style.css" type="text/css" title="general"></head>
+
+<body class="opcode">
+
+<!-- ############################### -->
+<!-- # Opcode                      # -->
+<!-- ############################### -->
+<h1>
+    HFMA2 : FP16 SIMD Fused Multiply and Add<br>
+    <!-- SUMMARY_TABLE_INFO { description => "FP16 SIMD Fused Multiply and Add" } -->
+</h1>
+
+
+<!-- The following information is used to generate the text in the opcode table in ../opcodes.htm -->
+<!-- SUMMARY_TABLE_INFO { section => "Floating Point Instructions" } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "HFMA2",     subsection => 3 } -->
+<!-- SUMMARY_TABLE_INFO { opcode => "HFMA2_32I", subsection => 3 } -->
+
+<!-- ############################### -->
+<!-- # Format                      # -->
+<!-- ############################### -->
+<h2>Format:</h2>
+<div class="Format">
+<pre>SPA 5.3:<br><code>        <code>{@{!}Pg}</code>   <code><b>HFMA2</b>{.ofmt}{.fmz}{.SAT}</code>   <code>Rd, {-}Ra{.iswz}, {-}Rb{.iswz}, {-}Rc{.iswz}</code>                                   <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("REDIRECTABLE_FP16") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("REDIRECTABLE_FP16") --></code>   <code>;</code>                       </code><!-- SUMMARY_TABLE_INFO { define_opcode => "HFMA2" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>HFMA2</b>{.ofmt}{.fmz}{.SAT}</code>   <code>Rd, {-}Ra{.iswz}, {-}c[#BankU05][#AddrU16], {-}Rc{.iswz}</code>                       <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("REDIRECTABLE_FP16") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("REDIRECTABLE_FP16") --></code>   <code>;</code>                       </code><!-- SUMMARY_TABLE_INFO { define_opcode => "HFMA2" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>HFMA2</b>{.ofmt}{.fmz}{.SAT}</code>   <code>Rd, {-}Ra{.iswz}, {-}Rb{.iswz}, {-}c[#BankU05][#AddrU16]</code>                       <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("REDIRECTABLE_FP16") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("REDIRECTABLE_FP16") --></code>   <code>;</code>                       </code><!-- SUMMARY_TABLE_INFO { define_opcode => "HFMA2" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>HFMA2</b>{.ofmt}{.fmz}{.SAT}</code>   <code>Rd, {-}Ra{.iswz},</code></code> {{-}{|}#Immfp10H1{|}}, {{-}{|}#Immfp10H0{|}}, {-}Rc{.iswz} <code>  <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("REDIRECTABLE_FP16") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("REDIRECTABLE_FP16") --></code>   <code>;// Imm order: H1, H0</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "HFMA2" } -->
+<code>        <code>{@{!}Pg}</code>   <code><b>HFMA2_32I</b>{.fmz}</code>            <code>Rd, Ra{.iswz}, </code></code>{{-}{|}#Immfp16H1{|}}, {{-}{|}#Immfp16H0{|}} , {-}Rd <code>           <code><!-- OPEX_COUNT_4 --><!-- BEGIN &opex("REDIRECTABLE_FP16") -->{&amp;req_6}</code>   <code>{&amp;rdN}</code>   <code>{&amp;wrN}</code>   <code>{?sched}<!-- END &opex("REDIRECTABLE_FP16") --></code>   <code>;// Imm order: H1, H0</code>   </code><!-- SUMMARY_TABLE_INFO { define_opcode => "HFMA2_32I" } -->
+
+ .fmz:       { <b>&lt; NULL &gt;*, .FTZ, .FMZ, INVALID</b> } <br>             .fmz controls denorm flush and multiply mode.<br>               &lt; NULL &gt;: Denorms supported. No special handling of 0.<br>                         This is default.<br>               .FTZ:     Flush input/output denorms to sign-preserving zero.<br>               .FMZ:     Flush input/output denorms to sign-preserving zero AND<br>                         if either source is 0.0, the product is forced to +0.0<br>                         (even if other source is infinity or NaN), regardless<br>                         of the input signs. The 0.0 test is done after input<br>                         denorm flush.<br><br> .SAT:       Saturate output to the inclusive range [+0.0 .. 1.0]<br>             (NaN is converted to +0.0)<br><br> .ofmt:      { <b>.F16_V2*, .F32, .MRG_H0, .MRG_H1</b> } <br>             Output format.<br>             .F16_V2:    Outputs two 16-bit floating point numbers, packed in the 32-bit output.<br>             .F32:       Compute a single 16-bit floating point result (simd lane 0) and <br>                         outputs a single 32-bit floating point number. <br>                         This mode flushes fp16 denorm results to zero prior to the conversion. <br>                         Inputs are unaffected.<br>             .MRG_H0:    Generates a single 16-bit floating point number (simd lane 0), and<br>                         writes it to bottom 16-bits of Rd. The upper bits of<br>                         Rd are not modified.<br>             .MRG_H1:    Generates a single 16-bit floating point number (simd lane 1), and<br>                         writes it to upper 16-bits of Rd. The lower bits of<br>                         Rd are not modified.<br>                         Note: .MRG_H0/1 modifier support is restricted. See below.<br>                         Supports .MRG_H0, .MRG_H1 <br><br> .iswz:      { <b>.H1_H0*, .F32, .H0_H0, .H1_H1</b> } <br>             Input format.<br>             .H1_H0:     Input is a set of two 16-bit floating point numbers.<br>             .F32:       Input is a single 32-bit floating point number that<br>                         will be converted to a 16-bit floating point number<br>                         and replicated to both halves of the SIMD operation.<br>                         The conversion will round towards 0 (truncation).<br>                         Any denorms generated in FP32 -&gt; FP16  conversion process will flush to 0. <br>                         Denorms can still be generated from the operation itself.<br>             .H0_H0:     Input is a single 16-bit floating point number in the<br>                         lower 16-bits of a 32-bit register, and is replicated<br>                         to both halves of the SIMD operation.<br>             .H1_H1:     Input is a single 16-bit floating point number in the<br>                         upper 16-bits of a 32-bit register, and is replicated<br>                         to both halves of the SIMD operation.<br><br>immfp16H0   fp16 immediate in {sign, exp[4:0], mant[9:0]} format.<br>immfp16H1   fp16 immediate in {sign, exp[4:0], mant[9:0]} format. <br><br>immfp10H0   Most signficant 10 bits of fp16 immediate.<br>immfp10H1   Most signficant 10 bits of fp16 immediate.<br><br><br>For <b>HFMA2</b> with an immediate "Sb" operand .iswz field is not encoded and <br>behavior defaults to .H1_H0 for the immediate operand. Also Absolute values and<br>negates are not encoded and default to false. SASS can support absolute/negates <br>when enclosed in curly braces. e.g {-1.0} or {|-19.5|} and encode appropriate <br>immediates.<br><br>For <b>HFMA2</b> with a constant "Sb" operand, .iswz is not encoded and <br>behavior defaults to .F32 for the constant reference operand. Also absolute<br>value for the constant operand defaults to false.<br><br>For <b>HFMA2_32I</b> <br>    - .ofmt is not encoded and behaviour defaults to .F16_V2 <br>    - .iswz is specified only for Ra operand. For other source operands .iswz<br>      is not encoded and behaviour defaults to .H1_H0  <br>    - Absolute values and negates for the immediate operand are not encoded and<br>      behavior defaults to false. <br>      Note: SASS can support absolute/negates when enclosed in curly braces<br>      (e.g {-1.0} or {|-19.5|}) and encode appropriate immediates.<br>     - No output saturate.<br><br><br><br>Unlike other FP16 math instructions, HFMA2 and HFMA2_32I do not support the <br>absolute value operator on Ra operand. The sign of operands Ra and Rb/c[][] are<br>encoded together in single sign bit. <br><br>For immediate operands forms:<br>    - Sign of both immediates must be same. <br>    - Absolute operator must be present or absent on both immediates together.<br>    - Negate on Ra can be supported by inverting immediates.<br><br><br><br></pre></div>
+
+<!-- ############################### -->
+<!-- # Description                 # -->
+<!-- ############################### -->
+<h2>Description:</h2>
+<div class="Description">
+	
+<p>
+First, the components of each input is extracted. Then, for each of the two
+portions of the SIMD operations, this instruction computes the product of the
+first and second operand to infinite precision. Then, the product is summed
+with the third operand with infinite precision, and then round to the format
+of 16-bit floating point number, using the round-to-nearest-even algorithm.
+</p>
+
+<p>
+Finally, the two results are either merged into the output, or the upper
+result is discarded and the lower is converted to a 32-bit floating number.
+</p>
+
+<p>
+Component extraction and result writes can operate on whole fp32 values, which
+get converted to fp16 for the operation. These conversions will round towards zero, and will also cause <em>fp16</em> denormals (subnormals) to be flushed to
+zero. The flushing to zero occurs independently of the behavior set by the
+<b>.FTZ</b> or <b>.FMZ</b> modifiers.
+</p>
+
+</div>
+
+<!-- ###################################### -->
+<!-- # IEEE Rounding Modes                # -->
+<!-- ###################################### -->
+<h3>IEEE Rounding Modes</h3>
+<div class="IEEERoundingModes">
+
+<p>
+Fp16 operations support only one of the 4 required IEEE-754 2008 rounding modes:</p>
+<dl>
+<dt>.RN</dt><dd>roundTiesToEven</dd>
+</dl>
+
+<p>
+The other rounding modes are not supported.</p>
+
+<p>
+Implicit conversions to and from fp32 are performed with a rounding mode of <tt>.RZ</tt> (<em>roundTowardZero</em>).</p>
+
+<p>See the IEEE-754 2008 specification, Section 4.3.3.</p>
+
+</div> <!-- IEEERoundingModes -->
+
+
+<!-- ###################################### -->
+<!-- # NaN Behavior                       # -->
+<!-- ###################################### -->
+<h3>NaN Behavior:</h3>
+<div class="NaNBehavior">
+
+<p>
+The chosen NaN behavior for fp16 operations is different than that of fp64
+operations. The chosen fp16 behavior is in the spirit of IEEE-754 2008: The
+standard allows canonicalization of the NaN result to be implementation-defined.
+See the IEEE-754 2008 specification, Section 6.2.</p>
+
+</div> <!-- NanBehavior -->
+
+<!-- ############################### -->
+<!-- # Examples                    # -->
+<!-- ############################### -->
+<h2>Examples:</h2>
+<div class="Examples">
+
+<pre><b>HFMA2</b>                R1,-R2.H0_H0, R3.H1_H1,    -R223.F32;<br><b>HFMA2</b>.MRG_H1.FTZ     R3,  -R4.F32, -c[6][60672], R7.H1_H0;<br><b>HFMA2</b>.F16_V2.FMZ.SAT R8,      R13, {-|0xc615|},  0x9a12,     -R216.H1_H0;<br><b>HFMA2_32I</b>.FMZ        R2,  -R3.F32, 0xffff,      {-|0x8ef7|}, -R2;<br></pre>
+
+</div>
+
+<!-- ############################### -->
+<!-- # Tail                        # -->
+<!-- ############################### -->
+<div class="Tail">
+<p><a href="../opcodes.htm">Back to Index of Instructions</a></p>
+</div>
+</body></html>
